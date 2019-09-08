@@ -1,0 +1,66 @@
+﻿@model IEnumerable<puck.core.Entities.PuckAudit>
+@{
+    Layout = null;
+    var currentPage = ViewData["currentPage"] as int?;
+    var pageSize = ViewData["pageSize"] as int?;
+    var count = ViewData["count"] as int?;
+    int pageCount = (int)Math.Ceiling(((float)count.Value) / pageSize.Value);
+}
+<div class="audit_container">
+    <h5>Audit trail</h5>
+    <table class="">
+        <tr>
+            <th>
+                Name
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Variant)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Action)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Username)
+            </th>
+
+            <th>
+                @Html.DisplayNameFor(model => model.Timestamp)
+            </th>
+
+            <th>
+                @Html.DisplayNameFor(model => model.Notes)
+            </th>
+
+            <th></th>
+        </tr>
+
+    @foreach (var item in Model) {
+    <tr class="">
+        <td>
+            @ViewData["nodeName"]
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.Variant)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.Action)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.Username)
+        </td>
+        <td>
+            @item.Timestamp.ToString("dd/MM/yyyy mm:ss")
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.Notes)
+        </td>
+        <td></td>
+    </tr>
+    }
+    </table>
+    <ul>
+        @for (var i = 0; i < pageCount; i++) {
+            <li class="page @((i+1)==currentPage?"current":"")" data-page="@(i+1)">@(i+1)</li>
+        }
+    </ul>
+</div>

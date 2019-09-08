@@ -1,0 +1,23 @@
+﻿@using Page=puck.ViewModels.Page;
+@model puck.ViewModels.Page
+@{
+    ViewBag.Title = "Page";
+
+    var variants = Model.Variants<Page>();
+    var siblings = Model.Siblings<Page>();
+    var parent = Model.Parent<Page>();
+    var ancestors = Model.Ancestors<Page>();
+    
+    @("variants:"+variants.Count)
+    @("siblings:"+siblings.Count)
+    @("parent:"+parent.Count)
+    @("ancestors:"+ancestors.Count)
+}
+
+<h2>@Model.Title</h2>
+<div>
+    @Html.Raw(Model.MainContent)
+</div>
+<div>
+    <img alt="@Model.Title" src="@Model.Image?.Path" />
+</div>

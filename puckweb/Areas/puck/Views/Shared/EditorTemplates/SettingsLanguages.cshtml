@@ -1,0 +1,40 @@
+﻿@using System.Globalization;
+@model List<string>
+@{
+    var apiHelper = PuckCache.ApiHelper;
+    var val = Model == null ? "" : string.Join(",", Model);
+}
+<select style="display:none" data-placeholder="choose your languages.." class="@ViewData.ModelMetadata.PropertyName languages" multiple>
+    @foreach (var v in apiHelper.AllVariants()) {
+        var selected = Model.Contains(v.Key);
+        <option @(selected?"selected":"") value="@v.Key.ToLower()">@v.FriendlyName</option>
+    }
+</select>
+<input value="@val" class="@ViewData.ModelMetadata.PropertyName" type="hidden" />
+<span class="@ViewData.ModelMetadata.PropertyName">
+
+</span>
+<script type="text/javascript">
+    onAfterDom(function () {
+        var data = [];
+        $("select.@ViewData.ModelMetadata.PropertyName option").each(function () {
+            var item = $(this);
+            data.push({id:item.attr("value"),text:item.html()});
+        });
+        $("input.@ViewData.ModelMetadata.PropertyName").select2({ data: data,multiple:true,width:550});
+
+        $("input.@ViewData.ModelMetadata.PropertyName").select2("container").find("ul.select2-choices").sortable({
+            containment: 'parent',
+            start: function () { $("input.@ViewData.ModelMetadata.PropertyName").select2("onSortStart"); },
+            update: function () { $("input.@ViewData.ModelMetadata.PropertyName").select2("onSortEnd"); }
+        });
+
+        $("input.@ViewData.ModelMetadata.PropertyName").on("change", function () {
+            $("span.@ViewData.ModelMetadata.PropertyName").html("");
+            $($(this).val().split(",")).each(function () {
+                $("span.@ViewData.ModelMetadata.PropertyName").append('<input type="hidden" name="@ViewData.ModelMetadata.PropertyName" value="'+this+'"/>');
+            });
+        });
+
+    });
+</script>

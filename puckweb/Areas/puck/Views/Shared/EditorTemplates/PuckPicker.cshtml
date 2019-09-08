@@ -1,0 +1,151 @@
+﻿@model List<puck.core.Models.PuckPicker>
+@{
+    var apiHelper = PuckCache.ApiHelper;
+    var settings = this.PuckEditorSettings<puck.core.Models.EditorSettings.PuckPickerEditorSettings>()
+        ??new puck.core.Models.EditorSettings.PuckPickerEditorSettings(){
+            AllowDuplicates=false,AllowUnpublished=true,MaxPick=2,SelectionType="both",StartPath=null
+        };
+    var startPath = "";
+    Guid startId = Guid.Empty;
+    if(settings.StartPath!=null && settings.StartPath.Count>0){
+        var id = settings.StartPath.First().Id;
+        var revision = PuckCache.PuckRepo.GetPuckRevision().Where(x => x.Id == id && x.Current).FirstOrDefault();
+        if(revision!=null){
+            startPath = revision.Path;
+            startId = revision.Id;
+        }
+    }
+    var guid = Guid.NewGuid();
+}
+<div data-guid="@guid.ToString()" class="puckpicker puckpicker_@ViewData.ModelMetadata.PropertyName puckpicker_@ViewData.TemplateInfo.HtmlFieldPrefix.Replace("[","_").Replace("]","_").Replace(".","_")">
+    <div style="display:none;" class="propName" data-propName="@ViewData.TemplateInfo.HtmlFieldPrefix"></div>
+    <ul class="content nomenu">
+        <li class="node" data-children_path="/"></li>
+    </ul>        
+    <div class="selected_content">
+        @if (Model != null)
+        {
+            foreach (var m in Model)
+            {
+                if (!string.IsNullOrEmpty(m.Variant))
+                {
+                    var node = PuckCache.PuckRepo.GetPuckRevision().Where(x=>x.Id==m.Id && x.Variant.ToLower().Equals(m.Variant.ToLower())).FirstOrDefault();
+                    if (node != null)
+                    {
+                    <div class="selected_node" data-nodename="@node.NodeName" data-variant="@m.Variant" data-id="@m.Id">
+                        <span>@node.NodeName</span>&nbsp; - &nbsp;<span class="v">@m.Variant</span>
+                        &nbsp;<span class="view">View</span>
+                        &nbsp;<i class='fas fa-minus-circle'></i>
+                    </div>
+                    }
+                }
+                else
+                {
+                    var nodes = PuckCache.PuckRepo.GetPuckRevision().Where(x => x.Id == m.Id).ToList();
+                    var node = nodes.Where(x => x.Variant.ToLower().Equals(apiHelper.UserVariant().ToLower())).FirstOrDefault() ?? nodes.FirstOrDefault();
+                    if (node != null)
+                    {
+                    <div class="selected_node" data-variant="null" data-id="@m.Id">
+                        <span>@node.NodeName</span>&nbsp;
+                        <i class='fas fa-minus-circle'></i>
+                    </div>
+                    }
+                }
+            }
+        }
+    </div>
+</div>
+<script type="text/javascript">
+    onAfterDom(function () {
+        var guid = "@guid.ToString()";
+        var modelType = "@Html.Raw(ViewBag.Level0Type.Name)";
+        var propname = "@Html.Raw(ViewData.TemplateInfo.HtmlFieldPrefix)";
+        var isPrePopulated = '@ViewBag.IsPrePopulated' == 'True';
+        var escapePropname = function (str) {
+            return str.replace(/\[/g, "_").replace(/\]/g,"_").replace(/\./g,"_");
+        }
+        //var container = $(".puckpicker_" + propname);
+        var container = null;
+        container = $("[data-guid='"+guid+"']");
+        //if (!isPrePopulated)
+        //    container = cright.find(".puckpicker_" + escapePropname(propname));
+        //else
+        //    container = cinterfaces.find("div[data-type='" + modelType + "'] .puckpicker_" + escapePropname(propname))
+
+        var getPropName = function () {
+            return container.find("div:hidden.propName:first").attr("data-propName");
+        }
+
+        var selected_container = container.find(".selected_content");
+        var selected_content = function () { return selected_container.find(".selected_node"); }
+        var _startPath = "@startPath" == ""?startPath:"@startPath";
+        var _startId = "@startId.ToString()";
+        container.find("ul.content li:first").attr("data-children_path", _startPath);
+        var maxPick = "@settings.MaxPick";
+        var selectionType = "@settings.SelectionType"; //both|variant|node
+        var allowUnpublished = "@settings.AllowUnpublished";
+        var allowDuplicates = "@settings.AllowDuplicates";
+        var setValue = function () {
+            container.find("input:hidden").remove();
+            selected_content().each(function (i) {
+                var node = $(this);
+                container.append(
+                    "<input type='hidden' name='" + getPropName() + "[" + i + "].Id' value='" + node.attr("data-id") + "'/>"
+                    + "<input type='hidden' name='" + getPropName() + "[" + i + "].Variant' value='" + node.attr("data-variant") + "'/>"
+                );
+            });
+        }
+        setValue();
+        el = container.find(".node:first");
+        getDrawContent(_startId, el);
+        selected_container.on("click", "i", function (e) {
+            $(this).parent().remove();
+            setValue();
+        });
+        container.on("click", ".node span", function (e) {
+            var clicked = $(this);
+            var node = clicked.parents(".node:first");
+            var isVariantSelection = clicked.hasClass("variant");
+
+            if (selected_content().length >= maxPick) {
+                return false;
+            }
+
+            if (node.attr("data-published") == "false" && !allowUnpublished) {
+                return false;
+            }
+
+            if (selected_content().filter("[data-id='" + node.attr("data-id") + "']").length > 0 && !allowDuplicates) {
+                return;
+            }
+
+            if (isVariantSelection && (selectionType == "variant" || selectionType == "both")) {
+                selected_container.append(
+                    "<div class='selected_node' data-nodename='"+node.attr("data-nodename")+"' data-variant='" + clicked.attr("data-variant") + "' data-id='" + node.attr("data-id") + "'>"
+                    + "<span>"+ node.attr("data-nodename") + "</span>&nbsp; - &nbsp;<span class='v'>" + clicked.attr("data-variant") + "</span>"
+                    + "&nbsp;<span class='view'>View</span> &nbsp;<i class='fas fa-minus-circle remove'></i></div>"
+                );
+            } else if (!isVariantSelection && (selectionType == "node" || selectionType == "both")) {
+                selected_container.append(
+                    "<div class='selected_node' data-variant='' data-id='" + node.attr("data-id") + "'><span>" + node.attr("data-nodename") + "</span>&nbsp;<i class='fas fa-minus-circle remove'></i></div>"
+                );
+            }
+            setValue();
+        });
+        selected_container.on("click", ".selected_node .view", function (e) {
+            var el = $(this);
+            var selectedNode = el.parent();
+            var id = selectedNode.attr("data-id");
+            var variant = selectedNode.attr("data-variant");
+            var nodename = selectedNode.attr("data-nodename");
+
+            var container = $("<div />");
+            var inner = $("<div data-tabPrefix='overlayContent_' class='cont_inner'></div>").css({width:"100%",height:"100%"});
+            var msgContainer = $("<div class='msgTop'></div>");
+            container.append(msgContainer).append(inner);
+
+            overlay(container, "90%", undefined, top, nodename);
+            displayMarkup(null, undefined, variant, undefined, id, inner,msgContainer);
+        });
+    });    
+</script>

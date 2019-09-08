@@ -1,0 +1,31 @@
+﻿@using System.IO
+@model String
+@{
+    var apiHelper = PuckCache.ApiHelper;
+    var views = new List<FileInfo>();
+    string typeString = ViewContext.HttpContext.Request.Query["type"];
+    if (string.IsNullOrEmpty(typeString)) {
+        typeString = ViewContext.HttpContext.Request.Query["p_type"];
+    }
+    if (string.IsNullOrEmpty(typeString)) {
+        if (ViewBag.Level0Type != null) {
+            typeString = ViewBag.Level0Type.Name;
+        }
+    }
+    if(!string.IsNullOrEmpty(typeString)){
+        views = apiHelper.AllowedViews(typeString,new string[] { "~/views/shared/", "~/views/_ViewStart.cshtml" });
+        if(views.Count==0){
+            views = apiHelper.Views(new string[] { "~/views/shared/", "~/views/_ViewStart.cshtml" });
+        }
+    }else{
+        views = apiHelper.Views(new string[] { "~/views/shared/", "~/views/_ViewStart.cshtml" });
+    }
+    <select name="@ViewData.ModelMetadata.PropertyName">
+        @foreach(var f in views.OrderBy(x=>x.Name).ToList()){
+            var selected =string.IsNullOrEmpty(Model)?false: Model.ToLower().Equals(ApiHelper.ToVirtualPath(f.FullName).ToLower());
+            <option @(selected?"selected":"") value="@ApiHelper.ToVirtualPath(f.FullName)">
+                @f.Name
+            </option>
+        }
+    </select>
+}

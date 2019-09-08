@@ -1,0 +1,70 @@
+﻿@model IEnumerable<puck.core.Entities.PuckRevision>
+@{
+    Layout = null;    
+}
+<table class="revisions">
+    <tr>
+        <th>
+            @Html.DisplayNameFor(model => model.NodeName)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Path)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Created)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Updated)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Revision)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Variant)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.TemplatePath)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Type)
+        </th>
+        <th></th>
+    </tr>
+
+@foreach (var item in Model) {
+    <tr class="@(item.Current?"current":"")">
+        <td>
+            @Html.DisplayFor(modelItem => item.NodeName)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.Path)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.Created)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.Updated)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.Revision)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.Variant)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.TemplatePath)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.Type)
+        </td>
+        <td>
+            @if (!item.Current)
+            {
+            <a href="#" data-id="@item.RevisionID" class="compare">Compare</a>
+            <a href="#" data-id="@item.RevisionID" class="revert">Revert</a>
+            <a href="#" data-id="@item.RevisionID" class="delete">Delete</a>
+            }
+        </td>
+    </tr>
+}
+</table>

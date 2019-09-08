@@ -1,0 +1,56 @@
+﻿@model puck.core.Models.ChangeType
+@{
+    Layout = null;
+    
+}
+<div class="changeTypeMapping_dialog settings">
+    <form method="post" action="/puck/api/ChangeTypeMapping?id=@Model.ContentId&newType=@Model.NewType.Name">
+        <div><b>@Model.Revision.NodeName</b></div>
+
+        <div>
+            <label>Pick new template for your content</label>
+            @Html.DropDownListFor(x=>x._SelectedTemplate,Model.TemplatesSelectListItems)
+        </div>
+
+        <div>
+            now map the properties from the current type to the new type
+        </div>
+        <div class="mapping_container">
+            <div class="_row">
+                <div class="current prop_container">
+                    <b>Current property</b>
+                </div>
+                <div class="new prop_container">
+                    <b>Map to new property</b>
+                </div>
+            </div>            
+            @foreach (var prop in Model.ContentProperties)
+            {
+                <div class="_row">
+                    <div class="current prop_container">
+                        @prop.Name
+                    </div>
+                    <div class="new prop_container">
+                        @{
+                            var possibleNewProperties = Model.NewTypeProperties.Where(x => x.PropertyType.AssemblyQualifiedName == prop.PropertyType.AssemblyQualifiedName).ToList();
+                            var selected = "";
+                            if (possibleNewProperties.Any(x => x.Name == prop.Name)) {
+                                selected = prop.Name;
+                            }
+                        }
+                        <select name="@prop.Name">
+                            <option value="" @(selected==""?"selected":"")>None</option>
+                            @foreach (var newProp in possibleNewProperties) {
+                                <option value="@newProp.Name" @(selected==newProp.Name?"selected":"")>@newProp.Name</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+            }
+
+            <button style="float:right;" class="btn btn-link">submit</button>
+
+        </div>
+
+    </form>
+</div>

@@ -1,0 +1,474 @@
+﻿@model List<puck.core.Entities.GeneratedModel>
+@{
+    var optionTypes = ApiHelper.GeneratedOptions();
+                    
+}
+<div class="settings_generated_models">
+    <p>
+        <a class="new_model btn btn-link"><i class="fas fa-plus-circle"></i> New Model</a>
+    </p>
+    <div class="row">
+        <div class="col-md-3 grid_3 alpha omega"><h2>models</h2></div>
+        <div class="col-md-3 grid_3 alpha omega"><h2>properties</h2></div>
+        <div class="col-md-3 grid_3 alpha omega"><h2>options</h2></div>
+    </div>
+    <div class="models">
+        
+    </div>    
+    <div class="clearboth"></div>
+    <div class="_interfaces row">
+        <div class="col-md-3 grid_3 alpha omega col3"></div>        
+    </div>
+    <div class="btn-group puck-dropdown open model" data-context="">
+        <ul class="dropdown-menu">
+            <li><a href="#" data-action="generate"><i class="fas fa-power-off"></i> Generate</a></li>
+            <li><a href="#" data-action="add_property"><i class="fas fa-plus-circle"></i> Add property</a></li>
+            <li><a href="#" data-action="view_source"><i class="fas fa-file"></i> View source</a></li>
+            <li><a href="#" data-action="delete_model"><i class="fas fa-trash"></i> Delete</a></li>
+        </ul>
+    </div>
+    <div class="btn-group puck-dropdown open property" data-context="">
+        <ul class="dropdown-menu">
+            <li>
+                <a><i class="fas fa-plus-circle"></i> Add option<br />
+                <select class="optionType">
+                @{
+                    <option>-- Select Option --</option>
+                    foreach(var opt in optionTypes){
+                        <option value="@opt.AssemblyQualifiedName">@ApiHelper.FriendlyClassName(opt)</option>
+                    }
+                }
+                </select>
+                </a>
+            </li>
+            <li><a href="#" data-action="delete_property"><i class="fas fa-trash"></i> Delete</a></li>                
+        </ul>
+    </div>
+    <div class="btn-group puck-dropdown open attribute" data-context="">
+        <ul class="dropdown-menu">
+            <li><a href="#" data-action="delete_attribute"><i class="fas fa-trash"></i> Delete</a></li>                
+        </ul>
+    </div>
+</div>
+
+
+<script>
+    onAfterDom(function () {
+        var container = $(".settings_generated_models");
+        $(document).on("click.model_options", ".mod_container i.fa-cog", function () {
+            var pos = $(this).position();
+            var con = $(this).parents(".mod_container");
+            var parent = $(this).parent();
+            var el;
+            if (parent.hasClass("model"))
+                el = $(".puck-dropdown.model");
+            else if (parent.hasClass("property"))
+                el = $(".puck-dropdown.property");
+            else
+                el = $(".puck-dropdown.attribute");
+            el.attr("data-context",parent.attr("data-id"));
+            el.css({ top: pos.top + 30, left: pos.left, display: "block" });
+            $(document).on("click.model_options_out",function (e) {
+                if (jQuery.contains(el.get(0), e.target))
+                    return;
+                container.find(".puck-dropdown").hide();
+                $(document).unbind("click.model_options_out");
+            });
+        });
+        container.on("click.view_source", "[data-action=view_source]", function () {
+            var el = $(this);
+            var id = el.parents(".puck-dropdown").attr("data-context");
+            container.find(".puck-dropdown").hide();
+            gen(id, false, function (d) {
+                console.log(d);
+                if (d.success) {
+                    overlay($("<pre/>").css({padding:"20px"}).html(d.Output),600,undefined,undefined,"Source");
+                } else {
+                    msg(false, d.message);
+                }
+            });
+        });
+        container.on("click.generate_model", "[data-action=generate]", function () {
+            var el = $(this);
+            var id = el.parents(".puck-dropdown").attr("data-context");
+            container.find(".puck-dropdown").hide();
+            gen(id,true,function (d) {
+                console.log(d);
+                if (d.success) {
+                    msg(true, "model generated");                    
+                } else {
+                    msg(false,d.message);
+                }
+            });
+        });
+        container.on("click.expand_generated_models", ".model>i.fa-chevron-right", function () {
+            var el = $(this);
+            var modelContainer = el.parents(".mod_container");
+            var obj = modelContainer.data("model");
+            $(obj.properties).each(function () {
+                addProp(this,modelContainer.find(".properties"));
+            });
+        });
+        container.on("click.property_expand", ".property>i.fa-chevron-right", function () {
+            var el = $(this);
+            var modelContainer = el.parents(".mod_container");
+            var pid = el.parents(".property").attr("data-id");
+            el.parents(".properties").find(".property").css({ backgroundColor: "transparent" });
+            el.parents(".property").css({ backgroundColor: "#eeffee" });
+            var obj = modelContainer.data("model");
+            var attContainer = modelContainer.find(".attributes");
+            attContainer.empty();
+            var property;
+            $(obj.properties).each(function () {
+                if (this.id == pid)
+                    property = this;
+            });
+            $(property.attributes).each(function () {
+                addAtt(this, attContainer);
+            });
+        });
+        var toLoad = [
+            @for (var i = 0; i < Model.Count;i++ ){
+                var mod = Model[i];
+                @Html.Raw(
+                "{"
+                +"name:'"+mod.Name+"',base:'"+mod.Inherits+"',id:"+mod.ID
+                +",properties:[")
+                if(mod.Properties!=null){
+                    for(var ii=0;ii<mod.Properties.Count;ii++){
+                        var prop = mod.Properties.ToList()[ii];
+                        @Html.Raw("{name:'"+prop.Name+"',id:"+prop.ID+",attributes:[")
+                        if(prop.Attributes!=null){
+                            for (var iii = 0; iii < prop.Attributes.Count;iii++ ){
+                                var att = prop.Attributes.ToList()[iii];
+                                var attType = ApiHelper.GetType(att.Type);
+                                if(attType == null){
+                                    continue;
+                                }
+                                var attName = ApiHelper.FriendlyClassName(attType); 
+                                @Html.Raw("{name:'"+attName+"',type:'"+att.Type+"',id:"+att.ID+",propId:"+prop.ID+",options:[")
+                                  
+                                @Html.Raw("]}")
+                                @(iii==prop.Attributes.Count-1?"":",")
+                            }                            
+                        }
+                        @Html.Raw("]}")                        
+                        @(ii==mod.Properties.Count-1?"":",")
+                    }                
+                }
+                @Html.Raw("]}")
+                @Html.Raw(i==Model.Count-1?"":",")
+            }
+        ];
+        var addAtt = function (a, con) {
+            var mcon = con.parents(".mod_container");
+            var obj = mcon.data("model");
+            console.log(a);
+            var prop;
+            for (var i = 0; i < obj.properties.length; i++) {
+                if (obj.properties[i].id == a.propId)
+                    prop = obj.properties[i];
+            }
+            for (var i = 0; i < prop.attributes.length; i++) {
+                if (prop.attributes[i].id == a.id)
+                    prop.attributes.splice(i, 1);
+            }
+            prop.attributes.push(a);
+            console.log("att:%o", a);
+            if (container.find(".attribute[data-id=" + a.id + "]").length > 0) {
+                container.find(".attribute[data-id=" + a.id + "]>a").html(""+a.name);
+                return;
+            }
+            var el = $("<div/>").addClass("attribute").attr("data-id", a.id).attr("data-pid",a.propId).attr("data-type",a.type);
+            var lnk = $("<a class='btn btn-link' href='#'/>").html(a.name);
+            el.append('<i class="fas fa-cog"></i>');
+            el.append(lnk);
+            con.append(el);
+        }
+        var addProp = function (p,con) {
+            var mcon = con.parents(".mod_container");
+            var obj = mcon.data("model");
+            console.log(p);
+            for (var i = 0; i < obj.properties.length; i++) {
+                if (obj.properties[i].id == p.id)
+                    obj.properties.splice(i, 1);
+            }
+            obj.properties.push(p);
+
+            console.log("prop:%o", p, con);
+            if (container.find(".property[data-id=" + p.id + "]").length > 0) {
+                container.find(".property[data-id=" + p.id + "]>a").html(""+p.name);
+                return;
+            }
+            var el = $("<div/>").addClass("property").attr("data-id", p.id);
+            var lnk = $("<a class='btn btn-link' href='#'/>").html(p.name);
+            el.append('<i class="fas fa-chevron-right"></i>');
+            el.append('<i class="fas fa-cog"></i>');
+            el.append(lnk);
+            con.append(el);
+        }
+        var addMod = function (m) {
+            console.log("loading: %o", m);
+            if (container.find(".model[data-id=" + m.id + "]").length > 0) {
+                container.find(".model[data-id=" + m.id + "]>a").html(""+m.name);
+                return;
+            }
+            var mcon = $("<div/>").addClass("mod_container");
+            mcon.data("model", m);
+            var el = $("<div/>").addClass("model col-md-3 grid_3 alpha omega").attr("data-id", m.id);
+            var lnk = $("<a class='btn btn-link' href='#'/>").html("" + m.name);
+            el.append('<i class="fas fa-chevron-right"></i>');
+            el.append('<i class="fas fa-cog"></i>');
+            el.append(lnk);
+            mcon.append(el);
+            var propContainer = intf("col3").addClass("properties");
+            var attContainer = intf("col3").addClass("attributes");
+            mcon.append(propContainer);
+            mcon.append(attContainer);
+            mcon.append("<div class='clearboth'></div>");
+            models.append(mcon);
+        }
+        var init = function () {
+            for (var i = 0; i < toLoad.length; i++) {
+                var mod = toLoad[i];
+                addMod(mod);
+            }
+        }
+        var propertyName = function (i) {
+            return "@ViewData.ModelMetadata.PropertyName";
+        }
+        //bind new buttons
+        container.on("click", "[data-action=add_property]", function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            var mid = $(this).parents(".puck-dropdown").attr("data-context");
+            var dest = container.find(".model[data-id=" + mid + "]").parents(".mod_container").find(".properties");
+            editProperty(dest, -1,mid);
+        });
+        container.find(".optionType").change(function (e) {
+            var el = $(this);
+            handleChangeType(e,el);
+        });
+        var handleChangeType = function (e,el) {
+            container.find(".optionType").unbind();
+            e.preventDefault();
+            e.stopPropagation();
+            var pid = el.parents(".puck-dropdown").attr("data-context");
+            var dest = container.find(".property[data-id=" + pid + "]").parents(".mod_container").find(".attributes");
+            var optionType = container.find("select.optionType").val();
+            container.find("select.optionType option").removeAttr("selected");
+            editAttribute(dest, -1, pid, optionType);
+            container.find(".puck-dropdown").hide();
+            container.find(".optionType").change(function (e) {
+                var el = $(this);
+                handleChangeType(e,el);
+            });
+        }
+        container.on("click", ".new_model", function (e) {
+            editModel();
+        });
+        //bind edit buttons
+        container.on("click", ".property>a", function (e) {
+            var pid = $(this).parents(".mod_container").find(".model").attr("data-id");
+            var id = $(this).parents(".property").attr("data-id");
+            var dest = $(this).parents(".properties");
+            console.log("pid:%s id:%s",pid,id);
+            editProperty(dest, id,pid);
+        });
+        container.on("click", ".attribute>a", function (e) {
+            var pid = $(this).parents(".mod_container").find(".property").attr("data-id");
+            var id = $(this).parents(".attribute").attr("data-id");
+            var type = $(this).parents(".attribute").attr("data-type");
+            var dest = $(this).parents(".attributes");
+            editAttribute(dest, id,pid,type);
+        });
+        container.on("click", ".model>a", function (e) {
+            var id = $(this).parents(".model").attr("data-id");
+            var dest = $(this).parents(".models");
+            editModel(dest, id);
+        });
+        //delete buttons
+        container.on("click", "[data-action=delete_model]", function (e) {
+            container.find(".puck-dropdown").hide();
+            e.stopPropagation()
+            var el = $(this);
+            var id = el.parents(".puck-dropdown").attr("data-context");
+            var mod = container.find(".model[data-id="+id+"]");
+            var name = mod.find("a").html();
+            if (!confirm("are you sure you wan't to delete the model - "+name+"?"))
+                return;
+            $.post("/puck/task/DeleteModel/?id=" + id, function (d) {
+                if (d.success) {
+                    mod.parents(".mod_container").remove();
+                } else {
+                    msg(false, d.message);
+                }
+            });
+        });
+        container.on("click", "[data-action=delete_property]", function (e) {
+            container.find(".puck-dropdown").hide();
+            e.stopPropagation()
+            var el = $(this);
+            var id = el.parents(".puck-dropdown").attr("data-context");
+            var prop = container.find(".property[data-id=" + id + "]");
+            var name = prop.find("a").html();
+            if (!confirm("are you sure you wan't to delete the property - " + name + "?"))
+                return;
+            $.post("/puck/task/DeleteProperty/?id=" + id, function (d) {
+                if (d.success) {
+                    var obj = prop.parents(".mod_container").data("model");
+                    for (var i = 0; i < obj.properties.length; i++) {
+                        if (obj.properties[i].id == id)
+                            obj.properties.splice(i, 1);
+                    }
+                    container.find(".attribute[data-pid="+id+"]").remove();
+                    prop.remove();
+                } else {
+                    msg(false, d.message);
+                }
+            });
+        });
+        container.on("click", "[data-action=delete_attribute]", function (e) {
+            container.find(".puck-dropdown").hide();
+            e.stopPropagation()
+            var el = $(this);
+            var id = el.parents(".puck-dropdown").attr("data-context");
+            var att = container.find(".attribute[data-id=" + id + "]");
+            var name = att.find("a").html();
+            if (!confirm("are you sure you wan't to delete the option - " + name + "?"))
+                return;
+            $.post("/puck/task/DeleteAttribute/?id=" + id, function (d) {
+                if (d.success) {
+                    var obj = att.parents(".mod_container").data("model");
+                    var prop;
+                    for (var i = 0; i < obj.properties.length; i++) {
+                        if (obj.properties[i].id == att.attr("data-pid"))
+                            prop = obj.properties[i];
+                    }
+                    for (var i = 0; i < prop.attributes.length; i++) {
+                        if (prop.attributes[i].id == id)
+                            prop.attributes.splice(i, 1);
+                    }
+                    att.remove();
+                } else {
+                    msg(false, d.message);
+                }
+            });
+        });
+        //edit functions
+        var editAttribute = function (con,id,pid,optionType) {
+            container.find(".puck-dropdown").hide();
+            id = id || -1;
+            $.get("/puck/task/editattribute/?id=" + id+"&pid="+pid+"&optionType="+optionType, function (d) {
+                overlay(d, 420, 600,undefined,"Edit Attribute");
+                var form = $(".overlay_screen form");
+                console.log("form: %o", form);
+                wireForm(form, function (d) {
+                    overlayClose();
+                    var mName = container.find("select option[value='" + optionType + "']").html();
+                    var id = d.id;
+                    addAtt({name:mName,id:id,type:optionType,propId:pid}, con);
+                }, function (d) {
+
+                });
+            });
+        }
+        var editProperty = function (con, id, mid) {
+            container.find(".puck-dropdown").hide();
+            id = id || -1;
+            $.get("/puck/task/editproperty/?id=" + id+"&mid="+mid, function (d) {
+                overlay(d, 600, 600,undefined,"Edit Property");
+                var form = $(".overlay_screen form");
+                var showPreview = function (type) {
+                    $(".preview_container").remove();
+                    $(".edit_generated_property .spinner .loading").show();
+                    getEditorPreview(type, function (d) {
+                        $(".edit_generated_property .spinner .loading").hide();
+                        form.after(d);
+                        afterDom();
+                    });
+                }
+                showPreview(form.find("select[name=Type]").val());
+                form.find("select[name=Type]").change(function () {
+                    showPreview(form.find("select[name=Type]").val());
+                });
+                console.log("form: %o", form);
+                wireForm(form, function (d) {
+                    overlayClose();
+                    var mName = form.find("input[name='Name']").val();
+                    var id = d.id;
+                    var obj = con.parents(".mod_container").data("model");
+                    console.log("edit prop obj:%o and id %s and mid %s",obj,id,mid);
+                    var attributes = [];
+                    for (var i = 0; i < obj.properties.length; i++) {
+                        if (obj.properties[i].id == id) {
+                            attributes = obj.properties[i].attributes;
+                            break;
+                        }
+                    }
+                    console.log("attributes: %o",attributes);
+                    addProp({name:mName,id:id,attributes:attributes},con);
+                }, function (d) {
+
+                });
+            });
+        }
+        var editModel = function (con, id) {
+            container.find(".puck-dropdown").hide();
+            id = id || -1;
+            $.get("/puck/task/editmodel/" + id, function (d) {
+                overlay(d, 420, 300,undefined,id==-1?"Create Model":"Edit Model");
+                var form = $(".overlay_screen form");
+                wireForm(form, function (d) {
+                    overlayClose();
+                    var mName = form.find("input[name='Name']").val();
+                    var inherits = form.find("input[name='Inherits']").val();
+                    var id = d.id;
+                    var obj = con.find(".model[data-id="+id+"]").parents(".mod_container").data("model");
+                    addMod({ name: mName, id: id, inherits: inherits, properties: obj.properties });
+                }, function (d) {
+
+                });
+            });
+        }
+        var getEditorPreview = function (type,f) {
+            $.get("/puck/task/previeweditor?type=" + type, function (d) {
+                f(d);
+            },"html");
+        }
+        var models = container.find(".models");
+        var newmodel = container.find(".new_model");
+        var interfaces = container.find("._interfaces");
+        var intf = function (cname) {
+            return interfaces.find("."+cname).clone();
+        }
+        var setValue = function (model) {
+            
+        };
+        
+        var push = function (success,fail) {
+            var form = container.find("form");
+            var fd = new FormData(form.get(0));
+            $.ajax({
+                url: form.attr("action"),
+                data: fd,
+                processData: false,
+                contentType: false,
+                type: 'POST',
+                success: function (data) {
+                    if (data.success == true) {
+                        success(data);
+                    } else {
+                        fail(data);
+                    }
+                }
+            });
+        };
+        var gen = function(id,compile,f){
+            $.post("/puck/Task/GenerateModel/" + id+"?compile="+compile, f);
+        }
+        init();
+
+    });
+
+</script>

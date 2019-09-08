@@ -1,0 +1,195 @@
+﻿@model List<string>
+@{
+    var apiHelper = PuckCache.ApiHelper;
+}
+    <div class="editor_parameters editor_parameters_@ViewData.ModelMetadata.PropertyName">
+        @{
+            var settingTypes = ApiHelper.EditorSettingTypes();
+            var models = apiHelper.AllModels(true);
+            var propsForType = new Dictionary<string, List<System.Reflection.PropertyInfo>>();
+
+            if (settingTypes.Count == 0)
+            {
+                <h2>no editor settings detected.</h2>
+                /**/
+
+            }
+            <div class="row">
+                <div class="col-md-3">
+                    <label>parameters:</label>
+                </div>
+                <div class="col-md-4">
+                    <select class="stype">
+                        @foreach (var setting in settingTypes)
+                        {
+                            <option value="@setting.FullName">@ApiHelper.FriendlyClassName(ApiHelper.ConcreteType(setting))</option>
+                        }
+                    </select>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-3">
+                    <label>model:</label>
+                </div>
+                <div class="col-md-4">
+                    <select class="mtype">
+                        @foreach (var mod in models)
+                        {
+                            <option value="@mod.Name">@ApiHelper.FriendlyClassName(ApiHelper.ConcreteType(mod))</option>
+                            var props = ApiHelper.ConcreteType(mod).GetProperties(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
+                            propsForType[mod.Name] = props.ToList();
+                        }
+                    </select>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-3">
+                    <label>property:</label>
+                </div>
+                <div class="col-md-4">
+                    @foreach (var entry in propsForType)
+                    {
+                        <select data-model="@entry.Key" class="props">
+                            <option value="">None</option>
+                            @foreach (var prop in entry.Value)
+                            {
+                                <option>@prop.Name</option>
+                            }
+                        </select>
+                    }
+                </div>
+            </div>
+            <br />
+            <button class="btn btn-light">edit parameters</button>
+
+            if (Model != null)
+            {
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="d-none d-md-block"><b>Parameter</b></div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="d-none d-md-block"><b>Model</b></div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="d-none d-md-block"><b>Property</b></div>
+                    </div>
+                </div>
+                <div class="list">
+                @foreach (var entry in Model)
+                {
+                    var keys = entry.Split(new char[] { ':' }, StringSplitOptions.RemoveEmptyEntries);
+                    if (keys.Length < 2) { continue; }
+                    //var settingsType = ApiHelper.GetType(keys[0]);
+                    var settingsType = ApiHelper.EditorSettingTypes().FirstOrDefault(x => x.FullName.Equals(keys[0]));
+                    //var modelType = ApiHelper.GetType(keys[1]);
+                    var modelType = ApiHelper.GetTypeFromName(keys[1]);
+                    if (settingsType == null || modelType == null)
+                    {
+                        continue;
+                    }
+                    var propertyName = keys.Length < 3 ? "" : keys[2];
+                    <div class="row">
+                        <div class="paramtype col-md-4" data-type="@settingsType.FullName">
+                            <span class="d-md-none">parameter: </span>
+                            @ApiHelper.FriendlyClassName(settingsType)
+                        </div>
+                        <div class="modeltype col-md-4" data-type="@modelType.Name">
+                            <span class="d-md-none">model: </span>
+                            @modelType.Name
+                        </div>
+                        <div class="propertyname col-md-4" data-property="@propertyName">
+                            <span class="d-md-none">property: </span>
+                            @(string.IsNullOrEmpty(propertyName)?"None":propertyName)
+                        </div>
+                        <div class="col-md-12">
+                            <a href="#" class="edit">edit</a>
+                            &nbsp;
+                            <a href="#" class="delete">delete</a>
+                        </div>
+                    </div>
+                }
+                </div>
+            }
+        }
+    <div class="interfaces">
+        <div class="row">
+            <div class="paramtype col-md-4" data-type="">
+                <span class="d-md-none">parameter: </span>
+                
+            </div>
+            <div class="modeltype col-md-4" data-type="">
+                <span class="d-md-none">model: </span>
+                
+            </div>
+            <div class="propertyname col-md-4" data-property="">
+                <span class="d-md-none">property: </span>
+                
+            </div>
+            <div class="col-md-12">
+                <a href="#" class="edit">edit</a>
+                &nbsp;
+                <a href="#" class="delete">delete</a>
+            </div>
+        </div>
+    </div>
+<script type="text/javascript">
+    onAfterDom(function () {
+        var propertyName = "@ViewData.ModelMetadata.PropertyName";
+        var container = $(".editor_parameters_" + propertyName);
+        var interfaces = container.find(".interfaces").hide();
+        var settings_sel = container.find("select.stype");
+        var models_sel = container.find("select.mtype");
+        var props_sel = container.find("select.props");
+        var edit_btn = container.find("button");
+        var fullNameToName = function (fullName) {
+            if (fullName.indexOf(".") > -1)
+                return fullName.substring(fullName.lastIndexOf(".") + 1);
+            return fullName;
+        }
+        var showProptertiesForModel = function () {
+            props_sel.hide();
+            props_sel.filter("[data-model='" + models_sel.val() + "']").show();
+        }
+        var table = container.find(".list");
+        models_sel.change(function (e) {
+            showProptertiesForModel();
+        });
+        var appendToTable = function (settingsType,settingsFullName, modelType,modelFullName, propName) {
+            var row = interfaces.find(".row").clone();
+            row.find(".paramtype").attr("data-type", settingsType).append(settingsFullName);
+            row.find(".modeltype").attr("data-type", modelType).append(modelFullName);
+            row.find(".propertyname").attr("data-property", propName).append(propName == "" ? "None" : propName);
+            table.append(row);
+        }
+        edit_btn.click(function (e) {
+            e.preventDefault();
+            var settingsType = settings_sel.val();
+            var settingsFullName = settings_sel.find("option:selected").html();
+            var modelType = models_sel.val();
+            var modelFullName = models_sel.find("option:selected").html();
+            var propName = props_sel.filter("[data-model='" + modelType + "']").first().val();
+            editParameters(settingsType, modelType, propName, function () {
+                appendToTable(settingsType, settingsFullName, modelType, modelFullName, propName);
+            });
+        });
+        table.on("click", "a", function (e) {
+            e.preventDefault();
+            var a = $(this);
+            var row = a.parents(".row:first");
+            var columns = row.find(">div");
+            var settingsType = $(columns[0]).attr("data-type");
+            var modelType = $(columns[1]).attr("data-type");
+            var propName = $(columns[2]).attr("data-property");
+            var key = settingsType + ":" + modelType + ":" + propName;
+            if (a.hasClass("edit")) {
+                editParameters(settingsType, modelType, propName,function(){});
+            } else {
+                if(confirm("are you sure you want to delete this parameter?"))
+                    deleteParameters(key, function () { row.remove(); });
+            }
+        });
+        showProptertiesForModel();
+    });
+        </script>
+    </div>

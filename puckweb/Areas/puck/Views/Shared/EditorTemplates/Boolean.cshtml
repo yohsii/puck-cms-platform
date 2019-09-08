@@ -1,0 +1,16 @@
+﻿@model Boolean?
+
+@if(ViewData.ModelMetadata.HideSurroundingHtml){
+    <input type="hidden" name="@ViewData.ModelMetadata.PropertyName" value="@(Model.HasValue?Model.Value.ToString():"")" />
+}
+else if (ViewData.ModelMetadata.IsReadOnly)
+{
+    <input type="text" readonly name="@ViewData.ModelMetadata.PropertyName" value="@(Model.HasValue?Model.Value.ToString():"")" />
+}
+else
+{ 
+    <select name="@ViewData.ModelMetadata.PropertyName">
+        <option @(Model.HasValue && Model.Value?"selected":"") value="true">Yes</option>
+        <option @(!Model.HasValue||(Model.HasValue && !Model.Value)?"selected":"") value="false">No</option>
+    </select>    
+}

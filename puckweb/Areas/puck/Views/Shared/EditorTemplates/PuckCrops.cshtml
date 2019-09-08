@@ -1,0 +1,188 @@
+﻿@model List<puck.core.Models.CropInfo>
+
+@{
+
+}
+<div class="puckcrops puckcrops_@ViewData.ModelMetadata.PropertyName">
+    
+    <div class="cropModelTemplate" style="display:none;">
+        @cropModelHtml("", "", "")
+    </div>
+    <div class="cropModelInput">
+        <div class="" style="width:100%;">
+            <div class="aliasContainer" style="display:inline-block;width:30%;">
+                <div>Alias</div>
+                <div>
+                    <input type="text" class="alias" />
+                </div>
+            </div>
+            <div class="widthContainer" style="display:inline-block;width:30%;">
+                <div>Width</div>
+                <div>
+                    <input type="number" class="width"/>
+                </div>
+            </div>
+            <div class="heightContainer" style="display:inline-block;width:30%;">
+                <div>Height</div>
+                <div>
+                    <input type="number" class="height"/>
+                </div>
+            </div>
+            <div class="submitContainer" style="display:block;width:80%;">
+                <button class="add btn btn-light">add</button>
+                <button style="display:none;" class="update btn btn-light">update</button>
+                <button style="display:none;" class="cancel btn btn-light">cancel</button>
+            </div>
+            
+        </div>
+    </div>
+    <br/>
+    <div class="selected_content">
+        @if (Model != null)
+        {
+            foreach (var crop in Model)
+            {
+                @cropModelHtml(crop.Alias, crop.Width.ToString(), crop.Height.ToString());
+            }
+        }
+    </div>
+</div>
+<script type="text/javascript">
+    onAfterDom(function () {
+        var propname = "@ViewData.ModelMetadata.PropertyName";
+        var container = $(".puckcrops_" + propname);
+        var selected_container = container.find(".selected_content");
+        var input_container = container.find(".cropModelInput");
+        //window.dbg = {};
+        //window.dbg.input_container = input_container;
+        //console.log(input_container);
+
+        selected_container.on("click",".removeContainer i",function () {
+            $(this).parents(".cropModel").remove();
+            setValue();
+        });
+
+        selected_container.on("click",".editContainer button",function (e) {
+            //debugger;
+            e.preventDefault();
+            el = $(this);
+            var cont = el.parents(".cropModel:first");
+            var alias = cont.find(".alias").attr("data-alias");
+            var width = cont.find(".width").attr("data-width");
+            var height = cont.find(".height").attr("data-height");
+
+            var aliasInput = input_container.find(":input.alias");
+            var widthInput = input_container.find(":input.width");
+            var heightInput = input_container.find(":input.height");
+            
+            aliasInput.val(alias);
+            widthInput.val(width);
+            heightInput.val(height);
+            input_container.find(".add").hide();
+            input_container.find(".update").attr("data-alias",alias).show();
+            input_container.find(".cancel").show();
+        });
+
+
+        input_container.find("button.add").click(function (e) {
+            e.preventDefault();
+            var aliasInput = input_container.find(":input.alias");
+            var widthInput = input_container.find(":input.width");
+            var heightInput = input_container.find(":input.height");
+            if (aliasInput.val().replace(/\s/g) == "" || widthInput.val() == "" || heightInput.val() == ""
+                || selected_container.find("[data-alias='" + aliasInput.val() + "']").length > 0)
+                return;
+            var cropModelTemplate = $(".cropModelTemplate>div:first").clone();
+            cropModelTemplate.find(".alias").attr("data-alias", aliasInput.val()).html(aliasInput.val());
+            cropModelTemplate.find(".width").attr("data-width", widthInput.val()).html(widthInput.val());
+            cropModelTemplate.find(".height").attr("data-height", heightInput.val()).html(heightInput.val());
+
+            selected_container.append(cropModelTemplate);
+            aliasInput.val("");
+            widthInput.val("");
+            heightInput.val("");
+            setValue();
+        });
+        input_container.find(".update").click(function (e) {
+            e.preventDefault();
+            var el = $(this);
+            var editAlias = el.attr("data-alias");
+            var aliasInput = input_container.find(":input.alias");
+            var widthInput = input_container.find(":input.width");
+            var heightInput = input_container.find(":input.height");
+            if (aliasInput.val().replace(/\s/g) == "" || widthInput.val() == "" || heightInput.val() == "")
+                return;
+            var aliasConflict = false;
+            selected_container.find("[data-alias]").each(function () {
+                var a = $(this);
+                if (a.attr("data-alias") == aliasInput.val() && a.attr("data-alias") != editAlias)
+                    aliasConflict = true;
+            });
+            if (aliasConflict)
+                return;
+
+            var cropModelTemplate = selected_container.find("[data-alias='" + editAlias + "']").parents(".cropModel");
+            cropModelTemplate.find(".alias").attr("data-alias", aliasInput.val()).html(aliasInput.val());
+            cropModelTemplate.find(".width").attr("data-width", widthInput.val()).html(widthInput.val());
+            cropModelTemplate.find(".height").attr("data-height", heightInput.val()).html(heightInput.val());
+
+            aliasInput.val("");
+            widthInput.val("");
+            heightInput.val("");
+
+            input_container.find(".add").show();
+            input_container.find(".update").hide();
+            input_container.find(".cancel").hide();
+            setValue();
+        });
+        input_container.find(".cancel").click(function (e) {
+            e.preventDefault();
+            input_container.find(":input.alias").val("");
+            input_container.find(":input.width").val("");
+            input_container.find(":input.height").val("");
+            input_container.find(".add").show();
+            input_container.find(".update").hide();
+            input_container.find(".cancel").hide();
+        });
+
+        var setValue = function () {
+            container.find("input:hidden").remove();
+            selected_container.find(".cropModel").each(function (i) {
+                var node = $(this);
+                var alias = node.find(".alias").attr("data-alias");
+                var width = node.find(".width").attr("data-width");
+                var height = node.find(".height").attr("data-height");
+                if (alias.replace(/\s/g) == "" || width == "" || height == "")
+                    return;
+                container.append(
+                    "<input type='hidden' name='" + propname + "[" + i + "].Alias' value='" + alias + "'/>"
+                    + "<input type='hidden' name='" + propname + "[" + i + "].Width' value='" + width + "'/>"
+                    + "<input type='hidden' name='" + propname + "[" + i + "].Height' value='" + height + "'/>"
+                );
+            });
+        }
+        setValue();
+    });
+</script>
+
+@{
+    Func<dynamic, Microsoft.AspNetCore.Html.IHtmlContent> cropModelHtml(string alias, string width, string height) =>
+    @<div class="cropModel">
+        <div class="editContainer" style="display:inline-block;">
+            <button class="btn btn-light">edit</button>
+        </div>
+        <div style="display:inline-block;">
+            <span class="alias" data-alias="@alias">@alias</span> -
+            <span class="width" data-width="@width">@width</span> -
+            <span class="height" data-height="@height">@height</span>
+        </div>
+        <div class="removeContainer" style="display:inline-block;">
+            <i class='fas fa-minus-circle'></i>
+        </div>    
+    </div>
+    ;
+}
+
+<style>
+    .puckcrops input{width:91%;}
+</style>

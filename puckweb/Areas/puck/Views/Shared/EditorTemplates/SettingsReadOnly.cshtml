@@ -1,0 +1,18 @@
+﻿@model Object
+
+<div class="noedit">
+    @if(Model !=null){
+        @Model.ToString();
+    }    
+</div>
+@{
+    var value = "";
+    if(Model!=null){
+        if (Model is DateTime){
+            value = ((DateTime)Model).ToString("dd/MM/yyyy hh:mm:ss");
+        }else{
+            value = Model.ToString();
+        }
+    }
+}
+@Html.Hidden("",value)

@@ -1,0 +1,18 @@
+﻿@model puck.core.Models.CreateFolder
+@{
+    Layout = null;
+}
+@using(Html.BeginForm()){
+    @Html.HiddenFor(x=>x.Path)
+    <div class="create_dialog settings">
+    <div class="">
+        <div class="typecontainer fieldwrapper">
+            <label>Folder name</label>
+            @Html.TextBoxFor(x=>x.Name)
+        </div>
+        <div>
+            <button class='btn btn-link'>Create</button>
+        </div>        
+    </div>
+</div>
+}

@@ -1,0 +1,41 @@
+﻿@model puck.core.Models.Settings
+
+@{
+    Layout = null;
+}
+
+<div class="settings">
+    <div class="row">
+        <div class="col-md-12 grid_9 alpha omega">
+            @using (Html.BeginForm())
+            {
+                @Html.ValidationSummary(true)
+                <fieldset>
+                    <legend>Settings</legend>
+                    <div class="submit top">
+                        <button class="btn btn-link">update</button>
+                    </div>
+                    <div class="fieldwrapper">
+                        <div class="editor-label">
+                            @Html.LabelFor(model => model.Languages)
+                        </div>
+                        <div class="editor-field">
+                            @Html.EditorFor(model => model.Languages)
+                            @Html.ValidationMessageFor(model => model.Languages)
+                        </div>
+                    </div>
+                    <br />
+
+                    @*<div class="submit bottom">
+                        <button class="btn-link">update</button>
+                    </div>*@
+                </fieldset>
+            }
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+        
+    });
+</script>    

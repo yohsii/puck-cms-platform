@@ -1,0 +1,96 @@
+﻿@model IEnumerable<puck.core.Base.BaseModel>
+
+@{
+    Layout = null;
+}
+<div class="search_results">
+    @if(Model.Count()>0){
+    <table>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.NodeName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.LastEditedBy)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.CreatedBy)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Path)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Created)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Updated)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Revision)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Variant)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Type)
+            </th>
+            
+        </tr>
+    
+    @foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.NodeName)
+                <input type="hidden" class="id" value="@item.Id" />
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.LastEditedBy)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.CreatedBy)
+            </td>
+            <td class="path">
+                <input type="hidden" value="@item.Path" />
+                @Html.DisplayFor(modelItem => item.Path)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Created)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Updated)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Revision)
+            </td>
+            <td class="variant">
+                <input type="hidden" value="@item.Variant" />
+                @Html.DisplayFor(modelItem => item.Variant)
+            </td>
+            <td class="type">
+                <input type="hidden" value="@item.Type" />
+                @{
+                    //var type = item.Type.Substring(0,item.Type.IndexOf(','));
+                    //type = type.Substring(type.LastIndexOf('.')+1);
+                    @Html.DisplayFor(modelItem => item.Type)
+                }
+            </td>
+            
+        </tr>
+    }
+    
+    </table>
+    }else{
+        <h4>0 results.</h4>
+    }
+</div>
+<script type="text/javascript">
+    onAfterDom(function () {
+        $(".search_results tr:not(:first)").click(function () {
+            var row = $(this);
+            var id = row.find("input.id").val();
+            var variant = row.find("td.variant input").val();
+            var type = row.find("td.type input").val();
+            displayMarkup(null, type, variant,undefined,id);
+        });
+    });
+</script>

@@ -1,0 +1,15 @@
+﻿@model List<string>
+@{
+    Layout = null; 
+    var mod = Model ?? new List<string>();
+}
+
+@{
+    var fields = typeof(puck.core.Constants.PuckRoles).GetFields();
+    <select multiple name="@ViewData.ModelMetadata.PropertyName">
+        @foreach(var f in fields){
+            var val = @f.GetValue(null);
+            <option @(mod.Contains(val)?"selected":"") value="@val">@f.Name</option>
+        }
+    </select>    
+}

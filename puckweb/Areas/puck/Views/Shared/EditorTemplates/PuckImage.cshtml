@@ -1,0 +1,282 @@
+﻿@model puck.Models.PuckImage
+
+@{
+    var settings = this.PuckEditorSettings<puck.core.Models.EditorSettings.PuckImageEditorSettings>()
+        ?? new puck.core.Models.EditorSettings.PuckImageEditorSettings()
+        {
+            Crops=new List<puck.core.Models.CropInfo>()
+        };
+    var guid = Guid.NewGuid();
+}
+    <div data-guid="@guid.ToString()" class="puckImage puckimage_@ViewData.ModelMetadata.PropertyName puckimage_@ViewData.TemplateInfo.HtmlFieldPrefix.Replace("[","_").Replace("]","_").Replace(".","_")">
+        <div style="display:none;" class="propName" data-propName="@ViewData.TemplateInfo.HtmlFieldPrefix"></div>
+        <ul class="nav nav-tabs" role="tablist" id="myTab">
+            <li class="nav-item active"><a class="nav-link active" role="tab" @*data-toggle="tab"*@ href="#">Image info</a></li>
+            <li class="nav-item"><a @*data-toggle="tab"*@ class="nav-link" href="#">Crops</a></li>
+        </ul>
+
+        <div class="tab-content">
+            <div class="tab-pane active" role="tabpanel" id="_puckImage_info_tab_@ViewData.ModelMetadata.PropertyName">
+                @Html.EditorFor(x => x.Path)
+                <div class="editor-label" style="">
+                    @Html.LabelFor(x => x.Description)
+                    @Html.ValidationMessageFor(x => x.Description)
+                </div>
+                <div class="editor-field">
+                    @Html.EditorFor(x => x.Description)
+                </div>
+                @if (!string.IsNullOrEmpty(Model?.Extension))
+                {
+                <div class="field">
+                    <span>Extension:</span>@Html.EditorFor(x => x.Extension)
+                </div>
+                }
+                @if (!string.IsNullOrEmpty(Model?.Width?.ToString()))
+                {
+                <div class="field">
+                    <span>Width:</span>@Html.EditorFor(x => x.Width)
+                </div>
+                }
+                @if (!string.IsNullOrEmpty(Model?.Height?.ToString()))
+                {
+                <div class="field">
+                    <span>Height:</span>@Html.EditorFor(x => x.Height)
+                </div>
+                }
+                @if (!string.IsNullOrEmpty(Model?.Size))
+                {   
+                <div class="field">
+                    <span>Size:</span>@Html.EditorFor(x => x.Size)
+                </div>
+                }
+                <br/>
+                @Html.EditorFor(x => x.File)
+            </div>
+            <div class="tab-pane" role="tabpanel" id="_puckImage_crops_tab_@ViewData.ModelMetadata.PropertyName">
+                <div class="cropSizes">
+                    @foreach (var c in settings.Crops ?? new List<puck.core.Models.CropInfo>()) {
+                        <div class="cropSize" data-alias="@c.Alias" data-width="@c.Width" data-height="@c.Height">
+                            <div>
+                                <span>@c.Alias</span>
+                                <br />
+                                <span>@c.Width<text>x</text>@c.Height</span>
+                            </div>                            
+                        </div>
+                    }
+                </div>
+                <div class=""></div>
+                <div class="message">
+                    @if (settings.Crops == null || settings.Crops.Count == 0) {
+                        <div>Look like you haven't set up any crops. Visit the settings section and add an Editor Parameter, with parameters type "Puck Image Editor Settings" and model type "BaseModel".</div>
+                    }
+                </div>
+                <div class="viewport" style="height:auto;width:500px;">
+
+                </div>
+            </div>            
+        </div>
+
+        <div class="selected_content">
+            <div style="display:none;">
+                @Html.EditorFor(x => x.Crops)
+            </div>
+
+            @foreach (var Crops in Model?.Crops ?? new List<puck.Models.CropModel> { })
+            {
+                <div style="display:none;" class="cropInfo" data-alias="@Crops.Alias" data-width="@Crops.Width" data-height="@Crops.Height"
+                     data-left="@Crops.Left" data-top="@Crops.Top" data-right="@Crops.Right" data-bottom="@Crops.Bottom"></div>
+            }
+        </div>
+    </div>
+<script type="text/javascript">
+    onAfterDom(function () {
+        var guid = "@guid.ToString()";
+        var modelType = "@Html.Raw(ViewBag.Level0Type.Name)";
+        var propname = "@Html.Raw(ViewData.TemplateInfo.HtmlFieldPrefix)";
+        var isPrePopulated = '@ViewBag.IsPrePopulated' == 'True';
+        
+        var escapePropname = function (str) {
+            return str.replace(/\[/g, "_").replace(/\]/g,"_").replace(/\./g,"_");
+        }
+        var container = null;
+        container = $("[data-guid='"+guid+"']");
+        //if (!isPrePopulated)
+        //    container = cright.find(".puckimage_" + escapePropname(propname));
+        //else
+        //    container = cinterfaces.find("div[data-type='" + modelType + "'] .puckimage_" + escapePropname(propname))
+        
+        //var container = cright.find(".puckimage_" + propname);
+        var selected_container = container.find(".selected_content:first");
+        var getPropName = function () {
+            return container.find("div:hidden.propName:first").attr("data-propName");
+        }        
+        //container.parents(".editor-field:first").css({ clear: "both" });
+        var setValue = function () {
+            selected_container.find("input:hidden").remove();
+            container.find(".cropSizes:first .cropSize").each(function (i) {
+                var el = $(this);
+                selected_container.append(
+                    "<input type='hidden' name='" + getPropName() + ".Crops[" + i + "].Alias' value='" + el.attr("data-alias") + "'/>"
+                    + "<input type='hidden' name='" + getPropName() + ".Crops[" + i + "].Width' value='" + el.attr("data-width") + "'/>"
+                    + "<input type='hidden' name='" + getPropName() + ".Crops[" + i + "].Height' value='" + el.attr("data-height") + "'/>"
+                    + (el.attr("data-left") == undefined ? "" :
+                        "<input type='hidden' name='" + getPropName() + ".Crops[" + i + "].Left' value='" + el.attr("data-left") + "'/>")
+                    + (el.attr("data-top") == undefined ? "" :
+                        "<input type='hidden' name='" + getPropName() + ".Crops[" + i + "].Top' value='" + el.attr("data-top") + "'/>")
+                    + (el.attr("data-right") == undefined ? "" :
+                        "<input type='hidden' name='" + getPropName() + ".Crops[" + i + "].Right' value='" + el.attr("data-right") + "'/>")
+                    + (el.attr("data-bottom") == undefined ? "" :
+                        "<input type='hidden' name='" + getPropName() + ".Crops[" + i + "].Bottom' value='" + el.attr("data-bottom") + "'/>")
+                );
+            });
+            
+        }
+        var viewportWidth = 500;
+        if ($(window).width() < viewportWidth)
+            viewportWidth = $(window).width()-30;
+        var originalWidth = @(Model?.Width??0);
+        var originalHeight = @(Model?.Height??0);
+        var imageUrl = '@(Model?.Path??"")';
+        var viewport = container.find(".viewport");
+        var selected_container = container.find(".selected_content");
+        var message_container = container.find(".message");
+        var setupImage = function (cropAlias, cropWidth, cropHeight,leftFrac,topFrac,rightFrac,bottomFrac) {
+            //viewport.find("img").remove();
+            var img = $("<img/>").attr({ src: imageUrl });
+            if (viewport.find("img").length == 0)
+                viewport.append(img);
+            else
+                img = viewport.find("img");
+            viewport.css({ width: viewportWidth }).find(".cropper").remove();
+            var imgWidth;
+            var cropperWidth;
+            var cropperHeight;
+            var aRatio = originalWidth / originalHeight;
+            var resize = false;
+            message_container.html("");
+            if (cropWidth > originalWidth || cropHeight > originalHeight) {
+                imgWidth = cropWidth > viewportWidth ? viewportWidth : cropWidth;
+                resize = true;
+                if (!(originalWidth == 0 && originalHeight==0))
+                    message_container.html("image is smaller than target crop size, the image will be resized to fit.");
+            } else {
+                imgWidth = originalWidth > viewportWidth ? viewportWidth : originalWidth;
+            }
+            var cropARatio = cropWidth / cropHeight;
+            var imgHeight = imgWidth / aRatio;
+            widthRatio = originalWidth / imgWidth;
+            cropperWidth = cropWidth / widthRatio;
+            cropperHeight = cropperWidth / cropARatio;
+
+            img.css({ width: imgWidth });
+            if (!resize) {
+                var cropper = $("<div/>").attr({ class: "cropper" }).css({ width: cropperWidth, height: cropperHeight, zIndex: 2 });
+                var left = 0;
+                var top = 0;
+                if (leftFrac != undefined && topFrac != undefined) {
+                    left = imgWidth * leftFrac;
+                    top = imgHeight * topFrac;
+                } else {
+                    left = (imgWidth - cropperWidth) / 2;
+                    top = (imgHeight - cropperHeight) / 2;
+                }
+                cropper.css({left:left,top:top}).draggable({
+                    containment: 'parent'
+                    , stop: function (event, ui) {
+                        setPositions(cropAlias, ui.position.left, ui.position.top, imgWidth, imgHeight, cropperWidth, cropperHeight);   
+                        setValue();
+                    }
+                });
+                viewport.append(cropper);
+                setPositions(cropAlias, left, top, imgWidth, imgHeight, cropperWidth, cropperHeight);
+                setValue();
+            }
+            if (imgWidth < viewportWidth)
+                viewport.css({ width: imgWidth });
+            viewport.css({ height: imgHeight });
+            
+            
+        }
+        var setPositions = function (cropAlias,posLeft,posTop,imgWidth,imgHeight,cropperWidth,cropperHeight) {
+            var leftF = posLeft / imgWidth;
+            var topF = posTop / imgHeight;
+            var rightF = (imgWidth - (posLeft + cropperWidth)) / imgWidth;
+            var bottomF = (imgHeight - (posTop + cropperHeight)) / imgHeight;
+            var cropSize = container.find(".cropSizes:first .cropSize[data-alias='" + cropAlias + "']");
+            if (cropSize.length == 0) return;
+            cropSize.attr("data-left", leftF);
+            cropSize.attr("data-top", topF);
+            cropSize.attr("data-right", rightF);
+            cropSize.attr("data-bottom", bottomF);
+            //console.log(leftF, topF, rightF, bottomF);
+        }
+        container.find(".cropSizes:first .cropSize").click(function () {
+            var el = $(this);
+            container.find(".cropSize").removeClass("active");
+            el.addClass("active");
+            var alias = el.attr("data-alias");
+            var width = el.attr("data-width");
+            var height = el.attr("data-height");
+            var left = el.attr("data-left");
+            var top = el.attr("data-top");
+            var right = el.attr("data-right");
+            var bottom = el.attr("data-bottom");
+            setupImage(alias,width,height,left,top,right,bottom);
+        });
+
+        var load = function () {
+            container.find(".selected_content:first .cropInfo").each(function () {
+                var el = $(this);
+                var alias = el.attr("data-alias");
+                var width = el.attr("data-width");
+                var height = el.attr("data-height");
+                var left = el.attr("data-left");
+                var top = el.attr("data-top");
+                var right = el.attr("data-right");
+                var bottom = el.attr("data-bottom");
+                var elCropSize = container.find(".cropSizes:first .cropSize[data-alias='" + alias + "']");
+                if (elCropSize.length == 0) return;
+                var cropSizeWidth = elCropSize.attr("data-width");
+                var cropSizeHeight = elCropSize.attr("data-height");
+                if (width != cropSizeWidth || height != cropSizeHeight) return;
+                elCropSize.attr("data-left", left);
+                elCropSize.attr("data-top", top);
+                elCropSize.attr("data-right", right);
+                elCropSize.attr("data-bottom", bottom);
+
+            });
+        }
+        load();
+        container.find(".cropSize:first").click();
+        setValue();
+        
+    });    
+</script>
+<style>
+    .puckImage .field div{
+        display:inline;
+    }
+    .puckImage .cropSize {
+        border:1px solid #dddddd;
+        margin:0px;
+        padding:0px;
+        display:inline-block;
+        cursor:pointer;
+    }
+    .puckImage .cropSize.active {
+        background:#eeeeee/*00ff7f*/;
+    }
+    .puckImage .cropSize > div {
+        padding:8px;
+    }
+    .puckImage .cropper {
+        border:1px solid #dddddd;
+        background-color:rgba(255, 216, 0,0.5);
+        position:absolute!important;
+        top:0px;
+        left:0px;
+    }
+    .puckImage .viewport {
+        position:relative;
+    }
+</style>

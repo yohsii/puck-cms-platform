@@ -1,0 +1,75 @@
+﻿@model Dictionary<string,string>
+@{
+    var apiHelper = PuckCache.ApiHelper;
+    var orphans = apiHelper.OrphanedTypeNames();
+}
+<div class="orphans">
+    @if(orphans.Count>0){
+    <ul>
+        <li>
+            <label>Original Type Name</label>
+            <select class="from">
+                @foreach (var s in orphans) { 
+                    <option value="@s">@s</option>
+                }
+            </select>
+        </li>
+        <li>
+            <label>New Type Name</label>
+            <select class="to">
+                @foreach (var t in apiHelper.AllModels()) { 
+                    <option value="@t.Name">@t.Name</option>
+                }
+            </select>
+        </li>        
+        <li>
+            <button class="btn btn-light">add</button>
+        </li>
+    </ul>
+    <div class="nodisplay entry">&nbsp;<span><i class="fas fa-minus-circle"></i></span></div>
+    <div class="display clearboth">
+                
+    </div>
+    }else{
+        <b>no orphans to process.</b>
+    }
+</div>
+<script>
+    onAfterDom(function () {
+        var container = $(".orphans");
+        var from = container.find("select.from");
+        var to = container.find("select.to");
+        var display = container.find(".display");
+        
+        var getPropNameKey = function (i) {
+            return "@ViewData.ModelMetadata.PropertyName" + "[" + i + "].Key";
+        }
+        var getPropNameValue = function (i) {
+            return "@ViewData.ModelMetadata.PropertyName" + "[" + i + "].Value";
+        }
+        var setValue = function () {
+            container.find("input:hidden").remove();
+            display.find(".entry").each(function (i) {
+                var key = $(this).attr('data-from');
+                var value = $(this).attr('data-to');
+                container.append(
+                        "<input type='hidden' name='" + getPropNameKey(i) + "' value='" + key + "'/>"
+                        + "<input type='hidden' name='" + getPropNameValue(i) + "' value='" + value + "'/>"
+                    );
+            });            
+        }
+        container.find("button").click(function (e) {
+            e.preventDefault();
+            if (!from.val().isEmpty() && !to.val().isEmpty() && container.find(".display div[data-from='" + from.val() + "']").length == 0) {
+                var entry = container.find(".entry.nodisplay").clone();
+                entry.removeClass("nodisplay");
+                entry.attr("data-from", from.val()).attr("data-to", to.val());
+                entry.find("span").click(function () { entry.remove(); setValue(); });
+                entry.prepend(from.val() + " - " + to.val() );
+                display.append(entry);
+                setValue();
+            }
+        });
+    });
+    
+</script>

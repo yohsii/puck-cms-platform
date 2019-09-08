@@ -1,0 +1,41 @@
+﻿@model puck.core.Models.TimedPublish
+@{
+    Layout = null;
+}
+<div class="timed_publish_dialog settings">
+    <form action="/puck/api/timedpublish" method="post">
+        @Html.HiddenFor(x=>x.Id)
+        @Html.HiddenFor(x=>x.Variant)
+        <div class="fieldwrapper">
+            <label>Publish at</label>
+            @Html.EditorFor(x => x.PublishAt)
+        </div>
+        <div class="fieldwrapper">
+            <label>Include descendants</label>
+            <select multiple name="@nameof(Model.PublishDescendantVariants)">
+                @foreach (var variant in Model.Variants)
+                {
+                    var selected = Model.PublishDescendantVariants != null && Model.PublishDescendantVariants.Any(x => x.ToLower().Equals(variant.Key.ToLower()));
+                    <option @(selected ? "selected":"") value="@variant.Key">@variant.FriendlyName</option>
+                }
+            </select>
+        </div>
+        <div class="fieldwrapper">
+            <label>Unpublish at</label>
+            @Html.EditorFor(x => x.UnpublishAt)
+        </div>
+        <div class="fieldwrapper hide">
+            <label>Include descendants</label>
+            <select multiple name="@nameof(Model.UnpublishDescendantVariants)">
+                @foreach (var variant in Model.Variants)
+                {
+                    <option value="@variant.Key">@variant.FriendlyName</option>
+                }
+            </select>
+        </div>
+
+        <div>
+            <button class='btn btn-link'>Submit</button>
+        </div>
+    </form>
+</div>

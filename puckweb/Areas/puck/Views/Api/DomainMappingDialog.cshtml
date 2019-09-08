@@ -1,0 +1,18 @@
+﻿@model string
+@{
+    Layout = null;    
+}
+@using (Html.BeginForm("DomainMapping", "Api", new {p_path=ViewContext.HttpContext.Request.Query["p_path"].ToString() }, FormMethod.Post))
+{
+    <div class="domain_mapping_dialog settings">
+        <div class="">
+            <b>@ViewContext.HttpContext.Request.Query["p_path"].ToString()</b><br />
+            <div class="fieldwrapper">
+                <label for="variant">Domain Mappings (csv)</label>
+                <input name="domains" value="@Model" type="text" />
+            </div>
+            <br />
+            <button class="btn-link">save</button>
+        </div>
+    </div>
+}

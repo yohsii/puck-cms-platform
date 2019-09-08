@@ -1,0 +1,73 @@
+@using Page = puck.ViewModels.Page;
+@model puck.ViewModels.Homepage
+
+@{
+    ViewBag.Title = "Homepage";
+    var qh = new QueryHelper<Section>()
+        .Descendants(Model)
+        .CurrentLanguage()
+        .ExplicitType();
+
+    
+    var sections = qh.GetAll();
+    var sections2 = Model.Descendants<Section>();
+    @qh.ToString()
+    <br />
+    @("section count: " + sections.Count)
+    <br />
+    var searchQuery = "brexit";
+    var search = new QueryHelper<Page>()
+        .CurrentRoot(Model)
+        .And().Field(x => x.MainContent, searchQuery)
+        .CurrentLanguage();
+    var sresults = search.GetAll();
+    @("search for '" + searchQuery + "' count: " + sresults.Count)
+    <br />
+    var geoQuery = new QueryHelper<Page>();
+    geoQuery.WithinMiles(x => x.Location.LatLong, 51.5073509, -0.1277582, 10);
+
+    var georesults = geoQuery.GetAll();
+    @("search for locations within 10miles of London(51.5073509,-0.1277582): " + georesults.Count)
+
+}
+<div>
+    @Html.Raw(geoQuery.ToString())
+</div>
+
+<h2>@Model.Title</h2>
+
+<h3>Carousel Items</h3>
+<div>
+    @foreach (var imageModel in Model?.CarouselItems?.GetAll<ImageVM>() ?? new List<ImageVM>())
+    {
+        <img width="700" alt="@imageModel.Image.Description" src="@imageModel.Image.Path" />
+    }
+
+</div>
+@foreach (var s in sections)
+{
+    <h1>@s.Title</h1>
+    <div>
+        @Html.Raw(s.MainContent)
+    </div>
+    <div><a href="@s.Url()">more</a></div>
+}
+
+<h3>Search Results for "@searchQuery"</h3>
+@foreach (var r in sresults)
+{
+    <h1>@r.Title</h1>
+    <div>
+        @Html.Raw(r.MainContent.Highlight(searchQuery))
+    </div>
+}
+
+@{
+    var qstr = @"+path:\/home\/news2";
+    var results = puck.core.State.PuckCache.PuckSearcher.QueryNoCast<BaseModel>(qstr);
+
+}
+<h1>
+    @results.Count
+</h1>
+

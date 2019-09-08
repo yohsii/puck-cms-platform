@@ -1,0 +1,31 @@
+﻿@model puck.core.Models.LogIn
+
+@{
+    
+}
+@if (ViewBag.redirect == true) { 
+    <script type="text/javascript">
+        location = "/puck/";
+    </script>
+}else{
+<h2></h2>
+<div class="container_12 login container">
+    <div class="row">
+        <div class="grid_12 col-md-12">
+            <h1 class="master">Puck</h1>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-3 grid_3 push_5">
+            @using (Html.BeginForm(new { returnUrl = ViewContext.HttpContext.Request.Query["returnUrl"].ToString() }))
+            {
+                @Html.EditorForModel()
+                <button class="btn btn-link">submit</button>
+            }
+            <div class="error">
+                @ViewBag.Error
+            </div>
+        </div>
+    </div>
+</div>
+}

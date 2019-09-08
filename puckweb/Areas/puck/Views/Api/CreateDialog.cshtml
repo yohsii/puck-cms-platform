@@ -1,0 +1,54 @@
+﻿    @{
+        Layout = null;
+        List<Type> types;
+        var apiHelper = PuckCache.ApiHelper;
+        if(string.IsNullOrEmpty(ViewContext.HttpContext.Request.Query["type"].ToString())){
+            types = apiHelper.AllModels(false);
+        }else{
+            types = apiHelper.AllowedTypes(ViewContext.HttpContext.Request.Query["type"].ToString());
+            if(types.Count==0){
+                types = apiHelper.Models(false);
+            }
+        }
+        var variants = apiHelper.Variants();
+
+}
+<div class="create_dialog settings">
+    <div class="">
+        <div class="typecontainer fieldwrapper">
+            <label>Type</label>
+            @if (types.Count == 0)
+            {
+                <p>there are no content types to select. please add some viewmodels by creating classes that derive from puck.core.Base.BaseModel</p>
+            }
+            else
+            {
+            <select name="type">
+                @foreach (var t in types)
+                {
+                    <option value="@t.Name">@ApiHelper.FriendlyClassName(t)</option>
+                }
+            </select>
+            }
+        </div>
+        <div class="variantcontainer fieldwrapper">
+            <label>Variant</label>
+            @if (variants.Count == 0)
+            {
+                <p>there are no languages to select, please visit the settings section and set one or more languages</p>
+            }
+            else
+            {
+            <select name="variant">
+                @foreach (var v in variants)
+                {
+                    <option value="@v.Key.ToLower()">@v.FriendlyName</option>
+                }
+            </select>
+            }
+        </div>
+        <div>
+            <button class='btn btn-link'>Create</button>
+        </div>        
+    </div>
+</div>

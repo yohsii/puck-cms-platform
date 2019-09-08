@@ -1,0 +1,24 @@
+﻿@model string
+@{
+    Layout = null;
+    var apiHelper = PuckCache.ApiHelper;
+}
+@using (Html.BeginForm("Localisation", "Api", new {p_path=ViewContext.HttpContext.Request.Query["p_path"].ToString() }, FormMethod.Post))
+{
+    <div class="path_locale_dialog settings">
+        <div class="">
+            <b>@ViewContext.HttpContext.Request.Query["p_path"].ToString()</b><br />
+            <div class="fieldwrapper">
+                <label for="variant">Default Culture @Html.Raw(string.IsNullOrEmpty(Model)?"":" - <span class=\"tred\">"+Model+"</span>")</label>
+                <select name="variant">
+                <option value="">None</option>
+                @foreach (var v in apiHelper.Variants()) {
+                    var selected = v.Key.Equals(Model);
+                    <option @(selected?"selected":"") value="@v.Key">@v.FriendlyName</option>
+                }
+                </select>
+            </div>
+            <button class="btn btn-link">save</button>
+        </div>
+    </div>
+}

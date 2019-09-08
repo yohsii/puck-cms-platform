@@ -1,0 +1,59 @@
+﻿@model List<puck.core.Models.PuckUserViewModel>
+@{
+    Layout = null;    
+}
+<div class="user_list">
+<p>
+    <button class="create btn btn-link"><i class="fas fa-plus-circle"></i>&nbsp;new user</button>
+</p>
+<table>
+    <tr>
+        <th>
+            Username
+        </th>
+        <th>
+            Email
+        </th>
+        <th width="180">
+            Roles
+        </th>
+        <th>
+            Language
+        </th>
+        <th>
+            Start Path
+        </th>
+        <th></th>
+    </tr>
+
+@foreach (var item in Model) {
+    <tr>
+        <td>
+            @Html.DisplayFor(modelItem => item.User.UserName)
+        </td>
+        
+        <td>
+            @Html.DisplayFor(modelItem => item.User.Email)
+        </td>
+        <td>
+            @string.Join(", ",item.Roles.Select(x=>x.Substring(1)))
+        </td>
+        <td>@Html.DisplayFor(modelItem=>item.UserVariant)</td>
+        <td>
+            @if (item.StartNode != null && item.StartNode.Count > 0) {
+                var id = item.StartNode[0].Id;
+                var startNode = PuckCache.PuckRepo.GetPuckRevision().Where(x => x.Id == id &&x.Current).ToList().FirstOrDefault();
+                if (startNode != null) { 
+                    @startNode.Path
+                }
+            }            
+        </td>
+        <td>
+            @Html.ActionLink("Edit", "Edit", new { }, new {@class="edit",data_username=item.User.UserName}) <br />
+            @Html.ActionLink("Delete", "Delete", new { },new {@class="delete",data_username=item.User.UserName})
+        </td>
+    </tr>
+}
+
+</table>
+</div>

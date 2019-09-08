@@ -1,0 +1,49 @@
+﻿@using Page = puck.ViewModels.Page;
+@model puck.ViewModels.Homepage
+@{
+    ViewBag.Title = "Homepage";
+    var qh = new QueryHelper<Section>();
+    qh.CurrentLanguage();
+    qh.ExplicitType();
+    var sections = qh.GetAll();
+    @qh.ToString()
+    <br />
+    @("section count: "+sections.Count)
+    <br />
+    var searchQuery = "croydon";
+    var search = new QueryHelper<Page>();
+    var sresults = search.AllFields(searchQuery).CurrentLanguage().GetAll();
+    @("search for '"+searchQuery+"' count: "+sresults.Count)
+    <br />
+    var geoQuery = new QueryHelper<Page>();
+    geoQuery.WithinMiles(x => x.Location, 51.5171, 0.1062, 10);
+    var georesults = geoQuery.GetAll();
+    @("search for locations within 10miles of London(51.5171,0.1062): "+georesults.Count)
+    
+}
+
+<h2>@Model.Title - MOBILE</h2>
+
+<h3>Carousel Items</h3>
+<div>
+    @foreach (var imageModel in Model.CarouselItems.GetAll<ImageVM>())
+    {                        
+        <img width="700" alt="@imageModel.Image.Description" src="@imageModel.Image.Path" />
+    }
+    
+</div>
+@foreach (var s in sections) { 
+    <h1>@s.Title</h1>
+    <div>
+        @Html.Raw(s.MainContent)
+    </div>
+    <div><a href="@s.Url()">more</a></div>
+}
+
+<h3>Search Results for "@searchQuery"</h3>
+@foreach (var r in sresults) { 
+    <h1>@r.Title</h1>
+    <div>
+        @Html.Raw(r.MainContent.Highlight(searchQuery))
+    </div>
+}

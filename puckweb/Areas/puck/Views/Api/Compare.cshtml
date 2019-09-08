@@ -1,0 +1,28 @@
+﻿@model puck.core.Models.RevisionCompare
+@{
+    Layout = null;
+}
+<div class="compare">
+    @if (Model == null || Model.Revision == null || Model.Current == null)
+    {
+        <div class="">
+            Model is null.
+        </div>
+    }
+    else
+    {
+        var toDisplay = Model.Current;
+        <div class="compare_revision">
+            <span>Current - @Model.Current.Updated</span>
+            @Html.DisplayFor(x => toDisplay)
+        </div>
+        toDisplay = Model.Revision;
+        <div class="compare_revision">
+            <span>Revision @Model.Revision.Revision - @Model.Revision.Updated</span>
+            @Html.DisplayFor(x => toDisplay)
+        </div>
+        <p>
+            <button data-id="@Model.RevisionID" class="btn btn-link revert">Revert</button>
+        </p>
+    }
+</div>

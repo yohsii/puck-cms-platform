@@ -1,0 +1,198 @@
+﻿@{
+    ViewBag.Title = "Puck";
+    var apiHelper = PuckCache.ApiHelper;
+}
+<h1 class="master">Puck</h1>
+
+<div class="main grid container_12 container-fluid">
+    <div class="row top">
+        <div class="col-md-3 grid_12 menutop">
+            <ul class="p-0">
+                <li class="selected"><a class='content' href="#content"><i class="fas fa-home"></i></a></li>
+                <li><a title="settings" data-permission="_settings" class='settings' href="#settings?path=/puck/settings/languages"><i class="fas fa-sliders-h"></i></a></li>
+                <li><a title="users" data-permission="_users" class='users' href="#users"><i class="fas fa-user"></i></a></li>
+                <li><a title="developer" data-permission="_tasks" class='tasks' href="#developer"><i class="fas fa-wrench"></i></a></li>
+                <li><a title="logout" class='logout' href="@Url.Action("out","admin")"><i class="fas fa-arrow-circle-left"></i></a></li>
+            </ul>
+
+        </div>
+        <div class="col-md-9">
+            <div class="col-md-12 grid_9 alpha omega message">
+
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-9 col-md-3 grid_3 alpha leftarea">
+            <div class="left_content left_item">
+                <button data-permission="_republish" title="republish entire site" style="padding-left:0px;" class="republish_entire_site btn btn-link"><i class="fas fa-redo-alt"></i></button>
+                <button class="create_default btn btn-link"><i class="fas fa-plus-circle"></i>&nbsp;create</button>
+                <div class="search">
+                    <button class="search btn btn-link"><i class="fas fa-search"></i></button>
+                </div>
+                <div class="startpath"></div>
+                <ul data-dropdown="node-dropdown" class="content">
+                    <li class="node" data-children_path="/"></li>
+                </ul>
+                <div class="btn-group node-dropdown puck-dropdown">
+                    <ul class="dropdown-menu">
+                        <li class="dropdown-item"><a href="#" data-action="create" data-permission="_create"><i class="fas fa-plus-circle"></i> Create</a></li>
+                        <li class="dropdown-item"><a href="#" data-action="translate" data-permission="_create"><i class="fas fa-file"></i> Translation</a></li>
+                        <li class="dropdown-item"><a href="#" data-action="delete" data-permission="_delete"><i class="fas fa-trash"></i> Delete</a></li>
+                        <li class="dropdown-item"><a href="#" data-action="publish" data-permission="_publish"><i class="fas fa-book"></i> Publish</a></li>
+                        <li class="dropdown-item"><a href="#" data-action="unpublish" data-permission="_unpublish"><i class="fas fa-ban"></i> Unpublish</a></li>
+                        <li class="dropdown-item"><a href="#" data-action="localisation" data-permission="_localisation"><i class="fas fa-plane"></i> Localisation</a></li>
+                        <li class="dropdown-item"><a href="#" data-action="move" data-permission="_move"><i class="fas fa-arrows-alt"></i> Move</a></li>
+                        <li class="dropdown-item"><a href="#" data-action="copy" data-permission="_copy"><i class="fas fa-copy"></i> Copy</a></li>
+                        <li class="dropdown-item"><a href="#" data-action="changetype" data-permission="_changetype"><i class="fas fa-edit"></i> Change Type</a></li>
+                        <li class="dropdown-item"><a href="#" data-action="domain" data-permission="_domain"><i class="fas fa-globe"></i> Domain</a></li>
+                        <li class="dropdown-item"><a href="#" data-action="revert" data-permission="_revert"><i class="fas fa-backward"></i> Revert</a></li>
+                        <li class="dropdown-item"><a href="#" data-action="cache" data-permission="_cache"><i class="fas fa-hdd"></i> Cache</a></li>
+                        <li class="dropdown-item"><a href="#" data-action="notify" data-permission="_notify"><i class="fas fa-envelope"></i> Notification</a></li>
+                        <li class="dropdown-item"><a href="#" data-action="timedpublish" data-permission="_timedpublish"><i class="fas fa-clock"></i> Scheduled Publish</a></li>
+                        <li class="dropdown-item"><a href="#" data-action="audit" data-permission="_audit"><i class="fas fa-file-invoice"></i> View Audit</a></li>
+                        <!--
+                    <li class="divider"></li>
+                    <li><a href="#"><i class="i"></i> Make admin</a></li>
+                    -->
+                    </ul>
+                </div>
+            </div>
+            <div class="left_settings left_item">
+                <ul data-dropdown="node-dropdown" class="settings p-0">
+                    <li data-path="/puck/settings/languages" class="node"><i class="fas fa-language"></i><a href="#settings?path=/puck/settings/languages" class="btn btn-link">Languages</a></li>
+                    <li data-path="/puck/settings/redirects" class="node"><i class="fas fa-directions"></i><a href="#settings?path=/puck/settings/redirects" class="btn btn-link">Redirects</a></li>
+                    <li data-path="/puck/settings/fieldgroups" class="node"><i class="fas fa-object-group"></i><a href="#settings?path=/puck/settings/fieldgroups" class="btn btn-link">Field Groups</a></li>
+                    <li data-path="/puck/settings/allowedtemplates" class="node"><i class="fas fa-file-code"></i><a href="#settings?path=/puck/settings/allowedtemplates" class="btn btn-link">Allowed Templates</a></li>
+                    <li data-path="/puck/settings/allowedmodels" class="node"><i class="fas fa-database"></i><a href="#settings?path=/puck/settings/allowedmodels" class="btn btn-link">Allowed Models</a></li>
+                    <li data-path="/puck/settings/editorparameters" class="node"><i class="fas fa-tasks"></i><a href="#settings?path=/puck/settings/editorparameters" class="btn btn-link">Editor Parameters</a></li>
+                    <li data-path="/puck/settings/cachepolicy" class="node"><i class="fas fa-hdd"></i><a href="#settings?path=/puck/settings/cachepolicy" class="btn btn-link">Output Caching</a></li>
+                    <li data-path="/puck/settings/orphanedmodels" class="node"><i class="fas fa-unlink"></i><a href="#settings?path=/puck/settings/orphanedmodels" class="btn btn-link">Orphaned Models</a></li>
+
+                </ul>
+
+            </div>
+            <div class="left_users left_item">
+                <ul data-dropdown="node-dropdown" class="users p-0">
+                    <li class="node"><i class="fas fa-users"></i><a href="#users" class="current btn btn-link">Users</a></li>
+                </ul>
+            </div>
+            <div class="left_developer left_item">
+                <ul data-dropdown="node-dropdown" class="developer p-0">
+                    <li class="node"><i class="fas fa-wrench"></i><a href="#developer" class="current btn btn-link">Developer</a></li>
+                </ul>
+            </div>
+
+
+        </div>
+        <div class="col-md-9 grid_9 rightarea">
+            <div class="leftToggle"><i class="fas fa-ellipsis-v"></i></div>
+            
+            <div data-tabPrefix="rightContent_" class="col-md-12 grid_9 alpha omega content">
+
+            </div>
+        </div>
+    </div><div class="hide interfaces">
+        <div class="search_ops">
+            <div class="inner">
+                <div class="fieldwrapper">
+                    <label>Search term</label>
+                    <input class="search" />
+                </div>
+                <div class="fieldwrapper">
+                    <label>Specific type</label>
+                    <select>
+                        <option value="">All</option>
+                        @foreach (var m in apiHelper.AllModels())
+                        {
+                            <option value="@m.AssemblyQualifiedName">@m.Name</option>
+                        }
+                    </select>
+                </div>
+                <div class="tree_container fieldwrapper">
+                    <label>Search root</label>
+                    <ul class="content nomenu redirect">
+                        <li class="node" data-children_path="/"></li>
+                    </ul>
+                    <div class="pathvalue"></div>
+                    <div class="clearboth">&nbsp;</div>
+                </div>
+                <div class="clearboth">
+                    <button class="btn btn-link">Search</button>
+                </div>
+            </div>
+        </div>
+        <div class="overlay_screen">
+            <h1></h1>
+            <div class="inner"></div>
+            <div class="clearboth"></div>
+            <!--<div class="msg"></div>-->
+        </div>
+        <div class="cache_exclude_dialog settings">
+            <div class="">
+                <div class="fieldwrapper">
+                    <label>Exclude from output cache?</label>
+                    <input type="checkbox" name="exclude" />
+                </div>
+                <div>
+                    <button class='btn btn-link'>Update</button>
+                </div>
+            </div>
+        </div>
+        <div class="revision_for_dialog">
+            <div class="">
+                <div class="variantcontainer">
+                    <label>Variant</label>
+                    <select name="variant"></select>
+                </div>
+                <div class="descendantscontainer">
+                    <label></label>
+                    <select multiple name="descendants"></select>
+                </div>
+                <div>
+                    <button class='btn btn-link'>Submit</button>
+                </div>
+            </div>
+        </div>
+        <div class="tree_container copy">
+            <div>
+                <label>Copy descendants? (this may take some time depending on how many items are being copied)</label>
+                <input type="checkbox" class="include-descendants" />
+            </div>
+            <br/>
+            <div class="msg"></div>
+            <div class="error"></div>
+            <ul class="content nomenu redirect">
+                <li class="node" data-children_path="/"></li>
+            </ul>
+        </div>
+        <div class="tree_container move">
+            <div class="msg"></div>
+            <ul class="content nomenu redirect">
+                <li class="node" data-children_path="/"></li>
+            </ul>
+        </div>
+        <div class="template_tree_container move">
+            <div class="msg"></div>
+            <ul data-dropdown="template-dropdown" class="content templates">
+                <li class="node" data-children_path="/" data-type="folder" data-id="/" data-path="/" data-name="Root" data-has_children="true">
+                    <div class="inner">
+                        <i class="fas fa-cog menu"></i>
+                        <span class="nodename">Root&nbsp;</span>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+<div class="footer_puck grid_12"></div>
+<script type="text/javascript">
+    var userName = "@User.Identity.Name";
+    var variantNames = [];
+    @foreach(var v in apiHelper.AllVariants()){
+        @Html.Raw("variantNames['"+v.Key+"']=\""+v.FriendlyName+"\";");
+    }    
+</script>
+<script src="~/areas/puck/assets/js/puck.get_set.js" type="text/javascript"></script>
+<script src="~/areas/puck/assets/js/puck.actions.js" type="text/javascript"></script>
+<script src="~/areas/puck/assets/js/puck.handlers.js" type="text/javascript"></script>

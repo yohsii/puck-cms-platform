@@ -1,0 +1,16 @@
+﻿@model puck.core.Base.BaseModel
+
+@{
+    Layout=null;
+    ViewBag.Level0Type = Model.GetType();
+}
+<div class="content_edit_page">
+@using (Html.BeginForm("Edit", "Api", new {p_type=Model.GetType().Name,p_path=ViewContext.HttpContext.Request.Query["p_path"].ToString() }, FormMethod.Post))
+{
+    @Html.EditorForModel()
+    
+    <button title="preview" class="content_preview content_btns"><i class="fas fa-eye"></i></button>
+    <button title="update" class="content_update content_btns"><i class="fas fa-edit"></i></button>
+    <button title="publish" class="content_publish content_btns"><i class="fas fa-check-square"></i></button>
+}
+</div>

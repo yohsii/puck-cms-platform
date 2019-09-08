@@ -1,0 +1,81 @@
+﻿@model List<string>
+@{
+    var apiHelper = PuckCache.ApiHelper;
+    var models = apiHelper.AllModels(false);
+}
+<span onclick="handleSettingsTypeAllowedTypes()" class="trigger clear"></span>
+<div class="settings_type_allowed_types">
+    <select>
+        @foreach (var m in models) { 
+            <option value="@m.Name">@ApiHelper.FriendlyClassName(ApiHelper.ConcreteType(m))</option>
+        }
+    </select>
+    <div class="lists">
+    @foreach (var m in models) { 
+        var included = new List<Type>();
+        foreach (var entry in Model) {
+            var kv = entry.Split(new char[]{':'},StringSplitOptions.RemoveEmptyEntries);
+            if (m.Name.Equals(kv[0])) {
+                included.Add(ApiHelper.GetTypeFromName(kv[1]));
+            }
+        }
+        var excluded = models.Where(x=>!included.Any(i=>x.Name.Equals(i.Name))).ToList();
+        <div class="type" data-type="@m.Name">
+            <div class="list excluded"><h2>types</h2>
+                @foreach (var t in excluded) { 
+                    <div data-type="@t.Name" class="field">@ApiHelper.FriendlyClassName(ApiHelper.ConcreteType(t))</div>
+                }
+            </div>
+            <div class="list included"><h2>whitelist</h2>
+                @foreach (var t in included) { 
+                    <div data-type="@t.Name" class="field">@ApiHelper.FriendlyClassName(ApiHelper.ConcreteType(t))</div>
+                }
+            </div>
+        </div>
+    }
+    <div class="clearboth"></div>
+    </div>
+</div>
+<script type="text/javascript">
+    onAfterDom(function () {
+        var propertyName = function (i) {
+            return "@ViewData.ModelMetadata.PropertyName";
+        }
+        var container = $(".settings_type_allowed_types");
+        var select = container.find("select");
+        container.find(".list").hide();
+        container.find(".type[data-type='" + select.val() + "'] .list").show();
+        var emptyMessage = function () {
+            container.find(".included .msg").remove();
+            if (container.find(".included:visible .field").length == 0) {
+                container.find(".included:visible").append($("<div class='msg'></div>")
+                    .html("drag types here. if this is empty, all child types will be allowed for this type"));
+            }
+        }
+        select.change(function (e) {
+            var val = $(this).val();
+            container.find(".list").hide();
+            container.find(".type[data-type='" + val + "'] .list").show();
+            emptyMessage();
+        });
+        var setValue = function () {
+            emptyMessage();
+            container.find("input:hidden").remove();
+            container.find(".included .field").each(function (i) {
+                var typeEl = $(this).parents(".type:first");
+                var typeName = typeEl.attr("data-type");
+                var fieldTypeName = $(this).attr("data-type");
+                container.append(
+                    '<input type="hidden" name="' + propertyName(i) + '" value="' + typeName + ":" + fieldTypeName + '"/>'
+                );
+            });
+        };
+        container.find(".list").sortable({
+            cursorAt: {top:0,left:0},
+            connectWith: ".settings_type_allowed_types .list", items: ".field", update: function (e, ui) {
+                setValue();
+            }
+        });
+        emptyMessage();
+    });
+</script>

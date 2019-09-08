@@ -1,0 +1,25 @@
+﻿@model string
+@{ 
+    var guid ="G"+ Guid.NewGuid().ToString();
+}
+<div class="puck_mce mce_@ViewData.ModelMetadata.PropertyName">
+    @Html.TextAreaFor(x => x,new {id=guid.ToString() })
+</div>
+<script>
+    onAfterDom(function () {
+        //debugger;
+        var guid = '@Html.Raw(guid.ToString())';
+        //var selector = ".mce_@ViewData.ModelMetadata.PropertyName textarea";
+        var selector = "#"+guid;
+        tinymce.init({
+            selector: selector,
+            height:200,
+            plugins: [
+                "advlist autolink lists link image charmap print preview anchor",
+                "searchreplace visualblocks code fullscreen",
+                "insertdatetime media table contextmenu paste"
+            ],
+            toolbar: "insertfile undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image"
+        });
+    });
+</script>

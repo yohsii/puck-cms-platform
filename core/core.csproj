@@ -1,0 +1,38 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.1</TargetFramework>
+    <RootNamespace>puck.core</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Lucene.Net" Version="4.8.0-beta00006" />
+    <PackageReference Include="Lucene.Net.Analysis.Common" Version="4.8.0-beta00006" />
+    <PackageReference Include="Lucene.Net.Highlighter" Version="4.8.0-beta00006" />
+    <PackageReference Include="Lucene.Net.Memory" Version="4.8.0-beta00006" />
+    <PackageReference Include="Lucene.Net.Queries" Version="4.8.0-beta00006" />
+    <PackageReference Include="Lucene.Net.QueryParser" Version="4.8.0-beta00006" />
+    <PackageReference Include="Lucene.Net.Sandbox" Version="4.8.0-beta00006" />
+    <PackageReference Include="Lucene.Net.Spatial" Version="4.8.0-beta00006" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity" Version="2.2.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="3.0.0-preview9.19424.4" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.2.5" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.DataAnnotations" Version="2.2.0" />
+    <PackageReference Include="Microsoft.AspNetCore.ResponseCaching" Version="2.2.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.0.0-preview9.19423.6" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="3.0.0-preview9.19423.6" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="3.0.0-preview9.19423.6">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Extensions.DependencyModel" Version="3.0.0-preview9-19423-09" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="3.0.0-preview9.19423.4" />
+    <PackageReference Include="MiniProfiler.AspNetCore.Mvc" Version="4.0.180" />
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Abstract\" />
+  </ItemGroup>
+
+</Project>

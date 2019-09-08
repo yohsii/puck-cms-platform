@@ -1,0 +1,13 @@
+﻿@model puck.core.Base.BaseTask
+@{
+    Layout = null;    
+}
+<div class="task_edit settings">
+    <div class="">
+@using (Html.BeginForm("Edit", "Task", new { p_type = Model.GetType().FullName }, FormMethod.Post))
+{
+    @Html.EditorForModel()
+    <button class="task_update btn btn-link">update</button>
+}
+</div>
+</div>

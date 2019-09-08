@@ -1,0 +1,38 @@
+﻿@model puck.core.Entities.GeneratedProperty
+@{
+    Layout = null;
+    
+}
+<div class=" edit_generated_property">
+@using (Html.BeginForm("editproperty", "task", new {mid=ViewBag.mid }))
+{
+    @Html.ValidationSummary(true)
+
+    <fieldset>
+        <legend>Property</legend>
+        @Html.HiddenFor(x => x.ID)
+        <div class="editor-label">
+            @Html.LabelFor(model => model.Name)
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.Name)
+            @Html.ValidationMessageFor(model => model.Name)
+        </div>
+
+        <div class="editor-label">
+            @Html.LabelFor(model => model.Type)
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.Type)
+            @Html.ValidationMessageFor(model => model.Type)
+        </div>
+
+        <p>
+            <input type="submit" value="Create" />
+        </p>
+    </fieldset>
+}
+    <div class="spinner">
+        <div class="loading"></div>
+    </div>
+</div>

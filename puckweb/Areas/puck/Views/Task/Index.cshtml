@@ -1,0 +1,119 @@
+﻿@model puck.core.Models.TasksModel
+
+@{
+    Layout = null;
+}
+<div class="developer settings">
+    <ul class="nav nav-tabs" role="tablist">
+        <li class="active nav-item"><a class="active nav-link fieldtabs" href="#fieldtabs0">Views</a></li>
+        <li class="nav-item"><a class="nav-link fieldtabs" href="#fieldtabs1">Generated Models</a></li>
+        <li class="nav-item"><a class="nav-link fieldtabs" href="#fieldtabs2">Tasks</a></li>
+    </ul>
+        
+    <div id="fieldtabs0" class="fieldwrapper">
+        <div class="editor-label">
+        @Html.Label("Views")
+        </div>
+        <div class="editor-field">
+            @{
+            Html.RenderPartial("SettingsViewEdit");   
+            }
+            
+        </div>
+        
+    </div>
+    
+    <div id="fieldtabs1" class="fieldwrapper">
+        <div class="editor-label">
+        @Html.LabelFor(model => model.GeneratedModels)
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.GeneratedModels)
+            @Html.ValidationMessageFor(model => model.GeneratedModels)
+        </div>
+    </div>
+    
+    <div id="fieldtabs2" class="tasklist fieldwrapper">
+        @Html.LabelFor(model => model.Tasks)
+        <p>
+            <a class="btn btn-link create_task" href="@Url.Action("Create")">
+                <i class="fas fa-plus-circle"></i>
+                New Task
+            </a>
+        
+        </p>
+        <table>
+            <tr>
+                <th>Type</th>
+                <th>
+                    Name
+                </th>
+                <th>
+                    Recurring
+                </th>
+                <th>
+                    Interval (secs)
+                </th>
+                <th>
+                    Run On
+                </th>
+                <th>
+                    Last Run
+                </th>
+                <th></th>
+            </tr>
+    
+        @foreach (var item in Model.Tasks) {
+            <tr>
+                <td>@item.GetType().Name<br /><sub>@item.GetType().Namespace</sub></td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Recurring)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.IntervalSeconds)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.RunOn)
+                </td>
+                <td>
+                    @*Html.DisplayFor(modelItem => item.LastRun)*@
+                    @item.LastRun
+                </td>
+                <td>
+                    @Html.ActionLink("Edit", "Edit", new { id=item.ID }) <br />
+                    @Html.ActionLink("Delete", "Delete", new { id = item.ID }, new { @class="delete"})                
+                </td>
+            </tr>
+        }
+    
+        </table>
+    </div>    
+    
+</div>
+
+<style>
+    #fieldtabs1
+    {
+        display:none;
+    }
+    #fieldtabs2
+    {
+        display:none;
+    }
+</style>
+<script>
+    $(document).ready(function () {
+        var container = $("div.developer.settings");
+        container.find("ul.nav li").click(function (e) {
+            e.preventDefault();
+            container.find("ul.nav li a").removeClass("active");
+            $(this).find("a").addClass("active");
+            container.find("div.fieldwrapper").hide();
+            $($(this).find("a").attr("href")).show();
+            codeMirror.refresh();
+        });
+    });
+</script>

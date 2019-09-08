@@ -1,0 +1,315 @@
+﻿@model List<puck.core.Models.PuckPicker>
+@{
+    var apiHelper = PuckCache.ApiHelper;
+    var settings = this.PuckEditorSettings<puck.core.Models.EditorSettings.PuckImagePickerEditorSettings>()
+        ?? new puck.core.Models.EditorSettings.PuckImagePickerEditorSettings()
+        {
+            MaxPick = 3,
+            StartPath = null
+        };
+    var startPath = "";
+    Guid startId = Guid.Empty;
+    if (settings.StartPath != null && settings.StartPath.Count > 0)
+    {
+        var id = settings.StartPath.First().Id;
+        var revision = PuckCache.PuckRepo.GetPuckRevision().Where(x => x.Id == id && x.Current).FirstOrDefault();
+        if (revision != null)
+        {
+            startPath = revision.Path;
+            startId = revision.Id;
+        }
+    }
+    var guid = Guid.NewGuid();
+}
+<div data-guid="@guid.ToString()" class="puckimagepicker puckimagepicker_@ViewData.ModelMetadata.PropertyName puckimagepicker_@ViewData.TemplateInfo.HtmlFieldPrefix.Replace("[","_").Replace("]","_").Replace(".","_")">
+    <div style="display:none;" class="propName" data-propName="@ViewData.TemplateInfo.HtmlFieldPrefix"></div>
+    <div class="col-md-12 puckImagePickerMsgContainer"></div>
+    <div class="row selected_content">
+        <div class="col-md-2">
+            <button type="button" class="btn btn-light addImage"><i class="fas fa-plus"></i></button>
+        </div>
+        @if (Model != null)
+        {
+            foreach (var m in Model)
+            {
+                if (!string.IsNullOrEmpty(m.Variant))
+                {
+                    var node = PuckCache.PuckRepo.GetPuckRevision().Where(x => x.Id == m.Id && x.Variant.ToLower().Equals(m.Variant.ToLower())).FirstOrDefault();
+                    if (node != null)
+                    {
+                        var mod = node.ToBaseModel() as puck.ViewModels.ImageVM;
+                        <div data-id="@node.Id" data-variant="@node.Variant" data-nodename="@node.NodeName" class="item col-md-2">
+                            <div class="actionContainer">
+                                <i class="fas fa-pen view"></i>
+                                <i class="fas fa-trash remove"></i>
+                            </div>
+                            <div class="imageContainer">
+                                <img src="@mod.Image.Path" />
+                            </div>
+                            <div class="metaContainer">
+                                <span class="nodename">@node.NodeName</span>
+                                - <span class="variant">@node.Variant</span>
+                            </div>
+                        </div>
+                    }
+                }
+            }
+        }
+    </div>
+    <div class="interfaces">
+        <div class="imagePickerOverlayContainer">
+            <div class="searchContainer">
+                <input value="" type="text" class="searchBox"/>
+                <button type="button" class="btn btn-light">search</button>
+            </div>
+            <div class="path"></div>
+            <div class="itemContainer row">
+
+            </div>
+        </div>
+        
+        <div class="item col-4">
+            <div class="actionContainer">
+                <i class="fas fa-pen view"></i>
+                <i class="fas fa-trash remove"></i>
+            </div>
+            <div class="iconContainer">
+                <i class="fas fa-file-alt"></i>
+            </div>
+            <div class="imageContainer">
+                <img src="" />
+            </div>
+            <div class="metaContainer">
+                <span class="nodename"></span>
+                <span class="separator">-</span> <span class="variant"></span>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    onAfterDom(function () {
+        var guid = "@guid.ToString()";
+        var propname = "@Html.Raw(ViewData.TemplateInfo.HtmlFieldPrefix)";
+        var escapePropname = function (str) {
+            return str.replace(/\[/g, "_").replace(/\]/g,"_").replace(/\./g,"_");
+        }
+        var container = null;
+        container = $("[data-guid='"+guid+"']");
+        var getPropName = function () {
+            return container.find("div:hidden.propName:first").attr("data-propName");
+        }
+        var msgContainer = container.find(".puckImagePickerMsgContainer");
+        var selected_container = container.find(".selected_content");
+        var selected_content = function () { return selected_container.find(".item"); }
+        var _startPath = "@startPath" == ""?startPath:"@startPath";
+        var _startId = "@startId.ToString()";
+        var maxPick = "@settings.MaxPick";
+        var setValue = function () {
+            container.find("input:hidden:not(.searchBox)").remove();
+            selected_content().each(function (i) {
+                var node = $(this);
+                container.append(
+                    "<input type='hidden' name='" + getPropName() + "[" + i + "].Id' value='" + node.attr("data-id") + "'/>"
+                    + "<input type='hidden' name='" + getPropName() + "[" + i + "].Variant' value='" + node.attr("data-variant") + "'/>"
+                );
+            });
+        }
+        setValue();
+
+        container.find(".addImage").click(function (e) {
+            if (selected_container.find(".item").length >= maxPick) {
+                msg(undefined, "you cannot select any more, max selection is set to " + maxPick, undefined, msgContainer);
+                return false;
+            }
+            var el = container.find(".interfaces .imagePickerOverlayContainer").clone();
+            overlay(el, 400, undefined, undefined, "Image Picker", true);
+            showFolderContent(_startId,"/");
+            $(".rightarea .overlay_screen").on("click", ".metaContainer.folder", function (e) {
+                var el = $(this);
+                var item = el.parents(".item");
+                showFolderContent(item.attr("data-id"),item.attr("data-nodename"));
+            });
+            $(".rightarea .overlay_screen").on("click", ".imagePickerOverlayContainer .path span", function (e) {
+                var el = $(this);
+                el.nextAll("span").remove();
+                var id = el.attr("data-id");
+                showFolderContent(id,undefined);
+            });
+            $(".rightarea .overlay_screen").on("click", ".imagePickerOverlayContainer .searchContainer button", function (e) {
+                var input = $(".rightarea .overlay_screen .searchContainer input");
+                var searchTerm = input.val();
+                getSearch(searchTerm, function (res) {
+                    var cont = $(".rightarea .overlay_screen:first");
+                    var itemContainer = $(".rightarea .overlay_screen .itemContainer");
+                    itemContainer.html("");
+                    //console.log(res);
+                    var pathEl = $("<span class='searchTerm'/>").html("search:\"" + searchTerm + "\" ");
+                    var clear = $("<button class='btn btn-link'>clear</button>").click(function () {
+                        cont.find(".path").html("");
+                        showFolderContent(_startId, "/");
+                    }).appendTo(pathEl);
+                    cont.find(".path").html(pathEl);
+                    if (res.length == 0) {
+                        itemContainer.html($("<div class='col-12 zeroResults'/>").html("0 results"));
+                    } else {
+                        for (var i = 0; i < res.length; i++) {
+                            draw(res[i], [], itemContainer);
+                        }
+                    }
+                }, "ImageVM", "");
+            });
+            $(".rightarea .overlay_screen").on("click","img", function (e) {
+                var el = $(this).parents(".item");
+                if (selected_container.find("[data-id='" + el.attr("data-id") + "'][data-variant='" + el.attr("data-variant") + "']").length == 0) {
+                    if (selected_container.find(".item").length < maxPick) {
+                        el.addClass("selected");
+                        var copy = el.clone().removeClass("col-4").addClass("col-md-2");
+                        selected_container.append(copy);
+                        setValue();
+                    } else msg(undefined, "you cannot select any more, max selection is set to " + maxPick,undefined,msgContainer);
+                    
+                }
+            });
+        });
+        var showFolderContent = function(id,name) {
+            var cont = $(".rightarea .overlay_screen:first");
+            var itemContainer = $(".rightarea .overlay_screen .itemContainer");
+            if (cont.length == 0) return;
+            itemContainer.html("");
+            if (name != undefined) {
+                var pathEl = $("<span data-id='" + id + "'/>").html(name + (name == "/" ? "" : "/"));
+                cont.find(".path").append(pathEl);
+            }
+            getContentByParentId(id, function (res) {
+                //console.log(res);
+                for (guid in res.current) {
+                    var itemGroup = res.current[guid];
+                    var vCount = 0;
+                    for (variant in itemGroup) {
+                        var item = itemGroup[variant];
+                        if (vCount > 0 && item.Type != "ImageVM")
+                            break;
+                        draw(item, res.children, itemContainer);
+                        vCount++;
+                    }
+                }
+
+            },false);
+        }
+
+        var draw = function (model, children, itemContainer) {
+            //if (!children.includes(model.Id) && model.Type != 'ImageVM')
+            //    return;
+            var el = container.find(".interfaces .item").clone();
+            if (selected_container.find("[data-id='" + model.Id + "'][data-variant='" + model.Variant + "']").length > 0) {
+                el.addClass("selected");
+            }
+            el.attr({ "data-id": model.Id, "data-variant": model.Variant, "data-nodename": model.NodeName });
+            el.find(".variant").html(model.Variant);
+            el.find(".nodename").html(model.NodeName);
+            if (model.Type == "ImageVM") {
+                el.find(".iconContainer").hide();
+                el.find("img").attr({ src: model.Image.Path }).css({width:"100%"});
+            } else {
+                el.find(".imageContainer").hide();
+                el.find(".variant").hide();
+                el.find(".separator").hide();
+            }
+            if (children.includes(model.Id)) {
+                el.find(".metaContainer").addClass("folder");
+                el.find(".iconContainer i").removeClass("fa-file-alt").addClass("fa-folder");
+            }
+                
+            itemContainer.append(el);
+            //console.log(model);
+        }
+        selected_container.on("click", "i.remove", function (e) {
+            $(this).parents(".item").remove();
+            setValue();
+        });
+        
+        selected_container.on("click", ".view", function (e) {
+            var el = $(this);
+            var selectedNode = el.parents(".item");
+            var id = selectedNode.attr("data-id");
+            var variant = selectedNode.attr("data-variant");
+            var nodename = selectedNode.attr("data-nodename");
+
+            var container = $("<div />");
+            var inner = $("<div data-tabPrefix='overlayContent_' class='cont_inner'></div>").css({width:"100%",height:"100%"});
+            var msgContainer = $("<div class='msgTop'></div>");
+            container.append(msgContainer).append(inner);
+
+            overlay(container, "90%", undefined, top, nodename);
+            displayMarkup(null, undefined, variant, undefined, id, inner,msgContainer);
+        });
+    });
+</script>
+<style>
+    .puckimagepicker .interfaces {
+        display:none;
+    }
+    .puckimagepicker img{
+        max-width:100%;
+    }
+    .imagePickerOverlayContainer .variant,.puckimagepicker .variant {
+        color:#1e1e1e!important;
+    }
+    .imagePickerOverlayContainer .iconContainer {
+        text-align:center;
+    }
+    .imagePickerOverlayContainer .iconContainer i {
+        font-size:3em;
+        width:100%;
+        padding:12px;
+    }
+    .imagePickerOverlayContainer .item {
+        background:#f8f8f8;
+        border:1px solid #fff;
+    }
+    .imagePickerOverlayContainer .path span {
+        margin: 0 5px;
+        padding: 5px;
+        background: #f2f2f2;
+        cursor:pointer;
+    }
+    .imagePickerOverlayContainer .item.selected .metaContainer {
+        background:#ccffcc;
+    }
+    .imagePickerOverlayContainer .metaContainer.folder{
+        cursor:pointer;
+        border: 1px dashed #121212;
+        padding: 3px;
+        text-align:center;
+    }
+    .imagePickerOverlayContainer .metaContainer.folder span.nodename{cursor:pointer!important;}
+    .imagePickerOverlayContainer .searchContainer button {
+        vertical-align:top;
+    }
+    .imagePickerOverlayContainer .searchContainer input {
+        height:38px;
+        width:215px;
+    }
+    .imagePickerOverlayContainer img {
+        cursor:pointer;
+    }
+    @@media only screen and (max-width:768px) {
+        .puckimagepicker img {
+            max-height:150px;
+        }
+    }
+    .imagePickerOverlayContainer .actionContainer {
+        display:none;
+    }
+    .puckimagepicker .actionContainer{
+        display:block;
+        padding-top:4px;
+        border-top:1px solid #f2f2f2;
+    }
+    .puckimagepicker .actionContainer i{
+        cursor:pointer;
+    }
+    .puckimagepicker .item {
+        
+    }
+</style>

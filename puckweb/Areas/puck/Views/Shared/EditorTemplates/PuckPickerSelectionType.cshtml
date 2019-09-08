@@ -1,0 +1,8 @@
+﻿@model string
+
+@{
+    var names = Enum.GetNames(typeof(puck.core.Models.EditorSettings.PuckPickerSelectionType));
+    var list = new SelectList(names);
+    @Html.DropDownList("",list)
+        
+}

@@ -1,0 +1,13 @@
+﻿@model puck.core.Abstract.I_Puck_Editor_Settings
+@{
+    Layout = null;    
+}
+<div class="parameters_edit settings">
+    <div class="">
+@using (Html.BeginForm("EditParameters", "Settings", new { puck_settingsType = Request["settingsType"],puck_modelType=Request["modelType"],puck_propertyName=Request["propertyName"] }, FormMethod.Post))
+{
+    @Html.EditorForModel()
+    <button class="parameters_update btn btn-link">update</button>
+}
+</div>
+</div>

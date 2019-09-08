@@ -1,0 +1,113 @@
+﻿
+@model Dictionary<string,string>
+<div class="redirects">
+    <ul>
+        <li>
+            <label>From (<i class="fas fa-pencil-alt"></i>)</label>
+            <input class="from" />
+        </li>
+        <li>
+            <label>To (<i class="fas fa-pencil-alt to"></i>)</label>
+            <input class="to" />
+        </li>
+        <li>
+            <label>Type</label>
+            <select class="redirect_type">
+                <option value="@puck.core.Constants.DBNames.Redirect301">Permanent</option>
+                <option value="@puck.core.Constants.DBNames.Redirect302">Temporary</option>
+            </select>
+        </li>
+        <li>
+            <button class="btn btn-light">add</button>
+        </li>
+    </ul>
+    <div class="nodisplay entry">&nbsp;<span><i class="fas fa-minus-circle"></i></span></div>
+    <div class="display clearboth">
+        @foreach(var r in Model.ToList()){
+            var rtype = r.Key.StartsWith(puck.core.Constants.DBNames.Redirect301) ? puck.core.Constants.DBNames.Redirect301 : puck.core.Constants.DBNames.Redirect302;
+            <div data-rtype="@rtype" data-from="@r.Key.Substring(rtype.Length)" data-to="@r.Value" class="entry">@r.Key.Substring(rtype.Length) - @r.Value - @rtype.Substring(8,3)&nbsp;<span><i class="fas fa-minus-circle"></i></span></div>
+        }        
+    </div>
+    <div class="tree_container">
+        <ul class="content nomenu redirect">
+            <li class="node" data-children_path="/"></li>
+        </ul>  
+    </div>    
+</div>
+<script>
+    onAfterDom(function () {
+        var redirectsContainer = $(".redirects");
+        var from = redirectsContainer.find("input.from");
+        var to = redirectsContainer.find("input.to");
+        var rtype_sel = redirectsContainer.find("select.redirect_type");
+        var display = redirectsContainer.find(".display");
+        //ini
+        display.find(".entry").each(function (i) {
+            var el = $(this);
+            el.find("i").click(function () {
+                el.remove();
+                setValue();
+            });
+        });
+        redirectsContainer.find("ul.content .node").attr("data-children_path",startPath);
+        redirectsContainer.find("label i").click(function () {
+            var to = $(this).hasClass("to");
+            var target = $(this).parent().siblings("input");
+            var markup = redirectsContainer.find(".tree_container").clone();
+            var el = markup.find(".node:first");
+            overlay(markup,undefined,undefined,undefined,to?"Redirect To":"Redirect From");
+            getDrawContent(startId, el);
+            markup.on("click", ".node span", function (e) {
+                var node = $(this).parents(".node:first");
+                var path = node.attr("data-path");
+                if (to) {
+                    path = path.slice(1);
+                    if (path.indexOf("/") > -1)
+                        path = path.substring(path.indexOf("/"));
+                    else
+                        path = "/";
+                }
+                target.val(path);
+                overlayClose();
+            });
+        });        
+
+        var getPropNameKey = function (i) {
+            return "@ViewData.ModelMetadata.PropertyName" + "[" + i + "].Key";
+        }
+        var getPropNameValue = function (i) {
+            return "@ViewData.ModelMetadata.PropertyName" + "[" + i + "].Value";
+        }
+        var setValue = function () {
+            redirectsContainer.find("input:hidden").remove();
+            display.find(".entry").each(function (i) {
+                var key = $(this).attr('data-from');
+                var value = $(this).attr('data-to');
+                var rtype = $(this).attr("data-rtype");
+                redirectsContainer.append(
+                        "<input type='hidden' name='" + getPropNameKey(i) + "' value='" +rtype+ key + "'/>"
+                        + "<input type='hidden' name='" + getPropNameValue(i) + "' value='" + value + "'/>"
+                    );
+            });
+            if (redirectsContainer.find("input:hidden").length == 0) {
+                redirectsContainer.append(
+                        "<input type='hidden' name='" + getPropNameKey(0) + "' value=''/>"
+                        + "<input type='hidden' name='" + getPropNameValue(0) + "' value=''/>"
+                    );
+            }
+        }
+        redirectsContainer.find("button").click(function (e) {
+            e.preventDefault();
+            if (!from.val().isEmpty() && !to.val().isEmpty() && redirectsContainer.find(".display div[data-from='" + from.val() + "']").length == 0) {
+                var entry = redirectsContainer.find(".entry.nodisplay").clone();
+                entry.removeClass("nodisplay");
+                entry.attr("data-from", from.val()).attr("data-to", to.val()).attr("data-rtype", rtype_sel.val());
+                entry.find("span").click(function () { entry.remove(); setValue(); });
+                entry.prepend(from.val() + " - " + to.val() + " - "+rtype_sel.val().substr(8,3));
+                display.append(entry);
+                setValue();
+            }
+        });
+    });
+    
+</script>

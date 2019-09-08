@@ -1,0 +1,286 @@
+﻿@{
+    var apiHelper = PuckCache.ApiHelper;
+    var views = apiHelper.Views();
+}
+<div class="view_edit">
+    <div class="template_root">
+        <ul data-dropdown="template-dropdown" class="content templates">
+            <li class="node" data-children_path="/" data-type="folder" data-id="/" data-path="/" data-name="Root" data-has_children="true">
+                <div class="inner">
+                    <i class="fas fa-cog menu"></i>
+                    <span class="nodename">Root&nbsp;</span>
+                </div>
+            </li>
+        </ul>
+    </div>
+    <a class="btn btn-link inspect_model">inspect model</a> <a class="btn btn-link save">save</a>
+    <textarea></textarea>
+        
+    <div class="clearboth"></div>
+
+    <div class="btn-group template-dropdown puck-dropdown">
+        <ul class="dropdown-menu">
+            <li><a href="#" data-action="template_create" data-permission="_tasks"><i class="fas fa-plus-circle"></i> Create</a></li>
+            <li><a href="#" data-action="template_new_folder" data-permission="_tasks"><i class="fas fa-folder"></i> New Folder</a></li>
+            <li><a href="#" data-action="template_delete" data-permission="_tasks"><i class="fas fa-trash"></i> Delete</a></li>
+            <li><a href="#" data-action="template_move" data-permission="_tasks"><i class="fas fa-file"></i> Move</a></li>
+        </ul>
+    </div>
+    <div class="interfaces">
+        <div class="choose_model ">
+            <h3>model ambiguity; please select which model you would like to inspect:</h3>
+            <ul>
+                
+            </ul>
+        </div>
+        <div class="model_properties ">
+            <h3>properties for model: <span class="model_name"></span></h3>
+            <div class="path"></div>
+            <ul>
+
+            </ul>
+            <a class="btn btn-link all_models">all models</a>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    onAfterDom(function () {
+        var container = $(".view_edit");
+        var ta = container.find("textarea");
+        var intf = function (c) {
+            return container.find(">.interfaces>" + c).clone();
+        }
+        var editor = CodeMirror.fromTextArea(ta.get(0), {
+            mode: "text/html"
+        });
+        window.codeMirror = editor;
+        var inspectButton = container.find(".inspect_model");
+        var select = container.find("select");
+        var saveBtn = container.find(".save");
+        var selectedNode;
+
+        var getEditModel = function () {
+            var lines = editor.getValue().split("\n");
+
+            var model = null;
+            for (var i = 0; i < lines.length; i++) {
+                model = lines[i].match(@(@"/^@model\s(.+)/"));
+                if (model != null)
+                    break;
+            }
+
+            if (model == null)
+                model = "";
+            else 
+                model = model[1];                
+            
+            return model;
+        }
+        var getDynamicEditModel = function () {
+            var lines = editor.getValue().split("\n");
+
+            var model = null;
+            for (var i = 0; i < lines.length; i++) {
+                model = lines[i].match(@(@"/^@model\s(.+)/"));
+                if (model != null) {
+                    if(lines.length>i+1){
+                        model = lines[i+1].replace("@@{/*", "").replace("*/}","");
+                        break;
+                    }
+                }
+            }
+
+            if (model == null)
+                model = "";
+
+            return model;
+        }
+        inspectButton.click(function () {
+            //fire window to show models available and their properties, allowing you to insert them into editor
+            var model = getEditModel();
+            if (model == "dynamic") {
+                model = getDynamicEditModel();
+            }
+            getModelOptions(model, function (d) {
+                if (d.length == 1) {
+                    var name = d[0].Name;
+                    inspectModel(d[0].AssemblyName,"", function (d) {
+                        //show inspector
+                        showInspect(d,true);
+                    });
+                }
+                else {
+                    //show options
+                    showChooseModel(d,true);
+                }
+            });
+            
+        });
+        $(document).unbind("click.view_edit_prop_insert");
+        $(document).unbind("click.view_edit_prop_iterate");
+        $(document).unbind("click.view_edit_prop_inspect");
+        $(document).unbind("click.view_edit_inspect");
+        $(document).unbind("click.view_edit_path");
+        $(document).on("click.view_edit_path", ".rightarea .overlay_screen .model_properties div.path span", function () {
+            var el = $(this);
+            var path = el.attr("data-path");
+            var type = el.parents(".model_properties").attr("data-type");
+            inspectModel(type, path, function (d) { showInspect(d);});
+        });
+        $(document).on("click.view_edit_prop_insert", ".model_properties li .insert", function (e) {
+            e.preventDefault();
+            var el = $(this);
+            var insertString = el.parents("li").attr("data-insert");
+            var model = getEditModel();            
+            editor.replaceSelection(insertString, "start");
+            var fullName = el.parents(".model_properties").attr("data-full_name");
+            var isGenerated = el.parents(".model_properties").attr("data-generated");
+            if (model == "") {
+                if (isGenerated=="true") {
+                    editor.setValue("@("@model ")dynamic\n@@{/*"+ fullName + "*/}\n\n" + editor.getValue());
+                } else {
+                    editor.setValue("@("@model ")" + fullName + "\n" + editor.getValue());
+                }
+            }
+        });
+        $(document).on("click.view_edit_prop_iterate", ".model_properties li .iterate", function (e) {
+            e.preventDefault();
+            var el = $(this);
+            var iterateString = el.parents("li").attr("data-iterate");
+            var model = getEditModel();
+            editor.replaceSelection(iterateString, "start");
+            var fullName = el.parents(".model_properties").attr("data-full_name");
+            var isGenerated = el.parents(".model_properties").attr("data-generated");
+            if (model == "") {
+                if (isGenerated == "true") {
+                    editor.setValue("@("@model ")dynamic\n@@{/*" + fullName + "*/}\n\n" + editor.getValue());
+                } else {
+                    editor.setValue("@("@model ")" + fullName + "\n" + editor.getValue());
+                }
+            }
+        });
+        $(document).on("click.view_edit_prop_inspect", ".model_properties li .inspect", function (e) {
+            e.preventDefault();
+            var el = $(this);
+            var inspectString = el.parents("li").attr("data-inspect");
+            var type = el.parents(".model_properties").attr("data-type");
+            inspectModel(type, inspectString, function (d) { showInspect(d); });
+        });
+
+        $(document).on("click.view_edit_inspect", ".rightarea .overlay_screen .choose_model li", function (e) {
+            var type = $(this).attr("data-type");
+            var name = $(this).attr("data-name");
+            inspectModel(type,"", function (d) {
+                showInspect(d);
+            });
+        });
+        var showChooseModel = function (d,popup) {
+            var el = intf(".choose_model");
+            $(d).each(function () {
+                el.find("ul").append(
+                    $("<li/>").html(this.Name).attr("data-type", this.AssemblyName).attr("data-name", this.Name)
+                    );
+            });
+            if (popup)
+                overlay(el, 500,undefined,undefined,"");
+            else {
+                $(".rightarea .overlay_screen .model_properties").remove();
+                $(".rightarea .overlay_screen .inner").append(el);
+            }
+        }
+        var showInspect = function (d,popup) {
+            var el = intf(".model_properties");
+            el.attr("data-path",d.Path).attr("data-full_name",d.FullName).attr("data-generated",d.IsGenerated);
+            el.find("h3 span").html(d.Name);
+            var paths = d.Path.split(".");
+            var path = "";
+            el.find("div.path").append(
+                $("<span>Model</span>").attr("data-path", "")
+            );
+            
+            $(paths).each(function () {
+                if (this == "")
+                    return;
+                path += (path == "" ? this : "." + this);
+                el.find("div.path").append(
+                    $("<span>"+this+"</span>").attr("data-path",path)
+                    )
+            });
+            $(d.Data).each(function () {
+                var prop = $("<li/>").html(this.Name + "(" + this.Type + ")");
+                prop.attr({"data-iterate":this.IterateString,"data-insert":this.InsertString,"data-inspect":this.InspectString})
+                prop.append( $("<a/>").addClass("insert btn btn-link").html("insert"));
+                if(this.IsArray)
+                    prop.append( $("<a/>").addClass("iterate btn btn-link").html("iterate"));
+                if(this.IsComplexType)
+                    prop.append( $("<a/>").addClass("inspect btn btn-link").html("inspect"));
+                el.find("ul").append(prop);
+            });
+            el.find("a.all_models").click(function (e) {
+                e.preventDefault();
+                getModelOptions("", function (d) {
+                    showChooseModel(d, false);
+                });
+            });
+            el.attr("data-type",d.Type);
+            if (popup==true) {
+                overlay(el, 500);
+            } else {
+                $(".rightarea .overlay_screen .choose_model").remove();
+                $(".rightarea .overlay_screen .model_properties").remove();
+                $(".rightarea .overlay_screen .inner").append(el);
+            }
+        };
+        var getModelOptions = function (t,f) {
+            $.get("/puck/api/modeloptions?type="+t, function (d) {
+                f(d);
+            });
+        }
+
+        var inspectModel = function (t,p,f) {
+            $.get("/puck/api/inspectmodel?type="+t+"&opath="+p, function (d) {
+                f(d);
+            });
+        }
+
+        container.on("click", ".node[data-type='file'] span", function () {
+            selectedNode = $(this).parents(".node:first");
+            container.find(".node").removeClass("selected");
+            selectedNode.addClass("selected");
+            var fp = selectedNode.attr("data-path");
+            getFile(fp);
+        });
+        
+        var getFile = function (fp) {
+            $.get("/puck/task/getviewfilecontent?fp=" + fp, function (data) {
+                editor.setValue(data);                
+            });
+        }
+
+        var saveFile = function (fp, val) {
+            cright.find(">.message .btnclose").click();
+            $.post("/puck/task/savefilecontent",{fp:fp,content:val}, function (data) {
+                if (data.success) {
+                    msg(true, "view updated");
+                } else {
+                    msg(false,data.message);
+                }
+            });
+        }
+
+        saveBtn.click(function () {
+            if (selectedNode == null)
+                return false;
+            var fp = selectedNode.attr("data-path");
+            var value = editor.getValue();
+            saveFile(fp,value);
+        });
+                
+        getDrawTemplates("", container.find("ul.content.templates .node"), function () { });
+
+        $("div.CodeMirror").css({height: $(window).height()- 200 - $("div.CodeMirror").offset().top + "px"});
+
+    });
+
+</script>
