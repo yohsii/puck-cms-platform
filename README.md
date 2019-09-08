@@ -1,4 +1,4 @@
-NOTE: this is a migration of the original mvc 5 project which you can find here [puck](https://github.com/yohsii/puck). it's not yet in a running state!
+NOTE: this is a migration of the original mvc 5 project which you can find [here](https://github.com/yohsii/puck). it's not yet in a running state!
 
 # puck
 a code first content management system based on .net mvc5 that uses sqlserver and lucene for storage.
