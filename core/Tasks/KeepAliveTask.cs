@@ -20,9 +20,9 @@ namespace puck.core.Tasks
             this.IntervalSeconds = 120;
             this.RunOn = DateTime.Now;
         }
-        public override void Run(CancellationToken t)
+        public override async Task Run(CancellationToken t)
         {
-            base.Run(t);
+            await base.Run(t);
             if (PuckCache.FirstRequestUrl != null) {
                 var uri = PuckCache.FirstRequestUrl;
                 var url = $"{uri.Scheme}://{uri.Host}:{uri.Port}/puck/api/keepalive";

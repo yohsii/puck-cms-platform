@@ -192,8 +192,22 @@ namespace puck.core.Helpers
         public static IEnumerable<Type> FindDerivedClasses(Type baseType, List<Type> excluded = null, bool inclusive = false)
         {
             excluded = excluded ?? new List<Type>();
-            var asmNames = DependencyContext.Default.GetDefaultAssemblyNames();
-            var types = asmNames.Select(Assembly.Load)
+            //var asmNames = DependencyContext.Default.GetDefaultAssemblyNames();
+            var assembly = Assembly.GetEntryAssembly();
+            var assemblyNames = assembly.GetReferencedAssemblies();
+            var assemblies = new List<Assembly>() { assembly};
+            foreach (var assemblyName in assemblyNames)
+            {
+                assembly = Assembly.Load(assemblyName);
+                assemblies.Add(assembly);
+            }
+            //foreach (var name in asmNames) {
+            //    try {
+            //        var assembly = Assembly.Load(name);
+            //        assemblies.Add(assembly);
+            //    } catch (Exception ex) { }
+            //}
+            var types = assemblies
                 .SelectMany(x => x.GetTypes()).Where(x => (x != baseType || inclusive) && baseType.IsAssignableFrom(x) && !excluded.Contains(x));
             return types;
         }

@@ -15,6 +15,10 @@ using System.Web;
 using Lucene.Net.Analysis.Standard;
 using puck.core.State;
 using Lucene.Net.Analysis.Miscellaneous;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.AspNetCore.Identity;
 
 namespace puck.core.Helpers
 {
@@ -31,7 +35,57 @@ namespace puck.core.Helpers
         }}
         public static ApiHelper apiHelper { get { return PuckCache.ApiHelper; } }
         public static I_Log logger { get { return PuckCache.PuckLog; } }
+        public static async Task SeedDb(IConfiguration config, IHostEnvironment env, IServiceProvider serviceProvider) {
+            if (env.IsDevelopment())
+            {
+                using (var scope = serviceProvider.CreateScope())
+                {
+                    var userManager = (UserManager<PuckUser>)scope.ServiceProvider.GetService(typeof(UserManager<PuckUser>));
+                    var roleManager = (RoleManager<PuckRole>)scope.ServiceProvider.GetService(typeof(RoleManager<PuckRole>));
+                    var repo = Repo;
+                    if (repo.GetPuckUser().Count() == 0)
+                    {
+                        var roles = new List<string> {PuckRoles.Cache,PuckRoles.Create,PuckRoles.Delete,PuckRoles.Domain,PuckRoles.Edit,PuckRoles.Localisation
+                        ,PuckRoles.Move,PuckRoles.Notify,PuckRoles.Publish,PuckRoles.Puck,PuckRoles.Revert,PuckRoles.Settings,PuckRoles.Sort,PuckRoles.Tasks
+                        ,PuckRoles.Unpublish,PuckRoles.Users,PuckRoles.Republish,PuckRoles.Copy,PuckRoles.ChangeType,PuckRoles.TimedPublish,PuckRoles.Audit};
 
+                        foreach (var roleName in roles)
+                        {
+                            if (!await roleManager.RoleExistsAsync(roleName))
+                            {
+                                var role = new PuckRole();
+                                role.Name = roleName;
+                                await roleManager.CreateAsync(role);
+                            }
+                        }
+                        var adminEmail = config.GetValue<string>("InitialUserEmail");
+                        var adminPassword = config.GetValue<string>("InitialUserPassword");
+                        if (!string.IsNullOrEmpty(adminEmail))
+                        {
+                            var admin = await userManager.FindByEmailAsync(adminEmail);
+                            if (admin == null)
+                            {
+                                admin = new PuckUser { Email = adminEmail, UserName = adminEmail };
+                                var result = await userManager.CreateAsync(admin, adminPassword);
+
+                            }
+                            //userManager.AddPassword(admin.Id, adminPassword);
+                            foreach (var roleName in roles)
+                            {
+                                if (!await userManager.IsInRoleAsync(admin, roleName))
+                                    await userManager.AddToRoleAsync(admin, roleName);
+                            }
+                        }
+
+
+                    }
+                
+
+                }
+            }
+            
+
+        }
         public static void UpdateCrops(bool addInstruction=false) {
             var settingsType = typeof(PuckImageEditorSettings);
             var modelType = typeof(BaseModel);
@@ -93,19 +147,23 @@ namespace puck.core.Helpers
         public static void UpdateTaskMappings(bool addInstruction=false)
         {
             var repo = Repo;
-            var tasks = apiHelper.Tasks();
-            tasks.AddRange(apiHelper.SystemTasks());
-            //tasks = tasks.Where(x => tdispatcher.CanRun(x)).ToList();
-            tasks.ForEach(x => x.TaskEnd += tdispatcher.HandleTaskEnd);
-            tdispatcher.Tasks = tasks;
-            if (addInstruction)
+            using (var scope = PuckCache.ServiceProvider.CreateScope())
             {
-                var instruction = new PuckInstruction();
-                instruction.InstructionKey = InstructionKeys.UpdateTaskMappings;
-                instruction.Count = 1;
-                instruction.ServerName = ApiHelper.ServerName();
-                repo.AddPuckInstruction(instruction);
-                repo.SaveChanges();
+                var apiHelper = scope.ServiceProvider.GetService<ApiHelper>();
+                var tasks = apiHelper.Tasks();
+                tasks.AddRange(apiHelper.SystemTasks());
+                //tasks = tasks.Where(x => tdispatcher.CanRun(x)).ToList();
+                tasks.ForEach(x => x.TaskEnd += tdispatcher.HandleTaskEnd);
+                tdispatcher.Tasks = tasks;
+                if (addInstruction)
+                {
+                    var instruction = new PuckInstruction();
+                    instruction.InstructionKey = InstructionKeys.UpdateTaskMappings;
+                    instruction.Count = 1;
+                    instruction.ServerName = ApiHelper.ServerName();
+                    repo.AddPuckInstruction(instruction);
+                    repo.SaveChanges();
+                }
             }
         }
         //update class hierarchies/typechains which may have changed since last run
@@ -274,48 +332,57 @@ namespace puck.core.Helpers
         }
         public static void UpdateAQNMappings()
         {
-            foreach (var t in apiHelper.AllModels(true))
+            using (var scope = PuckCache.ServiceProvider.CreateScope())
             {
-                if (PuckCache.ModelNameToAQN.ContainsKey(t.Name))
-                    throw new Exception($"there is more than one ViewModel with the name:{t.Name}. ViewModel names must be unique!");
-                PuckCache.ModelNameToAQN[t.Name] = t.AssemblyQualifiedName;
+                var apiHelper = scope.ServiceProvider.GetService<ApiHelper>();
+                foreach (var t in apiHelper.AllModels(true))
+                {
+                    if (PuckCache.ModelNameToAQN.ContainsKey(t.Name))
+                        throw new Exception($"there is more than one ViewModel with the name:{t.Name}. ViewModel names must be unique!");
+                    PuckCache.ModelNameToAQN[t.Name] = t.AssemblyQualifiedName;
+                }
             }
         }
         public static void UpdateAnalyzerMappings()
         {
-            var panalyzers = new List<Analyzer>();
-            var analyzerForModel = new Dictionary<Type, Analyzer>();
-            foreach (var t in apiHelper.AllModels(true))
+            using (var scope = PuckCache.ServiceProvider.CreateScope())
             {
-                var instance = ApiHelper.CreateInstance(t);
-                try
+                var apiHelper = scope.ServiceProvider.GetService<ApiHelper>();
+                var panalyzers = new List<Analyzer>();
+                var analyzerForModel = new Dictionary<Type, Analyzer>();
+                foreach (var t in apiHelper.AllModels(true))
                 {
-                    ObjectDumper.SetPropertyValues(instance);
-                }
-                catch (Exception ex) {
-                    PuckCache.PuckLog.Log(ex);
-                };
-                
-                var dmp = ObjectDumper.Write(instance, int.MaxValue);
-                var analyzers = new Dictionary<string, Analyzer>();
-                PuckCache.TypeFields[t.AssemblyQualifiedName] = new Dictionary<string, string>();
-                foreach (var p in dmp)
-                {
-                    if (!PuckCache.TypeFields[t.AssemblyQualifiedName].ContainsKey(p.Key))
-                        PuckCache.TypeFields[t.AssemblyQualifiedName].Add(p.Key, p.Type.AssemblyQualifiedName);
-                    if (p.Analyzer == null)
-                        continue;
-                    if (!panalyzers.Any(x => x.GetType() == p.Analyzer.GetType()))
+                    var instance = ApiHelper.CreateInstance(t);
+                    try
                     {
-                        panalyzers.Add(p.Analyzer);
+                        ObjectDumper.SetPropertyValues(instance);
                     }
-                    analyzers.Add(p.Key, panalyzers.Where(x => x.GetType() == p.Analyzer.GetType()).FirstOrDefault());
+                    catch (Exception ex)
+                    {
+                        PuckCache.PuckLog.Log(ex);
+                    };
+
+                    var dmp = ObjectDumper.Write(instance, int.MaxValue);
+                    var analyzers = new Dictionary<string, Analyzer>();
+                    PuckCache.TypeFields[t.AssemblyQualifiedName] = new Dictionary<string, string>();
+                    foreach (var p in dmp)
+                    {
+                        if (!PuckCache.TypeFields[t.AssemblyQualifiedName].ContainsKey(p.Key))
+                            PuckCache.TypeFields[t.AssemblyQualifiedName].Add(p.Key, p.Type.AssemblyQualifiedName);
+                        if (p.Analyzer == null)
+                            continue;
+                        if (!panalyzers.Any(x => x.GetType() == p.Analyzer.GetType()))
+                        {
+                            panalyzers.Add(p.Analyzer);
+                        }
+                        analyzers.Add(p.Key, panalyzers.Where(x => x.GetType() == p.Analyzer.GetType()).FirstOrDefault());
+                    }
+                    var pfAnalyzer = new PerFieldAnalyzerWrapper(new StandardAnalyzer(Lucene.Net.Util.LuceneVersion.LUCENE_48), analyzers);
+                    analyzerForModel.Add(t, pfAnalyzer);
                 }
-                var pfAnalyzer = new PerFieldAnalyzerWrapper(new StandardAnalyzer(Lucene.Net.Util.LuceneVersion.LUCENE_48), analyzers);
-                analyzerForModel.Add(t, pfAnalyzer);
+                PuckCache.Analyzers = panalyzers;
+                PuckCache.AnalyzerForModel = analyzerForModel;
             }
-            PuckCache.Analyzers = panalyzers;
-            PuckCache.AnalyzerForModel = analyzerForModel;
         }
         public static void UpdateDefaultLanguage()
         {
@@ -325,12 +392,16 @@ namespace puck.core.Helpers
                 PuckCache.SystemVariant = meta.Value;
         }
         public static void SetModelDerivedMappings() {
-            var apiH = apiHelper;
-            PuckCache.ModelDerivedModels = new Dictionary<string, List<Type>>();
-            var modelTypes = apiH.Models();
-            foreach (var modelType in modelTypes) {
-                var derivedClasses = ApiHelper.FindDerivedClasses(modelType);
-                PuckCache.ModelDerivedModels[modelType.Name] = derivedClasses.ToList();
+            using (var scope = PuckCache.ServiceProvider.CreateScope())
+            {
+                var apiHelper = scope.ServiceProvider.GetService<ApiHelper>();
+                PuckCache.ModelDerivedModels = new Dictionary<string, List<Type>>();
+                var modelTypes = apiHelper.Models();
+                foreach (var modelType in modelTypes)
+                {
+                    var derivedClasses = ApiHelper.FindDerivedClasses(modelType);
+                    PuckCache.ModelDerivedModels[modelType.Name] = derivedClasses.ToList();
+                }
             }
         }
 

@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Web;
 
 namespace puck.Models
@@ -10,7 +11,7 @@ namespace puck.Models
     public class TestTask:BaseTask
     {
         public string Alias { get; set; }
-        public override void Run(CancellationToken t)
+        public override async Task Run(CancellationToken t)
         {
             
         }

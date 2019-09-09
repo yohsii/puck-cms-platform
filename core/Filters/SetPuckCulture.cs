@@ -13,9 +13,10 @@ namespace puck.core.Filters
 {
     public class SetPuckCulture : Attribute, IActionFilter
     {
+
         public void OnActionExecuting(ActionExecutingContext filterContext)
         {
-            var apiHelper = PuckCache.ApiHelper;
+            var apiHelper = filterContext.HttpContext.RequestServices.GetService(typeof(ApiHelper)) as ApiHelper;
             string variant = apiHelper.UserVariant();
             Thread.CurrentThread.CurrentCulture = CultureInfo.CreateSpecificCulture(variant);
         }

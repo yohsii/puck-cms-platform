@@ -389,8 +389,8 @@ namespace puck.core.Helpers
         
         public List<Type> AllModels(bool inclusive = false) {
             var models = Models(inclusive);
-            var gmodels = GeneratedModelTypes();
-            models.AddRange(gmodels);
+            //var gmodels = GeneratedModelTypes();
+            //models.AddRange(gmodels);
             return models;
         }
         /*
@@ -419,13 +419,13 @@ namespace puck.core.Helpers
         }
         public List<Type> Models(bool inclusive=false) {
             var excluded = new List<Type>() { typeof(PuckRevision)};
-            var igenerated = FindDerivedClasses(typeof(I_Generated)).Where(x=>x.IsInterface);
-            var generated = new List<Type>();
-            igenerated.ToList().ForEach(x => {
-                var concrete = FindDerivedClasses(x);
-                generated.AddRange(concrete);
-            });
-            excluded.AddRange(generated);
+            //var igenerated = FindDerivedClasses(typeof(I_Generated)).Where(x=>x.IsInterface);
+            //var generated = new List<Type>();
+            //igenerated.ToList().ForEach(x => {
+            //    var concrete = FindDerivedClasses(x);
+            //    generated.AddRange(concrete);
+            //});
+            //excluded.AddRange(generated);
             var result = FindDerivedClasses(typeof(BaseModel),excluded,inclusive).ToList();
             //result.AddRange(igenerated);
             return result;

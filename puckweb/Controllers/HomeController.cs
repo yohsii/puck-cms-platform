@@ -5,11 +5,12 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using puck.core.Controllers;
 using puckweb.Models;
 
 namespace puckweb.Controllers
 {
-    public class HomeController : Controller
+    public class HomeController : BaseController
     {
         private readonly ILogger<HomeController> _logger;
 
@@ -20,8 +21,7 @@ namespace puckweb.Controllers
 
         public IActionResult Index()
         {
-            var file = Request.Form.Files["file"];
-            return View();
+            return base.Puck();
         }
 
         public IActionResult Privacy()

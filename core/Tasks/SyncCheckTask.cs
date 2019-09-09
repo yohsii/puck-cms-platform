@@ -18,9 +18,9 @@ namespace puck.core.Tasks
             this.IntervalSeconds = 6;
             this.RunOn = DateTime.Now;
         }
-        public override void Run(CancellationToken t)
+        public override async Task Run(CancellationToken t)
         {
-            base.Run(t);
+            await base.Run(t);
             var repo = PuckCache.PuckRepo;
             var serverName = ApiHelper.ServerName();
             var lastSyncMeta = repo.GetPuckMeta().Where(x=>x.Name==DBNames.SyncId && x.Key==serverName).FirstOrDefault();

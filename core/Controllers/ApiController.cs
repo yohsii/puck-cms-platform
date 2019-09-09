@@ -26,6 +26,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Authentication.Cookies;
 
 namespace puck.core.Controllers
 {
@@ -64,7 +65,7 @@ namespace puck.core.Controllers
             var model = ApiHelper.RevisionToBaseModel(revision);
             return View(model);
         }
-        [Authorize(Roles = PuckRoles.Puck,AuthenticationSchemes =Mvc.AuthenticationScheme)]
+        [Authorize(Roles = PuckRoles.Puck,AuthenticationSchemes = "Identity.Application")]
         public ActionResult Index()
         {
             return View();

@@ -10,6 +10,7 @@ using puck.core.Events;
 using puck.core.Constants;
 using puck.core.State;
 using Microsoft.AspNetCore.Mvc;
+using System.Threading.Tasks;
 
 namespace puck.core.Base
 {
@@ -39,7 +40,8 @@ namespace puck.core.Base
                 Monitor.TryEnter(lck, lock_wait, ref taken);
                 if (!taken)
                     return;
-                Run(t);
+                var task = Run(t);
+                task.Wait();
                 this.LastRun = DateTime.Now;
             }
             catch (Exception ex) {
@@ -57,7 +59,7 @@ namespace puck.core.Base
                     Monitor.Exit(lck);
             }            
         }
-        public virtual void Run(CancellationToken t){
+        public virtual async Task Run(CancellationToken t){
 
         }        
     }

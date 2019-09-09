@@ -15,12 +15,20 @@ using puck.core.Models.EditorSettings;
 using puck.core.State;
 using puck.core.Services;
 using puck.core.Base;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Hosting;
+using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.AspNetCore.Http;
 
 namespace puck.core
 {
     public static class Bootstrap
     {
-        public static void Ini() {
+        public static async Task Ini(IConfiguration config,IHostEnvironment env,IServiceProvider serviceProvider, IHttpContextAccessor httpContextAccessor) {
+            System.Web.HttpContext.Configure(httpContextAccessor);
+            puck.core.State.PuckCache.Configure(config, env, serviceProvider);
+            await StateHelper.SeedDb(config, env, serviceProvider);
             //Database.SetInitializer(new MigrateDatabaseToLatestVersion<PuckContext, puck.core.Migrations.Configuration>());
             StateHelper.SetGeneratedMappings();
             StateHelper.UpdateDomainMappings();
@@ -55,7 +63,11 @@ namespace puck.core
                     PuckCache.IsRepublishingEntireSite = true;
                     PuckCache.IndexingStatus = "republish entire site task queued";
                     //HostingEnvironment.QueueBackgroundWorkItem(ct => contentService.RePublishEntireSite2());
-                    PuckCache.ContentService.RePublishEntireSite2();
+                    using (var scope = serviceProvider.CreateScope())
+                    {
+                        var contentService = scope.ServiceProvider.GetService<ContentService>();
+                        await contentService.RePublishEntireSite2();
+                    }
                 }
             }
 

@@ -18,6 +18,8 @@ using puck.core.Concrete;
 using puck.core.Helpers;
 using puck.core.Services;
 using puck.core.State;
+using puck.core.Extensions;
+using Microsoft.AspNetCore.Http;
 
 namespace puckweb
 {
@@ -36,38 +38,30 @@ namespace puckweb
         {
             services.AddDbContext<PuckContext>(options =>
                 options.UseSqlServer(
-                    Configuration.GetConnectionString("DefaultConnection")));
-            services.AddDefaultIdentity<PuckUser>(options => { options.SignIn.RequireConfirmedAccount = true;})
+                    Configuration.GetConnectionString("DefaultConnection"))
+                ,optionsLifetime:ServiceLifetime.Transient);
+            services.AddDefaultIdentity<PuckUser>(options => { options.SignIn.RequireConfirmedAccount = false;})
                 .AddRoles<PuckRole>()
                 .AddEntityFrameworkStores<PuckContext>();
             services.AddMemoryCache();
             services.AddResponseCaching();
+            services.AddSession();
             services.AddControllersWithViews().AddApplicationPart(typeof(puck.core.Controllers.BaseController).Assembly).AddControllersAsServices();
             services.AddRazorPages();
-            services.AddAuthentication(puck.core.Constants.Mvc.AuthenticationScheme).AddCookie(options=> {
+            services.AddAuthentication().AddCookie(puck.core.Constants.Mvc.AuthenticationScheme, options=> {
                 options.LoginPath = "/puck/admin/in";
                 options.LogoutPath = "/puck/admin/out";
             });
-
-            PuckCache.ContentRootPath = Env.ContentRootPath;
-            var logger = new Logger();
-            var indexerSearcher = new Content_Indexer_Searcher(logger,Configuration);
-            services.AddTransient<I_Puck_Repository, Puck_Repository>();
-            services.AddSingleton<I_Content_Indexer>(indexerSearcher);
-            services.AddSingleton<I_Content_Searcher>(indexerSearcher);
-            services.AddTransient<I_Log, Logger>();
-            services.AddSingleton<I_Task_Dispatcher, Dispatcher>();
-            services.AddTransient<ApiHelper>();
-            services.AddTransient<ContentService>();
-            services.AddHostedService<Dispatcher>((IServiceProvider serviceProvider)=> { return serviceProvider.GetService<I_Task_Dispatcher>() as Dispatcher; });
-
+            services.AddHttpContextAccessor();
+            services.AddPuckServices(Env,Configuration);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IHttpContextAccessor httpContextAccessor)
         {
-            puck.core.State.PuckCache.Configure(Configuration, env, app.ApplicationServices);
-            puck.core.Bootstrap.Ini();
+            var puckInit = puck.core.Bootstrap.Ini(Configuration,env,app.ApplicationServices, httpContextAccessor);
+            puckInit.Wait();
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -81,9 +75,9 @@ namespace puckweb
             }
             app.UseHttpsRedirection();
             app.UseStaticFiles();
+            app.UseSession();
             app.UseResponseCaching();
             app.UseRouting();
-
             app.UseAuthentication();
             
             app.UseAuthorization();
