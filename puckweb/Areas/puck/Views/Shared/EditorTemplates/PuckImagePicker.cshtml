@@ -37,7 +37,7 @@
                     var node = PuckCache.PuckRepo.GetPuckRevision().Where(x => x.Id == m.Id && x.Variant.ToLower().Equals(m.Variant.ToLower())).FirstOrDefault();
                     if (node != null)
                     {
-                        var mod = node.ToBaseModel() as puck.ViewModels.ImageVM;
+                        var mod = node.ToBaseModel() as puckweb.ViewModels.ImageVM;
                         <div data-id="@node.Id" data-variant="@node.Variant" data-nodename="@node.NodeName" class="item col-md-2">
                             <div class="actionContainer">
                                 <i class="fas fa-pen view"></i>

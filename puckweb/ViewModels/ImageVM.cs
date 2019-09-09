@@ -6,7 +6,7 @@ using System.Web;
 using puck.core.Attributes;
 using puck.core.Base;
 using puck.Models;
-namespace puck.ViewModels
+namespace puckweb.ViewModels
 {
     [FriendlyClassName(Name="Image")]
     /*Image View Model*/

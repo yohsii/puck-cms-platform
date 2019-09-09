@@ -13,6 +13,11 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using puck.core.Entities;
+using puck.core.Abstract;
+using puck.core.Concrete;
+using puck.core.Helpers;
+using puck.core.Services;
+using puck.core.State;
 
 namespace puckweb
 {
@@ -43,6 +48,19 @@ namespace puckweb
                 options.LoginPath = "/puck/admin/in";
                 options.LogoutPath = "/puck/admin/out";
             });
+
+            PuckCache.ContentRootPath = Env.ContentRootPath;
+            var logger = new Logger();
+            var indexerSearcher = new Content_Indexer_Searcher(logger,Configuration);
+            services.AddTransient<I_Puck_Repository, Puck_Repository>();
+            services.AddSingleton<I_Content_Indexer>(indexerSearcher);
+            services.AddSingleton<I_Content_Searcher>(indexerSearcher);
+            services.AddTransient<I_Log, Logger>();
+            services.AddSingleton<I_Task_Dispatcher, Dispatcher>();
+            services.AddTransient<ApiHelper>();
+            services.AddTransient<ContentService>();
+            services.AddHostedService<Dispatcher>((IServiceProvider serviceProvider)=> { return serviceProvider.GetService<I_Task_Dispatcher>() as Dispatcher; });
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

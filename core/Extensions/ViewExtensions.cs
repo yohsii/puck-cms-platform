@@ -39,14 +39,17 @@ namespace puck.core.Extensions
 
             return result;
         }
-        public static T PuckEditorSettings<T>(this RazorPage<T> page,string propertyName="") {
+        public static T PuckEditorSettings<T>(this RazorPageBase page,string propertyName="") {
+            //page.ViewContext.ViewData.Model
+            if (string.IsNullOrEmpty(propertyName))
+                propertyName = page.ViewContext.ViewData.TemplateInfo.HtmlFieldPrefix;
             var repo = PuckCache.PuckRepo;
 
             var modelType = page.ViewBag.Level0Type as Type;
             if (modelType == null)
                 return default(T);
             var settingsType = typeof(T);
-            //var propertyName =ExpressionMetadataProvider.FromStringExpression("", page.ViewData,page).PropertyName;
+            //var propertyName =ExpressionMetadataProvider.FromStringExpression("", page.ViewData,).PropertyName;
             var type = modelType;
             while (type != typeof(object)) {
                 var key = string.Concat(settingsType.FullName, ":", type.Name, ":", propertyName);

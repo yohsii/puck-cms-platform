@@ -3,11 +3,10 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Web;
-
 using puck.core.Models;
-using puck.ViewModels;
+//using puck.ViewModels;
 
-namespace puck.ViewModels
+namespace puckweb.ViewModels
 {
     public class Homepage:Page
     {

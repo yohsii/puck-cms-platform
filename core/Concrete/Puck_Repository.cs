@@ -54,47 +54,56 @@ namespace puck.core.Concrete
 
         public IQueryable<GeneratedModel> GetGeneratedModel()
         {
-            return repo.GeneratedModel;
+            throw new NotImplementedException();
+            //return repo.GeneratedModel;
         }
 
         public IQueryable<GeneratedProperty> GetGeneratedProperty()
         {
-            return repo.GeneratedProperty;
+            throw new NotImplementedException();
+            //return repo.GeneratedProperty;
         }
 
         public IQueryable<GeneratedAttribute> GetGeneratedAttribute()
         {
-            return repo.GeneratedAttribute;
+            throw new NotImplementedException();
+            //return repo.GeneratedAttribute;
         }
                
         
         public void AddGeneratedModel(GeneratedModel gm) {
-            repo.GeneratedModel.Add(gm);            
+            throw new NotImplementedException();
+            //repo.GeneratedModel.Add(gm);            
         }
 
         public void AddGeneratedProperty(GeneratedProperty gp)
         {
-            repo.GeneratedProperty.Add(gp);
+            throw new NotImplementedException();
+            //repo.GeneratedProperty.Add(gp);
         }
 
         public void AddGeneratedAttribute(GeneratedAttribute ga)
         {
-            repo.GeneratedAttribute.Add(ga);
+            throw new NotImplementedException();
+            //repo.GeneratedAttribute.Add(ga);
         }
                 
         public void DeleteGeneratedModel(GeneratedModel gm)
         {
-            repo.GeneratedModel.Remove(gm);
+            throw new NotImplementedException();
+            //repo.GeneratedModel.Remove(gm);
         }
 
         public void DeleteGeneratedProperty(GeneratedProperty gp)
         {
-            repo.GeneratedProperty.Remove(gp);
+            throw new NotImplementedException();
+            //repo.GeneratedProperty.Remove(gp);
         }
 
         public void DeleteGeneratedAttribute(GeneratedAttribute ga)
         {
-            repo.GeneratedAttribute.Remove(ga);
+            throw new NotImplementedException();
+            //repo.GeneratedAttribute.Remove(ga);
         }
 
         

@@ -27,7 +27,9 @@ namespace puck.core.Helpers
     public partial class ApiHelper
     {
         public static string MapPath(string vpath) {
-            return vpath;
+            var path = vpath.Replace("~", "").Replace("/","\\");
+            var absPath = PuckCache.ContentRootPath + path;
+            return absPath;
         }
         public static string ServerName() {
             var result = Environment.MachineName;// +HttpRuntime.AppDomainAppId.Replace("/","_");

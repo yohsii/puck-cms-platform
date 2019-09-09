@@ -4,7 +4,7 @@ using System.Linq;
 using System.Web;
 using puck.core.Base;
 
-namespace puck.ViewModels
+namespace puckweb.ViewModels
 {
     public class Folder:BaseModel
     {

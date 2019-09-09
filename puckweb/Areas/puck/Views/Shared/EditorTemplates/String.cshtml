@@ -3,4 +3,5 @@
     var propName = ViewData.ModelMetadata.PropertyName;
     propName = ViewData.TemplateInfo.HtmlFieldPrefix;
 }
-@Html.Input("text")
+@*@Html.Input("text")*@
+<input type="text" name="@ViewData.TemplateInfo.GetFullHtmlFieldName("")" value="@Model" />

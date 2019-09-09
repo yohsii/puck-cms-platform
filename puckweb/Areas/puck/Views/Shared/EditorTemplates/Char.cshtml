@@ -1,3 +1,4 @@
 ﻿@model Char?
 
-@Html.Input("text")
+@*@Html.Input("text")*@
+<input name="@ViewContext.ViewData.TemplateInfo.GetFullHtmlFieldName("")" value="@Model?.ToString()" />

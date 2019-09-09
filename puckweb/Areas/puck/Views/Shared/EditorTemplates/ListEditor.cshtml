@@ -4,10 +4,11 @@
 @{
     var count = 0;
     var guid = Guid.NewGuid();
+    var displayAttribute = ViewData.ModelMetadata.GetPropertyAttribute<System.ComponentModel.DataAnnotations.DisplayAttribute>();
 }
 <div data-guid="@guid.ToString()" class="listeditor listeditor_@ViewData.TemplateInfo.HtmlFieldPrefix listeditor_@ViewData.TemplateInfo.HtmlFieldPrefix.Replace("[","_").Replace("]","_").Replace(".","_")">
     <div style="display:none;" class="propName" data-propName="@ViewData.TemplateInfo.HtmlFieldPrefix"></div>
-    <div style="display:none;" class="nameQuery" data-query="@Html.Raw(ViewData.ModelMetadata.ShortDisplayName)"></div>
+    <div style="display:none;" class="nameQuery" data-query="@Html.Raw(displayAttribute?.ShortName??"")"></div>
     <div class="addContainer">
         <button type="button" class="btn-light btn"><i class="fas fa-plus-circle"/></button>
     </div>
@@ -31,7 +32,7 @@
     onAfterDom(function () {
         var guid = "@guid.ToString()";
         var modelType = "@Html.Raw(ViewBag.Level0Type.Name)";
-        var nameQuery = "@Html.Raw(ViewData.ModelMetadata.ShortDisplayName)";
+        var nameQuery = "@Html.Raw(displayAttribute?.ShortName??"")";
         var propname = "@Html.Raw(ViewData.TemplateInfo.HtmlFieldPrefix)";
         var shouldBindListEditor = '@ViewBag.ShouldBindListEditor' == 'True';
         //debugger;

@@ -1,3 +1,4 @@
 ﻿@model Int64?
 
-@Html.Input("number")
+@*@Html.Input("number")*@
+<input type="number" name="@ViewData.TemplateInfo.GetFullHtmlFieldName("")" value="@Model?.ToString()"/>

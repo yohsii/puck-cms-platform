@@ -1,7 +1,8 @@
 ﻿@model Object
 
 <div class="fields">
-@foreach (var prop in ViewData.ModelMetadata.Properties.Where(pm => pm.ShowForEdit && !ViewData.TemplateInfo.Visited(pm))) {
+@foreach (var modelExplorer in ViewData.ModelExplorer.Properties.Where(pm => pm.Metadata.ShowForEdit && !ViewData.TemplateInfo.Visited(pm))) {
+    var prop = modelExplorer.Metadata;
     if (prop.HideSurroundingHtml) {
         @Html.Display(prop.PropertyName)
     } else {

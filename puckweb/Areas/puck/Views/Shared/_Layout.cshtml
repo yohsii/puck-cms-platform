@@ -1,4 +1,6 @@
 ﻿@using StackExchange.Profiling;
+@using Microsoft.Extensions.Configuration;
+@inject Microsoft.Extensions.Configuration.IConfiguration config;
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -85,7 +87,7 @@
     <script type="text/javascript" src="~/areas/puck/assets/js/code_mirror_modes/css/css.js"></script>
     <script type="text/javascript" src="~/areas/puck/assets/js/code_mirror_modes/htmlembedded/htmlembedded.js"></script>
 
-    <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false&key=@System.Configuration.ConfigurationManager.AppSettings["GMapsKey"]"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false&key=@(config.GetValue<string>("GMapsKey"))"></script>
 
     <link href="~/areas/puck/assets/css/bootstrap-wysihtml5-0.0.2.css" rel="stylesheet" />
 
@@ -100,7 +102,7 @@
 
     <script src="~/areas/puck/assets/js/require.js"></script>
 
-    @Html.Partial("~/areas/puck/views/shared/includes.cshtml")
+    @Html.PartialAsync("~/areas/puck/views/shared/includes.cshtml")
    
 
 </head>
