@@ -697,7 +697,7 @@ namespace puck.core.Controllers
         {
             var model = new TasksModel();
             model.Tasks = apiHelper.Tasks();
-            model.GeneratedModels = repo.GetGeneratedModel().ToList();
+            //model.GeneratedModels = repo.GetGeneratedModel().ToList();
             return View(model);
         }
 

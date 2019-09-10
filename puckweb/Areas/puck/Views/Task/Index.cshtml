@@ -6,7 +6,7 @@
 <div class="developer settings">
     <ul class="nav nav-tabs" role="tablist">
         <li class="active nav-item"><a class="active nav-link fieldtabs" href="#fieldtabs0">Views</a></li>
-        <li class="nav-item"><a class="nav-link fieldtabs" href="#fieldtabs1">Generated Models</a></li>
+        @*<li class="nav-item"><a class="nav-link fieldtabs" href="#fieldtabs1">Generated Models</a></li>*@
         <li class="nav-item"><a class="nav-link fieldtabs" href="#fieldtabs2">Tasks</a></li>
     </ul>
         
@@ -23,7 +23,7 @@
         
     </div>
     
-    <div id="fieldtabs1" class="fieldwrapper">
+    @*<div id="fieldtabs1" class="fieldwrapper">
         <div class="editor-label">
         @Html.LabelFor(model => model.GeneratedModels)
         </div>
@@ -31,7 +31,7 @@
             @Html.EditorFor(model => model.GeneratedModels)
             @Html.ValidationMessageFor(model => model.GeneratedModels)
         </div>
-    </div>
+    </div>*@
     
     <div id="fieldtabs2" class="tasklist fieldwrapper">
         @Html.LabelFor(model => model.Tasks)

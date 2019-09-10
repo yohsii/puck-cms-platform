@@ -286,7 +286,7 @@ namespace puck.core.Services
             int rowsAffected = 0;
             using (var con = new SqlConnection(config.GetConnectionString("DefaultConnection")))
             {
-                var sql = "update PuckRevisions set [HasNoPublishedRevision] = @value where [IdPath] LIKE @likeStr";
+                var sql = "update PuckRevision set [HasNoPublishedRevision] = @value where [IdPath] LIKE @likeStr";
                 if (descendantVariants.Any())
                 {
                     sql += " and (";
@@ -316,7 +316,7 @@ namespace puck.core.Services
             int rowsAffected = 0;
             using (var con = new SqlConnection(config.GetConnectionString("DefaultConnection")))
             {
-                var sql = "update PuckRevisions set [Published] = @value , [IsPublishedRevision] = @value where [IdPath] LIKE @likeStr";
+                var sql = "update PuckRevision set [Published] = @value , [IsPublishedRevision] = @value where [IdPath] LIKE @likeStr";
                 if (addWhereIsCurrentClause)
                     sql += " and [Current] = 1";
                 if (descendantVariants.Any())
@@ -346,7 +346,7 @@ namespace puck.core.Services
         }
         public async Task Publish(Guid id, string variant, List<string> descendantVariants, string userName = null)
         {
-            await slock1.WaitAsync();
+            //await slock1.WaitAsync();
             try
             {
                 PuckUser user = null;
@@ -391,11 +391,13 @@ namespace puck.core.Services
                 }
                 AddAuditEntry(mod.Id, mod.Variant, AuditActions.Publish, notes, userName);
             }
-            finally { slock1.Release(); }
+            finally { 
+                //slock1.Release(); 
+            }
         }
         public async Task UnPublish(Guid id, string variant, List<string> descendantVariants, string userName = null)
         {
-            await slock1.WaitAsync();
+            //await slock1.WaitAsync();
             try
             {
                 PuckUser user = null;
@@ -445,7 +447,7 @@ namespace puck.core.Services
                 AddAuditEntry(mod.Id, mod.Variant, AuditActions.Unpublish, notes, userName);
             }
             finally {
-                slock1.Release();
+                //slock1.Release();
             }
         }
         public void AddPublishInstruction(List<BaseModel> toIndex)
@@ -674,7 +676,7 @@ namespace puck.core.Services
             int rowsAffected = 0;
             using (var con = new SqlConnection(config.GetConnectionString("DefaultConnection")))
             {
-                var sql = "update PuckRevisions set [Path] = @newPath + SUBSTRING([Path], LEN(@oldPath)+1,8000) where [Path] LIKE @likeStr";
+                var sql = "update PuckRevision set [Path] = @newPath + SUBSTRING([Path], LEN(@oldPath)+1,8000) where [Path] LIKE @likeStr";
                 var com = new SqlCommand(sql, con);
                 com.Parameters.AddWithValue("@likeStr", oldPath + "%");
                 com.Parameters.AddWithValue("@oldPath", oldPath);
@@ -685,7 +687,7 @@ namespace puck.core.Services
             /*
             var context = new PuckContext();
             var rowsAffected = context.Database.ExecuteSqlCommand(
-                "update PuckRevisions set [Path] = @newPath + SUBSTRING([Path], LEN(@oldPath)+1,8000) where [Path] LIKE @oldPath%"
+                "update PuckRevision set [Path] = @newPath + SUBSTRING([Path], LEN(@oldPath)+1,8000) where [Path] LIKE @oldPath%"
       
             ,new SqlParameter("@oldPath",oldPath)
                 ,new SqlParameter("@newPath",newPath)
@@ -697,7 +699,7 @@ namespace puck.core.Services
             int rowsAffected = 0;
             using (var con = new SqlConnection(config.GetConnectionString("DefaultConnection")))
             {
-                var sql = "update PuckRevisions set [IdPath] = @newPath + SUBSTRING([IdPath], LEN(@oldPath)+1,8000) where [IdPath] LIKE @likeStr";
+                var sql = "update PuckRevision set [IdPath] = @newPath + SUBSTRING([IdPath], LEN(@oldPath)+1,8000) where [IdPath] LIKE @likeStr";
                 var com = new SqlCommand(sql, con);
                 com.Parameters.AddWithValue("@likeStr", oldPath + "%");
                 com.Parameters.AddWithValue("@oldPath", oldPath);
@@ -1195,7 +1197,7 @@ namespace puck.core.Services
                 using (var con = new SqlConnection(config.GetConnectionString("DefaultConnection")))
                 {
                     PuckCache.IndexingStatus = $"retrieving records to republish";
-                    var sql = "SELECT Path,Type,Value,TypeChain,SortOrder,ParentId FROM PuckRevisions where ([IsPublishedRevision] = 1 OR ([HasNoPublishedRevision]=1 AND [Current] = 1))";
+                    var sql = "SELECT Path,Type,Value,TypeChain,SortOrder,ParentId FROM PuckRevision where ([IsPublishedRevision] = 1 OR ([HasNoPublishedRevision]=1 AND [Current] = 1))";
                     var com = new SqlCommand(sql, con);
                     //com.Parameters.AddWithValue("@pricePoint", paramValue);
                     con.Open();
@@ -1402,7 +1404,7 @@ namespace puck.core.Services
             int rowsAffected = 0;
             using (var con = new SqlConnection(config.GetConnectionString("DefaultConnection")))
             {
-                var sql = "update PuckRevisions set [Type] = @newType, [TypeChain] = @newTypeChain where [Type] = @oldType";
+                var sql = "update PuckRevision set [Type] = @newType, [TypeChain] = @newTypeChain where [Type] = @oldType";
                 var com = new SqlCommand(sql, con);
                 com.Parameters.AddWithValue("@oldType", oldType);
                 com.Parameters.AddWithValue("@newType", newType);
