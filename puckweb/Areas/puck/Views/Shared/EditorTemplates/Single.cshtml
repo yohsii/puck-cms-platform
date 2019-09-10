@@ -1,4 +1,3 @@
 ﻿@model Single?
-
 @*@Html.Input("number")*@
-<input type="number" name="@ViewData.TemplateInfo.GetFullHtmlFieldName("")" value="@Model?.ToString()"/>
+@Html.TextBoxFor(x=>x,null,new {type="number" })

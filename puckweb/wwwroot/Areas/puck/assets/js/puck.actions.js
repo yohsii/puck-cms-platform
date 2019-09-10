@@ -1202,7 +1202,7 @@ getVariants(function (data) {
         onAfterDom(function () {
             msg(0, "take a moment to setup puck. at the very least, choose your languages!");
         });
-        $(".menutop .settings").click();
+        location.hash = "settings?path=/puck/settings/languages";
     }
 });
 getStartId(function (id) {

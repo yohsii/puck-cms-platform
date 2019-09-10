@@ -4,4 +4,4 @@
     propName = ViewData.TemplateInfo.HtmlFieldPrefix;
 }
 @*@Html.Input("text")*@
-<input type="text" name="@ViewData.TemplateInfo.GetFullHtmlFieldName("")" value="@Model" />
+@Html.TextBoxFor(x=>x,null,new {type="text" })
