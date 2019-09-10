@@ -1,13 +1,15 @@
-﻿@using System.Globalization;
+﻿@inject ApiHelper apiHelper;
+@using System.Globalization;
 @model List<string>
 @{
-    var apiHelper = PuckCache.ApiHelper;
+    
     var val = Model == null ? "" : string.Join(",", Model);
 }
 <select style="display:none" data-placeholder="choose your languages.." class="@ViewData.ModelMetadata.PropertyName languages" multiple>
-    @foreach (var v in apiHelper.AllVariants()) {
+    @foreach (var v in apiHelper.AllVariants())
+    {
         var selected = Model.Contains(v.Key);
-        <option @(selected?"selected":"") value="@v.Key.ToLower()">@v.FriendlyName</option>
+        <option @(selected ? "selected" : "") value="@v.Key.ToLower()">@v.FriendlyName</option>
     }
 </select>
 <input value="@val" class="@ViewData.ModelMetadata.PropertyName" type="hidden" />

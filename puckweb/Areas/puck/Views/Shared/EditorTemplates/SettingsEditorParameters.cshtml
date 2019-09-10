@@ -1,81 +1,82 @@
-﻿@model List<string>
+﻿@inject ApiHelper apiHelper;
+@model List<string>
 @{
-    var apiHelper = PuckCache.ApiHelper;
+    
 }
-    <div class="editor_parameters editor_parameters_@ViewData.ModelMetadata.PropertyName">
-        @{
-            var settingTypes = ApiHelper.EditorSettingTypes();
-            var models = apiHelper.AllModels(true);
-            var propsForType = new Dictionary<string, List<System.Reflection.PropertyInfo>>();
+<div class="editor_parameters editor_parameters_@ViewData.ModelMetadata.PropertyName">
+    @{
+        var settingTypes = ApiHelper.EditorSettingTypes();
+        var models = apiHelper.AllModels(true);
+        var propsForType = new Dictionary<string, List<System.Reflection.PropertyInfo>>();
 
-            if (settingTypes.Count == 0)
-            {
-                <h2>no editor settings detected.</h2>
-                /**/
+        if (settingTypes.Count == 0)
+        {
+            <h2>no editor settings detected.</h2>
+            /**/
 
-            }
-            <div class="row">
-                <div class="col-md-3">
-                    <label>parameters:</label>
-                </div>
-                <div class="col-md-4">
-                    <select class="stype">
-                        @foreach (var setting in settingTypes)
-                        {
-                            <option value="@setting.FullName">@ApiHelper.FriendlyClassName(ApiHelper.ConcreteType(setting))</option>
-                        }
-                    </select>
-                </div>
+        }
+        <div class="row">
+            <div class="col-md-3">
+                <label>parameters:</label>
             </div>
-            <div class="row">
-                <div class="col-md-3">
-                    <label>model:</label>
-                </div>
-                <div class="col-md-4">
-                    <select class="mtype">
-                        @foreach (var mod in models)
-                        {
-                            <option value="@mod.Name">@ApiHelper.FriendlyClassName(ApiHelper.ConcreteType(mod))</option>
-                            var props = ApiHelper.ConcreteType(mod).GetProperties(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
-                            propsForType[mod.Name] = props.ToList();
-                        }
-                    </select>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-md-3">
-                    <label>property:</label>
-                </div>
-                <div class="col-md-4">
-                    @foreach (var entry in propsForType)
+            <div class="col-md-4">
+                <select class="stype">
+                    @foreach (var setting in settingTypes)
                     {
-                        <select data-model="@entry.Key" class="props">
-                            <option value="">None</option>
-                            @foreach (var prop in entry.Value)
-                            {
-                                <option>@prop.Name</option>
-                            }
-                        </select>
+                        <option value="@setting.FullName">@ApiHelper.FriendlyClassName(ApiHelper.ConcreteType(setting))</option>
                     }
+                </select>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-3">
+                <label>model:</label>
+            </div>
+            <div class="col-md-4">
+                <select class="mtype">
+                    @foreach (var mod in models)
+                    {
+                        <option value="@mod.Name">@ApiHelper.FriendlyClassName(ApiHelper.ConcreteType(mod))</option>
+                        var props = ApiHelper.ConcreteType(mod).GetProperties(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
+                        propsForType[mod.Name] = props.ToList();
+                    }
+                </select>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-3">
+                <label>property:</label>
+            </div>
+            <div class="col-md-4">
+                @foreach (var entry in propsForType)
+                {
+                    <select data-model="@entry.Key" class="props">
+                        <option value="">None</option>
+                        @foreach (var prop in entry.Value)
+                        {
+                            <option>@prop.Name</option>
+                        }
+                    </select>
+                }
+            </div>
+        </div>
+        <br />
+        <button class="btn btn-light">edit parameters</button>
+
+        if (Model != null)
+        {
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="d-none d-md-block"><b>Parameter</b></div>
+                </div>
+                <div class="col-md-4">
+                    <div class="d-none d-md-block"><b>Model</b></div>
+                </div>
+                <div class="col-md-4">
+                    <div class="d-none d-md-block"><b>Property</b></div>
                 </div>
             </div>
-            <br />
-            <button class="btn btn-light">edit parameters</button>
-
-            if (Model != null)
-            {
-                <div class="row">
-                    <div class="col-md-4">
-                        <div class="d-none d-md-block"><b>Parameter</b></div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="d-none d-md-block"><b>Model</b></div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="d-none d-md-block"><b>Property</b></div>
-                    </div>
-                </div>
-                <div class="list">
+            <div class="list">
                 @foreach (var entry in Model)
                 {
                     var keys = entry.Split(new char[] { ':' }, StringSplitOptions.RemoveEmptyEntries);
@@ -100,7 +101,7 @@
                         </div>
                         <div class="propertyname col-md-4" data-property="@propertyName">
                             <span class="d-md-none">property: </span>
-                            @(string.IsNullOrEmpty(propertyName)?"None":propertyName)
+                            @(string.IsNullOrEmpty(propertyName) ? "None" : propertyName)
                         </div>
                         <div class="col-md-12">
                             <a href="#" class="edit">edit</a>
@@ -109,22 +110,22 @@
                         </div>
                     </div>
                 }
-                </div>
-            }
+            </div>
         }
+    }
     <div class="interfaces">
         <div class="row">
             <div class="paramtype col-md-4" data-type="">
                 <span class="d-md-none">parameter: </span>
-                
+
             </div>
             <div class="modeltype col-md-4" data-type="">
                 <span class="d-md-none">model: </span>
-                
+
             </div>
             <div class="propertyname col-md-4" data-property="">
                 <span class="d-md-none">property: </span>
-                
+
             </div>
             <div class="col-md-12">
                 <a href="#" class="edit">edit</a>
@@ -133,7 +134,7 @@
             </div>
         </div>
     </div>
-<script type="text/javascript">
+    <script type="text/javascript">
     onAfterDom(function () {
         var propertyName = "@ViewData.ModelMetadata.PropertyName";
         var container = $(".editor_parameters_" + propertyName);
@@ -191,5 +192,5 @@
         });
         showProptertiesForModel();
     });
-        </script>
-    </div>
+    </script>
+</div>

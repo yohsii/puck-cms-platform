@@ -1,5 +1,6 @@
-﻿@{
-    var apiHelper = PuckCache.ApiHelper;
+﻿@inject ApiHelper apiHelper;
+@{
+    
     var views = apiHelper.Views();
 }
 <div class="view_edit">
@@ -15,7 +16,7 @@
     </div>
     <a class="btn btn-link inspect_model">inspect model</a> <a class="btn btn-link save">save</a>
     <textarea></textarea>
-        
+
     <div class="clearboth"></div>
 
     <div class="btn-group template-dropdown puck-dropdown">
@@ -30,14 +31,12 @@
         <div class="choose_model ">
             <h3>model ambiguity; please select which model you would like to inspect:</h3>
             <ul>
-                
             </ul>
         </div>
         <div class="model_properties ">
             <h3>properties for model: <span class="model_name"></span></h3>
             <div class="path"></div>
             <ul>
-
             </ul>
             <a class="btn btn-link all_models">all models</a>
         </div>
@@ -72,9 +71,9 @@
 
             if (model == null)
                 model = "";
-            else 
-                model = model[1];                
-            
+            else
+                model = model[1];
+
             return model;
         }
         var getDynamicEditModel = function () {
@@ -115,7 +114,7 @@
                     showChooseModel(d,true);
                 }
             });
-            
+
         });
         $(document).unbind("click.view_edit_prop_insert");
         $(document).unbind("click.view_edit_prop_iterate");
@@ -132,7 +131,7 @@
             e.preventDefault();
             var el = $(this);
             var insertString = el.parents("li").attr("data-insert");
-            var model = getEditModel();            
+            var model = getEditModel();
             editor.replaceSelection(insertString, "start");
             var fullName = el.parents(".model_properties").attr("data-full_name");
             var isGenerated = el.parents(".model_properties").attr("data-generated");
@@ -198,7 +197,7 @@
             el.find("div.path").append(
                 $("<span>Model</span>").attr("data-path", "")
             );
-            
+
             $(paths).each(function () {
                 if (this == "")
                     return;
@@ -251,10 +250,10 @@
             var fp = selectedNode.attr("data-path");
             getFile(fp);
         });
-        
+
         var getFile = function (fp) {
             $.get("/puck/task/getviewfilecontent?fp=" + fp, function (data) {
-                editor.setValue(data);                
+                editor.setValue(data);
             });
         }
 
@@ -276,7 +275,7 @@
             var value = editor.getValue();
             saveFile(fp,value);
         });
-                
+
         getDrawTemplates("", container.find("ul.content.templates .node"), function () { });
 
         $("div.CodeMirror").css({height: $(window).height()- 200 - $("div.CodeMirror").offset().top + "px"});

@@ -65,7 +65,8 @@ namespace puck.core.Controllers
             var model = ApiHelper.RevisionToBaseModel(revision);
             return View(model);
         }
-        [Authorize(Roles = PuckRoles.Puck,AuthenticationSchemes = "Identity.Application")]
+        //[Authorize(Roles = PuckRoles.Puck, AuthenticationSchemes = "Identity.Application")]
+        [Authorize(Roles = PuckRoles.Puck, AuthenticationSchemes = Mvc.AuthenticationScheme)]
         public ActionResult Index()
         {
             return View();
@@ -432,7 +433,7 @@ namespace puck.core.Controllers
         }
         [Authorize(Roles = PuckRoles.ChangeType, AuthenticationSchemes = Mvc.AuthenticationScheme)]
         [HttpPost]
-        public async Task<ActionResult> ChangeTypeMapping(Guid id,string newType,FormCollection fc) {
+        public async Task<ActionResult> ChangeTypeMapping(Guid id,string newType,IFormCollection fc) {
             string message = "";
             bool success = false;
             try
@@ -655,7 +656,7 @@ namespace puck.core.Controllers
                 resultsRev = repo.CurrentRevisionsByParentId(parentId).ToList();
             }
 #else
-            resultsRev = repo.CurrentRevisionsByDirectory(p_path).ToList();
+            resultsRev = repo.CurrentRevisionsByParentId(parentId).ToList();
 #endif
             var results = resultsRev.Select(x =>cast?ApiHelper.RevisionToBaseModelCast(x): x.ToBaseModel()).ToList()
                 .GroupById()
@@ -919,7 +920,7 @@ namespace puck.core.Controllers
 
         [Authorize(Roles = PuckRoles.Edit, AuthenticationSchemes = Mvc.AuthenticationScheme)]
         [HttpPost]
-        public async Task<JsonResult> Edit(FormCollection fc,string p_type,string p_path) {
+        public async Task<JsonResult> Edit(IFormCollection fc,string p_type,string p_path) {
             
             
             //var targetType = ApiHelper.ConcreteType(ApiHelper.GetType(p_type));

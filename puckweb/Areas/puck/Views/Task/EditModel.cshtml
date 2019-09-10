@@ -1,18 +1,20 @@
-﻿@model puck.core.Entities.GeneratedModel
+﻿@inject ApiHelper apiHelper;
+@model puck.core.Entities.GeneratedModel
 
 @{
-    var apiHelper = PuckCache.ApiHelper;
+    
     Layout = null;
 }
 
 <div class="">
 
-    @using (Html.BeginForm()) {
+    @using (Html.BeginForm())
+    {
         @Html.ValidationSummary(true)
-    
+
         <fieldset>
             <legend>Model</legend>
-    
+
             <div class="editor-label">
                 @Html.LabelFor(model => model.Name)
             </div>
@@ -20,43 +22,46 @@
                 @Html.EditorFor(model => model.Name)
                 @Html.ValidationMessageFor(model => model.Name)
             </div>
-            
+
             <div class="editor-label">
                 @Html.LabelFor(model => model.Inherits)
             </div>
             <div class="editor-field">
                 <select name="Inherits">
                     <option value="">None</option>
-                @{
-                    var exclude = new List<Type>();
-                    if (!string.IsNullOrEmpty(Model.IFullName)) {
-                        var excludedType = ApiHelper.GetType(Model.IFullName);
-                        if (excludedType != null) {
-                            exclude.Add(excludedType);
-                        }                            
+                    @{
+                        var exclude = new List<Type>();
+                        if (!string.IsNullOrEmpty(Model.IFullName))
+                        {
+                            var excludedType = ApiHelper.GetType(Model.IFullName);
+                            if (excludedType != null)
+                            {
+                                exclude.Add(excludedType);
+                            }
+                        }
                     }
-                }
-                @foreach(var gm in apiHelper.GeneratedModels().Where(x=>!exclude.Any(xx=>xx.AssemblyQualifiedName.Equals(x.IFullName))).Where(x=>!string.IsNullOrEmpty(x.CName))){
-                    <option @(!string.IsNullOrEmpty(Model.Inherits)&&Model.Inherits.Equals(gm.CName)?"selected":"") value="@gm.CName">
-                        @gm.Name
-                    </option>
-                }
+                    @foreach (var gm in apiHelper.GeneratedModels().Where(x => !exclude.Any(xx => xx.AssemblyQualifiedName.Equals(x.IFullName))).Where(x => !string.IsNullOrEmpty(x.CName)))
+                    {
+                        <option @(!string.IsNullOrEmpty(Model.Inherits) && Model.Inherits.Equals(gm.CName) ? "selected" : "") value="@gm.CName">
+                            @gm.Name
+                        </option>
+                    }
 
                 </select>
-                
+
                 @Html.ValidationMessageFor(model => model.Inherits)
             </div>
-                @Html.HiddenFor(model => model.ID)
-                @Html.HiddenFor(model => model.IFullName)
-                @Html.HiddenFor(model => model.IFullPath)
-                @Html.HiddenFor(model => model.CName)
-                @Html.HiddenFor(model => model.CFullPath)
-            
+            @Html.HiddenFor(model => model.ID)
+            @Html.HiddenFor(model => model.IFullName)
+            @Html.HiddenFor(model => model.IFullPath)
+            @Html.HiddenFor(model => model.CName)
+            @Html.HiddenFor(model => model.CFullPath)
+
             <p>
                 <input type="submit" value="Create" />
             </p>
         </fieldset>
-    }   
-    
+    }
+
 </div>
 

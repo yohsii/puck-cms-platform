@@ -1,6 +1,7 @@
-﻿@model List<puck.core.Models.PuckPicker>
+﻿@inject ApiHelper apiHelper;
+@inject puck.core.Abstract.I_Puck_Repository repo;
+@model List<puck.core.Models.PuckPicker>
 @{
-    var apiHelper = PuckCache.ApiHelper;
     var settings = this.PuckEditorSettings<puck.core.Models.EditorSettings.PuckImagePickerEditorSettings>()
         ?? new puck.core.Models.EditorSettings.PuckImagePickerEditorSettings()
         {
@@ -12,7 +13,7 @@
     if (settings.StartPath != null && settings.StartPath.Count > 0)
     {
         var id = settings.StartPath.First().Id;
-        var revision = PuckCache.PuckRepo.GetPuckRevision().Where(x => x.Id == id && x.Current).FirstOrDefault();
+        var revision = repo.GetPuckRevision().Where(x => x.Id == id && x.Current).FirstOrDefault();
         if (revision != null)
         {
             startPath = revision.Path;
@@ -34,7 +35,7 @@
             {
                 if (!string.IsNullOrEmpty(m.Variant))
                 {
-                    var node = PuckCache.PuckRepo.GetPuckRevision().Where(x => x.Id == m.Id && x.Variant.ToLower().Equals(m.Variant.ToLower())).FirstOrDefault();
+                    var node = repo.GetPuckRevision().Where(x => x.Id == m.Id && x.Variant.ToLower().Equals(m.Variant.ToLower())).FirstOrDefault();
                     if (node != null)
                     {
                         var mod = node.ToBaseModel() as puckweb.ViewModels.ImageVM;
@@ -59,7 +60,7 @@
     <div class="interfaces">
         <div class="imagePickerOverlayContainer">
             <div class="searchContainer">
-                <input value="" type="text" class="searchBox"/>
+                <input value="" type="text" class="searchBox" />
                 <button type="button" class="btn btn-light">search</button>
             </div>
             <div class="path"></div>
@@ -67,7 +68,7 @@
 
             </div>
         </div>
-        
+
         <div class="item col-4">
             <div class="actionContainer">
                 <i class="fas fa-pen view"></i>
@@ -167,7 +168,7 @@
                         selected_container.append(copy);
                         setValue();
                     } else msg(undefined, "you cannot select any more, max selection is set to " + maxPick,undefined,msgContainer);
-                    
+
                 }
             });
         });
@@ -219,7 +220,7 @@
                 el.find(".metaContainer").addClass("folder");
                 el.find(".iconContainer i").removeClass("fa-file-alt").addClass("fa-folder");
             }
-                
+
             itemContainer.append(el);
             //console.log(model);
         }
@@ -227,7 +228,7 @@
             $(this).parents(".item").remove();
             setValue();
         });
-        
+
         selected_container.on("click", ".view", function (e) {
             var el = $(this);
             var selectedNode = el.parents(".item");
@@ -247,69 +248,87 @@
 </script>
 <style>
     .puckimagepicker .interfaces {
-        display:none;
+        display: none;
     }
-    .puckimagepicker img{
-        max-width:100%;
+
+    .puckimagepicker img {
+        max-width: 100%;
     }
-    .imagePickerOverlayContainer .variant,.puckimagepicker .variant {
-        color:#1e1e1e!important;
+
+    .imagePickerOverlayContainer .variant, .puckimagepicker .variant {
+        color: #1e1e1e !important;
     }
+
     .imagePickerOverlayContainer .iconContainer {
-        text-align:center;
+        text-align: center;
     }
-    .imagePickerOverlayContainer .iconContainer i {
-        font-size:3em;
-        width:100%;
-        padding:12px;
-    }
+
+        .imagePickerOverlayContainer .iconContainer i {
+            font-size: 3em;
+            width: 100%;
+            padding: 12px;
+        }
+
     .imagePickerOverlayContainer .item {
-        background:#f8f8f8;
-        border:1px solid #fff;
+        background: #f8f8f8;
+        border: 1px solid #fff;
     }
+
     .imagePickerOverlayContainer .path span {
         margin: 0 5px;
         padding: 5px;
         background: #f2f2f2;
-        cursor:pointer;
+        cursor: pointer;
     }
+
     .imagePickerOverlayContainer .item.selected .metaContainer {
-        background:#ccffcc;
+        background: #ccffcc;
     }
-    .imagePickerOverlayContainer .metaContainer.folder{
-        cursor:pointer;
+
+    .imagePickerOverlayContainer .metaContainer.folder {
+        cursor: pointer;
         border: 1px dashed #121212;
         padding: 3px;
-        text-align:center;
+        text-align: center;
     }
-    .imagePickerOverlayContainer .metaContainer.folder span.nodename{cursor:pointer!important;}
+
+        .imagePickerOverlayContainer .metaContainer.folder span.nodename {
+            cursor: pointer !important;
+        }
+
     .imagePickerOverlayContainer .searchContainer button {
-        vertical-align:top;
+        vertical-align: top;
     }
+
     .imagePickerOverlayContainer .searchContainer input {
-        height:38px;
-        width:215px;
+        height: 38px;
+        width: 215px;
     }
+
     .imagePickerOverlayContainer img {
-        cursor:pointer;
+        cursor: pointer;
     }
+
     @@media only screen and (max-width:768px) {
         .puckimagepicker img {
-            max-height:150px;
+            max-height: 150px;
         }
     }
+
     .imagePickerOverlayContainer .actionContainer {
-        display:none;
+        display: none;
     }
-    .puckimagepicker .actionContainer{
-        display:block;
-        padding-top:4px;
-        border-top:1px solid #f2f2f2;
+
+    .puckimagepicker .actionContainer {
+        display: block;
+        padding-top: 4px;
+        border-top: 1px solid #f2f2f2;
     }
-    .puckimagepicker .actionContainer i{
-        cursor:pointer;
-    }
+
+        .puckimagepicker .actionContainer i {
+            cursor: pointer;
+        }
+
     .puckimagepicker .item {
-        
     }
 </style>

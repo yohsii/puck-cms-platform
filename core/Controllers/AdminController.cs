@@ -34,7 +34,6 @@ namespace puck.core.Controllers
             this.roleManager = rm;
             this.userManager = um;
             this.signInManager = sm;
-            //this.authenticationManager = authenticationManager;
         }
 
         [HttpGet]

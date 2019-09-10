@@ -1,7 +1,7 @@
-﻿    @{
+﻿@inject ApiHelper apiHelper;
+    @{
         Layout = null;
         List<Type> types;
-        var apiHelper = PuckCache.ApiHelper;
         if(string.IsNullOrEmpty(ViewContext.HttpContext.Request.Query["type"].ToString())){
             types = apiHelper.AllModels(false);
         }else{

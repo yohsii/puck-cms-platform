@@ -1,4 +1,5 @@
-﻿@model List<puck.core.Models.PuckUserViewModel>
+﻿@inject puck.core.Abstract.I_Puck_Repository repo;
+@model List<puck.core.Models.PuckUserViewModel>
 @{
     Layout = null;    
 }
@@ -42,7 +43,7 @@
         <td>
             @if (item.StartNode != null && item.StartNode.Count > 0) {
                 var id = item.StartNode[0].Id;
-                var startNode = PuckCache.PuckRepo.GetPuckRevision().Where(x => x.Id == id &&x.Current).ToList().FirstOrDefault();
+                var startNode = repo.GetPuckRevision().Where(x => x.Id == id &&x.Current).ToList().FirstOrDefault();
                 if (startNode != null) { 
                     @startNode.Path
                 }

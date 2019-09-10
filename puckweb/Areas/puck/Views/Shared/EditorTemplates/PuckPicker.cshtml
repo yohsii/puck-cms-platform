@@ -1,16 +1,25 @@
-﻿@model List<puck.core.Models.PuckPicker>
+﻿@inject ApiHelper apiHelper;
+@inject puck.core.Abstract.I_Puck_Repository repo;
+@model List<puck.core.Models.PuckPicker>
 @{
-    var apiHelper = PuckCache.ApiHelper;
+
     var settings = this.PuckEditorSettings<puck.core.Models.EditorSettings.PuckPickerEditorSettings>()
-        ??new puck.core.Models.EditorSettings.PuckPickerEditorSettings(){
-            AllowDuplicates=false,AllowUnpublished=true,MaxPick=2,SelectionType="both",StartPath=null
+        ?? new puck.core.Models.EditorSettings.PuckPickerEditorSettings()
+        {
+            AllowDuplicates = false,
+            AllowUnpublished = true,
+            MaxPick = 2,
+            SelectionType = "both",
+            StartPath = null
         };
     var startPath = "";
     Guid startId = Guid.Empty;
-    if(settings.StartPath!=null && settings.StartPath.Count>0){
+    if (settings.StartPath != null && settings.StartPath.Count > 0)
+    {
         var id = settings.StartPath.First().Id;
-        var revision = PuckCache.PuckRepo.GetPuckRevision().Where(x => x.Id == id && x.Current).FirstOrDefault();
-        if(revision!=null){
+        var revision = repo.GetPuckRevision().Where(x => x.Id == id && x.Current).FirstOrDefault();
+        if (revision != null)
+        {
             startPath = revision.Path;
             startId = revision.Id;
         }
@@ -21,7 +30,7 @@
     <div style="display:none;" class="propName" data-propName="@ViewData.TemplateInfo.HtmlFieldPrefix"></div>
     <ul class="content nomenu">
         <li class="node" data-children_path="/"></li>
-    </ul>        
+    </ul>
     <div class="selected_content">
         @if (Model != null)
         {
@@ -29,26 +38,26 @@
             {
                 if (!string.IsNullOrEmpty(m.Variant))
                 {
-                    var node = PuckCache.PuckRepo.GetPuckRevision().Where(x=>x.Id==m.Id && x.Variant.ToLower().Equals(m.Variant.ToLower())).FirstOrDefault();
+                    var node = repo.GetPuckRevision().Where(x => x.Id == m.Id && x.Variant.ToLower().Equals(m.Variant.ToLower())).FirstOrDefault();
                     if (node != null)
                     {
-                    <div class="selected_node" data-nodename="@node.NodeName" data-variant="@m.Variant" data-id="@m.Id">
-                        <span>@node.NodeName</span>&nbsp; - &nbsp;<span class="v">@m.Variant</span>
-                        &nbsp;<span class="view">View</span>
-                        &nbsp;<i class='fas fa-minus-circle'></i>
-                    </div>
+                        <div class="selected_node" data-nodename="@node.NodeName" data-variant="@m.Variant" data-id="@m.Id">
+                            <span>@node.NodeName</span>&nbsp; - &nbsp;<span class="v">@m.Variant</span>
+                            &nbsp;<span class="view">View</span>
+                            &nbsp;<i class='fas fa-minus-circle'></i>
+                        </div>
                     }
                 }
                 else
                 {
-                    var nodes = PuckCache.PuckRepo.GetPuckRevision().Where(x => x.Id == m.Id).ToList();
+                    var nodes = repo.GetPuckRevision().Where(x => x.Id == m.Id).ToList();
                     var node = nodes.Where(x => x.Variant.ToLower().Equals(apiHelper.UserVariant().ToLower())).FirstOrDefault() ?? nodes.FirstOrDefault();
                     if (node != null)
                     {
-                    <div class="selected_node" data-variant="null" data-id="@m.Id">
-                        <span>@node.NodeName</span>&nbsp;
-                        <i class='fas fa-minus-circle'></i>
-                    </div>
+                        <div class="selected_node" data-variant="null" data-id="@m.Id">
+                            <span>@node.NodeName</span>&nbsp;
+                            <i class='fas fa-minus-circle'></i>
+                        </div>
                     }
                 }
             }
@@ -147,5 +156,5 @@
             overlay(container, "90%", undefined, top, nodename);
             displayMarkup(null, undefined, variant, undefined, id, inner,msgContainer);
         });
-    });    
+    });
 </script>

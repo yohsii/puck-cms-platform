@@ -1,48 +1,55 @@
-﻿@model List<string>
-@{ 
-    var apiHelper = PuckCache.ApiHelper;
+﻿@inject ApiHelper apiHelper;
+@model List<string>
+@{
+    
 }
 <div class="cachepolicy cachepolicy_@ViewData.ModelMetadata.PropertyName">
-@{
-    var models = apiHelper.AllModels(true);
-    <table>
-    <tr>
-        <td>Model Type</td>
-        <td>Cache Minutes</td>
-        <td></td>
-    </tr>
-    <tr>
-        <td>
-            <select>
-            @foreach(var m in models){
-                <option value="@m.Name">@ApiHelper.FriendlyClassName(ApiHelper.ConcreteType(m))</option>
-            }
-            </select>
-        </td>
-        <td><input type="number" class="minutes mt-2" /></td>
-        <td><button class="btn btn-light">set</button></td>
-    </tr>
-    </table>
-    <table>
-        <tr><td>Model Type</td><td>Cache Minutes</td></tr>
-        @foreach(var m in Model){
-            var kvp = m.Split(new char[] { ':' }, StringSplitOptions.RemoveEmptyEntries);
-            try{
-                //var ctype = ApiHelper.GetType(kvp[0]);
-                var ctype = ApiHelper.GetTypeFromName(kvp[0]);
-                var mins=0;
-                var error = false;
-                if(ctype==null || !int.TryParse(kvp[1],out mins)){
-                    error = true;
+    @{
+        var models = apiHelper.AllModels(true);
+        <table>
+            <tr>
+                <td>Model Type</td>
+                <td>Cache Minutes</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>
+                    <select>
+                        @foreach (var m in models)
+                        {
+                            <option value="@m.Name">@ApiHelper.FriendlyClassName(ApiHelper.ConcreteType(m))</option>
+                        }
+                    </select>
+                </td>
+                <td><input type="number" class="minutes mt-2" /></td>
+                <td><button class="btn btn-light">set</button></td>
+            </tr>
+        </table>
+        <table>
+            <tr><td>Model Type</td><td>Cache Minutes</td></tr>
+            @foreach (var m in Model)
+            {
+                var kvp = m.Split(new char[] { ':' }, StringSplitOptions.RemoveEmptyEntries);
+                try
+                {
+                    //var ctype = ApiHelper.GetType(kvp[0]);
+                    var ctype = ApiHelper.GetTypeFromName(kvp[0]);
+                    var mins = 0;
+                    var error = false;
+                    if (ctype == null || !int.TryParse(kvp[1], out mins))
+                    {
+                        error = true;
+                    }
+                    <tr class="entry @(error?"error":"")"><td data-type="@kvp[0]">@ctype.Name</td><td data-minutes="@kvp[1]">@kvp[1]</td></tr>
                 }
-            <tr class="entry @(error?"error":"")"><td data-type="@kvp[0]">@ctype.Name</td><td data-minutes="@kvp[1]">@kvp[1]</td></tr>
-            }catch(Exception ex){
-                <b>could not load type @(kvp.Length>0?" - "+kvp[0]:"")</b>
-                <!--@ex.Message <text>-</text> @m-->
+                catch (Exception ex)
+                {
+                    <b>could not load type @(kvp.Length > 0 ? " - " + kvp[0] : "")</b>
+                    <!--@ex.Message <text>-</text> @m-->
+                }
             }
-        }
-    </table>
-}
+        </table>
+    }
 </div>
 <script type="text/javascript">
     onAfterDom(function () {

@@ -1,39 +1,48 @@
-﻿@model List<string>
+﻿@inject ApiHelper apiHelper;
+@model List<string>
 @{
-    var apiHelper = PuckCache.ApiHelper;
+    
     var models = apiHelper.AllModels(false);
     var templates = apiHelper.Views(new string[] { "~/views/shared/", "~/views/_ViewStart.cshtml" }).Select(x => ApiHelper.ToVirtualPath(x.FullName)).ToList();
 }
 <div class="settings_type_allowed_templates">
     <select>
-        @foreach (var m in models) { 
+        @foreach (var m in models)
+        {
             <option value="@m.Name">@ApiHelper.FriendlyClassName(ApiHelper.ConcreteType(m))</option>
         }
     </select>
     <div class="lists">
-    @foreach (var m in models) { 
-        var included = new List<string>();
-        foreach (var entry in Model) {
-            var kv = entry.Split(new char[]{':'},StringSplitOptions.RemoveEmptyEntries);
-            if (m.Name.Equals(kv[0])) {
-                included.Add(kv[1]);
+        @foreach (var m in models)
+        {
+            var included = new List<string>();
+            foreach (var entry in Model)
+            {
+                var kv = entry.Split(new char[] { ':' }, StringSplitOptions.RemoveEmptyEntries);
+                if (m.Name.Equals(kv[0]))
+                {
+                    included.Add(kv[1]);
+                }
             }
+            var excluded = templates.Where(x => !included.Any(i => x.ToLower().Equals(i.ToLower()))).ToList();
+            <div class="type" data-type="@m.Name">
+                <div class="list excluded">
+                    <h2>templates</h2>
+                    @foreach (var t in excluded)
+                    {
+                        <div data-path="@t" class="field">@t</div>
+                    }
+                </div>
+                <div class="list included">
+                    <h2>whitelist</h2>
+                    @foreach (var t in included)
+                    {
+                        <div data-path="@t" class="field">@t</div>
+                    }
+                </div>
+            </div>
         }
-        var excluded = templates.Where(x=>!included.Any(i=>x.ToLower().Equals(i.ToLower()))).ToList();
-        <div class="type" data-type="@m.Name">
-            <div class="list excluded"><h2>templates</h2>
-                @foreach (var t in excluded) { 
-                    <div data-path="@t" class="field">@t</div>
-                }
-            </div>
-            <div class="list included"><h2>whitelist</h2>
-                @foreach (var t in included) { 
-                    <div data-path="@t" class="field">@t</div>
-                }
-            </div>
-        </div>
-    }
-    <div class="clearboth"></div>
+        <div class="clearboth"></div>
     </div>
 </div>
 <script type="text/javascript">
@@ -49,7 +58,7 @@
                 container.find(".included:visible").append($("<div class='msg'></div>")
                     .html("drag templates here. if this is empty, all templates will be allowed for this type"));
             }
-        }        
+        }
         container.find(".list").hide();
         container.find(".type[data-type='" + select.val() + "'] .list").show();
         select.change(function (e) {

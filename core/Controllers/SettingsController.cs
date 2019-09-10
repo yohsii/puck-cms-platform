@@ -79,7 +79,7 @@ namespace puck.core.Controllers
         }
 
         [HttpPost]
-        public async Task<JsonResult> EditParameters(string puck_settingsType,string puck_modelType,string puck_propertyName,FormCollection fc) {
+        public async Task<JsonResult> EditParameters(string puck_settingsType,string puck_modelType,string puck_propertyName,IFormCollection fc) {
             string key = string.Concat(puck_settingsType, ":", puck_modelType, ":", puck_propertyName);
             //var targetType = Type.GetType(puck_settingsType);
             var targetType = ApiHelper.EditorSettingTypes().FirstOrDefault(x=>x.FullName==puck_settingsType);

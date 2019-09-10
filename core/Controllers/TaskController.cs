@@ -322,7 +322,7 @@ namespace puck.core.Controllers
             return View(model);
         }
         [HttpPost]
-        public async Task<ActionResult> EditAttribute(int pid,int aid,string optionType,FormCollection fc)
+        public async Task<ActionResult> EditAttribute(int pid,int aid,string optionType,IFormCollection fc)
         {
             var success = false;
             var message = string.Empty;
@@ -744,7 +744,7 @@ namespace puck.core.Controllers
         // POST: /puck/Task/Edit/5
 
         [HttpPost]
-        public async Task<ActionResult> Edit(string p_type,FormCollection fc)
+        public async Task<ActionResult> Edit(string p_type,IFormCollection fc)
         {
             //var targetType = Type.GetType(p_type);
             var targetType = apiHelper.TaskTypes().FirstOrDefault(x=>x.FullName.Equals(p_type));

@@ -1,11 +1,12 @@
-﻿@using System.Globalization;
+﻿@inject ApiHelper apiHelper;
+@using System.Globalization;
 @model String
 @{
-    var apiHelper = PuckCache.ApiHelper;
-    var selected =string.IsNullOrEmpty(Model)? PuckCache.SystemVariant:Model;
+    var selected = string.IsNullOrEmpty(Model) ? PuckCache.SystemVariant : Model;
 }
 <select name="@ViewData.ModelMetadata.PropertyName" class="defaultlanguage">
-    @foreach (var v in apiHelper.AllVariants()) {
+    @foreach (var v in apiHelper.AllVariants())
+    {
         var isSelected = selected.ToLower().Equals(v.Key.ToLower());
         //string specName = "(none)";
         //try { specName = CultureInfo.CreateSpecificCulture(ci.Name).Name; }

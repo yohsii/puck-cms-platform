@@ -1,30 +1,33 @@
-﻿@model puck.core.Models.CreateTemplate
+﻿@inject ApiHelper apiHelper;
+@model puck.core.Models.CreateTemplate
 @{
-    var apiHelper = PuckCache.ApiHelper;
+    
     Layout = null;
     var types = apiHelper.AllModels(false);
 }
-@using(Html.BeginForm()){
-    @Html.HiddenFor(x=>x.Path)
+@using (Html.BeginForm())
+{
+    @Html.HiddenFor(x => x.Path)
     <div class="create_dialog settings">
-    <div class="">
-        <div class="templatename_container fieldwrapper">
-            <label>Template name</label>
-            @Html.TextBoxFor(x=>x.Name)
+        <div class="">
+            <div class="templatename_container fieldwrapper">
+                <label>Template name</label>
+                @Html.TextBoxFor(x => x.Name)
+            </div>
+            <div class="modelcontainer fieldwrapper">
+                <label>Model</label>
+                <select name="@Html.InputName(x=>x.TemplateModel)">
+                    <option value="">None</option>
+                    @foreach (var t in types)
+                    {
+                        <option value="@t.AssemblyQualifiedName">@ApiHelper.FriendlyClassName(t)</option>
+                    }
+                </select>
+            </div>
+            <div>
+                <button class='btn btn-link'>Create</button>
+            </div>
+            <div class="error msg"></div>
         </div>
-        <div class="modelcontainer fieldwrapper">
-            <label>Model</label>
-            <select name="@Html.InputName(x=>x.TemplateModel)">
-                <option value="">None</option>
-                @foreach(var t in types){
-                    <option value="@t.AssemblyQualifiedName">@ApiHelper.FriendlyClassName(t)</option>
-                }
-            </select>
-        </div>        
-        <div>
-            <button class='btn btn-link'>Create</button>
-        </div>
-        <div class="error msg"></div>        
     </div>
-</div>
 }

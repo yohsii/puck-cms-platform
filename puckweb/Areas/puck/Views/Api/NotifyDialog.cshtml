@@ -1,41 +1,47 @@
-﻿@model puck.core.Models.Notify
+﻿@inject ApiHelper apiHelper;
+@model puck.core.Models.Notify
 @{
     Layout = null;
-    var apiHelper = PuckCache.ApiHelper;
+    
     List<Type> types;
-    if(string.IsNullOrEmpty(ViewContext.HttpContext.Request.Query["type"].ToString())){
+    if (string.IsNullOrEmpty(ViewContext.HttpContext.Request.Query["type"].ToString()))
+    {
         types = apiHelper.AllModels(false);
-    }else{
+    }
+    else
+    {
         types = apiHelper.AllowedTypes(ViewContext.HttpContext.Request.Query["type"].ToString());
-        if(types.Count==0){
+        if (types.Count == 0)
+        {
             types = apiHelper.Models(false);
         }
-    }    
-    var variants = apiHelper.Variants();    
+    }
+    var variants = apiHelper.Variants();
 }
 <div class="create_dialog settings">
-    @using(Html.BeginForm("Notify","Api")){
-        @Html.HiddenFor(x=>x.Path)
-    <div class="">
-        <span>
-        Set email notifications for <b>@Model.Path.Substring(Model.Path.LastIndexOf("/")+1)</b>
-        </span>    
-        <div class="fieldwrapper">
-            <label>Actions</label>
-            @Html.ListBoxFor(x=>x.Actions,Model.AllActions)
+    @using (Html.BeginForm("Notify", "Api"))
+    {
+        @Html.HiddenFor(x => x.Path)
+        <div class="">
+            <span>
+                Set email notifications for <b>@Model.Path.Substring(Model.Path.LastIndexOf("/") + 1)</b>
+            </span>
+            <div class="fieldwrapper">
+                <label>Actions</label>
+                @Html.ListBoxFor(x => x.Actions, Model.AllActions)
+            </div>
+            <div class="fieldwrapper">
+                <label>Recursive</label>
+                @Html.CheckBoxFor(x => x.Recursive)
+            </div>
+            @*<div class="fieldwrapper">
+                    <label>Users</label>
+                    @Html.ListBoxFor(x=>x.Users,Model.AllUsers)
+                </div>
+            *@
+            <div>
+                <button class='btn btn-link'>Create</button>
+            </div>
         </div>
-        <div class="fieldwrapper">
-            <label>Recursive</label>
-            @Html.CheckBoxFor(x=>x.Recursive)
-        </div>
-        @*<div class="fieldwrapper">
-            <label>Users</label>
-            @Html.ListBoxFor(x=>x.Users,Model.AllUsers)
-        </div>
-        *@
-        <div>
-            <button class='btn btn-link'>Create</button>
-        </div>        
-    </div>
     }
 </div>

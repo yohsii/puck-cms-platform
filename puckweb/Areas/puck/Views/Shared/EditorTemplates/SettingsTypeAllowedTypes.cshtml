@@ -1,39 +1,48 @@
-﻿@model List<string>
+﻿@inject ApiHelper apiHelper;
+@model List<string>
 @{
-    var apiHelper = PuckCache.ApiHelper;
+    
     var models = apiHelper.AllModels(false);
 }
 <span onclick="handleSettingsTypeAllowedTypes()" class="trigger clear"></span>
 <div class="settings_type_allowed_types">
     <select>
-        @foreach (var m in models) { 
+        @foreach (var m in models)
+        {
             <option value="@m.Name">@ApiHelper.FriendlyClassName(ApiHelper.ConcreteType(m))</option>
         }
     </select>
     <div class="lists">
-    @foreach (var m in models) { 
-        var included = new List<Type>();
-        foreach (var entry in Model) {
-            var kv = entry.Split(new char[]{':'},StringSplitOptions.RemoveEmptyEntries);
-            if (m.Name.Equals(kv[0])) {
-                included.Add(ApiHelper.GetTypeFromName(kv[1]));
+        @foreach (var m in models)
+        {
+            var included = new List<Type>();
+            foreach (var entry in Model)
+            {
+                var kv = entry.Split(new char[] { ':' }, StringSplitOptions.RemoveEmptyEntries);
+                if (m.Name.Equals(kv[0]))
+                {
+                    included.Add(ApiHelper.GetTypeFromName(kv[1]));
+                }
             }
+            var excluded = models.Where(x => !included.Any(i => x.Name.Equals(i.Name))).ToList();
+            <div class="type" data-type="@m.Name">
+                <div class="list excluded">
+                    <h2>types</h2>
+                    @foreach (var t in excluded)
+                    {
+                        <div data-type="@t.Name" class="field">@ApiHelper.FriendlyClassName(ApiHelper.ConcreteType(t))</div>
+                    }
+                </div>
+                <div class="list included">
+                    <h2>whitelist</h2>
+                    @foreach (var t in included)
+                    {
+                        <div data-type="@t.Name" class="field">@ApiHelper.FriendlyClassName(ApiHelper.ConcreteType(t))</div>
+                    }
+                </div>
+            </div>
         }
-        var excluded = models.Where(x=>!included.Any(i=>x.Name.Equals(i.Name))).ToList();
-        <div class="type" data-type="@m.Name">
-            <div class="list excluded"><h2>types</h2>
-                @foreach (var t in excluded) { 
-                    <div data-type="@t.Name" class="field">@ApiHelper.FriendlyClassName(ApiHelper.ConcreteType(t))</div>
-                }
-            </div>
-            <div class="list included"><h2>whitelist</h2>
-                @foreach (var t in included) { 
-                    <div data-type="@t.Name" class="field">@ApiHelper.FriendlyClassName(ApiHelper.ConcreteType(t))</div>
-                }
-            </div>
-        </div>
-    }
-    <div class="clearboth"></div>
+        <div class="clearboth"></div>
     </div>
 </div>
 <script type="text/javascript">

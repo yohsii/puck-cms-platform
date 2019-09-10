@@ -46,12 +46,18 @@ namespace puckweb
             services.AddMemoryCache();
             services.AddResponseCaching();
             services.AddSession();
-            services.AddControllersWithViews().AddApplicationPart(typeof(puck.core.Controllers.BaseController).Assembly).AddControllersAsServices();
+            services.AddControllersWithViews()
+                .AddApplicationPart(typeof(puck.core.Controllers.BaseController).Assembly)
+                .AddControllersAsServices()
+                .AddRazorRuntimeCompilation();
             services.AddRazorPages();
             services.AddAuthentication().AddCookie(puck.core.Constants.Mvc.AuthenticationScheme, options=> {
                 options.LoginPath = "/puck/admin/in";
                 options.LogoutPath = "/puck/admin/out";
+                options.AccessDeniedPath= "/puck/admin/in";
+                options.ForwardAuthenticate = "Identity.Application";
             });
+            
             services.AddHttpContextAccessor();
             services.AddPuckServices(Env,Configuration);
         }

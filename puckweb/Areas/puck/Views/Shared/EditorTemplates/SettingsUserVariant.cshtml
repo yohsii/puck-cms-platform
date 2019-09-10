@@ -1,19 +1,21 @@
-﻿@model string
+﻿@inject ApiHelper apiHelper;
+@model string
 @using System.Globalization;
 @{
-    var apiHelper = PuckCache.ApiHelper;
+    
     var variants = apiHelper.Variants();
 }
-@if (variants.Count == 0) {
-<p>no languages have been set, please visit the settings page and set your languages</p>
+@if (variants.Count == 0)
+{
+    <p>no languages have been set, please visit the settings page and set your languages</p>
 }
 else
 {
-<select name="@ViewData.ModelMetadata.PropertyName" class="defaultlanguage">
-    @foreach (var v in variants)
-    {
-        var selected = !string.IsNullOrEmpty(Model) && Model.ToLower().Equals(v.Key.ToLower());
-        <option @(selected ? "selected" : "") value="@v.Key.ToLower()">@v.FriendlyName</option>
-    }
-</select>
+    <select name="@ViewData.ModelMetadata.PropertyName" class="defaultlanguage">
+        @foreach (var v in variants)
+        {
+            var selected = !string.IsNullOrEmpty(Model) && Model.ToLower().Equals(v.Key.ToLower());
+            <option @(selected ? "selected" : "") value="@v.Key.ToLower()">@v.FriendlyName</option>
+        }
+    </select>
 }

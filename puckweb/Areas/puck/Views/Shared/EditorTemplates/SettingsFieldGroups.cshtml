@@ -1,73 +1,82 @@
-﻿@using puck.core.Models;
+﻿@inject ApiHelper apiHelper;
+@using puck.core.Models;
 @model List<string>
 @{
-    var apiHelper = PuckCache.ApiHelper;
-    var models = apiHelper.AllModels(inclusive:true);
+    
+    var models = apiHelper.AllModels(inclusive: true);
     var dic = new Dictionary<string, Dictionary<string, List<string>>>();
-    foreach(var s in Model){
+    foreach (var s in Model)
+    {
         var nkv = s.Split(new char[] { ':' }, StringSplitOptions.RemoveEmptyEntries);
         string typeName = nkv[0];
         string groupName = nkv[1];
         string FieldName = nkv[2];
-        if (!dic.Keys.Contains(typeName)){
+        if (!dic.Keys.Contains(typeName))
+        {
             dic[typeName] = new Dictionary<string, List<string>>();
         }
-        if(!dic[typeName].ContainsKey(groupName)){
+        if (!dic[typeName].ContainsKey(groupName))
+        {
             dic[typeName][groupName] = new List<string>();
         }
-        if (!dic[typeName][groupName].Contains(FieldName)){
+        if (!dic[typeName][groupName].Contains(FieldName))
+        {
             dic[typeName][groupName].Add(FieldName);
         }
     }
 }
 <div class="fieldgroups">
-<ul class="p-0">
-    <li>
-        <select>
-        @foreach(var m in models){
-            <option value="@m.Name">@ApiHelper.FriendlyClassName(ApiHelper.ConcreteType(m))</option>
-        }
-        </select>
-    </li>
-    <li>
-        <input class="groupname"/>
-    </li>
-    <li>
-        <button class="add btn btn-light">new group</button>
-    </li>
-</ul>
-@{
-    var typeGroupProp = new List<Tuple<string, string, string>>();
-    var friendlyName = new Dictionary<string, string>();
-    var typeChain = new Dictionary<string, string>();
-    var fullNameToAssemblyName = new Dictionary<string, string>();
-}
-@foreach (var m in models)
-{
-    var typesChain = ApiHelper.BaseTypes(ApiHelper.ConcreteType(m));
-    typesChain.Add(m);
-    var cb = ApiHelper.ConcreteType(m);
-    var props = cb.GetProperties(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.DeclaredOnly);
-    if (!friendlyName.ContainsKey(m.Name)) {
-        friendlyName.Add(m.Name,ApiHelper.FriendlyClassName(cb));
+    <ul class="p-0">
+        <li>
+            <select>
+                @foreach (var m in models)
+                {
+                    <option value="@m.Name">@ApiHelper.FriendlyClassName(ApiHelper.ConcreteType(m))</option>
+                }
+            </select>
+        </li>
+        <li>
+            <input class="groupname" />
+        </li>
+        <li>
+            <button class="add btn btn-light">new group</button>
+        </li>
+    </ul>
+    @{
+        var typeGroupProp = new List<Tuple<string, string, string>>();
+        var friendlyName = new Dictionary<string, string>();
+        var typeChain = new Dictionary<string, string>();
+        var fullNameToAssemblyName = new Dictionary<string, string>();
     }
-    if (!typeChain.ContainsKey(m.Name)) { 
-        typeChain.Add(m.Name,string.Join(",",typesChain.Select(x=>x.Name)));
-    }
-    if (!fullNameToAssemblyName.ContainsKey(m.Name)) {
-        fullNameToAssemblyName.Add(m.Name,m.AssemblyQualifiedName);
-    }
-    foreach (var prop in props)
+    @foreach (var m in models)
     {
-        var groupName = "default";
-        if (dic.ContainsKey(m.Name) && dic[m.Name].Any(x => x.Value.Contains(prop.Name)))
+        var typesChain = ApiHelper.BaseTypes(ApiHelper.ConcreteType(m));
+        typesChain.Add(m);
+        var cb = ApiHelper.ConcreteType(m);
+        var props = cb.GetProperties(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.DeclaredOnly);
+        if (!friendlyName.ContainsKey(m.Name))
         {
-            //group name
-            groupName = dic[m.Name].Where(x => x.Value.Contains(prop.Name)).FirstOrDefault().Key;
+            friendlyName.Add(m.Name, ApiHelper.FriendlyClassName(cb));
         }
-        typeGroupProp.Add(new Tuple<string,string,string>(m.Name, groupName, prop.Name));
+        if (!typeChain.ContainsKey(m.Name))
+        {
+            typeChain.Add(m.Name, string.Join(",", typesChain.Select(x => x.Name)));
+        }
+        if (!fullNameToAssemblyName.ContainsKey(m.Name))
+        {
+            fullNameToAssemblyName.Add(m.Name, m.AssemblyQualifiedName);
+        }
+        foreach (var prop in props)
+        {
+            var groupName = "default";
+            if (dic.ContainsKey(m.Name) && dic[m.Name].Any(x => x.Value.Contains(prop.Name)))
+            {
+                //group name
+                groupName = dic[m.Name].Where(x => x.Value.Contains(prop.Name)).FirstOrDefault().Key;
+            }
+            typeGroupProp.Add(new Tuple<string, string, string>(m.Name, groupName, prop.Name));
+        }
     }
-}
 
     <div class="type">
 
@@ -123,10 +132,10 @@
                     @Html.Raw(string.Format("typeGroupProp['{0}']['{1}']=[];",item.Item1,item.Item2));
                 }
                 @Html.Raw(string.Format("typeGroupProp['{0}']['{1}'].push('{2}');",item.Item1,item.Item2,item.Item3));
-            }    
+            }
         }
         //console.log("typeGroupProps %o",typeGroupProp);
-        
+
         var drawType = function (type) {
             container.find(".type .group").remove();
             var name = friendlyName[type];
@@ -162,7 +171,7 @@
                     var elField = interfaces("field");
                     elField.attr({ "data-field": obj.name, "data-inherited": obj.inherited }).html(obj.name);
                     elGroup.append(elField);
-                } 
+                }
 
                 container.find(".type").append(elGroup);
             }
@@ -209,12 +218,12 @@
                         //console.log(val);
                         container.append(
                             '<input name="' + propertyName() + '" type="hidden" value="' + val + '"/>'
-                        );                    
+                        );
                     }
                 }
             }
         }
-        
+
         container.find("select").change(function () {
             var val = $(this).val();
             drawType(val);
@@ -227,7 +236,7 @@
             if (!gn.isEmpty() && c.find("[data-group='" + gn + "']").length == 0) {
                 var elGroup=interfaces("group").attr({ "data-group": gn });
                 elGroup.find("h3").html(gn);
-                c.append(                    
+                c.append(
                     elGroup.sortable({
                         cursorAt: { top: 0, left: 0 },
                         connectWith: ".group", items: ".field[data-inherited='false']", update: function (e, ui) {
@@ -239,10 +248,11 @@
             setValue();
         });
         setValue();
-        
+
     });
 </script>
 <style>
-    .fieldgroups .interfaces
-    {display:none;}
+    .fieldgroups .interfaces {
+        display: none;
+    }
 </style>

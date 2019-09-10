@@ -1,9 +1,10 @@
-﻿@model puck.core.Base.BaseModel
+﻿@inject ApiHelper apiHelper;
+@model puck.core.Base.BaseModel
 @{
     ViewBag.Title = "Puck";
     //Layout = null;
     ViewBag.Level0Type = Model.GetType();
-    var apiHelper = PuckCache.ApiHelper;
+    
 }
 <h1 class="master">Puck</h1>
 
