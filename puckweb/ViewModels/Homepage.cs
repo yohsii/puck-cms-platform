@@ -10,7 +10,7 @@ namespace puckweb.ViewModels
 {
     public class Homepage:Page
     {
-        [Display(Name="Carousel Items")]
+        [Display(Name="Carousel Items",GroupName ="Content")]
         [UIHint("PuckPicker")]
         public List<PuckPicker> CarouselItems { get; set; }
     }

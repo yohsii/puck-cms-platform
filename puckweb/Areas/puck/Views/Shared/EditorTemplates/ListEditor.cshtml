@@ -17,10 +17,35 @@
         {
             foreach(var m in Model)
             {
+                string templateName = null;
+                if (m.GetType().Equals(typeof(string))) {
+                    templateName = "String";
+                }
+                if (m.GetType().Equals(typeof(Single))) {
+                    templateName = "Single";
+                }
+                if (m.GetType().Equals(typeof(Char))) {
+                    templateName = "Char";
+                }
+                if (m.GetType().Equals(typeof(Decimal))) {
+                    templateName = "Decimal";
+                }
+                if (m.GetType().Equals(typeof(Double))) {
+                    templateName = "Double";
+                }
+                if (m.GetType().Equals(typeof(Int16))) {
+                    templateName = "Int16";
+                }
+                if (m.GetType().Equals(typeof(Int32))) {
+                    templateName = "Int32";
+                }
+                if (m.GetType().Equals(typeof(Int64))) {
+                    templateName = "Int64";
+                }
             <li class="itemContainer">
                 <div class="titleContainer"><i class="sortHandle fas fa-arrows-alt" /><i class="expand fas fa-chevron-down" /> <span>item @(count+1)</span> <i class="fas fa-minus-circle remove" /></div>
                 <div class="editorContainer">
-                    @Html.EditorFor(x=>m,null,$"[{count}]",null)
+                    @Html.EditorFor(x=>m,templateName,$"[{count}]",null)
                 </div>                
             </li>
                 count++;

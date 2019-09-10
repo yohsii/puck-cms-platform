@@ -21,7 +21,7 @@ namespace puckweb.ViewModels
         [Display(GroupName = "Images")]
         [UIHint("PuckImage")]
         public PuckImage Image { get; set; }
-
+        
         [Display(ShortName ="input",GroupName ="Content")]
         [UIHint("ListEditor")]
         public List<string> Names { get; set; }
