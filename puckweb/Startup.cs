@@ -20,6 +20,8 @@ using puck.core.Services;
 using puck.core.State;
 using puck.core.Extensions;
 using Microsoft.AspNetCore.Http;
+using Newtonsoft.Json.Serialization;
+using System.Text.Json;
 
 namespace puckweb
 {
@@ -49,7 +51,8 @@ namespace puckweb
             services.AddControllersWithViews()
                 .AddApplicationPart(typeof(puck.core.Controllers.BaseController).Assembly)
                 .AddControllersAsServices()
-                .AddRazorRuntimeCompilation();
+                .AddRazorRuntimeCompilation()
+                .AddJsonOptions(options => options.JsonSerializerOptions.PropertyNamingPolicy = null);
             services.AddRazorPages();
             services.AddAuthentication().AddCookie(puck.core.Constants.Mvc.AuthenticationScheme, options=> {
                 options.LoginPath = "/puck/admin/in";
