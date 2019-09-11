@@ -694,7 +694,7 @@ namespace puck.core.Controllers
         // GET: /puck/Task/
 
         public ActionResult Index()
-        {
+        { 
             var model = new TasksModel();
             model.Tasks = apiHelper.Tasks();
             //model.GeneratedModels = repo.GetGeneratedModel().ToList();

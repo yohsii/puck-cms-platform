@@ -22,6 +22,7 @@ using puck.core.Extensions;
 using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json.Serialization;
 using System.Text.Json;
+using StackExchange.Profiling.Storage;
 
 namespace puckweb
 {
@@ -63,6 +64,20 @@ namespace puckweb
             
             services.AddHttpContextAccessor();
             services.AddPuckServices(Env,Configuration);
+
+            services.AddMiniProfiler(options =>{
+                // (Optional) Path to use for profiler URLs, default is /mini-profiler-resources
+                options.RouteBasePath = "/profiler";
+
+                // (Optional) Control storage
+                // (default is 30 minutes in MemoryCacheStorage)
+                (options.Storage as MemoryCacheStorage).CacheDuration = TimeSpan.FromMinutes(60);
+
+                // (Optional) Control which SQL formatter to use, InlineFormatter is the default
+                options.SqlFormatter = new StackExchange.Profiling.SqlFormatters.InlineFormatter();
+
+            });
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -73,6 +88,7 @@ namespace puckweb
 
             if (env.IsDevelopment())
             {
+                app.UseMiniProfiler();
                 app.UseDeveloperExceptionPage();
                 app.UseDatabaseErrorPage();
             }

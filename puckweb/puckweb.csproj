@@ -3,6 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp3.0</TargetFramework>
     <UserSecretsId>aspnet-puckweb-8B7BB765-2872-4000-9CDA-54028AE0BC40</UserSecretsId>
+    <RunPostBuildEvent>Always</RunPostBuildEvent>
   </PropertyGroup>
 
   <ItemGroup>
@@ -1632,6 +1633,7 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="3.0.0-preview9.19423.6" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="3.0.0-preview9.19423.6" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="3.0.0-preview9-19453-02" />
+    <PackageReference Include="MiniProfiler.AspNetCore.Mvc" Version="4.1.0-preview.25" />
     <PackageReference Include="SixLabors.ImageSharp" Version="1.0.0-beta0007" />
     <PackageReference Include="SixLabors.ImageSharp.Drawing" Version="1.0.0-beta0007" />
     <PackageReference Include="SixLabors.ImageSharp.Web" Version="1.0.0-beta0008" />
@@ -1643,5 +1645,15 @@
   <ItemGroup>
     <ProjectReference Include="..\core\core.csproj" />
   </ItemGroup>
+
+
+  <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
+    <Exec Command="echo &quot;App Offline&quot; /a &gt; &quot;$(ProjectDir)app_offline.htm&quot;" />
+  </Target>
+
+
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="del &quot;$(ProjectDir)app_offline.htm&quot;" />
+  </Target>
 
 </Project>
