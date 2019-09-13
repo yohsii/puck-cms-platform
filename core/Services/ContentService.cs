@@ -746,7 +746,7 @@ namespace puck.core.Services
                     if (user == null)
                         throw new UserNotFoundException("there is no user for provided username");
                 }
-                ObjectDumper.Transform(mod, int.MaxValue);
+                await ObjectDumper.Transform(mod, int.MaxValue);
 
                 //get sibling nodes
                 if (mod.ParentId == Guid.Empty)

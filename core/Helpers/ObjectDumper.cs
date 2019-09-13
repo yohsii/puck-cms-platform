@@ -14,6 +14,9 @@ using System.Web;
 using puck.core.Base;
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Http;
+using puck.core.State;
+using Microsoft.Extensions.DependencyInjection;
+using System.Threading.Tasks;
 
 namespace puck.core.Helpers
 {
@@ -72,29 +75,14 @@ namespace puck.core.Helpers
             }
 
             //apply transforms
-            object attr = null;
             var tattr = Attributes
                 .Where(x => x.GetType().GetInterfaces()
                     .Any(y => y.IsGenericType && y.GetGenericTypeDefinition() == typeof(I_Property_Transformer<,>))
-                );
-            if (tattr.Any())//check for custom transform attribute
-            {
-                attr = tattr.First();
-            }
-            else
-            { //check for default transform for type
-                if (FieldSettings.DefaultPropertyTransformers.ContainsKey(Type))
-                {
-                    attr = Activator.CreateInstance(FieldSettings.DefaultPropertyTransformers[Type]);
-                }
-            }
-            //transform if possible
-            if (attr != null)
-            {
-                var newValue = attr.GetType().GetMethod("Transform").Invoke(attr, new[] {Model,Key,UniqueKey,Value });
-                OriginalValue = Value;
-                Value = newValue;
-            }
+                ).ToList();
+            OriginalValue = Value;
+            var task = ObjectDumper.DoTransform(tattr,Type,Model,Key,UniqueKey,Value);
+            task.Wait();
+            Value = task.Result;
         }
         
     }
@@ -120,15 +108,9 @@ namespace puck.core.Helpers
             });
             return dumper.result;
         }
-        public static void Transform(object element, int depth)
-        {
-            ObjectDumper dumper = new ObjectDumper(depth);
-            dumper.topElement = element as BaseModel;
-
-            //initial transform of ViewModel
+        public static async Task<object> DoTransform(List<object> attributes,Type valueType, object element, string propertyName, string uniqueKey, object value) {
+            object result = value;
             object attr = null;
-            var attributes = element.GetType().GetCustomAttributes(false).ToList();
-            
             var tattr = attributes
                 .Where(x => x.GetType().GetInterfaces()
                     .Any(y => y.IsGenericType && y.GetGenericTypeDefinition() == typeof(I_Property_Transformer<,>))
@@ -137,14 +119,48 @@ namespace puck.core.Helpers
             {
                 attr = tattr.First();
             }
+            else
+            { //check for default transform for type
+                if (FieldSettings.DefaultPropertyTransformers.ContainsKey(valueType))
+                {
+                    attr = Activator.CreateInstance(FieldSettings.DefaultPropertyTransformers[valueType]);
+                }
+            }
             //transform if possible
             if (attr != null)
             {
-                var newValue = attr.GetType().GetMethod("Transform").Invoke(attr, new[] { element, "", "", element });
-                element = newValue;
+                using (var scope = PuckCache.ServiceProvider.CreateScope())
+                {
+                    var configureMethod = attr.GetType().GetMethod("Configure");
+                    if (configureMethod != null)
+                    {
+                        var parameterInfos = configureMethod.GetParameters();
+                        var parameters = new List<object>();
+                        foreach (var paramInfo in parameterInfos)
+                        {
+                            var parameter = scope.ServiceProvider.GetService(paramInfo.ParameterType);
+                            parameters.Add(parameter);
+                        }
+                        configureMethod.Invoke(attr, parameters.ToArray());
+                    }
+                    var task = (Task) attr.GetType().GetMethod("Transform").Invoke(attr, new[] { element, propertyName, uniqueKey, value });
+                    await task.ConfigureAwait(false);
+                    var resultProperty = task.GetType().GetProperty("Result");
+                    var newValue = resultProperty.GetValue(task);
+                    result = newValue;
+                }   
             }
+            return result;
+        }
+        public static async Task Transform(object element, int depth)
+        {
+            ObjectDumper dumper = new ObjectDumper(depth);
+            dumper.topElement = element as BaseModel;
+
+            var attributes = element.GetType().GetCustomAttributes(false).ToList();
+            element = await DoTransform(attributes,element.GetType(),element,"","",element);
             //transform the rest of the model
-            dumper.Transform("","", element);            
+            await dumper.Transform("","", element);
         }
         public static void BindImages(object element, int depth,IFormFileCollection files)
         {
@@ -243,7 +259,7 @@ namespace puck.core.Helpers
             }
         }
 
-        private void Transform(string prefix,string ukey, object element)
+        private async Task Transform(string prefix,string ukey, object element)
         {
             if (element == null || element is ValueType || element is string)
             {
@@ -264,13 +280,13 @@ namespace puck.core.Helpers
                             if (level < depth)
                             {
                                 level++;
-                                Transform(prefix, ukey + "[" + i + "].", item);
+                                await Transform(prefix, ukey + "[" + i + "].", item);
                                 level--;
                             }
                         }
                         else
                         {
-                            Transform(prefix, ukey + "[" + i + "].", item);
+                            await Transform(prefix, ukey + "[" + i + "].", item);
                         }
                         i++;
                     }
@@ -304,35 +320,12 @@ namespace puck.core.Helpers
                                     if (value != null)
                                     {
                                         //transform
-                                        object attr = null;
                                         var attributes = p.GetCustomAttributes(false).ToList();
                                         attributes.AddRange(p.PropertyType.GetCustomAttributes(false));
-
-                                        var tattr = attributes
-                                            .Where(x => x.GetType().GetInterfaces()
-                                                .Any(y => y.IsGenericType && y.GetGenericTypeDefinition() == typeof(I_Property_Transformer<,>))
-                                            );
-                                        if (tattr.Any())//check for custom transform attribute
-                                        {
-                                            attr = tattr.First();
-                                        }
-                                        else
-                                        { //check for default transform for type
-                                            if (FieldSettings.DefaultPropertyTransformers.ContainsKey(t))
-                                            {
-                                                attr = Activator.CreateInstance(FieldSettings.DefaultPropertyTransformers[t]);
-                                            }
-                                        }
                                         string propertyName = prefix + p.Name;
-                                        //transform if possible
-                                        if (attr != null)
-                                        {
-                                            var newValue = attr.GetType().GetMethod("Transform").Invoke(attr, new[] { topElement, propertyName,ukey+p.Name, value });
-                                            value = newValue;
-                                        }
-
+                                        value = await DoTransform(attributes,t,topElement,propertyName,ukey+p.Name,value);
                                         level++;
-                                        Transform(propertyName + ".",ukey+p.Name+".", value);
+                                        await Transform(propertyName + ".",ukey+p.Name+".", value);
                                         level--;
                                     }
                                 }
@@ -588,10 +581,10 @@ namespace puck.core.Helpers
                     }
                     catch (Exception ex) { }
                 }
-                /*else if (property.PropertyType == typeof(string))
+                else if (property.PropertyType == typeof(string))
                 {
-                    property.SetValue(obj, property.Name, null);
-                }
+                    property.SetValue(obj, "", null);
+                }/*
                 else if (property.PropertyType == typeof(DateTime))
                 {
                     property.SetValue(obj, DateTime.Today, null);

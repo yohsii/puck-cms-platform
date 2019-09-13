@@ -21,7 +21,7 @@ namespace puck.core.Controllers
     public class BaseController : Controller
     {
 
-        public ActionResult Puck()
+        public ActionResult Puck(string variant=null)
         {
             try
             {
@@ -71,17 +71,21 @@ namespace puck.core.Controllers
                     Response.Redirect(redirectUrl, false);
                 }
 
-                string variant;
-                if (!PuckCache.PathToLocale.TryGetValue(searchPath, out variant))
+                if (string.IsNullOrEmpty(variant))
                 {
-                    foreach (var entry in PuckCache.PathToLocale) {
-                        if (searchPath.StartsWith(entry.Key)){
-                            variant = entry.Value;
-                            break;
+                    if (!PuckCache.PathToLocale.TryGetValue(searchPath, out variant))
+                    {
+                        foreach (var entry in PuckCache.PathToLocale)
+                        {
+                            if (searchPath.StartsWith(entry.Key))
+                            {
+                                variant = entry.Value;
+                                break;
+                            }
                         }
+                        if (string.IsNullOrEmpty(variant))
+                            variant = PuckCache.SystemVariant;
                     }
-                    if (string.IsNullOrEmpty(variant))
-                        variant = PuckCache.SystemVariant;
                 }
                 //set thread culture for future api calls on this thread
                 Thread.CurrentThread.CurrentCulture = CultureInfo.CreateSpecificCulture(variant);

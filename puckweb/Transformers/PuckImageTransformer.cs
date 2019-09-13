@@ -8,13 +8,14 @@ using System.IO;
 using puck.Models;
 using puck.core.Helpers;
 using SixLabors.ImageSharp;
+using System.Threading.Tasks;
 
 namespace puck.Transformers
 {
     [AttributeUsage(AttributeTargets.Property | AttributeTargets.Class)]
     public class PuckImageTransformer : Attribute, I_Property_Transformer<PuckImage, PuckImage>
     {
-        public PuckImage Transform(BaseModel m,string propertyName,string ukey,PuckImage p)
+        public async Task<PuckImage> Transform(BaseModel m,string propertyName,string ukey,PuckImage p)
         {
             try
             {
