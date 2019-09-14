@@ -88,23 +88,30 @@ namespace puck.core.Controllers
             string message = "";
             try
             {
-                 await this.TryUpdateModelAsync(model,targetType,"");
-                PuckMeta settingsMeta = null;
-                settingsMeta = repo.GetPuckMeta().Where(x =>x.Name==DBNames.EditorSettings && x.Key == key).FirstOrDefault();
-                if(settingsMeta != null){
-                    settingsMeta.Value = JsonConvert.SerializeObject(model);
-                }
-                else
+                if (await this.TryUpdateModelAsync(model, targetType, ""))
                 {
-                    settingsMeta = new PuckMeta();
-                    settingsMeta.Name = DBNames.EditorSettings;
-                    settingsMeta.Key = key;
-                    settingsMeta.Value = JsonConvert.SerializeObject(model);
-                    repo.AddMeta(settingsMeta);
+                    PuckMeta settingsMeta = null;
+                    settingsMeta = repo.GetPuckMeta().Where(x => x.Name == DBNames.EditorSettings && x.Key == key).FirstOrDefault();
+                    if (settingsMeta != null)
+                    {
+                        settingsMeta.Value = JsonConvert.SerializeObject(model);
+                    }
+                    else
+                    {
+                        settingsMeta = new PuckMeta();
+                        settingsMeta.Name = DBNames.EditorSettings;
+                        settingsMeta.Key = key;
+                        settingsMeta.Value = JsonConvert.SerializeObject(model);
+                        repo.AddMeta(settingsMeta);
+                    }
+                    repo.SaveChanges();
+                    ApiHelper.OnAfterSettingsSave(this, new puck.core.Events.AfterEditorSettingsSaveEventArgs { Setting = (I_Puck_Editor_Settings)model });
+                    success = true;
                 }
-                repo.SaveChanges();
-                ApiHelper.OnAfterSettingsSave(this,new puck.core.Events.AfterEditorSettingsSaveEventArgs {Setting=(I_Puck_Editor_Settings)model});
-                success = true;
+                else {
+                    success = false;
+                    message = string.Join(" ", ModelState.Values.SelectMany(x => x.Errors).Select(x => x.ErrorMessage));
+                }
             }
             catch (Exception ex)
             {

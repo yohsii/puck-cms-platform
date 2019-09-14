@@ -37,6 +37,14 @@ namespace puck.core.Controllers
                 string path = uri.AbsolutePath.ToLower();
 
                 var dmode = "";//this.GetDisplayModeId();
+                if (PuckCache.DisplayModes != null) {
+                    foreach (var mode in PuckCache.DisplayModes) {
+                        if (mode.Value(HttpContext)) {
+                            dmode = mode.Key;
+                            break;
+                        }
+                    }
+                }
                                 
                 if (path=="/")
                     path = string.Empty;                

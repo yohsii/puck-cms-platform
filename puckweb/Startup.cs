@@ -23,6 +23,14 @@ using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json.Serialization;
 using System.Text.Json;
 using StackExchange.Profiling.Storage;
+using SixLabors.ImageSharp.Web.Providers;
+using SixLabors.ImageSharp.Web;
+using Microsoft.Extensions.Options;
+using SixLabors.ImageSharp.Web.DependencyInjection;
+using SixLabors.ImageSharp.Web.Commands;
+using SixLabors.ImageSharp.Web.Caching;
+using SixLabors.ImageSharp.Web.Processors;
+using SixLabors.ImageSharp.Web.Middleware;
 
 namespace puckweb
 {
@@ -65,6 +73,59 @@ namespace puckweb
             services.AddHttpContextAccessor();
             services.AddPuckServices(Env,Configuration);
 
+            PhysicalFileSystemProvider PhysicalProviderFactory(IServiceProvider provider)
+            {
+                var p = new PhysicalFileSystemProvider(
+                    provider.GetRequiredService<Microsoft.AspNetCore.Hosting.IHostingEnvironment>(),
+                    provider.GetRequiredService<FormatUtilities>())
+                {
+                    Match = context =>
+                    {
+                        return context.Request.Path.StartsWithSegments("/media");
+                    }
+                };
+
+                return p;
+            }
+
+            AzureBlobStorageImageProvider AzureProviderFactory(IServiceProvider provider)
+            {
+                var containerName = provider.GetService<IConfiguration>().GetValue<string>("AzureImageTransformer_ContainerName");
+                var p = new AzureBlobStorageImageProvider(
+                    provider.GetRequiredService<IOptions<AzureBlobStorageImageProviderOptions>>(),
+                    provider.GetRequiredService<FormatUtilities>())
+                {
+                    Match = context =>
+                    {
+                        return context.Request.Path.StartsWithSegments($"/{containerName}");
+                    }
+                };
+
+                return p;
+            }
+
+            services.AddImageSharpCore()
+                .SetRequestParser<QueryCollectionRequestParser>()
+                .SetCache(provider =>
+                {
+                    return new PhysicalFileSystemCache(
+                        provider.GetRequiredService<IOptions<PhysicalFileSystemCacheOptions>>(),
+                        provider.GetRequiredService<Microsoft.AspNetCore.Hosting.IHostingEnvironment>(),
+                        provider.GetRequiredService<IOptions<ImageSharpMiddlewareOptions>>(),
+                        provider.GetRequiredService<FormatUtilities>());
+                })
+                .SetCacheHash<CacheHash>()
+                .AddProvider(AzureProviderFactory)
+                .Configure<AzureBlobStorageImageProviderOptions>(options =>
+                {
+                    options.ConnectionString = Configuration.GetValue<string>("AzureBlobStorageConnectionString");
+                    options.ContainerName = Configuration.GetValue<string>("AzureImageTransformer_ContainerName");
+                })
+                .AddProvider(PhysicalProviderFactory)
+                .AddProcessor<ResizeWebProcessor>()
+                .AddProcessor<FormatWebProcessor>()
+                .AddProcessor<BackgroundColorWebProcessor>();
+
             services.AddMiniProfiler(options =>{
                 // (Optional) Path to use for profiler URLs, default is /mini-profiler-resources
                 options.RouteBasePath = "/profiler";
@@ -83,9 +144,12 @@ namespace puckweb
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IHttpContextAccessor httpContextAccessor)
         {
-            var puckInit = puck.core.Bootstrap.Ini(Configuration,env,app.ApplicationServices, httpContextAccessor);
-            puckInit.Wait();
-
+            var displayModes = new Dictionary<string, Func<Microsoft.AspNetCore.Http.HttpContext,bool>> {
+                {"iPhone",(context)=>{return context.Request.Headers.ContainsKey("User-Agent") 
+                    && context.Request.Headers["User-Agent"].ToString().Contains("iphone"); } }
+            };
+            puck.core.Bootstrap.Ini(Configuration,env,app.ApplicationServices, httpContextAccessor,displayModes);
+            
             if (env.IsDevelopment())
             {
                 app.UseMiniProfiler();
@@ -99,6 +163,8 @@ namespace puckweb
                 app.UseHsts();
             }
             app.UseHttpsRedirection();
+            app.UseDefaultFiles();
+            app.UseImageSharp();
             app.UseStaticFiles();
             app.UseSession();
             app.UseResponseCaching();

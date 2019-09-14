@@ -753,22 +753,31 @@ namespace puck.core.Controllers
             string message = "";
             try
             {
-                await TryUpdateModelAsync(model,model.GetType(),"");
-                var mod = model as BaseTask;
-                PuckMeta taskMeta=null;
-                if (mod.ID != -1){
-                    taskMeta = repo.GetPuckMeta().Where(x => x.ID == mod.ID).FirstOrDefault();
-                    taskMeta.Value = JsonConvert.SerializeObject(mod);
-                }else{
-                    taskMeta = new PuckMeta();
-                    taskMeta.Name = DBNames.Tasks;
-                    taskMeta.Key = mod.GetType().FullName;
-                    taskMeta.Value = taskMeta.Value = JsonConvert.SerializeObject(mod);
-                    repo.AddMeta(taskMeta);
+                if (await TryUpdateModelAsync(model, model.GetType(), ""))
+                {
+                    var mod = model as BaseTask;
+                    PuckMeta taskMeta = null;
+                    if (mod.ID != -1)
+                    {
+                        taskMeta = repo.GetPuckMeta().Where(x => x.ID == mod.ID).FirstOrDefault();
+                        taskMeta.Value = JsonConvert.SerializeObject(mod);
+                    }
+                    else
+                    {
+                        taskMeta = new PuckMeta();
+                        taskMeta.Name = DBNames.Tasks;
+                        taskMeta.Key = mod.GetType().FullName;
+                        taskMeta.Value = taskMeta.Value = JsonConvert.SerializeObject(mod);
+                        repo.AddMeta(taskMeta);
+                    }
+                    repo.SaveChanges();
+                    StateHelper.UpdateTaskMappings(true);
+                    success = true;
                 }
-                repo.SaveChanges();
-                StateHelper.UpdateTaskMappings(true);
-                success = true;
+                else {
+                    success = false;
+                    message = string.Join(" ", ModelState.Values.SelectMany(x => x.Errors).Select(x => x.ErrorMessage));
+                }
             }
             catch (Exception ex)
             {

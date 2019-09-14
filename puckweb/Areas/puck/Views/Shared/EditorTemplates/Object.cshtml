@@ -1,5 +1,7 @@
 ﻿@model Object
-
+@{ 
+    var isBackOfficePage = ViewContext.HttpContext.Request.Path.ToString().StartsWith("/puck/api/");
+}
 <div class="fields">
 @foreach (var modelExplorer in ViewData.ModelExplorer.Properties.Where(pm => pm.Metadata.ShowForEdit && !ViewData.TemplateInfo.Visited(pm))) {
     var prop = modelExplorer.Metadata;
@@ -12,14 +14,14 @@
         string groupName = null;
         if (displayAttribute != null) { groupName = displayAttribute.GroupName; }
         <div @Html.Raw(!complexChild&&!string.IsNullOrEmpty(groupName)?$"data-groupname=\"{groupName}\"":"") data-fieldname="@propName" class="fieldwrapper @(prop.IsComplexType?"complex":"") @(complexChild?"complex_child":"root")">
-            <div class="editor-label" style="">
+            <div class="editor-label @(!complexChild&&isBackOfficePage?"col-2":"")" style="">
                 @Html.Label(string.IsNullOrEmpty(prop.DisplayName)?prop.PropertyName:prop.DisplayName)
                 @Html.ValidationMessage(prop.PropertyName)
                 @if(!string.IsNullOrEmpty(prop.Description)){
                     <span class="description">@prop.Description</span>
                 }
             </div>
-            <div class="editor-field">
+            <div tabindex="-1" class="editor-field @(!complexChild&&isBackOfficePage?"col-10":"")">
                 @Html.Editor(prop.PropertyName)            
             </div>
             <div class="clearboth"></div>

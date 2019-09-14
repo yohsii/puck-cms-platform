@@ -141,6 +141,7 @@ namespace puck.core.Services
         public static event EventHandler<IndexingEventArgs> AfterDelete;
         public static event EventHandler<BeforeMoveEventArgs> BeforeMove;
         public static event EventHandler<MoveEventArgs> AfterMove;
+        public static event EventHandler<CreateEventArgs> AfterCreate;
         public static void RegisterBeforeSaveHandler<T>(string Name, Action<object, BeforeIndexingEventArgs> Handler, bool Propagate = false) where T : BaseModel
         {
             BeforeSaveActionList.Add(Name, new Tuple<Type, Action<object, BeforeIndexingEventArgs>, bool>(typeof(T), Handler, Propagate));
@@ -190,7 +191,11 @@ namespace puck.core.Services
         {
             AfterMoveActionList.Remove(Name);
         }
-
+        public static void OnCreate(object s, CreateEventArgs args)
+        {
+            if (AfterCreate != null)
+                AfterCreate(s, args);
+        }
         public static void OnBeforeSave(object s, BeforeIndexingEventArgs args)
         {
             if (BeforeSave != null)

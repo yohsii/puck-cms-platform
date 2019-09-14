@@ -25,10 +25,14 @@ namespace puck.core
 {
     public static class Bootstrap
     {
-        public static async Task Ini(IConfiguration config,IHostEnvironment env,IServiceProvider serviceProvider, IHttpContextAccessor httpContextAccessor) {
+        public static void Ini(IConfiguration config,IHostEnvironment env,IServiceProvider serviceProvider
+            , IHttpContextAccessor httpContextAccessor
+            ,Dictionary<string,Func<Microsoft.AspNetCore.Http.HttpContext,bool>> displayModes=null) {
             System.Web.HttpContext.Configure(httpContextAccessor);
             puck.core.State.PuckCache.Configure(config, env, serviceProvider);
-            await StateHelper.SeedDb(config, env, serviceProvider);
+            PuckCache.DisplayModes = displayModes;
+            var seedTask= StateHelper.SeedDb(config, env, serviceProvider);
+            seedTask.Wait();
             //Database.SetInitializer(new MigrateDatabaseToLatestVersion<PuckContext, puck.core.Migrations.Configuration>());
             StateHelper.SetGeneratedMappings();
             StateHelper.UpdateDomainMappings();
@@ -66,7 +70,8 @@ namespace puck.core
                     using (var scope = serviceProvider.CreateScope())
                     {
                         var contentService = scope.ServiceProvider.GetService<ContentService>();
-                        await contentService.RePublishEntireSite2();
+                        var republishTask = contentService.RePublishEntireSite2();
+                        republishTask.Wait();
                     }
                 }
             }

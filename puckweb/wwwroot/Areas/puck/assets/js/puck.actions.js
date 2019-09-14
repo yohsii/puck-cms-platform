@@ -486,7 +486,12 @@ var wireForm = function (form, success, fail) {
         } else {
             var err_el = cright.find(".input-validation-error:first");
             cright.find("[href='#" + err_el.parents(".tab-pane").attr("id") + "']").click();
-            err_el.focus();
+            if (err_el.is(":visible")) {
+                err_el.focus();
+            } else {
+                err_el.parents("[tabindex]:first").focus();
+            }
+            
         }
     });
 }
@@ -916,7 +921,8 @@ var setChangeTracker = function () {
         changed = true;
     });
 }
-var msg = function (success, str, shouldRemovePreviousMessages,container) {
+var msg = function (success, str, shouldRemovePreviousMessages,container,timeout) {
+    timeout = timeout || 5000;
     container = container || cmsg;
     if (shouldRemovePreviousMessages) {
         container.find("div").remove();
@@ -929,7 +935,7 @@ var msg = function (success, str, shouldRemovePreviousMessages,container) {
     el.append(remove);
     container.html(el);
     el.fadeIn(function () { setAreaHeights(); });
-    setTimeout(function () { el.fadeOut(function () { el.remove(); setAreaHeights(); }); }, 5000);
+    setTimeout(function () { el.fadeOut(function () { el.remove(); setAreaHeights(); }); }, timeout);
 }
 var puckmaxwidth = 960;
 var _overlayClose = function () {

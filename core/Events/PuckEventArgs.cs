@@ -15,6 +15,9 @@ namespace puck.core.Events
     public class BeforeIndexingEventArgs:IndexingEventArgs {
         public bool Cancel { get; set; }
     }
+    public class CreateEventArgs : IndexingEventArgs { 
+        public Type Type { get; set; }
+    }
     public class DispatchEventArgs:EventArgs {
         public BaseTask Task { get; set; }
     }

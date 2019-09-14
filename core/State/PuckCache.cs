@@ -35,6 +35,7 @@ namespace puck.core.State
             ContentRootPath = env.ContentRootPath;
             Configuration = config;
         }
+        public static Dictionary<string,Func<Microsoft.AspNetCore.Http.HttpContext,bool>> DisplayModes { get; set; }
         public static IConfiguration Configuration;
         public static string ContentRootPath="";
         public static string SmtpFrom = "";
