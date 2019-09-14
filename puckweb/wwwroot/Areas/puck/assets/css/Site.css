@@ -104,56 +104,57 @@ h1.master{position:absolute;top:10px;right:10px;border-bottom:6px solid #6f6f6f;
     }
 }
 
-    .main.grid .leftToggle {
-        cursor: pointer;
-        z-index: 9;
-        display: flex;
-        /*align-items:center;
+.main.grid .leftToggle {
+    cursor: pointer;
+    z-index: 9;
+    display: flex;
+    display: none;
+    /*align-items:center;
     justify-content:center;
     text-align:center;*/
-        width: 10px;
-        height: 100%;
-        position: fixed;
-        background: #f2f2f2;
-    }
+    width: 10px;
+    height: 100%;
+    position: fixed;
+    background: #f2f2f2;
+}
 
-        .main.grid .leftToggle i {
-            position: relative;
-            font-size: 28px;
-        }
+    .main.grid .leftToggle i {
+        position: relative;
+        font-size: 28px;
+    }
 
     .main.grid .leftarea {
         background-color: #fff;
         z-index: 10;
     }
 
-        .main.grid .leftarea .left_settings {
-            display: none;
-        }
+    .main.grid .leftarea .left_settings {
+        display: none;
+    }
 
-        .main.grid .leftarea .left_users {
-            display: none;
-        }
+    .main.grid .leftarea .left_users {
+        display: none;
+    }
 
-        .main.grid .leftarea .left_developer {
-            display: none;
-        }
+    .main.grid .leftarea .left_developer {
+        display: none;
+    }
 
-        .main.grid .leftarea .left_item a.current {
-            text-decoration: underline;
-        }
+    .main.grid .leftarea .left_item a.current {
+        text-decoration: underline;
+    }
 
-        .main.grid .leftarea .left_item a {
-            color: #333;
-        }
+    .main.grid .leftarea .left_item a {
+        color: #333;
+    }
 
     .main.grid .left_item {
         padding: 15px 0 0 15px;
     }
 
-        .main.grid .left_item.left_content {
-            padding: 0px;
-        }
+    .main.grid .left_item.left_content {
+        padding: 0px;
+    }
 
     .main.grid .leftarea {
         border-right: 4px solid #e2e2e2;
@@ -163,9 +164,9 @@ h1.master{position:absolute;top:10px;right:10px;border-bottom:6px solid #6f6f6f;
         height: 100%
     }
 
-        .main.grid .rightarea .content {
-            height: 100%;
-        }
+    .main.grid .rightarea .content {
+        height: 100%;
+    }
 
     .main.grid .hide {
         display: none;
@@ -195,9 +196,9 @@ h1.master{position:absolute;top:10px;right:10px;border-bottom:6px solid #6f6f6f;
         margin-top: 10px;
     }
 
-        .main.grid ul.content ul {
-            margin-left: 15px;
-        }
+    .main.grid ul.content ul {
+        margin-left: 15px;
+    }
 
     .create_default {
         display: none;
@@ -246,20 +247,20 @@ h1.master{position:absolute;top:10px;right:10px;border-bottom:6px solid #6f6f6f;
         overflow: scroll;
     }
 
-        .overlay_screen .msg {
-        }
+    .overlay_screen .msg {
+    }
 
-        .overlay_screen > h1:first-child {
-            width: 90%;
-            padding: 15px;
-            margin: 0px;
-            font-size: 24px;
-        }
+    .overlay_screen > h1:first-child {
+        width: 90%;
+        padding: 15px;
+        margin: 0px;
+        font-size: 24px;
+    }
 
-        .overlay_screen > .inner {
-            padding: 10px;
-            padding-top: 0px;
-        }
+    .overlay_screen > .inner {
+        padding: 10px;
+        padding-top: 0px;
+    }
 
     .search_ops > .inner {
         margin-left: 40px;
@@ -297,9 +298,9 @@ h1.master{position:absolute;top:10px;right:10px;border-bottom:6px solid #6f6f6f;
     .rightarea { /*position:relative;*/
     }
 
-        .rightarea .message .btn {
-            border-radius: 0px !important;
-        }
+    .rightarea .message .btn {
+        border-radius: 0px !important;
+    }
 
     h1.right_style {
         font-family: courier;
@@ -360,9 +361,24 @@ h1.master{position:absolute;top:10px;right:10px;border-bottom:6px solid #6f6f6f;
     /*.overlay_screen{background:#fff;z-index:100000;opacity:1;position:fixed;overflow:hidden;overflow-y:scroll;}
 .overlay_screen .close{clear:both;}
 */
-    div.settings {
-        padding-top: 0px;
-    }
+
+.usercard .card-title {
+    cursor:pointer;
+}
+.usercard .card-title:hover {
+    text-decoration:underline;
+}
+.usercard .delete {
+    cursor: pointer;
+    text-align: center;
+    display: block;
+    margin-top: 5px;
+}
+}
+
+div.settings {
+    padding-top: 0px;
+}
 
     select.languages {
         height: 200px !important;

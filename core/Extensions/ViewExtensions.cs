@@ -29,18 +29,22 @@ namespace puck.core.Extensions
                 .GetFullHtmlFieldName(name);
             return new HtmlString(fullHtmlFieldName);
         }
-        public static T GetPropertyAttribute<T>(this ModelMetadata instance) where T : Attribute
+        public static T GetPropertyAttribute<T>(this ModelMetadata instance)
         {
             var result = instance.ContainerType
               .GetProperty(instance.PropertyName)
               .GetCustomAttributes(typeof(T), false)
-              .Select(a => a as T)
+              .Select(a =>a)
               .FirstOrDefault(a => a != null);
-
-            return result;
+            if (result == null) return default(T);
+            return (T)result;
         }
         public static T PuckEditorSettings<T>(this RazorPageBase page,string propertyName="") {
-            //page.ViewContext.ViewData.Model
+            if (page.ViewContext.ViewData.ModelMetadata!= null) {
+                var settingsAttribute = page.ViewContext.ViewData.ModelMetadata.GetPropertyAttribute<T>();
+                if (settingsAttribute != null)
+                    return (T)settingsAttribute;
+            }
             if (string.IsNullOrEmpty(propertyName))
                 propertyName = page.ViewContext.ViewData.TemplateInfo.HtmlFieldPrefix;
             var repo = PuckCache.PuckRepo;

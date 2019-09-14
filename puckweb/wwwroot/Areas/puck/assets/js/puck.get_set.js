@@ -140,6 +140,9 @@ var getTaskMarkup = function (f, type, id) {
         type += "&"
     $.get("/puck/task/Edit?" + type + id, f);
 }
+var getUsersJson = function (f) {
+    $.get("/puck/admin/users", f);
+}
 var getUsers = function (f) {
     $.get("/puck/admin/index", f, "html");
 }

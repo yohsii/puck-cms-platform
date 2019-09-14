@@ -11,10 +11,12 @@ namespace puck.core.Entities
 {
     public class PuckUser : IdentityUser
     {
-            public PuckUser() {
+        public PuckUser() {
             StartNodeId = Guid.Empty;
         }
-
+        public DateTime? LastLoginDate { get; set; }
+        public string FirstName { get; set; }
+        public string Surname { get; set; }
         [UIHint("SettingsUserVariant")]
         [Display(Name="User Language")]
         public string UserVariant { get; set;}

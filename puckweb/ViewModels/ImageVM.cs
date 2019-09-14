@@ -8,7 +8,7 @@ using puck.core.Base;
 using puck.Models;
 namespace puckweb.ViewModels
 {
-    [FriendlyClassName(Name="Image")]
+    [Display(Name="Image")]
     /*Image View Model*/
     public class ImageVM:BaseModel
     {

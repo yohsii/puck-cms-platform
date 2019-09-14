@@ -9,18 +9,23 @@ namespace puck.core.Models
 {
     public class PuckUserViewModel
     {
+        public string StartPath { get; set; }
         public PuckUser User { get; set; }
-        
+        public DateTime? LastLoginDate { get; set; }
+        public string LastLoginDateString { get; set; }
         //[Required]
         public string UserName { get; set; }
-
         [System.ComponentModel.DataAnnotations.EmailAddress]
         public string CurrentEmail { get; set; }
 
         [System.ComponentModel.DataAnnotations.EmailAddress]
         [Required]
         public string Email { get; set; }
-        
+        [Display(Name ="First Name")]
+        [Required]
+        public string FirstName { get; set; }
+        [Required]
+        public string Surname { get; set; }
         [UIHint("SettingsRoles")]
         public List<string> Roles { get; set; }
 

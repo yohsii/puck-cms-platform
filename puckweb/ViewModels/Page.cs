@@ -8,6 +8,7 @@ using Lucene.Net.Documents;
 using puck.core.Attributes;
 using puck.core.Base;
 using puck.core.Models;
+using puck.core.Models.EditorSettings;
 using puck.Models;
 
 namespace puckweb.ViewModels
@@ -16,6 +17,7 @@ namespace puckweb.ViewModels
     {
         [Display(Name = "Image Gallery", GroupName = "Images")]
         [UIHint("PuckImagePicker")]
+        [PuckImagePickerEditorSettings(MaxPick = 1)]
         public List<PuckPicker> ImageGallery { get; set; }
 
         [Display(GroupName = "Images")]

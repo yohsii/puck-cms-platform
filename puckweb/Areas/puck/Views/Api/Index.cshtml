@@ -93,7 +93,38 @@
 
             </div>
         </div>
-    </div><div class="hide interfaces">
+    </div>
+    <div class="hide interfaces">
+        <div class="col-md-4 col-sm-4 col-lg-3 mt-3 usercard">
+            <div class="card">
+                <div class="card-body">
+                    <h5 data-username="" class="edit card-title"></h5>
+                    <div class="card-text">
+                        <p><b>username:</b> <span class="username"></span></p>
+                        <p><b>email:</b> <span class="email"></span></p>
+                        <p><b>roles:</b> <span class="roles"></span></p>
+                        <p><b>start path:</b> <span class="startpath"></span></p>
+                        <p class="mb-0"><b>language:</b> <span class="language"></span></p>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <small class="text-muted">Last login: <span class="lastlogin"></span></small>
+                    <i data-username="" class="fas fa-trash delete"></i>
+                </div>
+            </div>
+        </div>
+        <div class="users-container">
+            <div class="userstop">
+                <button class="create btn btn-link"><i class="fas fa-plus-circle"></i>&nbsp;new user</button>
+                <input class="usersearch" type="text" placeholder="filter name" /> 
+                <button class="hide usersearch btn btn-link">search</button>
+            </div>
+            <div class="userlist col-12">
+                <div class="row">
+                    
+                </div>
+            </div>
+        </div>
         <div class="search_ops">
             <div class="inner">
                 <div class="fieldwrapper">
@@ -160,7 +191,7 @@
                 <label>Copy descendants? (this may take some time depending on how many items are being copied)</label>
                 <input type="checkbox" class="include-descendants" />
             </div>
-            <br/>
+            <br />
             <div class="msg"></div>
             <div class="error"></div>
             <ul class="content nomenu redirect">

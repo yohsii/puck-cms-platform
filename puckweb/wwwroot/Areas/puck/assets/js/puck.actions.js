@@ -156,17 +156,53 @@ var showUserMarkup = function (username) {
         });
     });
 }
+var puckusers;
+var drawUser = function (user,container) {
+    var el = cinterfaces.find(".usercard").clone();
+    el.find(".card-title").html(user.FirstName?(user.FirstName + " " + user.Surname):"- Name -");
+    el.find(".username").html(user.UserName);
+    el.find(".email").html(user.Email);
+    el.find(".roles").html(user.Roles.length + " roles");
+    el.find(".startpath").html(user.StartPath);
+    el.find(".language").html(user.UserVariant);
+    el.find(".lastlogin").html(user.LastLoginDateString);
+    el.find("[data-username]").attr({"data-username":user.UserName});
+    container.append(el);
+}
 var showUsers = function () {
     cright.html("");
     showLoader(cright);
-    getUsers(function (data) {
+    getUsersJson(function (data) {
+        console.log("users",data);
+        puckusers = data;
         if (!canChangeMainContent())
             return;
-        cright.html(data);
+        var usersContainer = cinterfaces.find(".users-container").clone();
+        cright.html(usersContainer);
         cright.find(".create").click(function (e) {
             e.preventDefault();
             showUserMarkup("");
         });
+        var usersListContainer = cright.find(".row");
+        usersContainer.find("input.usersearch").keyup(function (e) {
+            var val = $(this).val();
+            var matchedUsers = [];
+            usersListContainer.html("");
+            for (var i = 0; i < puckusers.length; i++) {
+                var user = puckusers[i];
+                if (user.FullName.toLowerCase().indexOf((val||"").toLowerCase()) > -1 || val.replace(/\s/g,"")=="") {
+                    matchedUsers.push(user);
+                    drawUser(user, usersListContainer);
+                }
+            }
+            if (matchedUsers.length == 0) {
+                usersListContainer.html("<b>no results.</b>");
+            }
+        });
+        for (var i = 0; i < puckusers.length; i++) {
+            puckusers[i].FullName = (puckusers[i].FirstName||"") + " " + (puckusers[i].Surname||"");
+            drawUser(puckusers[i],usersListContainer);
+        }
         cright.find(".edit").click(function (e) {
             e.preventDefault();
             var name = $(this).attr("data-username");
@@ -180,7 +216,7 @@ var showUsers = function () {
             var name = el.attr("data-username");
             setDeleteUser(name, function (d) {
                 if (d.success) {
-                    el.parents("tr:first").remove();
+                    el.parents(".card").remove();
                 } else {
                     msg(false, d.message);
                 }
@@ -188,6 +224,38 @@ var showUsers = function () {
         });
     });
 }
+//var showUsers = function () {
+//    cright.html("");
+//    showLoader(cright);
+//    getUsers(function (data) {
+//        if (!canChangeMainContent())
+//            return;
+//        cright.html(data);
+//        cright.find(".create").click(function (e) {
+//            e.preventDefault();
+//            showUserMarkup("");
+//        });
+//        cright.find(".edit").click(function (e) {
+//            e.preventDefault();
+//            var name = $(this).attr("data-username");
+//            showUserMarkup(name);
+//        });
+//        cright.find(".delete").click(function (e) {
+//            e.preventDefault();
+//            if (!confirm("sure?"))
+//                return;
+//            var el = $(this);
+//            var name = el.attr("data-username");
+//            setDeleteUser(name, function (d) {
+//                if (d.success) {
+//                    el.parents("tr:first").remove();
+//                } else {
+//                    msg(false, d.message);
+//                }
+//            });
+//        });
+//    });
+//}
 var revisionsFor = function (vcsv, id) {
     var variants = vcsv.split(",");
     if (variants.length == 1) {
@@ -965,10 +1033,11 @@ var overlay = function (el, width, height, top, title, isRightSided) {
     searchDialogClose();
     var outer = $(".interfaces .overlay_screen").clone().addClass("");
     outer.find(">h1:first").html(title || "")
+    var left = (cright.position().left - 30) < -10 ? -10 : (cright.position().left - 30);
     if (isRightSided)
         outer.css({right:"-14px", width: width, top: "0px", height: $(window).height() - 90 + "px" });
     else
-        outer.css({ left: cright.position().left - 30 + "px", width: "0px", top: "0px", height: $(window).height() - 90 + "px" });
+        outer.css({ left: left + "px", width: "0px", top: "0px", height: $(window).height() - 90 + "px" });
     if (outer.position().top < $(".rightarea").scrollTop()) {
         outer.css({top:$(".rightarea").scrollTop()});
     }

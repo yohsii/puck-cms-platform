@@ -10,7 +10,8 @@ namespace puck.core.Models.EditorSettings
 {
     public enum PuckPickerSelectionType { node, variant, both };
     [FriendlyClassName(Name="Puck Picker Editor Settings")]
-    public class PuckPickerEditorSettings:I_Puck_Editor_Settings
+    [Display(Name = "Puck Picker Editor Settings")]
+    public class PuckPickerEditorSettings:Attribute,I_Puck_Editor_Settings
     {   
         [UIHint("PuckPicker")]
         public List<PuckPicker> StartPath { get; set; }

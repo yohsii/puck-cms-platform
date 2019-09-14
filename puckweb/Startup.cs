@@ -179,11 +179,13 @@ namespace puckweb
                 endpoints.MapAreaControllerRoute(
                     name:"puckarea",
                     areaName:"puck",
-                    pattern: "puck/{controller=Home}/{action=Index}/{id?}"
+                    pattern: "puck/{controller=Api}/{action=Index}/{id?}"
                     );
                 endpoints.MapControllerRoute(
                     name: "default",
-                    pattern: "{controller=Home}/{action=Index}/{id?}");
+                    pattern: "{**path}"
+                    ,defaults: new { controller = "Home", action = "Index"}
+                    );
                 endpoints.MapRazorPages();
             });
         }

@@ -21,6 +21,7 @@ using System.Net.Mail;
 using puck.core.Attributes;
 using puck.core.State;
 using Microsoft.Extensions.DependencyModel;
+using System.ComponentModel.DataAnnotations;
 
 namespace puck.core.Helpers
 {
@@ -221,7 +222,8 @@ namespace puck.core.Helpers
             if (typeof(I_Generated).IsAssignableFrom(t)) {
                 t = ApiHelper.ConcreteType(t);
             }
-            var att = t.GetCustomAttribute<FriendlyClassNameAttribute>();
+            //var att = t.GetCustomAttribute<FriendlyClassNameAttribute>();
+            var att = t.GetCustomAttribute<DisplayAttribute>();
             if (att != null)
                 name = att.Name;
             return name;

@@ -9,6 +9,7 @@ using puck.core.Attributes;
 namespace puck.core.Models.EditorSettings
 {
     [FriendlyClassName(Name="Puck Image Editor Settings")]
+    [Display(Name = "Puck Image Editor Settings")]
     public class PuckImageEditorSettings:I_Puck_Editor_Settings
     {   
         [UIHint("PuckCrops")]

@@ -46,6 +46,9 @@ namespace puck.core.Controllers
             var result = await this.signInManager.PasswordSignInAsync(user.Username, user.Password, user.PersistentCookie, false);
             if (result.Succeeded)
             {
+                var puckUser = await userManager.FindByNameAsync(user.Username);
+                puckUser.LastLoginDate = DateTime.Now;
+                await userManager.UpdateAsync(puckUser);
                 if (!string.IsNullOrEmpty(returnUrl))
                     return Redirect(returnUrl);
                 else
@@ -69,24 +72,47 @@ namespace puck.core.Controllers
         public ActionResult Renew() {
             return View();
         }
-
-        [Authorize(Roles =PuckRoles.Users,AuthenticationSchemes = Mvc.AuthenticationScheme)]
-        public async Task<ActionResult> Index()
-        {
+        private async Task<List<PuckUserViewModel>> GetUsers() {
             var model = new List<PuckUserViewModel>();
             var puckRole = await roleManager.FindByNameAsync(PuckRoles.Puck);
             var userCollection = repo.GetPuckUser().Where(x => x.Roles.Any(xx => xx.RoleId == puckRole.Id)).ToList();
-            
-            foreach (PuckUser pu in userCollection) {
+
+            foreach (PuckUser pu in userCollection)
+            {
                 var puvm = new PuckUserViewModel();
+                puvm.LastLoginDate = pu.LastLoginDate;
+                puvm.LastLoginDateString = "user has never logged in";
+                if (puvm.LastLoginDate.HasValue)
+                    puvm.LastLoginDateString = puvm.LastLoginDate.Value.ToString("dd/MM/yyyy hh:mm");
+                puvm.UserName = pu.UserName;
+                puvm.Email = pu.Email;
+                puvm.FirstName = pu.FirstName;
+                puvm.Surname = pu.Surname;
                 puvm.User = pu;
                 puvm.Roles = (await userManager.GetRolesAsync(pu)).ToList();
-                if(pu.StartNodeId!=Guid.Empty)
-                    puvm.StartNode =new List<PuckPicker>{ new PuckPicker {Id=pu.StartNodeId } };
+                if (pu.StartNodeId != Guid.Empty)
+                    puvm.StartNode = new List<PuckPicker> { new PuckPicker { Id = pu.StartNodeId } };
                 puvm.UserVariant = pu.UserVariant;
-                
+                puvm.StartPath = "/";
+                if (pu.StartNodeId != Guid.Empty) {
+                    var node = repo.GetPuckRevision().FirstOrDefault(x=>x.Id==pu.StartNodeId&&x.Current);
+                    if (node != null)
+                        puvm.StartPath = node.Path;
+                }
                 model.Add(puvm);
             }
+            return model;
+        }
+        [Authorize(Roles = PuckRoles.Users, AuthenticationSchemes = Mvc.AuthenticationScheme)]
+        public async Task<ActionResult> Users()
+        {
+            var model = await GetUsers();
+            return Json(model);
+        }
+        [Authorize(Roles =PuckRoles.Users,AuthenticationSchemes = Mvc.AuthenticationScheme)]
+        public async Task<ActionResult> Index()
+        {
+            var model = await GetUsers();
             return View(model);
         }
 
@@ -96,6 +122,8 @@ namespace puck.core.Controllers
             ViewBag.Level0Type = typeof(PuckUserViewModel);
             if (!string.IsNullOrEmpty(userName)) {
                 var usr = await userManager.FindByNameAsync(userName);
+                model.FirstName = usr.FirstName;
+                model.Surname = usr.Surname;
                 model.UserName = userName;
                 model.Email = usr.Email;
                 model.CurrentEmail = usr.Email;
@@ -128,6 +156,8 @@ namespace puck.core.Controllers
 
                     var puser = new PuckUser
                     {
+                        FirstName = user.FirstName,
+                        Surname = user.Surname,
                         Email = user.Email,
                         UserName = user.UserName,
                         UserVariant = user.UserVariant,
@@ -201,6 +231,8 @@ namespace puck.core.Controllers
                     {
                         puser.UserVariant = user.UserVariant;
                     }
+                    puser.FirstName = user.FirstName;
+                    puser.Surname = user.Surname;
                     await userManager.UpdateAsync(puser);
 
                     if (!string.IsNullOrEmpty(user.Password))

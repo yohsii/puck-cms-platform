@@ -9,16 +9,26 @@
 
     <fieldset>
         <legend>Puck User</legend>
-        
+
         <div class="fieldwrapper">
             @Html.LabelFor(x => x.UserName)
-            @Html.TextBoxFor(x => x.UserName)            
+            @Html.TextBoxFor(x => x.UserName)
         </div>
-        
-        @Html.HiddenFor(x=>x.CurrentEmail)
+
+        @Html.HiddenFor(x => x.CurrentEmail)
         <div class="fieldwrapper">
             @Html.LabelFor(x => x.Email)
             @Html.TextBoxFor(x => x.Email)
+        </div>
+
+        <div class="fieldwrapper">
+            @Html.LabelFor(x => x.FirstName)
+            @Html.TextBoxFor(x => x.FirstName)
+        </div>
+
+        <div class="fieldwrapper">
+            @Html.LabelFor(x => x.Surname)
+            @Html.TextBoxFor(x => x.Surname)
         </div>
 
         <div class="fieldwrapper">
@@ -39,7 +49,7 @@
         {
             <div class="fieldwrapper">
                 @Html.LabelFor(x => x.Password)
-                @Html.TextBoxFor(x => x.Password,new {type="password",autocomplete="new-password" })
+                @Html.TextBoxFor(x => x.Password, new { type = "password", autocomplete = "new-password" })
             </div>
 
             <div class="fieldwrapper">
@@ -50,12 +60,12 @@
         else
         {
             <div class="fieldwrapper">
-                @Html.LabelFor(x => x.Password,"New Password")
-                @Html.TextBoxFor(x => x.Password,new {type="password",autocomplete="new-password" })
+                @Html.LabelFor(x => x.Password, "New Password")
+                @Html.TextBoxFor(x => x.Password, new { type = "password", autocomplete = "new-password" })
             </div>
 
             <div class="fieldwrapper">
-                @Html.LabelFor(x => x.PasswordConfirm,"Confirm New Password")
+                @Html.LabelFor(x => x.PasswordConfirm, "Confirm New Password")
                 @Html.EditorFor(x => x.PasswordConfirm)
             </div>
 
