@@ -1,18 +1,27 @@
-﻿@inject ApiHelper apiHelper;
+﻿@using puck.core.Abstract.EditorSettings
+@using puck.core.Models.EditorSettings
+@using puck.core.Models.EditorSettings.Attributes
+@inject ApiHelper apiHelper;
 @inject puck.core.Abstract.I_Puck_Repository repo;
 @model List<puck.core.Models.PuckPicker>
 @{
-    var settings = this.PuckEditorSettings<puck.core.Models.EditorSettings.PuckImagePickerEditorSettings>()
-        ?? new puck.core.Models.EditorSettings.PuckImagePickerEditorSettings()
-        {
-            MaxPick = 3,
-            StartPath = null
-        };
+    I_Puck_Image_Picker_Settings settings = this.PuckEditorSettings<PuckImagePickerEditorSettingsAttribute>();
+    if (settings == null)
+    {
+        settings = this.PuckEditorSettings<PuckImagePickerEditorSettings>()
+          ?? new PuckImagePickerEditorSettings()
+          {
+              MaxPick = 3,
+              StartPath = null
+          };
+    }
     var startPath = "";
     Guid startId = Guid.Empty;
-    if (!string.IsNullOrEmpty(settings.StartPathId)) {
-        Guid.TryParse(settings.StartPathId,out startId);
-    }else if (settings.StartPath != null && settings.StartPath.Count > 0)
+    if (!string.IsNullOrEmpty(settings.StartPathId))
+    {
+        Guid.TryParse(settings.StartPathId, out startId);
+    }
+    else if (settings.StartPath != null && settings.StartPath.Count > 0)
     {
         startId = settings.StartPath.First().Id;
     }
@@ -115,7 +124,7 @@
 
         container.find(".addImage").click(function (e) {
             if (selected_container.find(".item").length >= maxPick) {
-                msg(undefined, "you cannot select any more, max selection is set to " + maxPick, undefined, msgContainer);
+                msg(undefined, "you cannot select any more, max selection is set to " + maxPick, undefined, undefined);
                 return false;
             }
             var el = container.find(".interfaces .imagePickerOverlayContainer").clone();
@@ -163,7 +172,7 @@
                         var copy = el.clone().removeClass("col-4").addClass("col-md-2");
                         selected_container.append(copy);
                         setValue();
-                    } else msg(undefined, "you cannot select any more, max selection is set to " + maxPick,undefined,msgContainer);
+                    } else msg(undefined, "you cannot select any more, max selection is set to " + maxPick,undefined,undefined);
 
                 }
             });

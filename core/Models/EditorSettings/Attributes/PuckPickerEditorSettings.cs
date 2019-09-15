@@ -8,24 +8,17 @@ using puck.core.Attributes;
 using Microsoft.AspNetCore.Mvc;
 using puck.core.Abstract.EditorSettings;
 
-namespace puck.core.Models.EditorSettings
+namespace puck.core.Models.EditorSettings.Attributes
 {
     public enum PuckPickerSelectionType { node, variant, both };
     [Display(Name = "Puck Picker Editor Settings")]
-    public class PuckPickerEditorSettings:I_Puck_Editor_Settings, I_Puck_Picker_Settings
+    public class PuckPickerEditorSettingsAttribute: Attribute, I_Puck_Picker_Settings
     {
-        public PuckPickerEditorSettings() {
-            if (MaxPick == 0) MaxPick = 1;
-        }
+        public string StartPathId { get; set; }
         public int MaxPick { get; set; }
-        [UIHint("PuckPickerSelectionType")]
         public string SelectionType { get; set; }
         public bool AllowUnpublished { get; set; }
         public bool AllowDuplicates { get; set; }
-
-        [UIHint("PuckPicker")]
         public List<PuckPicker> StartPath { get; set; }
-        [HiddenInput(DisplayValue =false)]
-        public string StartPathId { get; set; }
     }
 }

@@ -8,19 +8,13 @@ using puck.core.Attributes;
 using Microsoft.AspNetCore.Mvc;
 using puck.core.Abstract.EditorSettings;
 
-namespace puck.core.Models.EditorSettings
+namespace puck.core.Models.EditorSettings.Attributes
 {
     [Display(Name= "Puck Image Picker Editor Settings")]
-    public class PuckImagePickerEditorSettings:I_Puck_Editor_Settings, I_Puck_Image_Picker_Settings
+    public class PuckImagePickerEditorSettingsAttribute:Attribute, I_Puck_Image_Picker_Settings
     {
-        public PuckImagePickerEditorSettings()
-        {
-            if (MaxPick == 0) MaxPick = 1;
-        }
-        public int MaxPick { get; set; }
-        [UIHint("PuckPicker")]
-        public List<PuckPicker> StartPath { get; set; }
-        [HiddenInput(DisplayValue =false)]
         public string StartPathId { get; set; }
+        public int MaxPick { get; set; }
+        public List<PuckPicker> StartPath { get; set; }
     }
 }
