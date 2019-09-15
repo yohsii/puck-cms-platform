@@ -14,6 +14,7 @@ using Lucene.Net.Analysis.Core;
 
 namespace puck.core.Base
 {
+    [Display(Name="Base Model")]
     public class BaseModel
     {
         public BaseModel() {

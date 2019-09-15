@@ -1,4 +1,6 @@
-﻿@model List<puck.core.Models.CropInfo>
+﻿@using Microsoft.AspNetCore.Html
+@using System.Threading.Tasks
+@model List<puck.core.Models.CropInfo>
 
 @{
 
@@ -42,7 +44,7 @@
         {
             foreach (var crop in Model)
             {
-                @cropModelHtml(crop.Alias, crop.Width.ToString(), crop.Height.ToString());
+                cropModelHtml(crop.Alias, crop.Width.ToString(), crop.Height.ToString());
             }
         }
     </div>
@@ -165,9 +167,9 @@
     });
 </script>
 
-@{
-    Func<dynamic, Microsoft.AspNetCore.Html.IHtmlContent> cropModelHtml(string alias, string width, string height) =>
-    @<div class="cropModel">
+@functions {
+     Task cropModelHtml(string alias, string width, string height){
+    <div class="cropModel">
         <div class="editContainer" style="display:inline-block;">
             <button class="btn btn-light">edit</button>
         </div>
@@ -180,7 +182,9 @@
             <i class='fas fa-minus-circle'></i>
         </div>    
     </div>
-    ;
+    
+    return Task.CompletedTask;
+    }
 }
 
 <style>

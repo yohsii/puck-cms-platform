@@ -223,7 +223,7 @@ namespace puck.core.Helpers
                 t = ApiHelper.ConcreteType(t);
             }
             //var att = t.GetCustomAttribute<FriendlyClassNameAttribute>();
-            var att = t.GetCustomAttribute<DisplayAttribute>();
+            var att = t.GetCustomAttribute<DisplayAttribute>(false);
             if (att != null)
                 name = att.Name;
             return name;
