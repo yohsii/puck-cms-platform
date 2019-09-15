@@ -12,13 +12,17 @@ namespace puck.core.Models.EditorSettings
     [FriendlyClassName(Name="Puck Picker Editor Settings")]
     [Display(Name = "Puck Picker Editor Settings")]
     public class PuckPickerEditorSettings:Attribute,I_Puck_Editor_Settings
-    {   
-        [UIHint("PuckPicker")]
-        public List<PuckPicker> StartPath { get; set; }
+    {
+        [UIHint("PuckHidden")]
+        public string StartPathId { get; set; }
         public int MaxPick { get; set; }
         [UIHint("PuckPickerSelectionType")]
         public string SelectionType { get; set; }
         public bool AllowUnpublished { get; set; }
         public bool AllowDuplicates { get; set; }
+
+        [UIHint("PuckPicker")]
+        public List<PuckPicker> StartPath { get; set; }
+        
     }
 }

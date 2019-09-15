@@ -14,15 +14,13 @@
         };
     var startPath = "";
     Guid startId = Guid.Empty;
-    if (settings.StartPath != null && settings.StartPath.Count > 0)
+
+    if (!string.IsNullOrEmpty(settings.StartPathId)) {
+        Guid.TryParse(settings.StartPathId,out startId);
+    }
+    else if (settings.StartPath != null && settings.StartPath.Count > 0)
     {
-        var id = settings.StartPath.First().Id;
-        var revision = repo.GetPuckRevision().Where(x => x.Id == id && x.Current).FirstOrDefault();
-        if (revision != null)
-        {
-            startPath = revision.Path;
-            startId = revision.Id;
-        }
+        startId = settings.StartPath.First().Id;
     }
     var guid = Guid.NewGuid();
 }
