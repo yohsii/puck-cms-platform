@@ -23,10 +23,12 @@ write models as poco classes or generate models in admin interface (using CSharp
 - image cropping using imageprocessor.web
 - basic user permissions to grant/deny permissions to particular actions and limit access to content based on a start path
 - hooks - you can transform data before it is indexed using attributes to modify how a field is indexed and how it is stored
-- display modes - supports conditional template switching
+- supports conditional template switching (display modes were removed from asp.net core but this works in the same way)
 - redirects - you can manage both 301/302 redirect mappings
 - works in load balanced environments
 - caching - customisable output caching. (per node-type or catch-all. also supports explicit exclusion for any particular node)
 - streamlined pipeline - data retrieval is fast
 - media - media is handled just like any other content, you can expose a HttpPostedFileBase property in any of your models and it will be properly bound. you can then use data transformer attributes to decide what should happen to that file before indexing takes place
 - task api - supports one-off and recurring background custom tasks with editable parameters
+- scheduled publish
+- can be used headless or decoupled
