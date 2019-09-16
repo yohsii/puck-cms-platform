@@ -254,7 +254,7 @@ namespace puck.core.Helpers
             var SmtpPort = PuckCache.Configuration.GetValue<int?>("SmtpPort");
             var SmtpUserName = PuckCache.Configuration.GetValue<string>("SmtpUserName");
             var SmtpPassword = PuckCache.Configuration.GetValue<string>("SmtpPassword");
-
+            var SmtpUseSsl = PuckCache.Configuration.GetValue<bool>("SmtpUseSsl");
             if (string.IsNullOrEmpty(SmtpHost) || SmtpPort == null || string.IsNullOrEmpty(SmtpUserName) || string.IsNullOrEmpty(SmtpPassword))
             {
                 PuckCache.PuckLog.Log(new Exception("cannot send email, Smtp configuration is not set."));
@@ -280,13 +280,13 @@ namespace puck.core.Helpers
                 bodyBuilder.TextBody = body;
             message.Body = bodyBuilder.ToMessageBody();
 
-            SmtpClient client = new SmtpClient();
-            client.Connect(SmtpHost, SmtpPort.Value, true);
-            client.Authenticate(SmtpUserName, SmtpPassword);
-
-            client.Send(message);
-            client.Disconnect(true);
-            client.Dispose();
+            using (SmtpClient client = new SmtpClient())
+            {
+                client.Connect(SmtpHost, SmtpPort.Value, SmtpUseSsl);
+                client.Authenticate(SmtpUserName, SmtpPassword);
+                client.Send(message);
+                client.Disconnect(true);
+            }
         }
         public static string EmailTransform(string template, BaseModel model,NotifyActions action) {
             string date = DateTime.Now.ToShortDateString();

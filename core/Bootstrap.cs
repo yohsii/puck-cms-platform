@@ -45,7 +45,7 @@ namespace puck.core
             PuckCache.AnalyzerForModel = new Dictionary<Type,Lucene.Net.Analysis.Analyzer>();
             PuckCache.TypeFields = new Dictionary<string, Dictionary<string,string>>();
             PuckCache.ModelNameToAQN = new Dictionary<string, string>();
-            PuckCache.SmtpFrom = "puck@"+PuckCache.SmtpHost;
+            //PuckCache.SmtpFrom = "puck@"+PuckCache.SmtpHost;
             //sets mapping between type fullname and assembly qualified name for all models
             StateHelper.UpdateAQNMappings();
             StateHelper.UpdateAnalyzerMappings();
@@ -87,14 +87,17 @@ namespace puck.core
             {
                 try
                 {
-                    var apiHelper = PuckCache.ApiHelper;
-                    var usersToNotify = await apiHelper.UsersToNotify(args.Node.Path, NotifyActions.Publish);
-                    if (usersToNotify.Count == 0) return;
-                    var subject = string.Concat("content published - ", args.Node.NodeName, " - ", args.Node.Path);
-                    var template = System.IO.File.ReadAllText(ApiHelper.MapPath(PuckCache.EmailTemplatePublishPath));
-                    template = ApiHelper.EmailTransform(template, args.Node,NotifyActions.Publish);
-                    var emails = string.Join(";", usersToNotify.Select(x => x.Email)).TrimEnd(';');
-                    ApiHelper.Email(emails, subject, template);
+                    using (var scope = PuckCache.ServiceProvider.CreateScope())
+                    {
+                        var apiHelper = scope.ServiceProvider.GetService<ApiHelper>();
+                        var usersToNotify = await apiHelper.UsersToNotify(args.Node.Path, NotifyActions.Publish);
+                        if (usersToNotify.Count == 0) return;
+                        var subject = string.Concat("content published - ", args.Node.NodeName, " - ", args.Node.Path);
+                        var template = System.IO.File.ReadAllText(ApiHelper.MapPath(PuckCache.EmailTemplatePublishPath));
+                        template = ApiHelper.EmailTransform(template, args.Node, NotifyActions.Publish);
+                        var emails = string.Join(";", usersToNotify.Select(x => x.Email)).TrimEnd(';');
+                        ApiHelper.Email(emails, subject, template);
+                    }
                 }
                 catch (Exception ex) {
                     PuckCache.PuckLog.Log(ex);
@@ -105,14 +108,17 @@ namespace puck.core
             {
                 try
                 {
-                    var apiHelper = PuckCache.ApiHelper;
-                    var usersToNotify = await apiHelper.UsersToNotify(args.Node.Path, NotifyActions.Edit);
-                    if (usersToNotify.Count == 0) return; 
-                    var subject = string.Concat("content edited - ", args.Node.NodeName, " - ", args.Node.Path);
-                    var template = System.IO.File.ReadAllText(ApiHelper.MapPath(PuckCache.EmailTemplateEditPath));
-                    template = ApiHelper.EmailTransform(template, args.Node, NotifyActions.Edit);
-                    var emails = string.Join(";", usersToNotify.Select(x => x.Email)).TrimEnd(';');
-                    ApiHelper.Email(emails, subject, template);
+                    using (var scope = PuckCache.ServiceProvider.CreateScope())
+                    {
+                        var apiHelper = scope.ServiceProvider.GetService<ApiHelper>();
+                        var usersToNotify = await apiHelper.UsersToNotify(args.Node.Path, NotifyActions.Edit);
+                        if (usersToNotify.Count == 0) return;
+                        var subject = string.Concat("content edited - ", args.Node.NodeName, " - ", args.Node.Path);
+                        var template = System.IO.File.ReadAllText(ApiHelper.MapPath(PuckCache.EmailTemplateEditPath));
+                        template = ApiHelper.EmailTransform(template, args.Node, NotifyActions.Edit);
+                        var emails = string.Join(";", usersToNotify.Select(x => x.Email)).TrimEnd(';');
+                        ApiHelper.Email(emails, subject, template);
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -124,14 +130,17 @@ namespace puck.core
             {
                 try
                 {
-                    var apiHelper = PuckCache.ApiHelper;
-                    var usersToNotify = await apiHelper.UsersToNotify(args.Node.Path, NotifyActions.Delete);
-                    if (usersToNotify.Count == 0) return; 
-                    var subject = string.Concat("content deleted - ", args.Node.NodeName, " - ", args.Node.Path);
-                    var template = System.IO.File.ReadAllText(ApiHelper.MapPath(PuckCache.EmailTemplateDeletePath));
-                    template = ApiHelper.EmailTransform(template, args.Node, NotifyActions.Delete);
-                    var emails = string.Join(";", usersToNotify.Select(x => x.Email)).TrimEnd(';');
-                    ApiHelper.Email(emails, subject, template);
+                    using (var scope = PuckCache.ServiceProvider.CreateScope())
+                    {
+                        var apiHelper = scope.ServiceProvider.GetService<ApiHelper>();
+                        var usersToNotify = await apiHelper.UsersToNotify(args.Node.Path, NotifyActions.Delete);
+                        if (usersToNotify.Count == 0) return;
+                        var subject = string.Concat("content deleted - ", args.Node.NodeName, " - ", args.Node.Path);
+                        var template = System.IO.File.ReadAllText(ApiHelper.MapPath(PuckCache.EmailTemplateDeletePath));
+                        template = ApiHelper.EmailTransform(template, args.Node, NotifyActions.Delete);
+                        var emails = string.Join(";", usersToNotify.Select(x => x.Email)).TrimEnd(';');
+                        ApiHelper.Email(emails, subject, template);
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -143,15 +152,18 @@ namespace puck.core
             {
                 try
                 {
-                    var apiHelper = PuckCache.ApiHelper;
-                    var node = args.Nodes.FirstOrDefault();
-                    var usersToNotify = await apiHelper.UsersToNotify(node.Path, NotifyActions.Move);
-                    if (usersToNotify.Count == 0) return; 
-                    var subject = string.Concat("content move - ", node.NodeName, " - ", node.Path);
-                    var template = System.IO.File.ReadAllText(ApiHelper.MapPath(PuckCache.EmailTemplateMovePath));
-                    template = ApiHelper.EmailTransform(template, node, NotifyActions.Move);
-                    var emails = string.Join(";", usersToNotify.Select(x => x.Email)).TrimEnd(';');
-                    ApiHelper.Email(emails, subject, template);
+                    using (var scope = PuckCache.ServiceProvider.CreateScope())
+                    {
+                        var apiHelper = scope.ServiceProvider.GetService<ApiHelper>();
+                        var node = args.Nodes.FirstOrDefault();
+                        var usersToNotify = await apiHelper.UsersToNotify(node.Path, NotifyActions.Move);
+                        if (usersToNotify.Count == 0) return;
+                        var subject = string.Concat("content move - ", node.NodeName, " - ", node.Path);
+                        var template = System.IO.File.ReadAllText(ApiHelper.MapPath(PuckCache.EmailTemplateMovePath));
+                        template = ApiHelper.EmailTransform(template, node, NotifyActions.Move);
+                        var emails = string.Join(";", usersToNotify.Select(x => x.Email)).TrimEnd(';');
+                        ApiHelper.Email(emails, subject, template);
+                    }
                 }
                 catch (Exception ex)
                 {

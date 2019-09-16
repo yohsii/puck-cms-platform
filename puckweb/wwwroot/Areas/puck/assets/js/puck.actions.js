@@ -1217,6 +1217,7 @@ var setNotify = function (p) {
         overlay(data, 450, 480, undefined, "Notifications");
         var form = $('.overlay_screen form');
         wireForm(form, function (data) {
+            msg(true,"notifications updated");
             overlayClose();
         }, function (data) {
             msg(false, data.message);

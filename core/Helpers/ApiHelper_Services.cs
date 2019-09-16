@@ -271,11 +271,12 @@ namespace puck.core.Helpers
                 .ToList();
             var usernames = metas.Select(x => x.Value).ToList();
             var users = new List<PuckUser>();
-            usernames.ForEach(async x=> {
-                var user = await userManager.FindByNameAsync(x);
+            foreach (var username in usernames)
+            {
+                var user = await userManager.FindByNameAsync(username);
                 if (user != null)
                     users.Add(user);
-            });
+            }
             return users;
         }
         public List<GeneratedProperty> AllProperties(GeneratedModel model) {
