@@ -718,7 +718,9 @@ div.settings {
         float: left;
         clear: none !important;
     }
-
+    .puck_google_long_lat .fieldwrapper input {
+        width:300px;
+    }
     .clearboth {
         clear: both;
     }
@@ -1592,8 +1594,11 @@ div.settings {
     }
 
     @media only screen and (min-width:768px) {
+        input {
+            width:480px;
+        }
         textarea {
-            width: 500px;
+            width: 480px;
         }
     }
 

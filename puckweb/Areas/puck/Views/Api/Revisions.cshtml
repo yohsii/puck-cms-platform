@@ -2,33 +2,33 @@
 @{
     Layout = null;    
 }
-<table class="revisions">
+<table class="table revisions">
     <tr>
-        <th>
+        <th scope="col">
             @Html.DisplayNameFor(model => model.NodeName)
         </th>
-        <th>
+        <th scope="col">
             @Html.DisplayNameFor(model => model.Path)
         </th>
-        <th>
+        <th scope="col">
             @Html.DisplayNameFor(model => model.Created)
         </th>
-        <th>
+        <th scope="col">
             @Html.DisplayNameFor(model => model.Updated)
         </th>
-        <th>
+        <th scope="col">
             @Html.DisplayNameFor(model => model.Revision)
         </th>
-        <th>
+        <th scope="col">
             @Html.DisplayNameFor(model => model.Variant)
         </th>
-        <th>
+        <th scope="col">
             @Html.DisplayNameFor(model => model.TemplatePath)
         </th>
-        <th>
+        <th scope="col">
             @Html.DisplayNameFor(model => model.Type)
         </th>
-        <th></th>
+        <th scope="col"></th>
     </tr>
 
 @foreach (var item in Model) {

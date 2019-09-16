@@ -14,14 +14,14 @@
         string groupName = null;
         if (displayAttribute != null) { groupName = displayAttribute.GroupName; }
         <div @Html.Raw(!complexChild&&!string.IsNullOrEmpty(groupName)?$"data-groupname=\"{groupName}\"":"") data-fieldname="@propName" class="fieldwrapper @(prop.IsComplexType?"complex":"") @(complexChild?"complex_child":"root")">
-            <div class="editor-label @(!complexChild&&isBackOfficePage?"col-2":"")" style="">
+            <div class="editor-label @(!complexChild&&isBackOfficePage?"col-sm-2":"")" style="">
                 @Html.Label(string.IsNullOrEmpty(prop.DisplayName)?prop.PropertyName:prop.DisplayName)
                 @Html.ValidationMessage(prop.PropertyName)
                 @if(!string.IsNullOrEmpty(prop.Description)){
                     <span class="description">@prop.Description</span>
                 }
             </div>
-            <div tabindex="-1" class="editor-field @(!complexChild&&isBackOfficePage?"col-10":"")">
+            <div tabindex="-1" class="editor-field @(!complexChild&&isBackOfficePage?"col-sm-10":"")">
                 @Html.Editor(prop.PropertyName)            
             </div>
             <div class="clearboth"></div>
