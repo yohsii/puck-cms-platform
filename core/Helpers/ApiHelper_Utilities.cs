@@ -255,13 +255,12 @@ namespace puck.core.Helpers
             var SmtpUserName = PuckCache.Configuration.GetValue<string>("SmtpUserName");
             var SmtpPassword = PuckCache.Configuration.GetValue<string>("SmtpPassword");
             var SmtpUseSsl = PuckCache.Configuration.GetValue<bool>("SmtpUseSsl");
+            from = from ?? PuckCache.Configuration.GetValue<string>("SmtpFrom");
             if (string.IsNullOrEmpty(SmtpHost) || SmtpPort == null || string.IsNullOrEmpty(SmtpUserName) || string.IsNullOrEmpty(SmtpPassword))
             {
                 PuckCache.PuckLog.Log(new Exception("cannot send email, Smtp configuration is not set."));
                 return;
             }
-
-            from = from ?? PuckCache.SmtpFrom;
 
             MimeMessage message = new MimeMessage();
 
