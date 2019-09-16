@@ -1,27 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Reflection;
-using System.IO;
 using puck.core.Base;
 using System.Web;
-using System.Threading.Tasks;
 using puck.core.Abstract;
-using puck.core.Concrete;
 using System.Text.RegularExpressions;
-using puck.core.Models;
 using puck.core.Constants;
-using System.Globalization;
 using Newtonsoft.Json;
 using puck.core.Entities;
-using puck.core.Exceptions;
-using puck.core.Events;
-using System.Net.Mail;
-using puck.core.Attributes;
+//using System.Net.Mail;
 using puck.core.State;
-using Microsoft.Extensions.DependencyModel;
 using System.ComponentModel.DataAnnotations;
+using MailKit.Net.Smtp;
+using MimeKit;
+using Microsoft.Extensions.Configuration;
 
 namespace puck.core.Helpers
 {
@@ -257,18 +250,43 @@ namespace puck.core.Helpers
         }
         public static void Email(string to, string subject, string body, string host = null, string from = null,bool isHtml=true)
         {
-            //host = host ?? PuckCache.SmtpHost;
+            var SmtpHost = PuckCache.Configuration.GetValue<string>("SmtpHost");
+            var SmtpPort = PuckCache.Configuration.GetValue<int?>("SmtpPort");
+            var SmtpUserName = PuckCache.Configuration.GetValue<string>("SmtpUserName");
+            var SmtpPassword = PuckCache.Configuration.GetValue<string>("SmtpPassword");
+
+            if (string.IsNullOrEmpty(SmtpHost) || SmtpPort == null || string.IsNullOrEmpty(SmtpUserName) || string.IsNullOrEmpty(SmtpPassword))
+            {
+                PuckCache.PuckLog.Log(new Exception("cannot send email, Smtp configuration is not set."));
+                return;
+            }
+
             from = from ?? PuckCache.SmtpFrom;
-            MailMessage mail = new MailMessage(from, to);
+
+            MimeMessage message = new MimeMessage();
+
+            MailboxAddress fromAddress = new MailboxAddress(from);
+            message.From.Add(fromAddress);
+
+            var toArr = to.Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
+            toArr.ToList().ForEach(x=>message.To.Add(new MailboxAddress(x)));
+            
+            message.Subject = subject;
+
+            BodyBuilder bodyBuilder = new BodyBuilder();
+            if(isHtml)
+                bodyBuilder.HtmlBody = body;
+            else
+                bodyBuilder.TextBody = body;
+            message.Body = bodyBuilder.ToMessageBody();
+
             SmtpClient client = new SmtpClient();
-            //client.Port = 25;
-            client.DeliveryMethod = SmtpDeliveryMethod.Network;
-            //client.UseDefaultCredentials = false;
-            //client.Host = host;
-            mail.IsBodyHtml = isHtml;
-            mail.Subject = subject;
-            mail.Body = body;
-            client.Send(mail);
+            client.Connect(SmtpHost, SmtpPort.Value, true);
+            client.Authenticate(SmtpUserName, SmtpPassword);
+
+            client.Send(message);
+            client.Disconnect(true);
+            client.Dispose();
         }
         public static string EmailTransform(string template, BaseModel model,NotifyActions action) {
             string date = DateTime.Now.ToShortDateString();
