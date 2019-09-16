@@ -23,34 +23,44 @@ namespace puck.core.PuckLucene
         public PuckQueryParser(LuceneVersion version, string field, Analyzer analyzer) 
             : base(version, field, analyzer) { 
         }
-        //protected override Query NewTermQuery(Lucene.Net.Index.Term term)
-        //{
-        //    try
-        //    {
-        //        string fieldTypeName = PuckCache.TypeFields[TypeName][term.Field];
-        //        if (fieldTypeName.Equals(typeof(int).AssemblyQualifiedName))
-        //        {
-        //            return new TermQuery(new Term(term.Field,NumericUtils.IntToPrefixCoded(int.Parse(term.Text))));
-        //        }
-        //        else if (fieldTypeName.Equals(typeof(long).AssemblyQualifiedName))
-        //        {
-        //            return new TermQuery(new Term(term.Field, NumericUtils.LongToPrefixCoded(long.Parse(term.Text))));
-        //        }
-        //        else if (fieldTypeName.Equals(typeof(float).AssemblyQualifiedName))
-        //        {
-        //            return new TermQuery(new Term(term.Field, NumericUtils.FloatToPrefixCoded(float.Parse(term.Text))));
-        //        }
-        //        else if (fieldTypeName.Equals(typeof(double).AssemblyQualifiedName))
-        //        {
-        //            return new TermQuery(new Term(term.Field, NumericUtils.DoubleToPrefixCoded(double.Parse(term.Text))));
-        //        }
-        //    }
-        //    catch (Exception ex)
-        //    {
+        protected override Query GetFieldQuery(string field, string queryText, bool quoted) {
+            try
+            {
+                string fieldTypeName = PuckCache.TypeFields[TypeName][field];
+                if (fieldTypeName.Equals(typeof(int).AssemblyQualifiedName))
+                {
+                    BytesRef bytes = new BytesRef(NumericUtils.BUF_SIZE_INT32);
+                    NumericUtils.Int32ToPrefixCoded(int.Parse(queryText), 0, bytes);
+                    return new TermQuery(new Term(field, bytes));
+                }
+                else if (fieldTypeName.Equals(typeof(long).AssemblyQualifiedName))
+                {
+                    BytesRef bytes = new BytesRef(NumericUtils.BUF_SIZE_INT64);
+                    NumericUtils.Int64ToPrefixCoded(long.Parse(queryText), 0, bytes);
+                    return new TermQuery(new Term(field, bytes));
+                }
+                else if (fieldTypeName.Equals(typeof(float).AssemblyQualifiedName))
+                {
+                    BytesRef bytes = new BytesRef(NumericUtils.BUF_SIZE_INT32);
+                    int intFloat = NumericUtils.SingleToSortableInt32(float.Parse(queryText));
+                    NumericUtils.Int32ToPrefixCoded(intFloat, 0, bytes);
+                    return new TermQuery(new Term(field, bytes));
+                }
+                else if (fieldTypeName.Equals(typeof(double).AssemblyQualifiedName))
+                {
+                    BytesRef bytes = new BytesRef(NumericUtils.BUF_SIZE_INT64);
+                    long longDouble = NumericUtils.DoubleToSortableInt64(double.Parse(queryText));
+                    NumericUtils.Int64ToPrefixCoded(longDouble, 0, bytes);
+                    return new TermQuery(new Term(field, bytes));
+                }
+            }
+            catch (Exception ex)
+            {
 
-        //    }
-        //    return base.NewTermQuery(term);
-        //}
+            }
+
+            return base.GetFieldQuery(field, queryText,quoted);
+        }
         protected override Query GetRangeQuery(string field, string part1, string part2, bool inclusiveStart,bool inclusiveEnd)
         {
             try
