@@ -939,7 +939,10 @@ namespace puck.core.Controllers
             {
                 if (await TryUpdateModelAsync(model, model.GetType(), ""))
                 {
-                    ObjectDumper.BindImages(model, int.MaxValue, Request.Form.Files);
+                    /*manually binding images is no longer necessary in aspnetcore 
+                     as you are no longer relying on FormCollection to bind values
+                     */
+                    //ObjectDumper.BindImages(model, int.MaxValue, Request.Form.Files);
                     //ObjectDumper.Transform(model, int.MaxValue);
                     var mod = model as BaseModel;
                     path = mod.Path;

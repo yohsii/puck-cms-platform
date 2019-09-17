@@ -3,7 +3,7 @@
     Layout = null;
 }
 <div class="timed_publish_dialog settings">
-    <form action="/puck/api/timedpublish" method="post">
+    <form autocomplete="off" action="/puck/api/timedpublish" method="post">
         @Html.HiddenFor(x=>x.Id)
         @Html.HiddenFor(x=>x.Variant)
         <div class="fieldwrapper">

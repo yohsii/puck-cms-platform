@@ -1,9 +1,25 @@
 ﻿@model Object
 @{ 
     var isBackOfficePage = ViewContext.HttpContext.Request.Path.ToString().StartsWith("/puck/api/");
+    //following code is to support models which are decorated with Attribute class
+    var attributeProperties = new System.Reflection.PropertyInfo[] { };
+    var isInheritingAttribute = typeof(Attribute).IsAssignableFrom(((Type)ViewBag.Level0Type));
+    if(isInheritingAttribute)
+    {
+        attributeProperties = typeof(Attribute).GetProperties();
+    }
 }
 <div class="fields">
-@foreach (var modelExplorer in ViewData.ModelExplorer.Properties.Where(pm => pm.Metadata.ShowForEdit && !ViewData.TemplateInfo.Visited(pm))) {
+@foreach (var modelExplorer in ViewData.ModelExplorer.Properties) {
+    try
+    {
+        if (attributeProperties.Any(x=>x.Name==modelExplorer.Metadata.PropertyName)|| !modelExplorer.Metadata.ShowForEdit || ViewData.TemplateInfo.Visited(modelExplorer))
+        {
+            continue;
+        }
+    }
+    catch (Exception ex) { continue; }
+
     var prop = modelExplorer.Metadata;
     if (prop.HideSurroundingHtml) {
         @Html.Editor(prop.PropertyName)
@@ -14,14 +30,14 @@
         string groupName = null;
         if (displayAttribute != null) { groupName = displayAttribute.GroupName; }
         <div @Html.Raw(!complexChild&&!string.IsNullOrEmpty(groupName)?$"data-groupname=\"{groupName}\"":"") data-fieldname="@propName" class="fieldwrapper @(prop.IsComplexType?"complex":"") @(complexChild?"complex_child":"root")">
-            <div class="editor-label @(!complexChild&&isBackOfficePage?"col-sm-2":"")" style="">
+            <div class="editor-label @(!complexChild&&isBackOfficePage?"col-2":"")" style="">
                 @Html.Label(string.IsNullOrEmpty(prop.DisplayName)?prop.PropertyName:prop.DisplayName)
                 @Html.ValidationMessage(prop.PropertyName)
                 @if(!string.IsNullOrEmpty(prop.Description)){
                     <span class="description">@prop.Description</span>
                 }
             </div>
-            <div tabindex="-1" class="editor-field @(!complexChild&&isBackOfficePage?"col-sm-10":"")">
+            <div tabindex="-1" class="editor-field @(!complexChild&&isBackOfficePage?"col-10":"")">
                 @Html.Editor(prop.PropertyName)            
             </div>
             <div class="clearboth"></div>

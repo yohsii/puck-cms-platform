@@ -74,7 +74,7 @@ namespace puck.core.Controllers
             }
             ViewBag.ShouldBindListEditor = true;
             ViewBag.IsPrepopulated = false;
-            ViewBag.Level0Type = typeModel;
+            ViewBag.Level0Type = typeSettings;
             return View(model);
         }
 

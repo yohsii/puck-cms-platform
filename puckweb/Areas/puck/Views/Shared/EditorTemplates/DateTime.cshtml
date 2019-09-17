@@ -12,7 +12,7 @@ else if (ViewData.ModelMetadata.IsReadOnly)
 }
 else
 { 
-    <input type="text" data-guid="@guid.ToString()" name="@ViewData.ModelMetadata.PropertyName" value="@(Model.HasValue?Model.Value.ToString():"")" />
+    <input type="text" autocomplete="off" data-guid="@guid.ToString()" name="@ViewData.ModelMetadata.PropertyName" value="@(Model.HasValue?Model.Value.ToString():"")" />
     <script type="text/javascript">
         onAfterDom(function () {
             var guid = '@Html.Raw(guid.ToString())';

@@ -361,7 +361,9 @@ h1.master{position:absolute;top:10px;right:10px;border-bottom:6px solid #6f6f6f;
     /*.overlay_screen{background:#fff;z-index:100000;opacity:1;position:fixed;overflow:hidden;overflow-y:scroll;}
 .overlay_screen .close{clear:both;}
 */
-
+.userstop .usersearch{
+    width:280px;
+}
 .usercard .card-title {
     cursor:pointer;
 }
@@ -557,11 +559,16 @@ div.settings {
         float: right;
         padding: 20px;
     }
-
-    .content .content_edit_page {
-        position: relative;
-        clear: both;
+    .task_edit input{
+        width:100%;
     }
+    .timed_publish_dialog input {
+        width:100%;
+    }
+.content .content_edit_page {
+    position: relative;
+    clear: both;
+}
 
     .content .translations {
         height: 20px;
@@ -680,7 +687,11 @@ div.settings {
     .parameters_edit .parameters_update {
         float: right;
     }
-
+    .parameters_edit input{
+        width:100%;
+    }
+    .cachepolicy input.minutes{width:280px;}
+    .fieldgroups input.groupname{width:280px;}
     .user_edit .msg {
         float: left;
         clear: both;
@@ -1594,10 +1605,11 @@ div.settings {
     }
 
     @media only screen and (min-width:768px) {
-        input {
-            width:480px;
+
+        .content_edit_page input {
+            width: 480px;
         }
-        textarea {
+        .content_edit_page textarea {
             width: 480px;
         }
     }
