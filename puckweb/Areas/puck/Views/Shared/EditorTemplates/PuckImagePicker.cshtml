@@ -121,32 +121,32 @@
             });
         }
         setValue();
-
+        var overlayEl = null;
         container.find(".addImage").click(function (e) {
             if (selected_container.find(".item").length >= maxPick) {
                 msg(undefined, "you cannot select any more, max selection is set to " + maxPick, undefined, undefined);
                 return false;
             }
             var el = container.find(".interfaces .imagePickerOverlayContainer").clone();
-            overlay(el, 400, undefined, undefined, "Image Picker", true);
+            overlayEl=overlay(el, 400, undefined, undefined, "Image Picker", true);
             showFolderContent(_startId,"/");
-            $(".rightarea .overlay_screen").on("click", ".metaContainer.folder", function (e) {
+            overlayEl.off("click.imgPickerMeta").on("click.imgPickerMeta", ".metaContainer.folder", function (e) {
                 var el = $(this);
                 var item = el.parents(".item");
                 showFolderContent(item.attr("data-id"),item.attr("data-nodename"));
             });
-            $(".rightarea .overlay_screen").on("click", ".imagePickerOverlayContainer .path span", function (e) {
+            overlayEl.off("click.imgPickerPath").on("click.imgPickerPath", ".imagePickerOverlayContainer .path span", function (e) {
                 var el = $(this);
                 el.nextAll("span").remove();
                 var id = el.attr("data-id");
                 showFolderContent(id,undefined);
             });
-            $(".rightarea .overlay_screen").on("click", ".imagePickerOverlayContainer .searchContainer button", function (e) {
-                var input = $(".rightarea .overlay_screen .searchContainer input");
+            overlayEl.off("click.searchButton").on("click.searchButton", ".imagePickerOverlayContainer .searchContainer button", function (e) {
+                var input = overlayEl.find(".searchContainer input");
                 var searchTerm = input.val();
                 getSearch(searchTerm, function (res) {
-                    var cont = $(".rightarea .overlay_screen:first");
-                    var itemContainer = $(".rightarea .overlay_screen .itemContainer");
+                    var cont = overlayEl;
+                    var itemContainer =overlayEl.find(".itemContainer");
                     itemContainer.html("");
                     //console.log(res);
                     var pathEl = $("<span class='searchTerm'/>").html("search:\"" + searchTerm + "\" ");
@@ -164,7 +164,7 @@
                     }
                 }, "ImageVM", "");
             });
-            $(".rightarea .overlay_screen").on("click","img", function (e) {
+            overlayEl.on("click","img", function (e) {
                 var el = $(this).parents(".item");
                 if (selected_container.find("[data-id='" + el.attr("data-id") + "'][data-variant='" + el.attr("data-variant") + "']").length == 0) {
                     if (selected_container.find(".item").length < maxPick) {
@@ -178,8 +178,8 @@
             });
         });
         var showFolderContent = function(id,name) {
-            var cont = $(".rightarea .overlay_screen:first");
-            var itemContainer = $(".rightarea .overlay_screen .itemContainer");
+            var cont = overlayEl;
+            var itemContainer = overlayEl.find(".itemContainer");
             if (cont.length == 0) return;
             itemContainer.html("");
             if (name != undefined) {
@@ -230,7 +230,10 @@
             //console.log(model);
         }
         selected_container.on("click", "i.remove", function (e) {
-            $(this).parents(".item").remove();
+            var item = $(this).parents(".item");
+            overlayEl.find(".item[data-id='" + item.attr("data-id") + "'][data-variant='" + item.attr("data-variant") + "']")
+                .removeClass("selected");
+            item.remove();
             setValue();
         });
 

@@ -1014,8 +1014,9 @@ var _overlayClose = function () {
 
 var overlay = function (el, width, height, top, title, isRightSided) {
     isRightSided = isRightSided || false;
+    var overlayClass = isRightSided ? "right" : "left";
     top = top || "0px";
-    overlayClose();
+    overlayClose(false,overlayClass);
     var cleftIsVisible = false;
     if ($(window).width() < 768) {
         if (cleft.is(":visible")) {
@@ -1031,7 +1032,7 @@ var overlay = function (el, width, height, top, title, isRightSided) {
             width = $(window).width();
     var f = undefined;
     searchDialogClose();
-    var outer = $(".interfaces .overlay_screen").clone().addClass("");
+    var outer = $(".interfaces .overlay_screen").clone().addClass("active").addClass(overlayClass);
     outer.find(">h1:first").html(title || "")
     var left = (cright.position().left - 30) < -10 ? -10 : (cright.position().left - 30);
     if (isRightSided)
@@ -1042,7 +1043,7 @@ var overlay = function (el, width, height, top, title, isRightSided) {
         outer.css({top:$(".rightarea").scrollTop()});
     }
     var close = $('<i class="overlay_close fas fa-minus-circle"></i>');
-    close.click(function () { overlayClose(cleftIsVisible) });
+    close.click(function () { overlayClose(cleftIsVisible, overlayClass) });
     outer.append(close);
     var inner = outer.find(".inner");
     var clear = $("<div class='clearboth'/>");
@@ -1052,14 +1053,16 @@ var overlay = function (el, width, height, top, title, isRightSided) {
     cright.append(outer);
     if (!isRightSided)
         outer.animate({ width: width + (width.toString().indexOf("%") > -1 ? "" : "px") }, 200, function () { if (f) f(); afterDom(); });
-
-    $(document).keyup(function (e) {
-        if (e.keyCode == 27) { overlayClose(cleftIsVisible); }
-    });
+    if ($(".overlay_screen.active").length == 1) {
+        $(document).off("keyup.overlay").on("keyup.overlay", function (e) {
+            if (e.keyCode == 27) { overlayClose(cleftIsVisible, overlayClass); }
+        });
+    }
+    return outer;
 }
 
-var overlayClose = function (showLeftArea) {
-    cright.find(".overlay_screen").remove();
+var overlayClose = function (showLeftArea,cssClass) {
+    cright.find(".overlay_screen"+(cssClass?"."+cssClass:"")).remove();
     $("body").css({ overflow: "initial" });
     $(document).unbind("keyup");
     if ($(window).width() < 768 && showLeftArea) {

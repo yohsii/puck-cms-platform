@@ -62,6 +62,10 @@ padding:0px;
 }
 
 .settings_display_image span{word-wrap:break-word;width:100%;display:block;}
+.settings_display_image a {
+    display: inline-block!important;
+    vertical-align: bottom;
+}
 .compare_revision {float:left;width:45%;}
 .compare_revision .fields {
     padding:10px;
