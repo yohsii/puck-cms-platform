@@ -867,23 +867,51 @@ namespace puck.core.Controllers
 
             List<PuckRevision> results = null;
             //try get node by id with particular variant
-            if (string.IsNullOrEmpty(p_fromVariant))
+            if(!string.IsNullOrEmpty(p_fromVariant) && p_fromVariant.Equals("none"))
+                results = repo.GetPuckRevision().Where(x => x.Id == contentId.Value && x.Current).ToList();
+            else if (string.IsNullOrEmpty(p_fromVariant))
                 results = repo.GetPuckRevision().Where(x => x.Id == contentId.Value && x.Variant.ToLower().Equals(p_variant.ToLower()) && x.Current).ToList();
             else
                 results = repo.GetPuckRevision().Where(x => x.Id == contentId.Value && x.Variant.ToLower().Equals(p_fromVariant.ToLower()) && x.Current).ToList();
 
             if (results.Count > 0) {
                 var result = results.FirstOrDefault();
-                model = ApiHelper.RevisionToModel(result);
-                if (!string.IsNullOrEmpty(p_fromVariant)) {
-                    var mod = model as BaseModel;
-                    mod.Variant = p_variant;
-                    mod.Created = DateTime.Now;
-                    mod.Updated = DateTime.Now;
-                    mod.Published = false;
-                    mod.Revision = 0;
-                    mod.CreatedBy = User.Identity.Name;
-                    mod.LastEditedBy = mod.CreatedBy;
+                if (!string.IsNullOrEmpty(p_fromVariant) && p_fromVariant.Equals("none"))
+                {//create blank new translation of existing content
+                    var modelType = ApiHelper.GetTypeFromName(result.Type);
+                    var concreteType = ApiHelper.ConcreteType(modelType);
+                    model = ApiHelper.CreateInstance(concreteType);
+                    var baseModel = model as BaseModel;
+                    baseModel.Path = result.Path;
+                    baseModel.ParentId = result.ParentId;
+                    baseModel.Id = result.Id;
+                    baseModel.TemplatePath = result.TemplatePath;
+                    baseModel.NodeName = result.NodeName;
+                    baseModel.SortOrder = result.SortOrder;
+                    baseModel.Type = result.Type;
+                    baseModel.TypeChain = result.TypeChain;
+                    baseModel.Variant = p_variant;
+                    baseModel.Created = DateTime.Now;
+                    baseModel.Updated = DateTime.Now;
+                    baseModel.Published = false;
+                    baseModel.Revision = 0;
+                    baseModel.CreatedBy = User.Identity.Name;
+                    baseModel.LastEditedBy = baseModel.CreatedBy;
+                }
+                else
+                {
+                    model = ApiHelper.RevisionToModel(result);
+                    if (!string.IsNullOrEmpty(p_fromVariant))
+                    {
+                        var mod = model as BaseModel;
+                        mod.Variant = p_variant;
+                        mod.Created = DateTime.Now;
+                        mod.Updated = DateTime.Now;
+                        mod.Published = false;
+                        mod.Revision = 0;
+                        mod.CreatedBy = User.Identity.Name;
+                        mod.LastEditedBy = mod.CreatedBy;
+                    }
                 }
             }
             ViewBag.ShouldBindListEditor = true;

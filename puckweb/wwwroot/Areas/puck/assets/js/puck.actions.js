@@ -1167,10 +1167,10 @@ var untranslated = function (variants) {
 var dialogForVariants = function (variants) {
     var dialog = $(".interfaces .revision_for_dialog").clone();
     $.each(variants, function () {
-        dialog.find(".variantcontainer select").append("<option value='" + this + "'>" + this + "</option>");
+        dialog.find(".variantcontainer select").append("<option value='" + this + "'>" + variantNames[this] + "</option>");
     });
     $.each(languages, function () {
-        dialog.find(".descendantscontainer select").append("<option value='" + this.Key + "'>" + this.Key + "</option>");
+        dialog.find(".descendantscontainer select").append("<option value='" + this.Key + "'>" + variantNames[this.Key] + "</option>");
     });
     dialog.find(".descendantscontainer select").prepend("<option selected value=''>None</option>");
     return dialog;

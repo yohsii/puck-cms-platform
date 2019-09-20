@@ -4,8 +4,9 @@
     <TargetFramework>netcoreapp3.0</TargetFramework>
     <UserSecretsId>aspnet-puckweb-8B7BB765-2872-4000-9CDA-54028AE0BC40</UserSecretsId>
     <RunPostBuildEvent>Always</RunPostBuildEvent>
+    <ANCMPreConfiguredForIIS>true</ANCMPreConfiguredForIIS>
   </PropertyGroup>
-
+  
   <ItemGroup>
     <Content Remove="wwwroot\Areas\puck\assets\css\1200.css" />
     <Content Remove="wwwroot\Areas\puck\assets\css\1200.min.css" />

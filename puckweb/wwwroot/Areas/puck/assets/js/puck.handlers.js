@@ -228,40 +228,39 @@ $(document).on("click",".node-dropdown a,.template-dropdown a",function () {
             });
             break;
         case "delete":
-            if (confirm("sure?")) {
-                var doDelete = function (id, variant) {
-                    setDelete(id, function (data) {
-                        if (data.success === true) {
-                            if (variant == "" || variant == undefined) {
-                                node.remove();
-                            } else {
-                                if (node.find("span.variant").length > 1)
-                                    node.find("span.variant[data-variant='" + variant + "']").remove();
-                                //else
-                                //node.remove();
-                            }
-                            getDrawContent(node.attr("data-parent_id"), undefined, undefined, function () {
-                                highlightSelectedNode(node.attr("data-id"));
-                            });
-                            overlayClose();
+            var doDelete = function (id, variant) {
+                setDelete(id, function (data) {
+                    if (data.success === true) {
+                        if (variant == "" || variant == undefined) {
+                            node.remove();
                         } else {
-                            msg(false, data.message);
-                            overlayClose();
+                            if (node.find("span.variant").length > 1)
+                                node.find("span.variant[data-variant='" + variant + "']").remove();
+                            //else
+                            //node.remove();
                         }
-                    }, variant);
-                }
-                var variants = node.attr("data-variants").split(",");
-                if (variants.length > 1) {
-                    var dialog = dialogForVariants(variants);
-                    overlay(dialog, 400, 150,undefined,"Delete");
-                    dialog.find(".descendantscontainer").hide();
-                    dialog.find("button").click(function () {
-                        doDelete(node.attr("data-id"), dialog.find("select").val());
-                    });
-                } else {
-                    doDelete(node.attr("data-id"));
-                }
-            }; break;
+                        getDrawContent(node.attr("data-parent_id"), undefined, undefined, function () {
+                            highlightSelectedNode(node.attr("data-id"));
+                        });
+                        overlayClose();
+                    } else {
+                        msg(false, data.message);
+                        overlayClose();
+                    }
+                }, variant);
+            }
+            var variants = node.attr("data-variants").split(",");
+            if (variants.length > 1) {
+                var dialog = dialogForVariants(variants);
+                overlay(dialog, 400, 150,undefined,"Delete");
+                dialog.find(".descendantscontainer").hide();
+                dialog.find("button").click(function () {
+                    if (confirm("are you sure you want to delete this content?")) { doDelete(node.attr("data-id"), dialog.find("select").val()); }
+                });
+            } else {
+                if (confirm("are you sure you want to delete this content?")) { doDelete(node.attr("data-id")); }
+            }
+            break;
         case "publish":
             var doPublish = function (id, variant, descendants) {
                 setPublish(id, variant, descendants, function (data) {
@@ -413,15 +412,17 @@ $(document).on("click",".node-dropdown a,.template-dropdown a",function () {
             break;
         case "translate":
             getCreateDialog(function (data) {
-                overlay(data, 400, 250,undefined,"Translate");
+                var overlayEl=overlay(data, 400, 250,undefined,"Translate");
                 var type = $(".overlay_screen select[name=type]");
                 var variant = $(".overlay_screen select[name=variant]");
                 var fromVariant = variant.clone().attr("name", "fromVariant");
-                $(".overlay_screen .typecontainer label").html("Translate from version").siblings().hide().after(fromVariant);
+                fromVariant.append($("<option value=\"none\">None - blank form</option>"));
+                $(".overlay_screen .typecontainer label").html("Copy values from existing version").siblings().hide().after(fromVariant);
+                overlayEl.find(".variantcontainer label").html("Language of new content");
                 type.val(node.attr("data-type"));
                 var variants = node.attr("data-variants").split(",");
                 if (variants.length == 1) {
-                    $(".overlay_screen .typecontainer").hide();
+                    //$(".overlay_screen .typecontainer").hide();
                     //$(".overlay_screen").css({ height: "170px" });
                 }
                 fromVariant.find("option").each(function () {
@@ -431,7 +432,7 @@ $(document).on("click",".node-dropdown a,.template-dropdown a",function () {
                         if (this == option.val())
                             contains = true;
                     });
-                    if (!contains) {
+                    if (!contains && option.val()!="none") {
                         option.remove();
                     }
                 });
