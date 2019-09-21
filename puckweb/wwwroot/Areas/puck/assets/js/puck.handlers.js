@@ -199,8 +199,8 @@ $(document).on("click",".node-dropdown a,.template-dropdown a",function () {
         case "template_move":
             var markup = $(".interfaces .template_tree_container.move").clone();
             var el = markup.find(".node:first");
-            overlay(markup,undefined,undefined,undefined,"Move Template");
-            $(".overlay_screen .msg").html("select new parent node for content <b>" + node.attr("data-name") + "</b>");
+            var ovarlayEl=overlay(markup,undefined,undefined,undefined,"Move Template");
+            overlayEl.find(".msg").html("select new parent node for content <b>" + node.attr("data-name") + "</b>");
             getDrawTemplates(startPath, el);
             markup.on("click", ".node[data-type='folder']>div>span", function (e) {
                 var dest_node = $(this).parents(".node:first");
@@ -325,8 +325,8 @@ $(document).on("click",".node-dropdown a,.template-dropdown a",function () {
         case "move":
             var markup = $(".interfaces .tree_container.move").clone();
             var el = markup.find(".node:first");
-            overlay(markup,undefined,undefined,undefined,"Move Content");
-            $(".overlay_screen .msg").html("select new parent node for content <b>" + node.attr("data-nodename") + "</b>");
+            var overlayEl = overlay(markup,undefined,undefined,undefined,"Move Content");
+            overlayEl.find(".msg").html("select new parent node for content <b>" + node.attr("data-nodename") + "</b>");
             getDrawContent(startId, el);
             markup.on("click", ".node span", function (e) {
                 var dest_node = $(this).parents(".node:first");
@@ -354,8 +354,8 @@ $(document).on("click",".node-dropdown a,.template-dropdown a",function () {
         case "copy":
             var markup = $(".interfaces .tree_container.copy").clone();
             var el = markup.find(".node:first");
-            overlay(markup, undefined, undefined, undefined, "Copy Content");
-            $(".overlay_screen .msg").html("select new parent node for copied content <b>" + node.attr("data-nodename") + "</b>");
+            var overlayEl = overlay(markup, undefined, undefined, undefined, "Copy Content");
+            overlayEl.find(".msg").html("select new parent node for copied content <b>" + node.attr("data-nodename") + "</b>");
             getDrawContent(startId, el);
             markup.on("click", ".node span", function (e) {
                 var dest_node = $(this).parents(".node:first");
@@ -386,12 +386,12 @@ $(document).on("click",".node-dropdown a,.template-dropdown a",function () {
         case "changetype":
             getChangeTypeDialog(node.attr("data-id"),function (markup) {
                 var variants = node.attr("data-variants").split(",");
-                overlay(markup, 400, 250, undefined, "Change Type");
-                $(".overlay_screen button").click(function () {
-                    var newType = $(".overlay_screen select").val();
+                var overlayEl = overlay(markup, 400, 250, undefined, "Change Type");
+                overlayEl.find("button").click(function () {
+                    var newType = overlayEl.find("select").val();
                     getChangeTypeMappingDialog(node.attr("data-id"), newType, function (mappingMarkup) {
-                        overlay(mappingMarkup, 500, 250, undefined, "Change Type");
-                        wireForm($(".overlay_screen form"), function (d) {
+                        var overlayEl=overlay(mappingMarkup, 500, 250, undefined, "Change Type");
+                        wireForm(overlayEl.find("form"), function (d) {
                             msg(true, "type changed");
                             displayMarkup(null, node.attr("data-type"), variants[0], undefined, node.attr("data-id"));
                             overlayClose();
@@ -413,11 +413,11 @@ $(document).on("click",".node-dropdown a,.template-dropdown a",function () {
         case "translate":
             getCreateDialog(function (data) {
                 var overlayEl=overlay(data, 400, 250,undefined,"Translate");
-                var type = $(".overlay_screen select[name=type]");
-                var variant = $(".overlay_screen select[name=variant]");
+                var type = overlayEl.find("select[name=type]");
+                var variant = overlayEl.find("select[name=variant]");
                 var fromVariant = variant.clone().attr("name", "fromVariant");
                 fromVariant.append($("<option value=\"none\">None - blank form</option>"));
-                $(".overlay_screen .typecontainer label").html("Copy values from existing version").siblings().hide().after(fromVariant);
+                overlayEl.find(".typecontainer label").html("Copy values from existing version").siblings().hide().after(fromVariant);
                 overlayEl.find(".variantcontainer label").html("Language of new content");
                 type.val(node.attr("data-type"));
                 var variants = node.attr("data-variants").split(",");
@@ -447,7 +447,7 @@ $(document).on("click",".node-dropdown a,.template-dropdown a",function () {
                     if (contains)
                         option.remove();
                 });
-                $(".overlay_screen button").click(function () {
+                overlayEl.find("button").click(function () {
                     displayMarkup(null, node.attr("data-type"), variant.val(), fromVariant.val(),node.attr("data-id"));
                     overlayClose();
                 });

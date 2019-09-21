@@ -44,9 +44,9 @@ namespace puck.core.Controllers
         RoleManager<PuckRole> roleManager;
         UserManager<PuckUser> userManager;
         SignInManager<PuckUser> signInManager;
-        ContentService contentService;
-        ApiHelper apiHelper;
-        public ApiController(ApiHelper ah, ContentService cs, I_Content_Indexer i, I_Content_Searcher s, I_Log l, I_Puck_Repository r, RoleManager<PuckRole> rm, UserManager<PuckUser> um, SignInManager<PuckUser> sm) {
+        I_Content_Service contentService;
+        I_Api_Helper apiHelper;
+        public ApiController(I_Api_Helper ah, I_Content_Service cs, I_Content_Indexer i, I_Content_Searcher s, I_Log l, I_Puck_Repository r, RoleManager<PuckRole> rm, UserManager<PuckUser> um, SignInManager<PuckUser> sm) {
             this.indexer = i;
             this.searcher = s;
             this.log = l;
@@ -1070,6 +1070,7 @@ namespace puck.core.Controllers
             string path = "";
             string type = "";
             string variant = "";
+            Guid modelId = Guid.Empty;
             try
             {
                 var rnode = repo.GetPuckRevision().Where(x=>x.RevisionID==id).FirstOrDefault();
@@ -1096,6 +1097,7 @@ namespace puck.core.Controllers
                 }
                 path = rnode.Path;
                 type = rnode.Type;
+                modelId = rnode.Id;
                 variant = rnode.Variant;
                 repo.SaveChanges();                
                 success = true;
@@ -1106,7 +1108,7 @@ namespace puck.core.Controllers
                 message = ex.Message;
                 log.Log(ex);
             }
-            return Json(new { success = success, message = message,path=path,type=type,variant=variant });
+            return Json(new { success = success, message = message,id=modelId,path=path,type=type,variant=variant });
         }
         [Authorize(Roles = PuckRoles.Revert, AuthenticationSchemes = Mvc.AuthenticationScheme)]
         public JsonResult DeleteRevision(int id)

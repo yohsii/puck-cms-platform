@@ -15,6 +15,8 @@ namespace puckweb.ViewModels
 {
     public class Page:BaseModel
     {
+        [Display(GroupName ="Content")]
+        public TestModel Person { get; set; }
         [Display(Name = "Image Gallery", GroupName = "Images")]
         [UIHint("PuckImagePicker")]
         [PuckImagePickerEditorSettings(MaxPick = 1)]
@@ -84,5 +86,6 @@ namespace puckweb.ViewModels
         [Display(ShortName = "input")]
         [UIHint("ListEditor")]
         public List<string> AddressLines { get; set; }
+        
     }
 }

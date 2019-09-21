@@ -29,14 +29,14 @@ using Microsoft.AspNetCore.Identity;
 
 namespace puck.core.Helpers
 {
-    public partial class ApiHelper
+    public partial class ApiHelper : I_Api_Helper
     {
         private static readonly object _savelck = new object();
-        public RoleManager<PuckRole> roleManager{ get; set; }
+        public RoleManager<PuckRole> roleManager { get; set; }
         public UserManager<PuckUser> userManager { get; set; }
         public I_Puck_Repository repo { get; set; }
-        public I_Task_Dispatcher tdispatcher{ get; set; }
-        public I_Content_Indexer indexer{ get; set; }
+        public I_Task_Dispatcher tdispatcher { get; set; }
+        public I_Content_Indexer indexer { get; set; }
         public I_Log logger { get; set; }
         public ApiHelper(RoleManager<PuckRole> RoleManager, UserManager<PuckUser> UserManager, I_Puck_Repository Repo, I_Task_Dispatcher TaskDispatcher, I_Content_Indexer Indexer, I_Log Logger)
         {
@@ -47,7 +47,8 @@ namespace puck.core.Helpers
             this.indexer = Indexer;
             this.logger = Logger;
         }
-        public string UserVariant() {
+        public string UserVariant()
+        {
             string variant;
             if (System.Web.HttpContext.Current.Session.GetString("language") != null)
             {
@@ -59,7 +60,7 @@ namespace puck.core.Helpers
                 if (meta != null && !string.IsNullOrEmpty(meta.Value))
                 {
                     variant = meta.Value;
-                    System.Web.HttpContext.Current.Session.SetString("language",meta.Value);
+                    System.Web.HttpContext.Current.Session.SetString("language", meta.Value);
                 }
                 else
                 {
@@ -68,9 +69,10 @@ namespace puck.core.Helpers
             }
             return variant;
         }
-        
-        
-        public void SetDomain(string path, string domains) {
+
+
+        public void SetDomain(string path, string domains)
+        {
             if (string.IsNullOrEmpty(path))
                 throw new Exception("path null or empty");
             var meta = repo.GetPuckMeta().Where(x => x.Name == DBNames.DomainMapping).ToList();
@@ -108,9 +110,10 @@ namespace puck.core.Helpers
                 });
                 repo.SaveChanges();
             }
-            StateHelper.UpdateDomainMappings(true);                
+            StateHelper.UpdateDomainMappings(true);
         }
-        public void SetLocalisation(string path,string variant) {
+        public void SetLocalisation(string path, string variant)
+        {
             if (string.IsNullOrEmpty(path))
                 throw new Exception("path null or empty");
             if (string.IsNullOrEmpty(variant))
@@ -127,7 +130,7 @@ namespace puck.core.Helpers
             {
                 var meta = repo.GetPuckMeta().Where(x => x.Name == DBNames.PathToLocale && x.Key == path).ToList();
                 meta.ForEach(x => repo.DeleteMeta(x));
-                    
+
                 var newMeta = new PuckMeta();
                 newMeta.Name = DBNames.PathToLocale;
                 newMeta.Key = path;
@@ -135,17 +138,18 @@ namespace puck.core.Helpers
                 repo.AddMeta(newMeta);
                 repo.SaveChanges();
             }
-            StateHelper.UpdatePathLocaleMappings(true);                
+            StateHelper.UpdatePathLocaleMappings(true);
         }
-        
+
         public List<BaseTask> Tasks()
         {
             var result = new List<BaseTask>();
             var meta = repo.GetPuckMeta().Where(x => x.Name == DBNames.Tasks).ToList();
             var toRemove = new List<PuckMeta>();
-            meta.ForEach(x => {
+            meta.ForEach(x =>
+            {
                 //var type = Type.GetType(x.Key);
-                var type = TaskTypes().FirstOrDefault(xx=>xx.FullName.Equals(x.Key));
+                var type = TaskTypes().FirstOrDefault(xx => xx.FullName.Equals(x.Key));
                 if (type == null)
                 {
                     toRemove.Add(x);
@@ -153,7 +157,8 @@ namespace puck.core.Helpers
                 }
                 var instance = JsonConvert.DeserializeObject(x.Value, type) as BaseTask;
                 instance.ID = x.ID;
-                if (!tdispatcher.CanRun(instance)) {
+                if (!tdispatcher.CanRun(instance))
+                {
                     toRemove.Add(x);
                     return;
                 }
@@ -168,17 +173,18 @@ namespace puck.core.Helpers
             var excludedTypes = new List<Type>();
             if (ignoreSystemTasks)
             {
-                excludedTypes.AddRange(SystemTasks().Select(x=>x.GetType()));
+                excludedTypes.AddRange(SystemTasks().Select(x => x.GetType()));
             }
             if (ignoreBaseTask)
             {
                 excludedTypes.Add(typeof(BaseTask));
             }
-            var tasks= FindDerivedClasses(typeof(BaseTask), null, false).ToList();
+            var tasks = FindDerivedClasses(typeof(BaseTask), null, false).ToList();
             var result = tasks.Where(x => !excludedTypes.Contains(x)).ToList();
             return result;
         }
-        public List<BaseTask> SystemTasks() {
+        public List<BaseTask> SystemTasks()
+        {
             var result = new List<BaseTask>();
             result.Add(new SyncCheckTask());
             result.Add(new KeepAliveTask());
@@ -186,17 +192,19 @@ namespace puck.core.Helpers
                 result.Add(new TimedPublishTask());
             return result;
         }
-        
-        public String PathLocalisation(string path) {
-            var meta = repo.GetPuckMeta().Where(x => x.Name == DBNames.PathToLocale && path.StartsWith(x.Key)).OrderByDescending(x=>x.Key.Length).FirstOrDefault();
+
+        public String PathLocalisation(string path)
+        {
+            var meta = repo.GetPuckMeta().Where(x => x.Name == DBNames.PathToLocale && path.StartsWith(x.Key)).OrderByDescending(x => x.Key.Length).FirstOrDefault();
             return meta == null ? null : meta.Value;
         }
         public String DomainMapping(string path)
         {
             var meta = repo.GetPuckMeta().Where(x => x.Name == DBNames.DomainMapping && x.Key == path).ToList();
-            return meta.Count == 0 ? string.Empty : string.Join(",",meta.Select(x=>x.Value));
+            return meta.Count == 0 ? string.Empty : string.Join(",", meta.Select(x => x.Value));
         }
-        public Notify NotifyModel(string path){
+        public Notify NotifyModel(string path)
+        {
             //:actions
             //save
             //publish
@@ -221,11 +229,11 @@ namespace puck.core.Helpers
             var notify = repo.GetPuckMeta()
                 .Where(x => x.Name.StartsWith(DBNames.Notify))
                 .Where(x => x.Key.Equals(path))
-                .Where(x=>x.Value==username)
+                .Where(x => x.Value == username)
                 .FirstOrDefault();
             if (notify != null)
             {
-                var actions = notify.Name.Substring((DBNames.Notify+":*").Length);
+                var actions = notify.Name.Substring((DBNames.Notify + ":*").Length);
                 var actionList = actions.Split(new char[] { ':' }, StringSplitOptions.RemoveEmptyEntries).ToList();
                 //var usersList = notify.Value.Split(new char[] { ':' }, StringSplitOptions.RemoveEmptyEntries).ToList();
                 model.Actions = actionList;
@@ -236,7 +244,8 @@ namespace puck.core.Helpers
             //model.AllUsers = Roles.GetUsersInRole(PuckRoles.Puck).ToList().Select(x => new SelectListItem() { Text = x, Value = x, Selected = model.Users.Contains(x) });
             return model;
         }
-        public void SetNotify(Notify model) {
+        public void SetNotify(Notify model)
+        {
             model.Actions = model.Actions ?? new List<string>();
             model.Users = model.Users ?? new List<string>();
             var username = System.Web.HttpContext.Current.User.Identity.Name;
@@ -245,14 +254,15 @@ namespace puck.core.Helpers
             var dbvalue = username;
             repo.GetPuckMeta()
                 .Where(x => x.Name.StartsWith(DBNames.Notify))
-                .Where(x=>x.Key.Equals(model.Path))
-                .Where(x=>x.Value.Equals(username))
+                .Where(x => x.Key.Equals(model.Path))
+                .Where(x => x.Value.Equals(username))
                 .ToList()
                 .ForEach(x => repo.DeleteMeta(x));
-            var newMeta = new PuckMeta { 
-                Key=dbkey,
-                Name=dbname,
-                Value=dbvalue
+            var newMeta = new PuckMeta
+            {
+                Key = dbkey,
+                Name = dbname,
+                Value = dbvalue
             };
             repo.AddMeta(newMeta);
             repo.SaveChanges();
@@ -279,19 +289,22 @@ namespace puck.core.Helpers
             }
             return users;
         }
-        public List<GeneratedProperty> AllProperties(GeneratedModel model) {
+        public List<GeneratedProperty> AllProperties(GeneratedModel model)
+        {
             var result = new List<GeneratedProperty>();
             var mod = model;
-            do{
+            do
+            {
                 result.AddRange(mod.Properties.ToList());
                 if (!string.IsNullOrEmpty(mod.Inherits))
                     mod = repo.GetGeneratedModel().Where(x => x.IFullName == mod.Inherits).SingleOrDefault();
                 else
                     mod = null;
-            }while(mod!=null);
+            } while (mod != null);
             return result;
         }
-        public List<string> FieldGroups(string type=null) {
+        public List<string> FieldGroups(string type = null)
+        {
             var result = new List<string>();
             var fieldGroups = repo.GetPuckMeta().Where(x => x.Name.StartsWith(DBNames.FieldGroups)).ToList();
             fieldGroups.ForEach(x =>
@@ -301,7 +314,8 @@ namespace puck.core.Helpers
                 string FieldName = x.Value;
                 result.Add(string.Concat(typeName, ":", groupName, ":", FieldName));
             });
-            if (!string.IsNullOrEmpty(type)) {
+            if (!string.IsNullOrEmpty(type))
+            {
                 //var targetType = ApiHelper.GetType(type);
                 var targetType = ApiHelper.GetTypeFromName(type);
                 var baseTypes = BaseTypes(targetType);
@@ -314,25 +328,28 @@ namespace puck.core.Helpers
             return result;
         }
 
-        public List<Variant> Variants() {
+        public List<Variant> Variants()
+        {
             var allVariants = AllVariants();
             var results = new List<Variant>();
-            var allLanguageMetas = repo.GetPuckMeta().Where(x => x.Name == DBNames.Settings && x.Key== DBKeys.Languages).ToList();
-            for(var i =0;i<allLanguageMetas.Count;i++) {
+            var allLanguageMetas = repo.GetPuckMeta().Where(x => x.Name == DBNames.Settings && x.Key == DBKeys.Languages).ToList();
+            for (var i = 0; i < allLanguageMetas.Count; i++)
+            {
                 var language = allLanguageMetas[i];
                 if (language != null)
                 {
                     var variant = allVariants.Where(x => x.Key.ToLower().Equals(language.Value.ToLower())).FirstOrDefault();
                     if (variant != null)
                     {
-                        variant.IsDefault = i==0;
+                        variant.IsDefault = i == 0;
                         results.Add(variant);
                     }
                 }
             }
             return results;
         }
-        public List<Variant> AllVariants() {
+        public List<Variant> AllVariants()
+        {
             var results = new List<Variant>();
             foreach (var ci in CultureInfo.GetCultures(CultureTypes.AllCultures))
             {
@@ -342,30 +359,33 @@ namespace puck.core.Helpers
                     specName = CultureInfo.CreateSpecificCulture(ci.Name).Name;
                 }
                 catch { }
-                results.Add(new Variant { FriendlyName=ci.EnglishName,IsDefault=false,Key=ci.Name.ToLower()});
+                results.Add(new Variant { FriendlyName = ci.EnglishName, IsDefault = false, Key = ci.Name.ToLower() });
             }
             return results;
         }
-        
-        public List<FileInfo> AllowedViews(string type,string[] excludePaths = null) {
+
+        public List<FileInfo> AllowedViews(string type, string[] excludePaths = null)
+        {
             var paths = repo.GetPuckMeta().Where(x => x.Name == DBNames.TypeAllowedTemplates && x.Key.Equals(type))
-                .Select(x=>x.Value)
+                .Select(x => x.Value)
                 .ToList();
             return Views(excludePaths).Where(x => paths.Contains(ToVirtualPath(x.FullName))).ToList();
         }
-        public List<FileInfo> Views(string[] excludePaths=null) {
-            if (excludePaths==null)
-                excludePaths= new string[]{};
-            for (var i = 0; i < excludePaths.Length; i++) {
+        public List<FileInfo> Views(string[] excludePaths = null)
+        {
+            if (excludePaths == null)
+                excludePaths = new string[] { };
+            for (var i = 0; i < excludePaths.Length; i++)
+            {
                 excludePaths[i] = ApiHelper.MapPath(excludePaths[i]);
             }
             var templateDirPath = ApiHelper.MapPath("~/Views");
             var viewFiles = new DirectoryInfo(templateDirPath).EnumerateFiles("*.cshtml", SearchOption.AllDirectories)
-                .Where(x=>!excludePaths.Any(y=>x.FullName.ToLower().StartsWith(y.ToLower())))
+                .Where(x => !excludePaths.Any(y => x.FullName.ToLower().StartsWith(y.ToLower())))
                 .ToList();
             return viewFiles;
         }
-        
+
         public List<I_Puck_Editor_Settings> EditorSettings()
         {
             var result = new List<I_Puck_Editor_Settings>();
@@ -373,22 +393,24 @@ namespace puck.core.Helpers
             meta.ForEach(x =>
             {
                 //key - settingsType:modelType:propertyName
-                var keys = x.Key.Split(new char[] { ':' },StringSplitOptions.RemoveEmptyEntries);
+                var keys = x.Key.Split(new char[] { ':' }, StringSplitOptions.RemoveEmptyEntries);
                 //var type = Type.GetType(keys[0]);
-                var type = ApiHelper.EditorSettingTypes().FirstOrDefault(xx=>xx.FullName.Equals(keys[0]));
+                var type = ApiHelper.EditorSettingTypes().FirstOrDefault(xx => xx.FullName.Equals(keys[0]));
                 var instance = JsonConvert.DeserializeObject(x.Value, type) as I_Puck_Editor_Settings;
                 result.Add(instance);
             });
             return result;
         }
-        public List<Type> AllowedTypes(string typeName) {
+        public List<Type> AllowedTypes(string typeName)
+        {
             var meta = repo.GetPuckMeta().Where(x => x.Name == DBNames.TypeAllowedTypes && x.Key.Equals(typeName)).ToList();
             //var result = meta.Select(x=>ApiHelper.GetType(x.Value)).ToList();
             var result = meta.Select(x => ApiHelper.GetTypeFromName(x.Value)).ToList();
             return result;
         }
-        
-        public List<Type> AllModels(bool inclusive = false) {
+
+        public List<Type> AllModels(bool inclusive = false)
+        {
             var models = Models(inclusive);
             //var gmodels = GeneratedModelTypes();
             //models.AddRange(gmodels);
@@ -402,24 +424,28 @@ namespace puck.core.Helpers
             return models;
         } 
         */
-        public List<GeneratedModel> GeneratedModels() {
+        public List<GeneratedModel> GeneratedModels()
+        {
             var models = repo.GetGeneratedModel().ToList();
             return models;
         }
-        public List<Type> GeneratedModelTypes (List<Type> excluded = null){
+        public List<Type> GeneratedModelTypes(List<Type> excluded = null)
+        {
             var models = repo.GetGeneratedModel()
-                .Where(x=>!string.IsNullOrEmpty(x.IFullName))
+                .Where(x => !string.IsNullOrEmpty(x.IFullName))
                 .ToList()
                 .Select(x => GetType(x.IFullName))
-                .Where(x=>x!=null)
+                .Where(x => x != null)
                 .ToList();
-            if (excluded != null) {
+            if (excluded != null)
+            {
                 models = models.Except(excluded).ToList();
             }
             return models;
         }
-        public List<Type> Models(bool inclusive=false) {
-            var excluded = new List<Type>() { typeof(PuckRevision)};
+        public List<Type> Models(bool inclusive = false)
+        {
+            var excluded = new List<Type>() { typeof(PuckRevision) };
             //var igenerated = FindDerivedClasses(typeof(I_Generated)).Where(x=>x.IsInterface);
             //var generated = new List<Type>();
             //igenerated.ToList().ForEach(x => {
@@ -427,15 +453,16 @@ namespace puck.core.Helpers
             //    generated.AddRange(concrete);
             //});
             //excluded.AddRange(generated);
-            var result = FindDerivedClasses(typeof(BaseModel),excluded,inclusive).ToList();
+            var result = FindDerivedClasses(typeof(BaseModel), excluded, inclusive).ToList();
             //result.AddRange(igenerated);
             return result;
         }
-        public List<string> OrphanedTypeNames() {
+        public List<string> OrphanedTypeNames()
+        {
             var loadedTypes = Models().Select(x => x.Name).ToList();
-            var names = repo.GetPuckRevision().Where(x =>x.Current && !loadedTypes.Contains(x.Type)).Select(x => x.Type).Distinct().ToList();
+            var names = repo.GetPuckRevision().Where(x => x.Current && !loadedTypes.Contains(x.Type)).Select(x => x.Type).Distinct().ToList();
             return names;
         }
-        
+
     }
 }

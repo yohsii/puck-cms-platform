@@ -31,7 +31,7 @@ using System.Threading;
 
 namespace puck.core.Services
 {
-    public class ContentService
+    public class ContentService : I_Content_Service
     {
         private static readonly object _savelck = new object();
         public RoleManager<PuckRole> roleManager { get; set; }
@@ -204,7 +204,7 @@ namespace puck.core.Services
 
         public static void OnAfterSave(object s, IndexingEventArgs args)
         {
-            if (AfterSave!= null)
+            if (AfterSave != null)
                 AfterSave(s, args);
         }
 
@@ -231,7 +231,7 @@ namespace puck.core.Services
             if (AfterMove != null)
                 AfterMove(s, args);
         }
-        
+
 
         static ContentService()
         {
@@ -242,7 +242,8 @@ namespace puck.core.Services
             BeforeMove += new EventHandler<BeforeMoveEventArgs>(DelegateBeforeMove);
             AfterMove += new EventHandler<MoveEventArgs>(DelegateAfterMove);
         }
-        public ContentService(IConfiguration config, RoleManager<PuckRole> RoleManager,UserManager<PuckUser> UserManager,I_Puck_Repository Repo,I_Task_Dispatcher TaskDispatcher,I_Content_Indexer Indexer,I_Log Logger) {
+        public ContentService(IConfiguration config, RoleManager<PuckRole> RoleManager, UserManager<PuckUser> UserManager, I_Puck_Repository Repo, I_Task_Dispatcher TaskDispatcher, I_Content_Indexer Indexer, I_Log Logger)
+        {
             this.roleManager = RoleManager;
             this.userManager = UserManager;
             this.repo = Repo;
@@ -396,7 +397,8 @@ namespace puck.core.Services
                 }
                 AddAuditEntry(mod.Id, mod.Variant, AuditActions.Publish, notes, userName);
             }
-            finally { 
+            finally
+            {
                 //slock1.Release(); 
             }
         }
@@ -451,7 +453,8 @@ namespace puck.core.Services
                 indexer.Index(toIndex);
                 AddAuditEntry(mod.Id, mod.Variant, AuditActions.Unpublish, notes, userName);
             }
-            finally {
+            finally
+            {
                 //slock1.Release();
             }
         }
@@ -475,7 +478,8 @@ namespace puck.core.Services
             if (!string.IsNullOrEmpty(variant))
                 repoQ = repoQ.Where(x => x.Variant.ToLower().Equals(variant.ToLower()));
             //return as models
-            var repoItems = repoQ.ToList().Select(x => {
+            var repoItems = repoQ.ToList().Select(x =>
+            {
                 var mod = x.ToBaseModel();
                 mod.Published = publish;
                 x.Published = publish;
@@ -493,7 +497,8 @@ namespace puck.core.Services
 
             if (descendants.Count > 0)
                 repoItems.AddRange(
-                    repo.CurrentRevisionDescendants(repoItems.First().Path).Where(x => descendants.Contains(x.Variant.ToLower())).ToList().Select(x => {
+                    repo.CurrentRevisionDescendants(repoItems.First().Path).Where(x => descendants.Contains(x.Variant.ToLower())).ToList().Select(x =>
+                    {
                         var mod = x.ToBaseModel();
                         mod.Published = publish;
                         x.Published = publish;
@@ -551,7 +556,8 @@ namespace puck.core.Services
                         notes = $"{descendants.Count} descendant items also deleted";
                 }
             }
-            repoItems.ForEach(x => {
+            repoItems.ForEach(x =>
+            {
                 var args = new BeforeIndexingEventArgs() { Node = x, Cancel = false };
                 OnBeforeDelete(this, args);
                 if (args.Cancel)
@@ -617,7 +623,7 @@ namespace puck.core.Services
             var instance = (T)ApiHelper.CreateInstance(typeof(T));
             if (parentId != Guid.Empty)
             {
-                var parent = repo.GetPuckRevision().FirstOrDefault(x => x.Id == parentId&&x.Current);
+                var parent = repo.GetPuckRevision().FirstOrDefault(x => x.Id == parentId && x.Current);
                 if (parent == null)
                     throw new Exception("could not find parent node");
                 var slug = ApiHelper.Slugify(name);
@@ -739,7 +745,7 @@ namespace puck.core.Services
             repo.SaveChanges();
 
         }
-        public async Task SaveContent<T>(T mod, bool makeRevision = true, string userName = null,bool handleNodeNameExists=true,int nodeNameExistsCounter=0) where T : BaseModel
+        public async Task SaveContent<T>(T mod, bool makeRevision = true, string userName = null, bool handleNodeNameExists = true, int nodeNameExistsCounter = 0,bool triggerEvents=true) where T : BaseModel
         {
             await slock1.WaitAsync();
             try
@@ -796,12 +802,13 @@ namespace puck.core.Services
                 //set sort order for new content
                 if (mod.SortOrder == -1)
                     mod.SortOrder = nodesAtPath.Count;
-
-                var beforeArgs = new BeforeIndexingEventArgs { Node = mod };
-                OnBeforeSave(this, beforeArgs);
-                if (beforeArgs.Cancel)
-                    throw new SaveCancelledException("Saving was cancelled by a custom event handler");
-
+                if (triggerEvents)
+                {
+                    var beforeArgs = new BeforeIndexingEventArgs { Node = mod };
+                    OnBeforeSave(this, beforeArgs);
+                    if (beforeArgs.Cancel)
+                        throw new SaveCancelledException("Saving was cancelled by a custom event handler");
+                }
                 var revisions = repo.GetPuckRevision().Where(x => x.Id.Equals(mod.Id) && x.Variant.ToLower().Equals(mod.Variant.ToLower())).ToList();
                 if (makeRevision)
                 {
@@ -1133,16 +1140,19 @@ namespace puck.core.Services
                     }
                     indexer.Index(toIndex);
                 }
-
-                var afterArgs = new IndexingEventArgs { Node = mod };
-                OnAfterSave(this, afterArgs);
+                if (triggerEvents)
+                {
+                    var afterArgs = new IndexingEventArgs { Node = mod };
+                    OnAfterSave(this, afterArgs);
+                }
                 AddPublishInstruction(toIndex);
 
                 string auditAction = mod.Published ? AuditActions.Publish : AuditActions.Save;
                 if (original == null) auditAction = AuditActions.Create;
                 AddAuditEntry(mod.Id, mod.Variant, auditAction, "", username);
             }
-            finally {
+            finally
+            {
                 slock1.Release();
             }
         }
@@ -1202,7 +1212,7 @@ namespace puck.core.Services
                 using (var con = new SqlConnection(config.GetConnectionString("DefaultConnection")))
                 {
                     PuckCache.IndexingStatus = $"retrieving records to republish";
-                    var sql = "SELECT Path,Type,Value,TypeChain,SortOrder,ParentId FROM PuckRevision where ([IsPublishedRevision] = 1 OR ([HasNoPublishedRevision]=1 AND [Current] = 1))";
+                    var sql = "SELECT Path,Type,Value,TypeChain,SortOrder,ParentId,TemplatePath FROM PuckRevision where ([IsPublishedRevision] = 1 OR ([HasNoPublishedRevision]=1 AND [Current] = 1))";
                     var com = new SqlCommand(sql, con);
                     //com.Parameters.AddWithValue("@pricePoint", paramValue);
                     con.Open();
@@ -1222,6 +1232,7 @@ namespace puck.core.Services
                             model.TypeChain = reader.GetString(3);
                             model.SortOrder = reader.GetInt32(4);
                             model.ParentId = reader.GetGuid(5);
+                            model.TemplatePath = reader.GetString(6);
                             models.Add(model);
                             //typeAndValues.Add(new KeyValuePair<string, string>(aqn, value));
                             //values.Add(reader.GetString(2));
@@ -1404,7 +1415,7 @@ namespace puck.core.Services
                 OnAfterMove(null, afterArgs);
             }
         }
-        public int UpdateTypeAndTypeChain(string oldType, string newType,string newTypeChain)
+        public int UpdateTypeAndTypeChain(string oldType, string newType, string newTypeChain)
         {
             int rowsAffected = 0;
             using (var con = new SqlConnection(config.GetConnectionString("DefaultConnection")))
@@ -1428,17 +1439,18 @@ namespace puck.core.Services
 
             var affected = UpdateTypeAndTypeChain(orphanTypeName, newTypeName, newTypeChain);
 
-            var qh = new QueryHelper<BaseModel>(prependTypeTerm:false);
-            qh.Must().Field(x=>x.Type,orphanTypeName);
+            var qh = new QueryHelper<BaseModel>(prependTypeTerm: false);
+            qh.Must().Field(x => x.Type, orphanTypeName);
             toIndex = qh.GetAllNoCast(limit: int.MaxValue);
 
-            toIndex.ForEach(x=> { x.Type = newTypeName; x.TypeChain = newTypeChain; });
+            toIndex.ForEach(x => { x.Type = newTypeName; x.TypeChain = newTypeChain; });
 
             indexer.Index(toIndex);
 
             //update relevant meta entries
             var metaTypeAllowedTypes = repo.GetPuckMeta().Where(x => x.Name == DBNames.TypeAllowedTypes && (x.Key.Equals(orphanTypeName) || x.Value.Equals(orphanTypeName))).ToList();
-            metaTypeAllowedTypes.ForEach(x => {
+            metaTypeAllowedTypes.ForEach(x =>
+            {
                 if (x.Key.Equals(orphanTypeName))
                     x.Key = newTypeName;
                 if (x.Value.Equals(orphanTypeName))
@@ -1481,7 +1493,8 @@ namespace puck.core.Services
                 //get next chunk from database
                 var records = repo.GetPuckRevision().Where(x => x.Type.Equals(orphanTypeName)).Take(step).ToList();
                 var recordCounter = 0;
-                records.ForEach(x => {
+                records.ForEach(x =>
+                {
                     try
                     {
                         //update json string
@@ -1534,7 +1547,8 @@ namespace puck.core.Services
 
             //update relevant meta entries
             var metaTypeAllowedTypes = repo.GetPuckMeta().Where(x => x.Name == DBNames.TypeAllowedTypes && (x.Key.Equals(orphanTypeName) || x.Value.Equals(orphanTypeName))).ToList();
-            metaTypeAllowedTypes.ForEach(x => {
+            metaTypeAllowedTypes.ForEach(x =>
+            {
                 if (x.Key.Equals(orphanTypeName))
                     x.Key = newTypeName;
                 if (x.Value.Equals(orphanTypeName))

@@ -19,25 +19,25 @@ var startPath;
 var startId;
 var newTemplateFolder = function (p) {
     getTemplateFolderCreateDialog(function (d) {
-        overlay(d, 500, 300, undefined, "New Template Folder");
-        wireForm($(".overlay_screen form"), function (data) {
+        var overlayEl = overlay(d, 500, 300, undefined, "New Template Folder");
+        wireForm(overlayEl.find("form"), function (data) {
             getDrawTemplates(p);
             overlayClose();
         }, function (data) {
-            $(".overlay_screen .msg").show().html(data.message);
+            overlayEl.find(".msg").show().html(data.message);
         });
     }, p);
 }
 var newTemplate = function (p) {
     getTemplateCreateDialog(function (d) {
-        overlay(d, 500, 300, undefined, "New Template");
-        wireForm($(".overlay_screen form"), function (data) {
+        var overlayEl = overlay(d, 500, 300, undefined, "New Template");
+        wireForm(overlayEl.find("form"), function (data) {
             getDrawTemplates(p, undefined, function () {
                 cright.find(".node[data-id='" + data.name + "']").click();
             });
             overlayClose();
         }, function (data) {
-            $(".overlay_screen .msg").show().html(data.message);
+            overlayEl.find(".msg").show().html(data.message);
         });
     }, p);
 }
@@ -140,11 +140,11 @@ var searchDialog = function (root, f) {
 }
 var showUserMarkup = function (username) {
     getUserMarkup(username, function (d) {
-        overlay(d, 580, undefined, undefined, "User");
-        wireForm($(".overlay_screen form"), function (data) {
+        var overlayEl = overlay(d, 580, undefined, undefined, "User");
+        wireForm(overlayEl.find("form"), function (data) {
             showUsers();
-            if ($(".overlay_screen input[name=UserName]").val() == userName) {
-                userRoles = $(".overlay_screen select[name=Roles]").val();
+            if (overlayEl.find("input[name=UserName]").val() == userName) {
+                userRoles = overlayEl.find("select[name=Roles]").val();
                 hideTopNav();
                 getUserLanguage(function (d) { defaultLanguage = d; });
                 startPath = data.startPath;
@@ -152,7 +152,7 @@ var showUserMarkup = function (username) {
             }
             overlayClose();
         }, function (data) {
-            $(".overlay_screen .msg").show().html(data.message);
+            overlayEl.find(".msg").show().html(data.message);
         });
     });
 }
@@ -279,8 +279,8 @@ var revisionsFor = function (vcsv, id) {
 }
 var showTimedPublishDialog = function (id, variant) {
     getTimedPublishDialog(id, variant, function (html) {
-        overlay(html, 400, undefined, undefined, "Scheduled Publish");
-        var form = $(".overlay_screen form");
+        var overlayEl = overlay(html, 400, undefined, undefined, "Scheduled Publish");
+        var form = overlayEl.find("form");
         wireForm(form, function (data) {
             msg(true, data.message);
             overlayClose();
@@ -351,7 +351,7 @@ var showRevisions = function (variant, id) {
             var el = $(this);
             setRevert(el.attr("data-id"), function (data) {
                 if (data.success) {
-                    displayMarkup(data.path, data.type, data.variant);
+                    displayMarkup(null, data.type, data.variant, undefined, data.id);
                 } else {
                     msg(false, data.message);
                 }
@@ -361,8 +361,8 @@ var showRevisions = function (variant, id) {
 }
 var showCompare = function (id) {
     getCompareMarkup(id, function (data) {
-        overlay(data, undefined, undefined, undefined, "Compare");
-        $(".overlay_screen").find("button.revert").click(function (e) {
+        var overlayEl = overlay(data, undefined, undefined, undefined, "Compare");
+        overlayEl.find("button.revert").click(function (e) {
             e.preventDefault();
             if (!confirm("sure?"))
                 return;
@@ -370,14 +370,14 @@ var showCompare = function (id) {
             setRevert(el.attr("data-id"), function (d) {
                 if (d.success) {
                     overlayClose();
-                    displayMarkup(d.path, d.type, d.variant);
+                    displayMarkup(null, data.type, data.variant, undefined, data.id);
                 } else {
                     overlayClose();
                     msg(false, d.message);
                 }
             });
         });
-        var displays = $(".overlay_screen .compare_revision>.fields");
+        var displays = overlayEl.find(".compare_revision>.fields");
         var first = displays.first();
         var second = displays.last();
         first.find(".fieldwrapper:not(.complex)").each(function (i) {
@@ -401,13 +401,14 @@ var showCacheInfo = function (path) {
     getCacheInfo(path, function (data) {
         if (data.success) {
             var markup = $(".main.grid .interfaces .cache_exclude_dialog").clone();
-            overlay(markup, 400, 150, undefined, "Cache");
+            var overlayEl=overlay(markup, 400, 150, undefined, "Cache");
             if (data.result) {
                 markup.find("input").attr("checked", "checked");
             }
-            $(".overlay_screen").find("button").click(function (e) {
+            overlayEl.find("button").click(function (e) {
                 setCacheInfo(path, markup.find("input").is(":checked"), function (data) {
                     if (data.success) {
+                        msg(true,"cache setting saved");
                         overlayClose();
                     } else {
                         msg(false, data.message);
@@ -441,8 +442,8 @@ var showSettings = function (path) {
 }
 var editParameters = function (settingsType, modelType, propertyName, success) {
     getEditorParametersMarkup(function (data) {
-        overlay(data, 500, undefined, undefined, "Edit Parameters");
-        var form = $(".overlay_screen form");
+        var overlayEl = overlay(data, 500, undefined, undefined, "Edit Parameters");
+        var form = overlayEl.find("form");
         wireForm(form, function (data) {
             msg(true, "parameters updated");
             success();
@@ -481,8 +482,8 @@ var showTasks = function () {
                 return;
             }
             $.get(el.attr("href"), function (d) {
-                overlay(d, 500, undefined, undefined, "Edit Task");
-                var form = $(".overlay_screen form");
+                var overlayEl = overlay(d, 500, undefined, undefined, "Edit Task");
+                var form = overlayEl.find("form");
                 wireForm(form, function (data) {
                     msg(true, "task updated");
                     overlayClose();
@@ -496,15 +497,15 @@ var showTasks = function () {
 }
 var createTask = function () {
     getTaskCreateDialog(function (data) {
-        overlay(data, 400, 150, undefined, "Create Task");
-        $(".overlay_screen button").click(function (e) {
+        var overlayEl = overlay(data, 400, 150, undefined, "Create Task");
+        overlayEl.find("button").click(function (e) {
             e.preventDefault();
-            var typeSelect = $(".overlay_screen select[name=type]");
+            var typeSelect = overlayEl.find("select[name=type]");
             var type = typeSelect.val();
             getTaskMarkup(function (data) {
                 overlayClose();
-                overlay(data, 500, undefined, undefined, "Edit Task");
-                var form = $(".overlay_screen form");
+                var overlayEl = overlay(data, 500, undefined, undefined, "Edit Task");
+                var form = overlayEl.find("form");
                 wireForm(form, function (data) {
                     msg(true, "task updated");
                     overlayClose();
@@ -565,10 +566,10 @@ var wireForm = function (form, success, fail) {
 }
 var newContent = function (guid, type) {
     getCreateDialog(function (data) {
-        overlay(data, 400, 250, 100, "New Content");
-        $(".overlay_screen button").click(function () {
-            var type = $(".overlay_screen select[name=type]").val();
-            var variant = $(".overlay_screen select[name=variant]").val();
+        var overlayEl = overlay(data, 400, 250, 100, "New Content");
+        overlayEl.find("button").click(function () {
+            var type = overlayEl.find("select[name=type]").val();
+            var variant = overlayEl.find("select[name=variant]").val();
             overlayClose()
             displayMarkup(guid,type, variant);
         });
@@ -1194,9 +1195,11 @@ var publishedVariants = function (id) {
 
 var setLocalisation = function (p) {
     getLocalisationDialog(p, function (data) {
-        overlay(data, 400, 250, undefined, "Localisation");
-        var form = $('.overlay_screen form');
+        var overlayEl = overlay(data, 400, 250, undefined, "Localisation");
+        overlayEl.find("option[value='']").remove();
+        var form = overlayEl.find('form');
         wireForm(form, function (data) {
+            msg(true,"localisation settings saved");
             overlayClose();
         }, function (data) {
             msg(false, data.message);
@@ -1205,9 +1208,10 @@ var setLocalisation = function (p) {
 }
 var setDomainMapping = function (p) {
     getDomainMappingDialog(p, function (data) {
-        overlay(data, 500, 250, undefined, "Domain Mapping");
-        var form = $('.overlay_screen form');
+        var overlayEl = overlay(data, 500, 250, undefined, "Domain Mapping");
+        var form = overlayEl.find('form');
         wireForm(form, function (data) {
+            msg(true,"domain mappings saved");
             overlayClose();
         }, function (data) {
             msg(false, data.message);
@@ -1217,8 +1221,8 @@ var setDomainMapping = function (p) {
 }
 var setNotify = function (p) {
     getNotifyDialog(p, function (data) {
-        overlay(data, 450, 480, undefined, "Notifications");
-        var form = $('.overlay_screen form');
+        var overlayEl = overlay(data, 450, 480, undefined, "Notifications");
+        var form = overlayEl.find('form');
         wireForm(form, function (data) {
             msg(true,"notifications updated");
             overlayClose();

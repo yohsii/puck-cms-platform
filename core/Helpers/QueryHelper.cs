@@ -139,6 +139,8 @@ namespace puck.core.Helpers
         public static List<T> Parent<T>(this BaseModel n,bool currentLanguage = true,bool noCast=false) where T : BaseModel
         {
             var qh = new QueryHelper<T>();
+            if (n.Path.Count(x => x == '/') == 1)
+                return new List<T>();
             string path = n.Path.Substring(0, n.Path.LastIndexOf('/'));
             qh
                 .And()

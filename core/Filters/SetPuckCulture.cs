@@ -8,6 +8,7 @@ using puck.core.Constants;
 using puck.core.Helpers;
 using puck.core.State;
 using Microsoft.AspNetCore.Mvc.Filters;
+using puck.core.Abstract;
 
 namespace puck.core.Filters
 {
@@ -16,7 +17,7 @@ namespace puck.core.Filters
 
         public void OnActionExecuting(ActionExecutingContext filterContext)
         {
-            var apiHelper = filterContext.HttpContext.RequestServices.GetService(typeof(ApiHelper)) as ApiHelper;
+            var apiHelper = filterContext.HttpContext.RequestServices.GetService(typeof(I_Api_Helper)) as I_Api_Helper;
             string variant = apiHelper.UserVariant();
             Thread.CurrentThread.CurrentCulture = CultureInfo.CreateSpecificCulture(variant);
         }

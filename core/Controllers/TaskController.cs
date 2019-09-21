@@ -31,8 +31,8 @@ namespace puck.core.Controllers
     {
         I_Puck_Repository repo;
         I_Log log;
-        ApiHelper apiHelper;
-        public TaskController(ApiHelper ah,I_Puck_Repository repo,I_Log log) {
+        I_Api_Helper apiHelper;
+        public TaskController(I_Api_Helper ah,I_Puck_Repository repo,I_Log log) {
             this.apiHelper = ah;
             this.repo = repo;
             this.log = log;

@@ -33,7 +33,7 @@ namespace puck.core.Helpers
         public static I_Content_Indexer indexer{get{
                 return PuckCache.PuckIndexer;
         }}
-        public static ApiHelper apiHelper { get { return PuckCache.ApiHelper; } }
+        public static I_Api_Helper apiHelper { get { return PuckCache.ApiHelper; } }
         public static I_Log logger { get { return PuckCache.PuckLog; } }
         public static async Task SeedDb(IConfiguration config, IHostEnvironment env, IServiceProvider serviceProvider) {
             if (env.IsDevelopment())
@@ -149,7 +149,7 @@ namespace puck.core.Helpers
             var repo = Repo;
             using (var scope = PuckCache.ServiceProvider.CreateScope())
             {
-                var apiHelper = scope.ServiceProvider.GetService<ApiHelper>();
+                var apiHelper = scope.ServiceProvider.GetService<I_Api_Helper>();
                 var tasks = apiHelper.Tasks();
                 tasks.AddRange(apiHelper.SystemTasks());
                 //tasks = tasks.Where(x => tdispatcher.CanRun(x)).ToList();
@@ -334,7 +334,7 @@ namespace puck.core.Helpers
         {
             using (var scope = PuckCache.ServiceProvider.CreateScope())
             {
-                var apiHelper = scope.ServiceProvider.GetService<ApiHelper>();
+                var apiHelper = scope.ServiceProvider.GetService<I_Api_Helper>();
                 foreach (var t in apiHelper.AllModels(true))
                 {
                     if (PuckCache.ModelNameToAQN.ContainsKey(t.Name))
@@ -347,7 +347,7 @@ namespace puck.core.Helpers
         {
             using (var scope = PuckCache.ServiceProvider.CreateScope())
             {
-                var apiHelper = scope.ServiceProvider.GetService<ApiHelper>();
+                var apiHelper = scope.ServiceProvider.GetService<I_Api_Helper>();
                 var panalyzers = new List<Analyzer>();
                 var analyzerForModel = new Dictionary<Type, Analyzer>();
                 foreach (var t in apiHelper.AllModels(true))
@@ -394,7 +394,7 @@ namespace puck.core.Helpers
         public static void SetModelDerivedMappings() {
             using (var scope = PuckCache.ServiceProvider.CreateScope())
             {
-                var apiHelper = scope.ServiceProvider.GetService<ApiHelper>();
+                var apiHelper = scope.ServiceProvider.GetService<I_Api_Helper>();
                 PuckCache.ModelDerivedModels = new Dictionary<string, List<Type>>();
                 var modelTypes = apiHelper.Models();
                 foreach (var modelType in modelTypes)

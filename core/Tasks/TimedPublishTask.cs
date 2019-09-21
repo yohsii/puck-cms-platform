@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using puck.core.State;
 using Microsoft.Extensions.DependencyInjection;
 using puck.core.Services;
+using puck.core.Abstract;
 
 namespace puck.core.Tasks
 {
@@ -28,7 +29,7 @@ namespace puck.core.Tasks
             {
                 await base.Run(t);
                 var repo = PuckCache.PuckRepo;
-                var contentService = scope.ServiceProvider.GetService<ContentService>();
+                var contentService = scope.ServiceProvider.GetService<I_Content_Service>();
                 var publishMeta = repo.GetPuckMeta().Where(x => x.Name == DBNames.TimedPublish && x.Dt.HasValue && x.Dt.Value <= DateTime.Now).ToList();
                 var unpublishMeta = repo.GetPuckMeta().Where(x => x.Name == DBNames.TimedUnpublish && x.Dt.HasValue && x.Dt.Value <= DateTime.Now).ToList();
 

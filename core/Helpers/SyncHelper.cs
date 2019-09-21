@@ -29,12 +29,12 @@ namespace puck.core.Helpers
         private static int lock_wait = 1;
         public static I_Puck_Repository Repo {get{return PuckCache.PuckRepo;}}
         public static I_Content_Indexer Indexer { get { return PuckCache.PuckIndexer; } }
-        public static ContentService ContentService { get { return PuckCache.ContentService; } } 
+        public static I_Content_Service ContentService { get { return PuckCache.ContentService; } } 
         public static bool InitializeSync() {
             var repo = Repo;
             using (var scope = PuckCache.ServiceProvider.CreateScope())
             {
-                var contentService = scope.ServiceProvider.GetService<ContentService>();
+                var contentService = scope.ServiceProvider.GetService<I_Content_Service>();
                 var serverName = ApiHelper.ServerName();
                 var meta = repo.GetPuckMeta().Where(x => x.Name == DBNames.SyncId && x.Key == serverName).FirstOrDefault();
                 if (meta == null)
@@ -56,7 +56,7 @@ namespace puck.core.Helpers
             bool taken = false;
             using (var scope = PuckCache.ServiceProvider.CreateScope())
             {
-                var contentService = scope.ServiceProvider.GetService<ContentService>();
+                var contentService = scope.ServiceProvider.GetService<I_Content_Service>();
                 try
                 {
                     Monitor.TryEnter(lck, lock_wait, ref taken);

@@ -23,8 +23,8 @@ namespace puck.core.Extensions
             services.AddSingleton<I_Content_Searcher>(indexerSearcher);
             services.AddTransient<I_Log, Logger>();
             services.AddSingleton<I_Task_Dispatcher, Dispatcher>();
-            services.AddTransient<ApiHelper>();
-            services.AddTransient<ContentService>();
+            services.AddTransient<I_Api_Helper,ApiHelper>();
+            services.AddTransient<I_Content_Service,ContentService>();
             services.AddHostedService<Dispatcher>((IServiceProvider serviceProvider) => { return serviceProvider.GetService<I_Task_Dispatcher>() as Dispatcher; });
 
         }

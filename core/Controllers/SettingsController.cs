@@ -25,9 +25,9 @@ namespace puck.core.Controllers
         I_Content_Searcher searcher;
         I_Log log;
         I_Puck_Repository repo;
-        ContentService contentService;
-        ApiHelper apiHelper;
-        public SettingsController(ApiHelper ah,ContentService cs,I_Content_Indexer i, I_Content_Searcher s, I_Log l, I_Puck_Repository r) {
+        I_Content_Service contentService;
+        I_Api_Helper apiHelper;
+        public SettingsController(I_Api_Helper ah,I_Content_Service cs,I_Content_Indexer i, I_Content_Searcher s, I_Log l, I_Puck_Repository r) {
             this.apiHelper = ah;
             this.contentService = cs;
             this.indexer = i;

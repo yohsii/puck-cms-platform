@@ -42,6 +42,7 @@ namespace puck.core.Concrete
         private StandardAnalyzer StandardAnalyzer = new Lucene.Net.Analysis.Standard.StandardAnalyzer(LuceneVersion.LUCENE_48);
         private KeywordAnalyzer KeywordAnalyzer = new KeywordAnalyzer();
         public readonly SpatialContext ctx = SpatialContext.GEO;
+        private Lucene.Net.Store.Directory Directory=null;
         private Regex regexIndexPathReplaceMachineName = new Regex(Regex.Escape("{machinename}"),RegexOptions.IgnoreCase|RegexOptions.Compiled);
         private string INDEXPATH {
             get {
@@ -510,8 +511,8 @@ namespace puck.core.Concrete
             if (!System.IO.Directory.Exists(INDEXPATH)) {
                 System.IO.Directory.CreateDirectory(INDEXPATH);
             }
-
-            bool create = !DirectoryReader.IndexExists(FSDirectory.Open(INDEXPATH));
+            Directory = FSDirectory.Open(INDEXPATH);
+            bool create = !DirectoryReader.IndexExists(Directory);
             
             lock (write_lock)
             {
@@ -535,9 +536,9 @@ namespace puck.core.Concrete
         public void SetWriter(bool create) {
             if (Writer == null)
             {
-                var dir = FSDirectory.Open(INDEXPATH);
+                //var dir = FSDirectory.Open(INDEXPATH);
                 var config = new IndexWriterConfig(Lucene.Net.Util.LuceneVersion.LUCENE_48, StandardAnalyzer);
-                Writer = new IndexWriter(dir, config);
+                Writer = new IndexWriter(Directory, config);
             }
                 
         }
@@ -547,7 +548,8 @@ namespace puck.core.Concrete
         }
         public void SetSearcher() {
             var oldSearcher = Searcher;
-            var indexReader = DirectoryReader.Open(FSDirectory.Open(INDEXPATH));
+            //var dir = FSDirectory.Open(INDEXPATH);
+            var indexReader = DirectoryReader.Open(Directory);
             Searcher = new Lucene.Net.Search.IndexSearcher(indexReader);
             //kill old searcher
             if (oldSearcher != null)

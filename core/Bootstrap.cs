@@ -68,7 +68,7 @@ namespace puck.core
                     //HostingEnvironment.QueueBackgroundWorkItem(ct => contentService.RePublishEntireSite2());
                     using (var scope = serviceProvider.CreateScope())
                     {
-                        var contentService = scope.ServiceProvider.GetService<ContentService>();
+                        var contentService = scope.ServiceProvider.GetService<I_Content_Service>();
                         var republishTask = contentService.RePublishEntireSite2();
                         republishTask.Wait();
                     }
@@ -88,7 +88,7 @@ namespace puck.core
                 {
                     using (var scope = PuckCache.ServiceProvider.CreateScope())
                     {
-                        var apiHelper = scope.ServiceProvider.GetService<ApiHelper>();
+                        var apiHelper = scope.ServiceProvider.GetService<I_Api_Helper>();
                         var usersToNotify = await apiHelper.UsersToNotify(args.Node.Path, NotifyActions.Publish);
                         if (usersToNotify.Count == 0) return;
                         var subject = string.Concat("content published - ", args.Node.NodeName, " - ", args.Node.Path);
@@ -109,7 +109,7 @@ namespace puck.core
                 {
                     using (var scope = PuckCache.ServiceProvider.CreateScope())
                     {
-                        var apiHelper = scope.ServiceProvider.GetService<ApiHelper>();
+                        var apiHelper = scope.ServiceProvider.GetService<I_Api_Helper>();
                         var usersToNotify = await apiHelper.UsersToNotify(args.Node.Path, NotifyActions.Edit);
                         if (usersToNotify.Count == 0) return;
                         var subject = string.Concat("content edited - ", args.Node.NodeName, " - ", args.Node.Path);
@@ -131,7 +131,7 @@ namespace puck.core
                 {
                     using (var scope = PuckCache.ServiceProvider.CreateScope())
                     {
-                        var apiHelper = scope.ServiceProvider.GetService<ApiHelper>();
+                        var apiHelper = scope.ServiceProvider.GetService<I_Api_Helper>();
                         var usersToNotify = await apiHelper.UsersToNotify(args.Node.Path, NotifyActions.Delete);
                         if (usersToNotify.Count == 0) return;
                         var subject = string.Concat("content deleted - ", args.Node.NodeName, " - ", args.Node.Path);
@@ -153,7 +153,7 @@ namespace puck.core
                 {
                     using (var scope = PuckCache.ServiceProvider.CreateScope())
                     {
-                        var apiHelper = scope.ServiceProvider.GetService<ApiHelper>();
+                        var apiHelper = scope.ServiceProvider.GetService<I_Api_Helper>();
                         var node = args.Nodes.FirstOrDefault();
                         var usersToNotify = await apiHelper.UsersToNotify(node.Path, NotifyActions.Move);
                         if (usersToNotify.Count == 0) return;

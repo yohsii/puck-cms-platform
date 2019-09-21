@@ -84,8 +84,8 @@ namespace puck.core.State
         public static I_Puck_Repository PuckRepo { get { return ServiceProvider.GetService<I_Puck_Repository>(); } }
         public static UserManager<PuckUser> PuckUserManager { get { return ServiceProvider.GetService<UserManager<PuckUser>>(); } }
         public static RoleManager<PuckRole> PuckRoleManager { get { return ServiceProvider.GetService<RoleManager<PuckRole>>(); } }
-        public static ApiHelper ApiHelper { get { return ServiceProvider.GetService<ApiHelper>(); } }
-        public static ContentService ContentService { get { return ServiceProvider.GetService<ContentService>(); } }
+        public static I_Api_Helper ApiHelper { get { return ServiceProvider.GetService<I_Api_Helper>(); } }
+        public static I_Content_Service ContentService { get { return ServiceProvider.GetService<I_Content_Service>(); } }
         public static IMemoryCache Cache { get { return ServiceProvider.GetService<IMemoryCache>(); } }
         public static I_Log PuckLog { get { return ServiceProvider.GetService<I_Log>(); } }
         public static List<Analyzer> Analyzers { get; set; }
