@@ -15,8 +15,6 @@ namespace puckweb.ViewModels
 {
     public class Page:BaseModel
     {
-        [Display(GroupName ="Content")]
-        public TestModel Person { get; set; }
         [Display(Name = "Image Gallery", GroupName = "Images")]
         [UIHint("PuckImagePicker")]
         [PuckImagePickerEditorSettings(MaxPick = 1)]
