@@ -1,6 +1,7 @@
 ﻿@using Page = puckweb.ViewModels.Page;
 @model puckweb.ViewModels.Homepage
 @{
+    Layout = "/views/shared/_layout.cshtml";
     ViewBag.Title = "Homepage";
     var qh = new QueryHelper<Section>();
     qh.CurrentLanguage();

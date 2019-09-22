@@ -2,6 +2,7 @@
 @model puckweb.ViewModels.Homepage
 
 @{
+    Layout = "/views/shared/_Layout.cshtml";
     ViewBag.Title = "Homepage";
     var qh = new QueryHelper<Section>()
         .Descendants(Model)

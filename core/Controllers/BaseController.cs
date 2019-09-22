@@ -36,15 +36,7 @@ namespace puck.core.Controllers
                 var uri = Request.GetUri();
                 string path = uri.AbsolutePath.ToLower();
 
-                var dmode = "";//this.GetDisplayModeId();
-                if (PuckCache.DisplayModes != null) {
-                    foreach (var mode in PuckCache.DisplayModes) {
-                        if (mode.Value(HttpContext)) {
-                            dmode = mode.Key;
-                            break;
-                        }
-                    }
-                }
+                var dmode = this.GetDisplayModeId();
                                 
                 if (path=="/")
                     path = string.Empty;                
@@ -179,6 +171,21 @@ namespace puck.core.Controllers
             }
         }
 
+        protected string GetDisplayModeId() {
+            var dmode = "";
+            if (PuckCache.DisplayModes != null)
+            {
+                foreach (var mode in PuckCache.DisplayModes)
+                {
+                    if (mode.Value(HttpContext))
+                    {
+                        dmode = mode.Key;
+                        break;
+                    }
+                }
+            }
+            return dmode;
+        }
         
     }
 }

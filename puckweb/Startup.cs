@@ -146,7 +146,7 @@ namespace puckweb
         {
             var displayModes = new Dictionary<string, Func<Microsoft.AspNetCore.Http.HttpContext,bool>> {
                 {"iPhone",(context)=>{return context.Request.Headers.ContainsKey("User-Agent") 
-                    && context.Request.Headers["User-Agent"].ToString().Contains("iphone"); } }
+                    && context.Request.Headers["User-Agent"].ToString().ToLower().Contains("iphone"); } }
             };
             puck.core.Bootstrap.Ini(Configuration,env,app.ApplicationServices, httpContextAccessor,displayModes);
             

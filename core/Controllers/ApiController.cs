@@ -129,8 +129,7 @@ namespace puck.core.Controllers
         [Authorize(Roles = PuckRoles.Puck, AuthenticationSchemes = Mvc.AuthenticationScheme)]
         private ActionResult Preview(PuckRevision model)
         {
-            //var dmode = this.GetDisplayModeId();
-            var dmode = "";
+            var dmode = this.GetDisplayModeId();
             string templatePath = model.TemplatePath;
             if (!string.IsNullOrEmpty(dmode))
             {
