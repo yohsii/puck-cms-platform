@@ -370,7 +370,7 @@ var showCompare = function (id) {
             setRevert(el.attr("data-id"), function (d) {
                 if (d.success) {
                     overlayClose();
-                    displayMarkup(null, data.type, data.variant, undefined, data.id);
+                    displayMarkup(null, d.type, d.variant, undefined, d.id);
                 } else {
                     overlayClose();
                     msg(false, d.message);
