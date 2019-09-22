@@ -629,7 +629,7 @@ function getQueryString(name, url) {
 }
 $(window).load(function () {
     var hash = getQueryString("hash");
-    console.log("hashQs",hash);
+    //console.log("hashQs",hash);
     if (!hash) return;
     setTimeout(function () {
         location.hash = hash;

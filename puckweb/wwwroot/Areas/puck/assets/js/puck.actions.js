@@ -322,6 +322,8 @@ var timedPublish = function (vcsv, id) {
     }
 }
 var showRevisions = function (variant, id) {
+    cright.html("");
+    showLoader(cright);
     getRevisions(id, variant, function (data) {
         if (!canChangeMainContent())
             return;
