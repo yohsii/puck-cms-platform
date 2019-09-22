@@ -138,9 +138,9 @@ namespace puck.core.Helpers
         //retrieval extensions
         public static List<T> Parent<T>(this BaseModel n,bool currentLanguage = true,bool noCast=false) where T : BaseModel
         {
-            var qh = new QueryHelper<T>();
             if (n.Path.Count(x => x == '/') == 1)
                 return new List<T>();
+            var qh = new QueryHelper<T>();
             string path = n.Path.Substring(0, n.Path.LastIndexOf('/'));
             qh
                 .And()
@@ -154,6 +154,8 @@ namespace puck.core.Helpers
                 return qh.GetAll();
         }
         public static List<T> Ancestors<T>(this BaseModel n,bool currentLanguage=true,bool noCast = false,bool ExplicitType=false) where T : BaseModel {
+            if (n.Path.Count(x => x == '/') == 1)
+                return new List<T>();
             var qh = new QueryHelper<T>();
             string nodePath = n.Path.ToLower();
             var innerQ = qh.New();
