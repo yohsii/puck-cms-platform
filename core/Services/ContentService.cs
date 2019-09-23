@@ -791,7 +791,7 @@ namespace puck.core.Services
                             var newName = regex.Replace(mod.NodeName, $"({nodeNameExistsCounter + 1})");
                             mod.NodeName = newName;
                         }
-                        await SaveContent(mod, makeRevision: makeRevision, userName: userName, handleNodeNameExists: handleNodeNameExists, nodeNameExistsCounter: nodeNameExistsCounter + 1);
+                        await SaveContent(mod, makeRevision: makeRevision, userName: userName, handleNodeNameExists: handleNodeNameExists, nodeNameExistsCounter: nodeNameExistsCounter + 1,triggerEvents:triggerEvents);
                         return;
                     }
                     else

@@ -29,8 +29,10 @@ namespace puck.Models
         public List<CropModel> Crops { get; set; }
         public IFormFile File { get; set; }
 
-        public string GetCropUrl(string cropAlias,string anchor="center") {
+        public string GetCropUrl(string cropAlias=null,string anchor="center") {
             var url = Path;
+            if (string.IsNullOrEmpty(cropAlias))
+                return url;
             if (PuckCache.CropSizes.ContainsKey(cropAlias)) {
                 var cropInfo = PuckCache.CropSizes[cropAlias];
 
