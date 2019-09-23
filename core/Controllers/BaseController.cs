@@ -112,7 +112,7 @@ namespace puck.core.Controllers
                         model = JsonConvert.DeserializeObject(result[FieldKeys.PuckValue], ApiHelper.GetTypeFromName(result[FieldKeys.PuckType])) as BaseModel;
                     }
 #else
-                    model = JsonConvert.DeserializeObject(result[FieldKeys.PuckValue], ApiHelper.GetType(result[FieldKeys.PuckType])) as BaseModel;
+                    model = JsonConvert.DeserializeObject(result[FieldKeys.PuckValue], ApiHelper.GetTypeFromName(result[FieldKeys.PuckType])) as BaseModel;
 #endif
                     if (!PuckCache.OutputCacheExclusion.Contains(searchPath))
                     {
