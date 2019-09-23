@@ -128,7 +128,7 @@ namespace puckweb
 
             services.AddMiniProfiler(options =>{
                 // (Optional) Path to use for profiler URLs, default is /mini-profiler-resources
-                options.RouteBasePath = "/profiler";
+                //options.RouteBasePath = "/profiler";
 
                 // (Optional) Control storage
                 // (default is 30 minutes in MemoryCacheStorage)

@@ -33,4 +33,8 @@
     <PackageReference Include="Newtonsoft.Json" Version="12.0.2" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\AzureDirectory\AzureDirectory.csproj" />
+  </ItemGroup>
+
 </Project>

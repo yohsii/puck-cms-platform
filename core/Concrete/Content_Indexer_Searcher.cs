@@ -34,6 +34,8 @@ using Lucene.Net.Spatial.Prefix;
 using System.Configuration;
 using System.Text.RegularExpressions;
 using Microsoft.Extensions.Configuration;
+using Lucene.Net.Store.Azure;
+using Microsoft.Azure.Storage;
 
 namespace puck.core.Concrete
 {
@@ -66,9 +68,15 @@ namespace puck.core.Concrete
         private Object write_lock = new Object();
         private I_Log logger;
         private IConfiguration config = null;
+        public bool CanWrite { get; set; } = true;
+        public bool UseAzureDirectory { get; set; } = false;
         public Content_Indexer_Searcher(I_Log Logger,IConfiguration configuration) {
             this.logger = Logger;
             this.config = configuration;
+            UseAzureDirectory = config.GetValue<bool?>("UseAzureDirectory") ?? false;
+            if (UseAzureDirectory && !config.GetValue<bool>("IsEditServer"))
+                CanWrite = false;
+
             Ini();
 
             BeforeIndex+=new EventHandler<BeforeIndexingEventArgs>(DelegateBeforeIndexing);
@@ -261,6 +269,7 @@ namespace puck.core.Concrete
                 var count = 1;
                 try
                 {
+                    if (!CanWrite) return;
                     SetWriter(false);
                     //Writer.Flush(true, true, true);
                     Parallel.ForEach(models, (m,state,index) => {
@@ -340,6 +349,7 @@ namespace puck.core.Concrete
             {
                 try
                 {
+                    if (!CanWrite) return;
                     var analyzer = PuckCache.AnalyzerForModel[typeof(T)];
                     var parser = new PuckQueryParser<T>(Lucene.Net.Util.LuceneVersion.LUCENE_48, FieldKeys.PuckDefaultField, analyzer);
                     SetWriter(false);
@@ -401,6 +411,7 @@ namespace puck.core.Concrete
             {
                 try
                 {
+                    if (!CanWrite) return;
                     SetWriter(false);
                     var id = values.Where(x => x.Key.Equals(FieldKeys.ID)).FirstOrDefault().Value;
                     Writer.DeleteDocuments(new Term(FieldKeys.ID, id));
@@ -438,9 +449,12 @@ namespace puck.core.Concrete
             {
                 try
                 {
-                    SetWriter(false);
-                    Writer.DeleteAll();
-                    Writer.Commit();
+                    if (CanWrite)
+                    {
+                        SetWriter(false);
+                        Writer.DeleteAll();
+                        Writer.Commit();
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -463,9 +477,12 @@ namespace puck.core.Concrete
                 {
                     var parser = new QueryParser(Lucene.Net.Util.LuceneVersion.LUCENE_48, "text", StandardAnalyzer);
                     var contentQuery = parser.Parse(terms);
-                    SetWriter(false);
-                    Writer.DeleteDocuments(contentQuery);
-                    Writer.Commit();
+                    if (CanWrite)
+                    {
+                        SetWriter(false);
+                        Writer.DeleteDocuments(contentQuery);
+                        Writer.Commit();
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -508,10 +525,23 @@ namespace puck.core.Concrete
 
         public void Ini()
         {
-            if (!System.IO.Directory.Exists(INDEXPATH)) {
-                System.IO.Directory.CreateDirectory(INDEXPATH);
+            if (UseAzureDirectory)
+            {
+                var azureBlobConnectionString = config.GetValue<string>("AzureDirectoryConnectionString");
+                var azureDirectoryCachePath = config.GetValue<string>("AzureDirectoryCachePath");
+                var azureDirectoryContainerName = config.GetValue<string>("AzureDirectoryContainerName");
+                //if empty string, ensure value is null
+                if (string.IsNullOrEmpty(azureDirectoryContainerName)) azureDirectoryContainerName = null;
+                var cloudStorageAccount = CloudStorageAccount.Parse(azureBlobConnectionString);
+                Directory = new AzureDirectory(cloudStorageAccount,azureDirectoryCachePath,containerName:azureDirectoryContainerName);
             }
-            Directory = FSDirectory.Open(INDEXPATH);
+            else {
+                if (!System.IO.Directory.Exists(INDEXPATH))
+                {
+                    System.IO.Directory.CreateDirectory(INDEXPATH);
+                }
+                Directory = FSDirectory.Open(INDEXPATH);
+            }
             bool create = !DirectoryReader.IndexExists(Directory);
             
             lock (write_lock)
@@ -519,7 +549,7 @@ namespace puck.core.Concrete
                 try
                 {
                     SetWriter(create);
-                    if (Writer != null) CloseWriter();
+                    if (Writer != null && !UseAzureDirectory) CloseWriter();
                     //Writer.Optimize();
                 }
                 catch (Exception ex)
@@ -543,8 +573,11 @@ namespace puck.core.Concrete
                 
         }
         public void CloseWriter() {
-            Writer.Dispose(false);
-            Writer = null;
+            if (Writer != null && CanWrite && !UseAzureDirectory)
+            {
+                Writer.Dispose(false);
+                Writer = null;
+            }
         }
         public void SetSearcher() {
             var oldSearcher = Searcher;
