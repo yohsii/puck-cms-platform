@@ -96,6 +96,7 @@ namespace puck.core.Constants
         public static string EnableLocalePrefix = "enablelocaleprefix";
     }
     public static class InstructionKeys {
+        public static string SetSearcher = "setsearcher";
         public static string RepublishSite = "republishsite";
         public static string Publish = "publish";
         public static string RePublish = "republish";

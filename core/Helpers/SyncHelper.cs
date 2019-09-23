@@ -12,6 +12,7 @@ using puck.core.State;
 using puck.core.Services;
 using puck.core.Events;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Configuration;
 
 namespace puck.core.Helpers
 {
@@ -57,6 +58,8 @@ namespace puck.core.Helpers
             using (var scope = PuckCache.ServiceProvider.CreateScope())
             {
                 var contentService = scope.ServiceProvider.GetService<I_Content_Service>();
+                var searcher = scope.ServiceProvider.GetService<I_Content_Searcher>();
+                var config = scope.ServiceProvider.GetService<IConfiguration>();
                 try
                 {
                     Monitor.TryEnter(lck, lock_wait, ref taken);
@@ -72,6 +75,7 @@ namespace puck.core.Helpers
                     if (instructions.Count == 0)
                         return;
                     //dosync
+                    var hasPublishInstruction = false;
                     var instructionTotal = 0;
                     instructions.ForEach(x => instructionTotal += x.Count);
                     if (instructionTotal > PuckCache.MaxSyncInstructions)
@@ -83,11 +87,21 @@ namespace puck.core.Helpers
                             var republishTask = contentService.RePublishEntireSite2();
                             republishTask.Wait();
                         }
+                        StateHelper.UpdateTaskMappings();
+                        StateHelper.UpdateRedirectMappings();
+                        StateHelper.UpdatePathLocaleMappings();
+                        StateHelper.UpdateDomainMappings();
+                        StateHelper.UpdateCacheMappings();
+                        StateHelper.UpdateCrops();
                     }
                     else
                     {
                         foreach (var instruction in instructions)
                         {
+                            if (instruction.InstructionKey == InstructionKeys.SetSearcher)
+                            {
+                                searcher.SetSearcher();
+                            }
                             if (instruction.InstructionKey == InstructionKeys.RepublishSite)
                             {
                                 if (!PuckCache.IsRepublishingEntireSite)
@@ -99,6 +113,7 @@ namespace puck.core.Helpers
                             }
                             else if (instruction.InstructionKey == InstructionKeys.Publish)
                             {
+                                hasPublishInstruction = true;
                                 var toIndex = new List<BaseModel>();
                                 //instruction detail holds comma separated list of ids and variants in format id:variant,id:variant
                                 var idList = instruction.InstructionDetail.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
@@ -142,10 +157,22 @@ namespace puck.core.Helpers
                             }
 
                         }
+                        if (hasPublishInstruction) {
+                            if ((config.GetValue<bool?>("UseAzureDirectory") ?? false) && config.GetValue<bool>("IsEditServer"))
+                            {
+                                var newInstruction = new PuckInstruction();
+                                newInstruction.InstructionKey = InstructionKeys.SetSearcher;
+                                newInstruction.Count = 1;
+                                newInstruction.ServerName = ApiHelper.ServerName();
+                                repo.AddPuckInstruction(newInstruction);
+                                repo.SaveChanges();
+                            }
+                        }
                     }
                     //update syncId
                     //var maxInstructionId = instructions.Max(x => x.Id);
-                    var maxInstructionId = repo.GetPuckInstruction().Max(x => x.Id);
+                    var maxInstructionIdOrDefault = repo.GetPuckInstruction().Max(x => (int?)x.Id);
+                    var maxInstructionId = maxInstructionIdOrDefault.HasValue ? maxInstructionIdOrDefault.Value : 0;
                     meta.Value = maxInstructionId.ToString();
                     repo.SaveChanges();
                     OnAfterSync(null, new AfterSyncEventArgs { Instructions = instructions });

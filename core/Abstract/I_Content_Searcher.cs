@@ -21,5 +21,6 @@ namespace puck.core.Abstract
         IList<T> Get<T>();
         int Count<T>(string query) where T:BaseModel;
         int DocumentCount();
+        public void SetSearcher();
     }
 }
