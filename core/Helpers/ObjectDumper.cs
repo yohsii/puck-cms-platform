@@ -22,6 +22,7 @@ namespace puck.core.Helpers
 {
     public class FlattenedObject {
         public BaseModel Model;
+        public object[] ParentListAttributes { get; set; }
         public Type Type { get; set; }
         public String Key { get; set; }
         public Object Value {get;set;}
@@ -37,11 +38,17 @@ namespace puck.core.Helpers
         public void Transform() {
             if (Attributes == null)
                 Attributes = new object[] { };
+            if (ParentListAttributes == null)
+                ParentListAttributes = new object[] { };
+
             //lower case keys
             Key = Key.ToLower();
-                    
+            
             //find field settings
             var settings = Attributes.Where(x => x.GetType() == typeof(IndexSettings));
+            var parentListSettings = ParentListAttributes.Where(x => x.GetType() == typeof(IndexSettings));
+            if (!settings.Any() && parentListSettings.Any())
+                settings = parentListSettings;
             if (settings.Any())
             {
                 var sattr = (IndexSettings)settings.First();
@@ -99,7 +106,7 @@ namespace puck.core.Helpers
         {
             ObjectDumper dumper = new ObjectDumper(depth);
             dumper.topElement = element as BaseModel;
-            dumper.WriteObject_("","", element);
+            dumper.WriteObject_("","", element,elementParent:element);
             dumper.result.ForEach(x => {
                 if (x.Ignore)
                     dumper.result.Remove(x);
@@ -337,7 +344,7 @@ namespace puck.core.Helpers
             }
         }
 
-        private void WriteObject_(string prefix,string ukey, object element)
+        private void WriteObject_(string prefix,string ukey, object element,PropertyInfo listProperty=null,object elementParent=null)
         {
             if (element == null || element is ValueType || element is string)
             {
@@ -345,9 +352,10 @@ namespace puck.core.Helpers
                 {
                     UniqueKey=ukey,
                     Model = topElement,
-                    Key = prefix,
-                    Value = element == null,
-                    Type = element == null ? (element is string ? typeof(String) : null) : element.GetType()
+                    Key = prefix.TrimEnd('.'),
+                    Value = element,
+                    Type = element == null ? (element is string ? typeof(String) : null) : element.GetType(),
+                    ParentListAttributes = listProperty == null ? new object[] { } : listProperty.GetCustomAttributes(false)
                 };
                 result.Add(fo);
             }
@@ -359,6 +367,7 @@ namespace puck.core.Helpers
                     var i = 0;
                     if (ukey.EndsWith("."))
                         ukey=ukey.Remove(ukey.Length - 1);
+                    var listProp = elementParent.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance).FirstOrDefault(x=>x.Name.Equals(prefix.TrimEnd('.')));
                     foreach (object item in enumerableElement)
                     {
                         if (item is IEnumerable && !(item is string))
@@ -366,13 +375,13 @@ namespace puck.core.Helpers
                             if (level < depth)
                             {
                                 level++;
-                                WriteObject_(prefix, ukey+"["+i+"]." ,item);
+                                WriteObject_(prefix, ukey+"["+i+"]." ,item,listProperty:listProp,elementParent:element);
                                 level--;
                             }
                         }
                         else
                         {
-                            WriteObject_(prefix, ukey + "[" + i + "].", item);
+                            WriteObject_(prefix, ukey + "[" + i + "].", item,listProperty:listProp, elementParent: element);
                         }
                         i++;
                     }
@@ -414,7 +423,7 @@ namespace puck.core.Helpers
                                     if (value != null)
                                     {
                                         level++;
-                                        WriteObject_(prefix + p.Name + ".",ukey + p.Name + ".", value);
+                                        WriteObject_(prefix + p.Name + ".",ukey + p.Name + ".", value, elementParent: element);
                                         level--;
                                     }
                                 }

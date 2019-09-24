@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Web;
+using Lucene.Net.Analysis.Core;
 using Lucene.Net.Analysis.Snowball;
 using Lucene.Net.Documents;
 using puck.core.Attributes;
@@ -26,6 +27,7 @@ namespace puckweb.ViewModels
         
         [Display(ShortName ="input",GroupName ="Content")]
         [UIHint("ListEditor")]
+        [IndexSettings(Analyzer=typeof(KeywordAnalyzer))]
         public List<string> Names { get; set; }
 
         [Display(ShortName = "[name$='Name']",GroupName ="Content")]
