@@ -17,7 +17,7 @@ it's fast, with queries avoiding the database and instead using Lucene. it's als
 - multilingual - associate languages with nodes so you can for example, have different site roots with different associated languages. this is recursive so you can associate different languages to nodes further down the hierarchy if necessary. each content node may also have translations, opening up the possibility for 1:1 and multi-site approaches to multilingual websites.
 - strongly typed design - data querying is done in a strongly typed manner, making use of query expressions and a fluent api. templates are also strongly typed.
 - not much to learn - models designed as regular poco decorated with attributes as you normally would with .net mvc
-write models as poco classes or generate models in admin interface (using CSharpCodeProvider compiler)
+write models as poco classes
 - full text search - data storage is lucene based and you can set analyzers and field settings (analyze,store,ignore,keep casing) per property in your model
 - spatial search
 - image cropping using imageprocessor.web
