@@ -146,7 +146,14 @@ namespace Lucene.Net.Store.Azure
                 using (var writer = new StreamWriter(stream))
                 {
                     writer.Write(_lockFile);
-                    blob.UploadFromStream(stream);
+                    try
+                    {
+                        blob.UploadFromStream(stream);
+                    }
+                    catch (Exception ex) {
+                        return false;
+                    }
+                    
                 }
                 return true;
             }

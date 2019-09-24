@@ -552,12 +552,16 @@ namespace puck.core.Concrete
                     if (Writer != null && !UseAzureDirectory) CloseWriter();
                     //Writer.Optimize();
                 }
+                catch (Lucene.Net.Store.LockObtainFailedException ex) {
+                    logger.Log(ex);
+                }
                 catch (Exception ex)
                 {
                     throw;
                     //logger.Log(ex);
                 }
-                finally {
+                finally
+                {
                     //CloseWriter();
                 }
             }
