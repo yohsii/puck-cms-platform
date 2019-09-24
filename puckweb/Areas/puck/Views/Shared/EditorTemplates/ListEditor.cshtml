@@ -103,6 +103,7 @@
                     console.log("el to copy", elToCopy);
                     var index = _selected_container.find(">.itemContainer").length;
                     var copy = elToCopy.clone(true, true);
+                    copy.find("input[type=text][value=' ']").val("");
                     copy.find(".listeditor .selected_content").each(function () {
                         $(this).empty();
                     });
