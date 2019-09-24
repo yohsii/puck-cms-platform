@@ -787,6 +787,16 @@ div.settings {
         padding: 1px;
     }
 
+    .content_btns[disabled=disabled] {
+        opacity: 0.1;
+    }
+
+    .content_edit_page img.submitLoader {
+        position: absolute;
+        top: 1px;
+        right: 90px;
+    }
+
     .path_locale_dialog button {
         float: right;
     }

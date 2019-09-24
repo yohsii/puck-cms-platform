@@ -527,7 +527,7 @@ var checkEnter = function (e) {
     var txtArea = /textarea/i.test((e.target || e.srcElement).tagName);
     return txtArea || (e.keyCode || e.which || e.charCode || 0) !== 13;
 }
-var wireForm = function (form, success, fail) {
+var wireForm = function (form, success, fail,submit) {
     $.validator.unobtrusive.parse(form);
     form.keypress(checkEnter);
     //debugger;
@@ -564,6 +564,8 @@ var wireForm = function (form, success, fail) {
             }
             
         }
+        if(submit)
+            submit();
     });
 }
 var newContent = function (guid, type) {
@@ -959,7 +961,13 @@ var displayMarkup = function (parentId, type, variant, fromVariant,contentId,con
                 displayMarkup(null, type, variant,undefined,data.id,container,msgContainer);
             });
         }, function (data) {
+            cright.find(".submitLoader").remove();
+            cright.find(".content_btns").removeAttr("disabled");
             msg(false, data.message,undefined,msgContainer);
+        }, function () {
+            cright.find(".content_btns").attr({ disabled: "disabled" });
+            var img = $("<img src='/areas/puck/assets/img/tree-loader.gif'/>").addClass("submitLoader");
+            cright.find(".content_edit_page form").append(img);
         });
     }, fromVariant, contentId);
     getPrepopulatedMarkup(type, contentId, function (data) {
