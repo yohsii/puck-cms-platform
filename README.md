@@ -1,7 +1,7 @@
 NOTE: this is an asp.net core migration of the mvc 5 project which you can find [here](https://github.com/yohsii/puck).
 
 # puck
-a code first content management system based on asp.net core that uses sqlserver and lucene for storage.
+a code first content management system based on asp.net core that uses entity framework and lucene for storage.
 
 [Wiki](https://github.com/yohsii/puck-core/wiki)
 
@@ -17,10 +17,9 @@ it's fast, with queries avoiding the database and instead using Lucene. it's als
 - multilingual - associate languages with nodes so you can for example, have different site roots with different associated languages. this is recursive so you can associate different languages to nodes further down the hierarchy if necessary. each content node may also have translations, opening up the possibility for 1:1 and multi-site approaches to multilingual websites.
 - strongly typed design - data querying is done in a strongly typed manner, making use of query expressions and a fluent api. templates are also strongly typed.
 - not much to learn - models designed as regular poco decorated with attributes as you normally would with .net mvc
-write models as poco classes or generate models in admin interface (using CSharpCodeProvider compiler)
 - full text search - data storage is lucene based and you can set analyzers and field settings (analyze,store,ignore,keep casing) per property in your model
 - spatial search
-- image cropping using imageprocessor.web
+- image cropping using imagesharp
 - basic user permissions to grant/deny permissions to particular actions and limit access to content based on a start path
 - hooks - you can transform data before it is indexed using attributes to modify how a field is indexed and how it is stored
 - supports conditional template switching (display modes were removed from asp.net core but this works in the same way)
@@ -28,7 +27,7 @@ write models as poco classes or generate models in admin interface (using CSharp
 - works in load balanced environments
 - caching - customisable output caching. (per node-type or catch-all. also supports explicit exclusion for any particular node)
 - streamlined pipeline - data retrieval is fast
-- media - media is handled just like any other content, you can expose a HttpPostedFileBase property in any of your models and it will be properly bound. you can then use data transformer attributes to decide what should happen to that file before indexing takes place
+- media - media is handled just like any other content, you can expose a IFormFile property in any of your models and it will be properly bound. you can then use data transformer attributes to decide what should happen to that file before indexing takes place. there are two included transformers which store your images on the local file system or upload them to azure blob storage
 - task api - supports one-off and recurring background custom tasks with editable parameters
 - scheduled publish
 - can be used headless or decoupled
