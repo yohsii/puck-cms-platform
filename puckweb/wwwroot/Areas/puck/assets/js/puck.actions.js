@@ -554,6 +554,8 @@ var wireForm = function (form, success, fail,submit) {
                     }
                 }
             });
+            if (submit)
+                submit();
         } else {
             var err_el = cright.find(".input-validation-error:first");
             cright.find("[href='#" + err_el.parents(".tab-pane").attr("id") + "']").click();
@@ -564,8 +566,6 @@ var wireForm = function (form, success, fail,submit) {
             }
             
         }
-        if(submit)
-            submit();
     });
 }
 var newContent = function (guid, type) {

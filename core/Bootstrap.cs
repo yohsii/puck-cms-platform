@@ -38,8 +38,7 @@ namespace puck.core
             using (var scope = serviceProvider.CreateScope())
             {
                 var context = scope.ServiceProvider.GetRequiredService<PuckContext>();
-                if(!context.Database.GetService<IRelationalDatabaseCreator>().Exists())
-                    context.Database.Migrate();
+                context.Database.Migrate();
             }
 
             var seedTask= StateHelper.SeedDb(config, env, serviceProvider);

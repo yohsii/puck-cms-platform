@@ -572,6 +572,7 @@ namespace puck.core.Concrete
             {
                 //var dir = FSDirectory.Open(INDEXPATH);
                 var config = new IndexWriterConfig(Lucene.Net.Util.LuceneVersion.LUCENE_48, StandardAnalyzer);
+                config.OpenMode = OpenMode.CREATE_OR_APPEND;
                 Writer = new IndexWriter(Directory, config);
             }
                 
@@ -584,24 +585,23 @@ namespace puck.core.Concrete
             }
         }
         public void SetSearcher() {
-            var oldSearcher = Searcher;
-            //var dir = FSDirectory.Open(INDEXPATH);
-            var indexReader = DirectoryReader.Open(Directory);
-            Searcher = new Lucene.Net.Search.IndexSearcher(indexReader);
-            //kill old searcher
-            if (oldSearcher != null)
+            try
             {
-                try
+                var oldSearcher = Searcher;
+                //var dir = FSDirectory.Open(INDEXPATH);
+                var indexReader = DirectoryReader.Open(Directory);
+                Searcher = new Lucene.Net.Search.IndexSearcher(indexReader);
+                //kill old searcher
+                if (oldSearcher != null)
                 {
                     oldSearcher.IndexReader.Dispose();
                 }
-                catch (Exception ex)
-                {
-                    throw;
-                    //logger.Log(ex);
-                }
+                oldSearcher = null;
             }
-            oldSearcher = null;
+            catch (Lucene.Net.Index.IndexNotFoundException ex) {
+                logger.Log(ex);
+            }
+            catch (Exception ex) { throw; }
         }
         public IList<Dictionary<string, string>> Query(Query contentQuery)
         {
@@ -688,8 +688,8 @@ namespace puck.core.Concrete
             return total;
         }
         public int DocumentCount() {
-            var docs = Searcher.Search(new MatchAllDocsQuery(),1);
-            return docs.TotalHits;
+            var docs = Searcher?.Search(new MatchAllDocsQuery(),1);
+            return docs?.TotalHits??0;
         }
         public IList<T> Query<T>(string qstr,Filter filter,Sort sort,out int total,int limit=500,int skip=0) where T:BaseModel {
             var analyzer = PuckCache.AnalyzerForModel[typeof(T)];

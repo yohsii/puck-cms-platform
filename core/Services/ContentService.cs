@@ -1204,6 +1204,8 @@ namespace puck.core.Services
         }
         public async Task RePublishEntireSite2()
         {
+            var errored = false;
+            var errorMsg = string.Empty;
             PuckCache.IsRepublishingEntireSite = true;
             await slock1.WaitAsync();
             try
@@ -1276,13 +1278,24 @@ namespace puck.core.Services
                 //PuckCache.IsRepublishingEntireSite = false;
                 //PuckCache.IndexingStatus = "";
                 logger.Log(ex);
+                errored = true;
+                errorMsg = ex.Message;
             }
             finally
             {
                 slock1.Release();
                 PuckCache.IsRepublishingEntireSite = false;
                 PuckCache.IndexingStatus = "";
-
+                if (errored)
+                {
+                    PuckCache.IndexingStatus = errorMsg;
+                    System.Threading.Tasks.Task.Factory.StartNew(() =>
+                    {
+                        Thread.Sleep(15000);
+                        if (PuckCache.IndexingStatus == errorMsg)
+                            PuckCache.IndexingStatus = "";
+                    });
+                }
             }
         }
         public async Task Copy(Guid id, Guid parentId, bool includeDescendants, string userName = null)
