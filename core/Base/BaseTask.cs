@@ -41,7 +41,7 @@ namespace puck.core.Base
                 if (!taken)
                     return;
                 var task = Run(t);
-                task.Wait();
+                task.GetAwaiter().GetResult();
                 this.LastRun = DateTime.Now;
             }
             catch (Exception ex) {

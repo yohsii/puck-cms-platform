@@ -85,7 +85,7 @@ namespace puck.core.Helpers
                         {
                             PuckCache.IsRepublishingEntireSite = true;
                             var republishTask = contentService.RePublishEntireSite2();
-                            republishTask.Wait();
+                            republishTask.GetAwaiter().GetResult();
                         }
                         StateHelper.UpdateTaskMappings();
                         StateHelper.UpdateRedirectMappings();
@@ -108,7 +108,7 @@ namespace puck.core.Helpers
                                 {
                                     PuckCache.IsRepublishingEntireSite = true;
                                     var republishTask = contentService.RePublishEntireSite2();
-                                    republishTask.Wait();
+                                    republishTask.GetAwaiter().GetResult();
                                 }
                             }
                             else if (instruction.InstructionKey == InstructionKeys.Publish)

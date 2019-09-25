@@ -88,7 +88,7 @@ namespace puck.core.Helpers
                 ).ToList();
             OriginalValue = Value;
             var task = ObjectDumper.DoTransform(tattr,Type,Model,Key,UniqueKey,Value);
-            task.Wait();
+            task.GetAwaiter().GetResult();
             Value = task.Result;
         }
         

@@ -745,7 +745,7 @@ namespace puck.core.Services
             repo.SaveChanges();
 
         }
-        public async Task SaveContent<T>(T mod, bool makeRevision = true, string userName = null, bool handleNodeNameExists = true, int nodeNameExistsCounter = 0,bool triggerEvents=true) where T : BaseModel
+        public async Task<List<BaseModel>> SaveContent<T>(T mod, bool makeRevision = true, string userName = null, bool handleNodeNameExists = true, int nodeNameExistsCounter = 0,bool triggerEvents=true,bool shouldIndex=true) where T : BaseModel
         {
             await slock1.WaitAsync();
             try
@@ -791,8 +791,7 @@ namespace puck.core.Services
                             var newName = regex.Replace(mod.NodeName, $"({nodeNameExistsCounter + 1})");
                             mod.NodeName = newName;
                         }
-                        await SaveContent(mod, makeRevision: makeRevision, userName: userName, handleNodeNameExists: handleNodeNameExists, nodeNameExistsCounter: nodeNameExistsCounter + 1,triggerEvents:triggerEvents);
-                        return;
+                        return await SaveContent(mod, makeRevision: makeRevision, userName: userName, handleNodeNameExists: handleNodeNameExists, nodeNameExistsCounter: nodeNameExistsCounter + 1,triggerEvents:triggerEvents,shouldIndex:shouldIndex);
                     }
                     else
                     {
@@ -1071,7 +1070,8 @@ namespace puck.core.Services
                 //if parent changed, we index regardless of if the model being saved is set to publish or not. moves are always published immediately
                 if (parentChanged)
                 {
-                    indexer.Index(toIndex);
+                    if(shouldIndex)
+                        indexer.Index(toIndex);
                 }
                 else if (mod.Published || currentMod == null)//add to lucene index if published or no such node exists in index
                                                              /*note that you can only have one node with particular id/variant in index at any one time
@@ -1138,7 +1138,8 @@ namespace puck.core.Services
                         StateHelper.UpdateDomainMappings(true);
                         StateHelper.UpdatePathLocaleMappings(true);
                     }
-                    indexer.Index(toIndex);
+                    if(shouldIndex)
+                        indexer.Index(toIndex);
                 }
                 if (triggerEvents)
                 {
@@ -1150,6 +1151,7 @@ namespace puck.core.Services
                 string auditAction = mod.Published ? AuditActions.Publish : AuditActions.Save;
                 if (original == null) auditAction = AuditActions.Create;
                 AddAuditEntry(mod.Id, mod.Variant, auditAction, "", username);
+                return toIndex;
             }
             finally
             {

@@ -20,6 +20,9 @@ using Microsoft.Extensions.Hosting;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore;
 
 namespace puck.core
 {
@@ -31,9 +34,16 @@ namespace puck.core
             System.Web.HttpContext.Configure(httpContextAccessor);
             puck.core.State.PuckCache.Configure(config, env, serviceProvider);
             PuckCache.DisplayModes = displayModes;
+            //create db if it doesn't exist
+            using (var scope = serviceProvider.CreateScope())
+            {
+                var context = scope.ServiceProvider.GetRequiredService<PuckContext>();
+                if(!context.Database.GetService<IRelationalDatabaseCreator>().Exists())
+                    context.Database.Migrate();
+            }
+
             var seedTask= StateHelper.SeedDb(config, env, serviceProvider);
-            seedTask.Wait();
-            //Database.SetInitializer(new MigrateDatabaseToLatestVersion<PuckContext, puck.core.Migrations.Configuration>());
+            seedTask.GetAwaiter().GetResult();
             StateHelper.SetGeneratedMappings();
             StateHelper.UpdateDomainMappings();
             StateHelper.UpdatePathLocaleMappings();
@@ -70,7 +80,7 @@ namespace puck.core
                     {
                         var contentService = scope.ServiceProvider.GetService<I_Content_Service>();
                         var republishTask = contentService.RePublishEntireSite2();
-                        republishTask.Wait();
+                        republishTask.GetAwaiter().GetResult();
                     }
                 }
             }
