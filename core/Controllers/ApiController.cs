@@ -761,7 +761,7 @@ namespace puck.core.Controllers
                     new { Name = ApiHelper.FriendlyClassName(x), AssemblyName = x.Name }
                     ));
         }
-        public ActionResult ModelOptions(string type) {
+        public ActionResult ModelOptions(string type="") {
             var models = apiHelper.AllModels();
 
             var modelMatches = models.Where(x => x.FullName.EndsWith(type)).ToList();

@@ -64,7 +64,7 @@
 
             var model = null;
             for (var i = 0; i < lines.length; i++) {
-                model = lines[i].match(@(@"/^@model\s(.+)/"));
+                model = lines[i].match(/^@@model\s(.+)/);
                 if (model != null)
                     break;
             }
@@ -81,7 +81,7 @@
 
             var model = null;
             for (var i = 0; i < lines.length; i++) {
-                model = lines[i].match(@(@"/^@model\s(.+)/"));
+                model = lines[i].match(/^@@model\s(.+)/);
                 if (model != null) {
                     if(lines.length>i+1){
                         model = lines[i+1].replace("@@{/*", "").replace("*/}","");
@@ -182,7 +182,7 @@
                     );
             });
             if (popup)
-                overlay(el, 500,undefined,undefined,"");
+                overlay(el, 500,undefined,undefined,"",true);
             else {
                 $(".rightarea .overlay_screen .model_properties").remove();
                 $(".rightarea .overlay_screen .inner").append(el);
@@ -224,7 +224,7 @@
             });
             el.attr("data-type",d.Type);
             if (popup==true) {
-                overlay(el, 500);
+                overlay(el, 500,undefined,undefined,"",true);
             } else {
                 $(".rightarea .overlay_screen .choose_model").remove();
                 $(".rightarea .overlay_screen .model_properties").remove();
@@ -232,13 +232,13 @@
             }
         };
         var getModelOptions = function (t,f) {
-            $.get("/puck/api/modeloptions?type="+t, function (d) {
+            $.get("/puck/api/modeloptions?"+(t?"type="+t:""), function (d) {
                 f(d);
             });
         }
 
         var inspectModel = function (t,p,f) {
-            $.get("/puck/api/inspectmodel?type="+t+"&opath="+p, function (d) {
+            $.get("/puck/api/inspectmodel?type="+t+(p?"&opath="+p:""), function (d) {
                 f(d);
             });
         }
