@@ -584,6 +584,20 @@ namespace puck.core.Concrete
                 Writer = null;
             }
         }
+        public void EnsureSearcher() {
+            try
+            {
+                if (Searcher != null)
+                    return;
+                var indexReader = DirectoryReader.Open(Directory);
+                Searcher = new Lucene.Net.Search.IndexSearcher(indexReader);
+            }
+            catch (Lucene.Net.Index.IndexNotFoundException ex)
+            {
+                logger.Log(ex);
+            }
+            catch (Exception ex) { throw; }
+        }
         public void SetSearcher() {
             try
             {
@@ -605,6 +619,7 @@ namespace puck.core.Concrete
         }
         public IList<Dictionary<string, string>> Query(Query contentQuery)
         {
+            EnsureSearcher();
             var hits = Searcher.Search(contentQuery, 10).ScoreDocs;
 
             var result = new List<Dictionary<string, string>>();
@@ -651,6 +666,7 @@ namespace puck.core.Concrete
         }
         public IList<T> QueryNoCast<T>(string qstr, Filter filter,Sort sort,out int total,int limit=500,int skip=0) where T:BaseModel
         {
+            EnsureSearcher();
             var analyzer = PuckCache.AnalyzerForModel[typeof(T)];
             var parser = new PuckQueryParser<T>(LuceneVersion.LUCENE_48, FieldKeys.PuckDefaultField, analyzer);
             var q = parser.Parse(qstr);
@@ -688,10 +704,12 @@ namespace puck.core.Concrete
             return total;
         }
         public int DocumentCount() {
+            EnsureSearcher();
             var docs = Searcher?.Search(new MatchAllDocsQuery(),1);
             return docs?.TotalHits??0;
         }
         public IList<T> Query<T>(string qstr,Filter filter,Sort sort,out int total,int limit=500,int skip=0) where T:BaseModel {
+            EnsureSearcher();
             var analyzer = PuckCache.AnalyzerForModel[typeof(T)];
             var parser = new PuckQueryParser<T>(LuceneVersion.LUCENE_48,FieldKeys.PuckDefaultField,analyzer);
             var q = parser.Parse(qstr);
@@ -720,6 +738,7 @@ namespace puck.core.Concrete
         }
         public IList<T> Get<T>(int limit)
         {
+            EnsureSearcher();
             var t = new Term(FieldKeys.PuckTypeChain,typeof(T).FullName);
             var q = new TermQuery(t);
             var hits=Searcher.Search(q,limit).ScoreDocs;
