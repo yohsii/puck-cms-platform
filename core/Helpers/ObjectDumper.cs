@@ -367,7 +367,10 @@ namespace puck.core.Helpers
                     var i = 0;
                     if (ukey.EndsWith("."))
                         ukey=ukey.Remove(ukey.Length - 1);
-                    var listProp = elementParent.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance).FirstOrDefault(x=>x.Name.Equals(prefix.TrimEnd('.')));
+                    var propName = prefix.TrimEnd('.');
+                    if (propName.IndexOf(".") > -1)
+                        propName = propName.Substring(propName.LastIndexOf(".") + 1);
+                    var listProp = elementParent.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance).FirstOrDefault(x=>x.Name.Equals(propName));
                     foreach (object item in enumerableElement)
                     {
                         if (item is IEnumerable && !(item is string))
