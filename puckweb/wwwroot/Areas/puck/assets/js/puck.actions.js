@@ -752,12 +752,17 @@ var hideLoader = function () {
     $(".loaderContainer").remove();
 }
 var displayMarkup = function (parentId, type, variant, fromVariant,contentId,container,msgContainer) {
+    var tabId = null;
+    var scroll = null;
     container = container || cright;
+    if (container.find(".content_edit_page").length > 0 && contentId && cright.find("input[name=Id]").val() == contentId ) {
+        tabId = cright.find("form>.tab-content>.tab-pane.active").attr("id");
+        scroll = $(".rightarea").scrollTop();
+    }
     container.html("");
     showLoader(container);
     getMarkup(parentId, type, variant, function (data) {
         container./*hide().*/html(data);
-
         if (!type) {
             type = container.find("input[name=Type]").val();
         }
@@ -969,6 +974,12 @@ var displayMarkup = function (parentId, type, variant, fromVariant,contentId,con
             var img = $("<img src='/areas/puck/assets/img/tree-loader.gif'/>").addClass("submitLoader");
             cright.find(".content_edit_page form").append(img);
         });
+
+        if (tabId && scroll) {
+            cright.find("[href='#" + tabId + "']").click();
+            $(".rightarea").scrollTop(scroll);
+        }
+
     }, fromVariant, contentId);
     getPrepopulatedMarkup(type, contentId, function (data) {
         var temp = $("<div/>").append(data);
