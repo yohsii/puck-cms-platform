@@ -73,19 +73,7 @@ namespace puck.core.Controllers
 
                 if (string.IsNullOrEmpty(variant))
                 {
-                    if (!PuckCache.PathToLocale.TryGetValue(searchPath, out variant))
-                    {
-                        foreach (var entry in PuckCache.PathToLocale)
-                        {
-                            if (searchPath.StartsWith(entry.Key))
-                            {
-                                variant = entry.Value;
-                                break;
-                            }
-                        }
-                        if (string.IsNullOrEmpty(variant))
-                            variant = PuckCache.SystemVariant;
-                    }
+                    variant = GetVariant(searchPath);
                 }
                 //set thread culture for future api calls on this thread
                 Thread.CurrentThread.CurrentCulture = CultureInfo.CreateSpecificCulture(variant);
@@ -170,7 +158,23 @@ namespace puck.core.Controllers
                 return View(PuckCache.Path500);
             }
         }
-
+        protected string GetVariant(string searchPath) {
+            string variant = null;
+            if (!PuckCache.PathToLocale.TryGetValue(searchPath, out variant))
+            {
+                foreach (var entry in PuckCache.PathToLocale)
+                {
+                    if (searchPath.StartsWith(entry.Key))
+                    {
+                        variant = entry.Value;
+                        break;
+                    }
+                }
+                if (string.IsNullOrEmpty(variant))
+                    variant = PuckCache.SystemVariant;
+            }
+            return variant;
+        }
         protected string GetDisplayModeId() {
             var dmode = "";
             if (PuckCache.DisplayModes != null)

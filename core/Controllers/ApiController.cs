@@ -29,6 +29,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using puck.core.Events;
 using System.Net;
+using System.Globalization;
 
 namespace puck.core.Controllers
 {
@@ -140,6 +141,8 @@ namespace puck.core.Controllers
                 }
             }
             var mod = model.ToBaseModel();
+            var threadVariant = base.GetVariant(mod.Path);
+            Thread.CurrentThread.CurrentCulture = CultureInfo.CreateSpecificCulture(threadVariant);
             return View(templatePath, mod);
         }
         [Authorize(Roles = PuckRoles.Notify, AuthenticationSchemes = Mvc.AuthenticationScheme)]
