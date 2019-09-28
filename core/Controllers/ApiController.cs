@@ -141,7 +141,7 @@ namespace puck.core.Controllers
                 }
             }
             var mod = model.ToBaseModel();
-            var threadVariant = base.GetVariant(mod.Path);
+            var threadVariant = ApiHelper.GetRequestVariant(mod.Path);
             Thread.CurrentThread.CurrentCulture = CultureInfo.CreateSpecificCulture(threadVariant);
             return View(templatePath, mod);
         }

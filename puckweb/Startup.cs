@@ -31,6 +31,8 @@ using SixLabors.ImageSharp.Web.Commands;
 using SixLabors.ImageSharp.Web.Caching;
 using SixLabors.ImageSharp.Web.Processors;
 using SixLabors.ImageSharp.Web.Middleware;
+using puck.core.Globalisation;
+using System.Globalization;
 
 namespace puckweb
 {
@@ -69,7 +71,11 @@ namespace puckweb
                 options.AccessDeniedPath= "/puck/admin/in";
                 options.ForwardAuthenticate = "Identity.Application";
             });
-            
+            services.Configure<RequestLocalizationOptions>(options =>
+            {
+                options.SupportedCultures = CultureInfo.GetCultures(CultureTypes.AllCultures).ToList();
+                options.RequestCultureProviders.Insert(0,new PuckCultureProvider());
+            });
             services.AddHttpContextAccessor();
             services.AddPuckServices(Env,Configuration);
 
@@ -169,6 +175,7 @@ namespace puckweb
             app.UseSession();
             app.UseResponseCaching();
             app.UseRouting();
+            app.UseRequestLocalization();
             app.UseAuthentication();
             
             app.UseAuthorization();

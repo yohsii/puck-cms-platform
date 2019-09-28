@@ -15,6 +15,7 @@ using puck.core.State;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.AspNetCore.Localization;
 
 namespace puck.core.Controllers
 {
@@ -70,13 +71,15 @@ namespace puck.core.Controllers
                     };
                     Response.Redirect(redirectUrl, false);
                 }
+                var requestCultureFeature = HttpContext.Features.Get<IRequestCultureFeature>();
+                variant = requestCultureFeature.RequestCulture.Culture.Name.ToLower();
 
-                if (string.IsNullOrEmpty(variant))
-                {
-                    variant = GetVariant(searchPath);
-                }
+                //if (string.IsNullOrEmpty(variant))
+                //{
+                //    variant = ApiHelper.GetRequestVariant(searchPath);
+                //}
                 //set thread culture for future api calls on this thread
-                Thread.CurrentThread.CurrentCulture = CultureInfo.CreateSpecificCulture(variant);
+                //Thread.CurrentThread.CurrentCulture = CultureInfo.CreateSpecificCulture(variant);
                 IList<Dictionary<string, string>> results;
 #if DEBUG
                 using (MiniProfiler.Current.Step("lucene"))
@@ -158,23 +161,7 @@ namespace puck.core.Controllers
                 return View(PuckCache.Path500);
             }
         }
-        protected string GetVariant(string searchPath) {
-            string variant = null;
-            if (!PuckCache.PathToLocale.TryGetValue(searchPath, out variant))
-            {
-                foreach (var entry in PuckCache.PathToLocale)
-                {
-                    if (searchPath.StartsWith(entry.Key))
-                    {
-                        variant = entry.Value;
-                        break;
-                    }
-                }
-                if (string.IsNullOrEmpty(variant))
-                    variant = PuckCache.SystemVariant;
-            }
-            return variant;
-        }
+        
         protected string GetDisplayModeId() {
             var dmode = "";
             if (PuckCache.DisplayModes != null)

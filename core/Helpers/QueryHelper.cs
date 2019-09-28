@@ -24,6 +24,7 @@ using Spatial4n.Core.Shapes;
 using Lucene.Net.Queries.Function;
 using Lucene.Net.Spatial.Prefix.Tree;
 using Lucene.Net.Spatial.Prefix;
+using Microsoft.AspNetCore.Localization;
 
 namespace puck.core.Helpers
 {
@@ -383,7 +384,9 @@ namespace puck.core.Helpers
 
         public static TModel Current()
         {
-            var variant = CultureInfo.CurrentCulture.Name.ToLower();
+            var requestCultureFeature = HttpContext.Current.Features.Get<IRequestCultureFeature>();
+            var variant = requestCultureFeature.RequestCulture.Culture.Name.ToLower();
+            //CultureInfo.CurrentCulture.Name.ToLower();
             string absPath = HttpContext.Current.Request.GetUri().AbsolutePath.ToLower();
             string path = PathPrefix() + (absPath == "/" ? "" : absPath);
             var qh = new QueryHelper<TModel>();
@@ -823,7 +826,9 @@ namespace puck.core.Helpers
         {
             TrimAnd();
             var key = FieldKeys.Variant;
-            var variant = Thread.CurrentThread.CurrentCulture.Name;
+            var requestCultureFeature = HttpContext.Current.Features.Get<IRequestCultureFeature>();
+            var variant = requestCultureFeature.RequestCulture.Culture.Name;
+            //var variant = Thread.CurrentThread.CurrentCulture.Name;
             query += string.Concat("+",key, ":", variant.ToLower(), " ");
             return this;
         }
