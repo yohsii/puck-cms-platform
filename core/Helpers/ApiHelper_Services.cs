@@ -47,6 +47,34 @@ namespace puck.core.Helpers
             this.indexer = Indexer;
             this.logger = Logger;
         }
+        public void AddTag(string tag,string category) {
+            if (string.IsNullOrEmpty(tag))
+                return;
+            if (string.IsNullOrEmpty(category))
+                category = "";
+            var tagEntity = repo.GetPuckTag().FirstOrDefault(x=>x.Tag.ToLower().Equals(tag.ToLower()) && x.Category.ToLower().Equals(category.ToLower()));
+            if (tagEntity == null)
+            {
+                tagEntity = new PuckTag() { Tag = tag, Category = category ?? "", Count = 0 };
+                repo.AddPuckTag(tagEntity);
+            }
+            tagEntity.Count++;
+            repo.SaveChanges();
+        }
+        public void DeleteTag(string tag, string category)
+        {
+            if (string.IsNullOrEmpty(tag))
+                return;
+            if (string.IsNullOrEmpty(category))
+                category = "";
+            var tagEntity = repo.GetPuckTag().FirstOrDefault(x => x.Tag.ToLower().Equals(tag.ToLower()) && x.Category.ToLower().Equals(category.ToLower()));
+            if (tagEntity == null)
+            {
+                return;
+            }
+            repo.DeletePuckTag(tagEntity);
+            repo.SaveChanges();
+        }
         public string UserVariant()
         {
             string variant;

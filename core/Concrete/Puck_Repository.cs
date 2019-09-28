@@ -117,6 +117,18 @@ namespace puck.core.Concrete
             repo.PuckMeta.Remove(meta);
             //repo.SaveChanges();
         }
+        public void DeletePuckTag(PuckTag tag)
+        {
+            repo.PuckTag.Remove(tag);
+        }
+        public void AddPuckTag(PuckTag tag)
+        {
+            repo.PuckTag.Add(tag);
+        }
+        public IQueryable<PuckTag> GetPuckTag()
+        {
+            return repo.PuckTag;
+        }
         public void DeleteRevision(PuckRevision revision) {
             repo.PuckRevision.Remove(revision);
         }

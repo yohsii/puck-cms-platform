@@ -102,6 +102,23 @@
 
     <script src="~/areas/puck/assets/js/require.js"></script>
 
+    <script>
+        $.widget("custom.autocompleteWithRemove", $.ui.autocomplete, {
+            _renderItem: function( ul, item ) {
+                var el =$("<li>")
+                .attr( "data-value", item.value )
+                    .append(
+                        "<div>"
+                        +"<span>" + item.label + "</span>"
+                        + "<span data-tag=\"" + item.value + "\" class=\"remove_suggestion\">remove suggestion</span>"
+                        + "</div>"
+                    )
+                    .appendTo(ul);
+                return el;
+            }
+        });
+    </script>
+
     @await Html.PartialAsync("~/areas/puck/views/shared/includes.cshtml")
    
 

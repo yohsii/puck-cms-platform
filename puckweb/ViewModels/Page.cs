@@ -9,6 +9,7 @@ using Lucene.Net.Documents;
 using puck.core.Attributes;
 using puck.core.Base;
 using puck.core.Models;
+using puck.core.Models.EditorSettings;
 using puck.core.Models.EditorSettings.Attributes;
 using puck.Models;
 
@@ -25,8 +26,9 @@ namespace puckweb.ViewModels
         [UIHint("PuckImage")]
         public PuckImage Image { get; set; }
         
-        [Display(ShortName ="input",GroupName ="Content")]
-        [UIHint("ListEditor")]
+        [Display(GroupName ="Content")]
+        [UIHint("Tags")]
+        [PuckTagsEditorSettings(Category ="")]
         [IndexSettings(Analyzer=typeof(KeywordAnalyzer))]
         public List<string> Names { get; set; }
 

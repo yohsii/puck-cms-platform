@@ -796,6 +796,56 @@ div.settings {
         top: 1px;
         right: 90px;
     }
+    /*puck tags*/
+    .remove_suggestion {
+        float: right;
+        border: none !important;
+        cursor: pointer;
+        color: #007bff;
+    }
+    .remove_suggestion:hover {
+        border: none !important;
+        color: #007bff !important;
+    }
+    .ui-autocomplete {
+        z-index:100;
+    }
+    .tag_entry:focus {
+        outline:none!important;
+        border: none!important;
+    }
+    .tag_entry {
+        border:none;
+    }
+.ui-autocomplete li .ui-state-active {
+    border: none !important;
+    background:#f2f2f2 !important;
+}
+.ui-autocomplete li span{
+    padding:0px 5px;
+}
+    .ui-autocomplete li {
+        padding: 0 10px !important;
+    }
+    ul.ui-autocomplete {
+        padding: 8px 0;
+        background-color: #fff;
+        border: 1px solid #d8d7d9;
+        border-radius: 8px;
+        box-shadow: 0 5px 10px rgba(0,0,0,.2);
+    }
+    .pucktags .selected_node {
+        display: inline-block;
+        padding: 5px;
+        background: #ededed;
+        color: #0d0d0d;
+        font-weight: bold;
+        border-radius: 3px;
+        margin:5px;
+    }
+    .pucktags .selected_node i{padding:0 10px;}
+
+    /*end puck tags*/
 
     .path_locale_dialog button {
         float: right;

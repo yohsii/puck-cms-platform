@@ -18,6 +18,9 @@ namespace puck.core.Abstract
         void DeleteGeneratedModel(GeneratedModel gm);
         void DeleteGeneratedProperty(GeneratedProperty gm);
         void DeleteGeneratedAttribute(GeneratedAttribute gm);
+        IQueryable<PuckTag> GetPuckTag();
+        void AddPuckTag(PuckTag tag);
+        void DeletePuckTag(PuckTag tag);
 
         IQueryable<PuckInstruction> GetPuckInstruction();
         void AddPuckInstruction(PuckInstruction pi);

@@ -233,6 +233,38 @@ namespace puck.core.Controllers
             }
             return Json(new { message = message, success = success });
         }
+        [Authorize(Roles = PuckRoles.Puck, AuthenticationSchemes = Mvc.AuthenticationScheme)]
+        [HttpPost]
+        public ActionResult AddTag(string tag,string category) {
+            bool success = true;
+            string message = "";
+            try {
+                apiHelper.AddTag(tag, category);
+            } catch (Exception ex) {
+                success = false;
+                log.Log(ex);
+                message = ex.Message;
+            }
+            return Json(new { success=success,message=message});
+        }
+        [Authorize(Roles = PuckRoles.Puck, AuthenticationSchemes = Mvc.AuthenticationScheme)]
+        [HttpPost]
+        public ActionResult DeleteTag(string tag, string category)
+        {
+            bool success = true;
+            string message = "";
+            try
+            {
+                apiHelper.DeleteTag(tag, category);
+            }
+            catch (Exception ex)
+            {
+                success = false;
+                log.Log(ex);
+                message = ex.Message;
+            }
+            return Json(new { success = success, message = message });
+        }
         [Authorize(Roles = PuckRoles.Localisation, AuthenticationSchemes = Mvc.AuthenticationScheme)]
         public ActionResult LocalisationDialog(string p_path)
         {

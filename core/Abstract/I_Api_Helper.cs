@@ -19,7 +19,8 @@ namespace puck.core.Abstract
         RoleManager<PuckRole> roleManager { get; set; }
         I_Task_Dispatcher tdispatcher { get; set; }
         UserManager<PuckUser> userManager { get; set; }
-
+        void AddTag(string tag, string category);
+        void DeleteTag(string tag, string category);
         List<Type> AllModels(bool inclusive = false);
         List<Type> AllowedTypes(string typeName);
         List<FileInfo> AllowedViews(string type, string[] excludePaths = null);

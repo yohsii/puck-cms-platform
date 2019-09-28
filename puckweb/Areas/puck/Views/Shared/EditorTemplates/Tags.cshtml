@@ -1,0 +1,161 @@
+﻿@using puck.core.Models.EditorSettings
+@inject I_Puck_Repository repo;
+@model List<string>
+@{
+
+    var settings = this.PuckEditorSettings<PuckTagsEditorSettings>()
+    ?? new puck.core.Models.EditorSettings.PuckTagsEditorSettings()
+    {
+        Category = "",
+    };
+
+    var guid = Guid.NewGuid();
+
+    var tagsDictionary = ViewBag.Tags as Dictionary<string,List<string>>;
+    if (tagsDictionary == null) {
+        tagsDictionary = new Dictionary<string, List<string>>();
+        var tags = repo.GetPuckTag().Where(x=>x.Category.ToLower().Equals(settings.Category.ToLower()) && x.Count>0).ToList();
+        tagsDictionary.Add(settings.Category,tags.Select(x=>x.Tag).ToList());
+        ViewBag.Tags = tagsDictionary;
+    }
+    var tagList = tagsDictionary[settings.Category];
+}
+<div data-guid="@guid.ToString()" class="pucktags pucktags_@ViewData.ModelMetadata.PropertyName pucktags_@ViewData.TemplateInfo.HtmlFieldPrefix.Replace("[","_").Replace("]","_").Replace(".","_")">
+    <div style="display:none;" class="propName" data-propName="@ViewData.TemplateInfo.HtmlFieldPrefix"></div>
+    <div class="selected_content">
+        @if (Model != null)
+        {
+            foreach (var m in Model.Where(x=>!string.IsNullOrEmpty(x)))
+            {
+                <div class="selected_node" data-category="@settings.Category" data-tag="@m" data-tagLowerCase="@m.ToLower()">
+                    <span>@m</span><i class="fas fa-trash"></i>
+                </div>
+            }
+        }
+    </div>
+    <div class="entry_container">
+        <input placeholder="type here, press enter to add tag" class="tag_entry"/>
+    </div>
+    <div class="interfaces d-none">
+        <div class="selected_node" data-category="" data-tag="" data-tagLowerCase="">
+            <span></span><i class="fas fa-trash"></i>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    onAfterDom(function () {
+        var guid = "@guid.ToString()";
+        var modelType = "@Html.Raw(ViewBag.Level0Type.Name)";
+        var propname = "@Html.Raw(ViewData.TemplateInfo.HtmlFieldPrefix)";
+        var isPrePopulated = '@ViewBag.IsPrePopulated' == 'True';
+        var escapePropname = function (str) {
+            return str.replace(/\[/g, "_").replace(/\]/g, "_").replace(/\./g, "_");
+        }
+        var container = $("[data-guid='" + guid + "']");
+        var tagInput = container.find(".tag_entry");
+        var interfaces = container.find(".interfaces");
+        var getPropName = function () {
+            return container.find("div:hidden.propName:first").attr("data-propName");
+        }
+
+        var selected_container = container.find(".selected_content");
+        var selected_content = function () { return selected_container.find(".selected_node"); }
+
+        var category = "@settings.Category";
+        var tags = [
+            @for(var i=0;i<tagList.Count;i++) {
+                @Html.Raw("\""+tagList[i].ToLower()+"\""+(i==tagList.Count-1?"":","))
+            }
+        ];
+        
+        var setValue = function () {
+            container.find("input:hidden").remove();
+            selected_content().each(function (i) {
+                var node = $(this);
+                container.append(
+                    "<input type='hidden' name='" + getPropName() + "[" + i + "]' value='" + node.attr("data-tag") + "'/>"
+                );
+            });
+        }
+
+        var addTag = function (tag) {
+            if (selected_container.find("[data-tagLowerCase='" + tag.toLowerCase() + "']").length > 0) {
+                tagInput.val("");
+                container.find(".ui-autocomplete").hide();
+                return false;
+            }
+                
+            var el = interfaces.find(".selected_node").clone();
+            el.attr({ "data-category": category, "data-tag": tag });
+            el.find("span").html(tag);
+            selected_container.append(el);
+            saveTag(tag, category, function () { });
+            setValue();
+            tagInput.val("");
+            container.find(".ui-autocomplete").hide();
+        }
+
+        tagInput.autocompleteWithRemove({
+            source: tags,
+            appendTo: ".entry_container",
+            select: function (event, ui) {
+                event.preventDefault();
+                if ($(event.toElement).hasClass("remove_suggestion"))
+                    return false;
+                addTag(ui.item.value);
+            }
+        });
+
+        setValue();
+        var saveTag = function (tag, category, f) {
+            var tagVal = "tag=" + tag + "&category=" + category;
+            $.ajax({
+                url: "/puck/api/addTag",
+                data: tagVal,
+                traditional: true,
+                success: f,
+                type: "POST",
+                datatype: "json"
+            });
+        }
+        
+        var deleteTag = function (tag, category, f) {
+            var tagVal = "tag=" + tag + "&category=" + category;
+            for (var i = 0; i < tags.length; i++) {
+                if (tags[i] == tag.toLowerCase())
+                    tags.splice(i,1);
+            }
+            $.ajax({
+                url: "/puck/api/deleteTag",
+                data: tagVal,
+                traditional: true,
+                success: f,
+                type: "POST",
+                datatype: "json"
+            });
+        }
+
+        container.on("click", ".remove_suggestion", function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            var tag = $(this).attr("data-tag");
+            deleteTag(tag, category, function () { });
+        });
+
+        selected_container.on("click", "i", function (e) {
+            var selectedItem = $(this).parent();
+            selectedItem.remove();
+            setValue();
+        });
+        
+        tagInput.on("keyup", function (e) {
+            var val = tagInput.val();
+            if (e.keyCode === 13) {
+                if (val.replace(/\s/g) == "")
+                    return;
+                addTag(val);
+            } 
+        });
+        
+    });
+</script>
