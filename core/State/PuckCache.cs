@@ -31,10 +31,12 @@ namespace puck.core.State
             TaskCatchUp = config.GetValue<bool>("PuckTaskCatchUp");
             IsEditServer = config.GetValue<bool>("IsEditServer");
             UseAzureLucenePath = config.GetValue<bool>("UseAzureLucenePath");
+            MaxRevisions = config.GetValue<int?>("MaxRevisions") ?? 20;
             ServiceProvider = serviceProvider;
             ContentRootPath = env.ContentRootPath;
             Configuration = config;
         }
+        public static int MaxRevisions { get; set; }
         public static Dictionary<string,Func<Microsoft.AspNetCore.Http.HttpContext,bool>> DisplayModes { get; set; }
         public static IConfiguration Configuration;
         public static string ContentRootPath="";

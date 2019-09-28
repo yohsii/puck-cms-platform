@@ -1034,6 +1034,8 @@ namespace puck.core.Services
                     revision.HasNoPublishedRevision = true;
                     revisions.ForEach(x => x.HasNoPublishedRevision = true);
                 }
+                //prune old revisions
+                revisions.OrderByDescending(x => x.Id).Skip(PuckCache.MaxRevisions).ToList().ForEach(x=>repo.DeleteRevision(x));
 
                 //if first time node saved and is root node - set locale for path
                 if (currentVariantsDb.Count == 0 && (original == null) && mod.ParentId == Guid.Empty)

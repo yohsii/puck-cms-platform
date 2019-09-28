@@ -34,8 +34,8 @@ namespace puck.core.Abstract
         void DeleteMeta(PuckMeta meta);
         void AddMeta(PuckMeta meta);
         IQueryable<PuckRevision> GetPuckRevision();
-        void DeleteRevision(PuckRevision meta);
-        void AddRevision(PuckRevision meta);
+        void DeleteRevision(PuckRevision revision);
+        void AddRevision(PuckRevision revision);
         IQueryable<PuckRevision> CurrentRevisionsByPath(string path);
         IQueryable<PuckRevision> CurrentRevisionsByDirectory(string path);
         IQueryable<PuckRevision> CurrentRevisionsByParentId(Guid parentId);
