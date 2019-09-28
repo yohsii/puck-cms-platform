@@ -122,6 +122,22 @@ namespace puck.core.Helpers
             }
             return result;
         }
+
+        private static List<Type> DoTypeChainType(Type type, List<Type> types=null)
+        {
+            if (types == null)
+                types = new List<Type>();
+            types.Add(type);
+            if (type.BaseType != null && type.BaseType != typeof(Object))
+                types = DoTypeChainType(type.BaseType, types);
+            return types;
+        }
+        public static List<Type> TypeChainType(Type type)
+        {
+            var result = DoTypeChainType(type);
+            return result;
+        }
+
         public static List<Type> BaseTypes(Type start, List<Type> result = null, bool excludeSystemObject = true)
         {
             result = result ?? new List<Type>();

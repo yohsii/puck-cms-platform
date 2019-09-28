@@ -17,7 +17,7 @@ namespace puck.core.Extensions
         public static void AddPuckServices(this IServiceCollection services,IHostEnvironment env,IConfiguration config) {
             PuckCache.ContentRootPath = env.ContentRootPath;
             var logger = new Logger();
-            var indexerSearcher = new Content_Indexer_Searcher(logger, config);
+            var indexerSearcher = new Content_Indexer_Searcher(logger, config,env);
             services.AddTransient<I_Puck_Repository, Puck_Repository>();
             services.AddSingleton<I_Content_Indexer>(indexerSearcher);
             services.AddSingleton<I_Content_Searcher>(indexerSearcher);

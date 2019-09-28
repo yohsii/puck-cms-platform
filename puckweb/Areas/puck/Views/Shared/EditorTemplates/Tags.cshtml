@@ -69,7 +69,7 @@
         ];
         
         var setValue = function () {
-            container.find("input:hidden").remove();
+            container.find("input:hidden:not(.tag_entry)").remove();
             selected_content().each(function (i) {
                 var node = $(this);
                 container.append(

@@ -158,7 +158,8 @@ namespace puck.core.Helpers
 
                         }
                         if (hasPublishInstruction) {
-                            if ((config.GetValue<bool?>("UseAzureDirectory") ?? false) && config.GetValue<bool>("IsEditServer"))
+                            if (((config.GetValue<bool?>("UseAzureDirectory") ?? false) || (config.GetValue<bool?>("UseSyncDirectory") ?? false)) 
+                                && config.GetValue<bool>("IsEditServer"))
                             {
                                 var newInstruction = new PuckInstruction();
                                 newInstruction.InstructionKey = InstructionKeys.SetSearcher;

@@ -1646,6 +1646,12 @@
     <PackageReference Include="WindowsAzure.Storage" Version="9.3.3" />
   </ItemGroup>
 
+  <Target Name="CopyCustomContentOnPublish" AfterTargets="Publish">
+    <ItemGroup>
+      <Views Include="Views\**" />
+    </ItemGroup>
+    <Copy SourceFiles="@(Views)" DestinationFolder="$(PublishDir)\Views\%(RecursiveDir)" />
+  </Target>
 
   <ItemGroup>
     <ProjectReference Include="..\core\core.csproj" />

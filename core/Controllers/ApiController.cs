@@ -972,7 +972,15 @@ namespace puck.core.Controllers
             string message = "republish entire site started";
             if (!PuckCache.IsRepublishingEntireSite)
             {
-                System.Threading.Tasks.Task.Factory.StartNew(() => contentService.RePublishEntireSite2());
+                System.Threading.Tasks.Task.Factory.StartNew(() => {
+                    contentService.RePublishEntireSite2();
+                    if (PuckCache.UseAzureDirectory || PuckCache.UseSyncDirectory && PuckCache.IsEditServer)
+                    {
+                        var instruction = new PuckInstruction() { InstructionKey = InstructionKeys.SetSearcher, Count = 1, ServerName = ApiHelper.ServerName() };
+                        repo.AddPuckInstruction(instruction);
+                        repo.SaveChanges();
+                    }
+                });
                 PuckCache.IsRepublishingEntireSite = true;
                 PuckCache.IndexingStatus = "republish entire site task queued";
             }

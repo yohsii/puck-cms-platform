@@ -36,6 +36,7 @@ using System.Text.RegularExpressions;
 using Microsoft.Extensions.Configuration;
 using Lucene.Net.Store.Azure;
 using Microsoft.Azure.Storage;
+using Microsoft.Extensions.Hosting;
 
 namespace puck.core.Concrete
 {
@@ -45,19 +46,17 @@ namespace puck.core.Concrete
         private KeywordAnalyzer KeywordAnalyzer = new KeywordAnalyzer();
         public readonly SpatialContext ctx = SpatialContext.GEO;
         private Lucene.Net.Store.Directory Directory=null;
-        private Regex regexIndexPathReplaceMachineName = new Regex(Regex.Escape("{machinename}"),RegexOptions.IgnoreCase|RegexOptions.Compiled);
+        private Regex regexIndexPathReplaceMachineName = new Regex(Regex.Escape("{MachineName}"),RegexOptions.IgnoreCase|RegexOptions.Compiled);
+        private Regex regexIndexPathReplaceContentRootPath = new Regex(Regex.Escape("{ContentRootPath}"), RegexOptions.IgnoreCase | RegexOptions.Compiled);
         private string INDEXPATH {
             get {
                 string path = null;
                 if (PuckCache.UseAzureLucenePath) {
-                    path = config.GetValue<string>("LuceneAzureIndexPath");
+                    path = ReplacePathTokens(config.GetValue<string>("LuceneAzureIndexPath"));
                 }
                 else
                 {
-                    path = ApiHelper.MapPath(
-                        regexIndexPathReplaceMachineName
-                            .Replace(config.GetValue<string>("LuceneIndexPath"), ApiHelper.ServerName())
-                        ); 
+                    path = ReplacePathTokens(config.GetValue<string>("LuceneIndexPath"));
                 }
                 return path;
             }
@@ -70,11 +69,15 @@ namespace puck.core.Concrete
         private IConfiguration config = null;
         public bool CanWrite { get; set; } = true;
         public bool UseAzureDirectory { get; set; } = false;
-        public Content_Indexer_Searcher(I_Log Logger,IConfiguration configuration) {
+        public bool UseSyncDirectory { get; set; } = false;
+        public IHostEnvironment env { get; set; }
+        public Content_Indexer_Searcher(I_Log Logger,IConfiguration configuration,IHostEnvironment env) {
             this.logger = Logger;
             this.config = configuration;
+            this.env = env;
             UseAzureDirectory = config.GetValue<bool?>("UseAzureDirectory") ?? false;
-            if (UseAzureDirectory && !config.GetValue<bool>("IsEditServer"))
+            UseSyncDirectory = config.GetValue<bool?>("UseSyncDirectory") ?? false;
+            if ((UseAzureDirectory || UseSyncDirectory) && !config.GetValue<bool>("IsEditServer"))
                 CanWrite = false;
 
             Ini();
@@ -83,6 +86,120 @@ namespace puck.core.Concrete
             AfterIndex += new EventHandler<IndexingEventArgs>(DelegateAfterIndexing);
             BeforeDelete += new EventHandler<BeforeIndexingEventArgs>(DelegateBeforeDelete);
             AfterDelete += new EventHandler<IndexingEventArgs>(DelegateAfterDelete);
+        }
+        private string ReplacePathTokens(string path) {
+            path = regexIndexPathReplaceMachineName
+                .Replace(path, ApiHelper.ServerName());
+            path = regexIndexPathReplaceContentRootPath
+                .Replace(path,env.ContentRootPath);
+            return path;
+        }
+        public void Ini()
+        {
+            if (UseSyncDirectory)
+            {
+                var primaryDirectoryPath = ReplacePathTokens(config.GetValue<string>("SyncDirectoryPrimaryPath"));
+                var cacheDirectoryPath = ReplacePathTokens(config.GetValue<string>("SyncDirectoryCachePath"));
+                Directory = new SyncDirectory(primaryDirectoryPath,cacheDirectoryPath);
+            }
+            else if (UseAzureDirectory)
+            {
+                var azureBlobConnectionString = config.GetValue<string>("AzureDirectoryConnectionString");
+                var azureDirectoryCachePath = ReplacePathTokens(config.GetValue<string>("AzureDirectoryCachePath"));
+                var azureDirectoryContainerName = config.GetValue<string>("AzureDirectoryContainerName");
+                //if empty string, ensure value is null
+                if (string.IsNullOrEmpty(azureDirectoryContainerName)) azureDirectoryContainerName = null;
+                var cloudStorageAccount = CloudStorageAccount.Parse(azureBlobConnectionString);
+                Directory = new AzureDirectory(cloudStorageAccount, azureDirectoryCachePath, containerName: azureDirectoryContainerName);
+            }
+            else
+            {
+                if (!System.IO.Directory.Exists(INDEXPATH))
+                {
+                    System.IO.Directory.CreateDirectory(INDEXPATH);
+                }
+                Directory = FSDirectory.Open(INDEXPATH);
+            }
+            bool create = !DirectoryReader.IndexExists(Directory);
+
+            lock (write_lock)
+            {
+                try
+                {
+                    SetWriter(create);
+                    if (Writer != null && !UseAzureDirectory && !UseSyncDirectory) CloseWriter();
+                    //Writer.Optimize();
+                }
+                catch (Lucene.Net.Store.LockObtainFailedException ex)
+                {
+                    logger.Log(ex);
+                }
+                catch (Exception ex)
+                {
+                    throw;
+                    //logger.Log(ex);
+                }
+                finally
+                {
+                    //CloseWriter();
+                }
+            }
+            SetSearcher();
+        }
+        public void SetWriter(bool create)
+        {
+            if (Writer == null)
+            {
+                //var dir = FSDirectory.Open(INDEXPATH);
+                var config = new IndexWriterConfig(Lucene.Net.Util.LuceneVersion.LUCENE_48, StandardAnalyzer);
+                config.OpenMode = OpenMode.CREATE_OR_APPEND;
+                Writer = new IndexWriter(Directory, config);
+            }
+
+        }
+        public void CloseWriter()
+        {
+            if (Writer != null && CanWrite && !UseAzureDirectory && !UseSyncDirectory)
+            {
+                Writer.Dispose(false);
+                Writer = null;
+            }
+        }
+        public void EnsureSearcher()
+        {
+            try
+            {
+                if (Searcher != null)
+                    return;
+                var indexReader = DirectoryReader.Open(Directory);
+                Searcher = new Lucene.Net.Search.IndexSearcher(indexReader);
+            }
+            catch (Lucene.Net.Index.IndexNotFoundException ex)
+            {
+                logger.Log(ex);
+            }
+            catch (Exception ex) { throw; }
+        }
+        public void SetSearcher()
+        {
+            try
+            {
+                var oldSearcher = Searcher;
+                //var dir = FSDirectory.Open(INDEXPATH);
+                var indexReader = DirectoryReader.Open(Directory);
+                Searcher = new Lucene.Net.Search.IndexSearcher(indexReader);
+                //kill old searcher
+                if (oldSearcher != null)
+                {
+                    oldSearcher.IndexReader.Dispose();
+                }
+                oldSearcher = null;
+            }
+            catch (Lucene.Net.Index.IndexNotFoundException ex)
+            {
+                logger.Log(ex);
+            }
+            catch (Exception ex) { throw; }
         }
         private static void DelegateBeforeEvent(Dictionary<string,Tuple<Type, Action<object, BeforeIndexingEventArgs>, bool>> list,object n,BeforeIndexingEventArgs e){
             var type = e.Node.GetType();
@@ -260,7 +377,7 @@ namespace puck.core.Concrete
                 }
             }
         }
-        //mass index changes in transactional way, like changing paths for related nodes
+        
         public void Index<T>(List<T> models,bool triggerEvents=true) where T:BaseModel {
             if (models.Count == 0) return;
             lock (write_lock)
@@ -521,101 +638,6 @@ namespace puck.core.Concrete
                     SetSearcher();
                 }
             }
-        }
-
-        public void Ini()
-        {
-            if (UseAzureDirectory)
-            {
-                var azureBlobConnectionString = config.GetValue<string>("AzureDirectoryConnectionString");
-                var azureDirectoryCachePath = config.GetValue<string>("AzureDirectoryCachePath");
-                var azureDirectoryContainerName = config.GetValue<string>("AzureDirectoryContainerName");
-                //if empty string, ensure value is null
-                if (string.IsNullOrEmpty(azureDirectoryContainerName)) azureDirectoryContainerName = null;
-                var cloudStorageAccount = CloudStorageAccount.Parse(azureBlobConnectionString);
-                Directory = new AzureDirectory(cloudStorageAccount,azureDirectoryCachePath,containerName:azureDirectoryContainerName);
-            }
-            else {
-                if (!System.IO.Directory.Exists(INDEXPATH))
-                {
-                    System.IO.Directory.CreateDirectory(INDEXPATH);
-                }
-                Directory = FSDirectory.Open(INDEXPATH);
-            }
-            bool create = !DirectoryReader.IndexExists(Directory);
-            
-            lock (write_lock)
-            {
-                try
-                {
-                    SetWriter(create);
-                    if (Writer != null && !UseAzureDirectory) CloseWriter();
-                    //Writer.Optimize();
-                }
-                catch (Lucene.Net.Store.LockObtainFailedException ex) {
-                    logger.Log(ex);
-                }
-                catch (Exception ex)
-                {
-                    throw;
-                    //logger.Log(ex);
-                }
-                finally
-                {
-                    //CloseWriter();
-                }
-            }
-            SetSearcher();
-        }
-        public void SetWriter(bool create) {
-            if (Writer == null)
-            {
-                //var dir = FSDirectory.Open(INDEXPATH);
-                var config = new IndexWriterConfig(Lucene.Net.Util.LuceneVersion.LUCENE_48, StandardAnalyzer);
-                config.OpenMode = OpenMode.CREATE_OR_APPEND;
-                Writer = new IndexWriter(Directory, config);
-            }
-                
-        }
-        public void CloseWriter() {
-            if (Writer != null && CanWrite && !UseAzureDirectory)
-            {
-                Writer.Dispose(false);
-                Writer = null;
-            }
-        }
-        public void EnsureSearcher() {
-            try
-            {
-                if (Searcher != null)
-                    return;
-                var indexReader = DirectoryReader.Open(Directory);
-                Searcher = new Lucene.Net.Search.IndexSearcher(indexReader);
-            }
-            catch (Lucene.Net.Index.IndexNotFoundException ex)
-            {
-                logger.Log(ex);
-            }
-            catch (Exception ex) { throw; }
-        }
-        public void SetSearcher() {
-            try
-            {
-                var oldSearcher = Searcher;
-                //var dir = FSDirectory.Open(INDEXPATH);
-                var indexReader = DirectoryReader.Open(Directory);
-                Searcher = new Lucene.Net.Search.IndexSearcher(indexReader);
-                //kill old searcher
-                if (oldSearcher != null)
-                {
-                    oldSearcher.IndexReader.Dispose();
-                }
-                oldSearcher = null;
-            }
-            catch (Lucene.Net.Index.IndexNotFoundException ex) {
-                logger.Log(ex);
-            }
-            catch (Exception ex) { throw; }
         }
         public IList<Dictionary<string, string>> Query(Query contentQuery)
         {

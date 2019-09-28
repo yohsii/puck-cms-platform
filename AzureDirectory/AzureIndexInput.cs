@@ -105,7 +105,6 @@ namespace Lucene.Net.Store.Azure
                         {
                             // get the blob
                             _blob.DownloadToStream(fileStream);
-
                             fileStream.Flush();
                             Debug.WriteLine(string.Format("GET {0} RETREIVED {1} bytes", _name, fileStream.Length));
                         }

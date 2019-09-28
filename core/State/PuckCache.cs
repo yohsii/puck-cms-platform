@@ -30,12 +30,16 @@ namespace puck.core.State
             UpdateRecurringTaskLastRun = config.GetValue<bool>("PuckUpdateRecurringTaskLastRun");
             TaskCatchUp = config.GetValue<bool>("PuckTaskCatchUp");
             IsEditServer = config.GetValue<bool>("IsEditServer");
+            UseSyncDirectory = config.GetValue<bool?>("UseSyncDirectory") ?? false;
+            UseAzureDirectory = config.GetValue<bool?>("UseAzureDirectory") ?? false;
             UseAzureLucenePath = config.GetValue<bool>("UseAzureLucenePath");
             MaxRevisions = config.GetValue<int?>("MaxRevisions") ?? 20;
             ServiceProvider = serviceProvider;
             ContentRootPath = env.ContentRootPath;
             Configuration = config;
         }
+        public static bool UseAzureDirectory { get; set; }
+        public static bool UseSyncDirectory { get; set; }
         public static int MaxRevisions { get; set; }
         public static Dictionary<string,Func<Microsoft.AspNetCore.Http.HttpContext,bool>> DisplayModes { get; set; }
         public static IConfiguration Configuration;

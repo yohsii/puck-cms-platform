@@ -35,6 +35,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\AzureDirectory\AzureDirectory.csproj" />
+    <ProjectReference Include="..\SyncDirectory\SyncDirectory.csproj" />
   </ItemGroup>
 
 </Project>
