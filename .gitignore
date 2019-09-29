@@ -1,7 +1,10 @@
+**/wwwroot/Media/*
+**/wwwroot/is-cache/*
 **/[Aa]pp_[Dd]ata/Lucene*
 **/[Aa]pp_[Dd]ata/Lucene/*
 **/[Aa]pp_[Dd]ata/Log/*
 **/puckweb/Media/*
+**/[Aa]pp_[Dd]ata/SyncDirectory*
 
 *bin/*.dll
 *bin/*.pdb
