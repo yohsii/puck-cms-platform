@@ -1,0 +1,17 @@
+﻿@model string
+
+<div class="noedit">
+    @if(!string.IsNullOrEmpty(Model)){
+        var url = "";
+        if (Model.Count(x => x == '/') == 1)
+        {
+            url = "/";
+        }
+        else {
+            var trimmed = Model.TrimStart('/');
+            url = trimmed.Substring(trimmed.IndexOf("/"));
+        }
+        <a target="_blank" href="@url">@Model.ToString()</a>
+    }    
+</div>
+@Html.Hidden("",Model)

@@ -54,7 +54,7 @@ namespace puck.core.Base
         [Display(Name = "Created By")]
         public string CreatedBy { get; set; }
         
-        [UIHint("SettingsReadOnly")]
+        [UIHint("PuckPath")]
         [IndexSettings(FieldIndexSetting = Lucene.Net.Documents.Field.Index.NOT_ANALYZED, Analyzer = typeof(KeywordAnalyzer))]
         [MaxLength(2048)]
         public string Path { get; set; }
