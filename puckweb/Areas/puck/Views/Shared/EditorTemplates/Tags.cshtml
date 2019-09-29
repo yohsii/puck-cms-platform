@@ -12,11 +12,16 @@
     var guid = Guid.NewGuid();
 
     var tagsDictionary = ViewBag.Tags as Dictionary<string,List<string>>;
-    if (tagsDictionary == null) {
+    if (tagsDictionary == null)
+    {
         tagsDictionary = new Dictionary<string, List<string>>();
-        var tags = repo.GetPuckTag().Where(x=>x.Category.ToLower().Equals(settings.Category.ToLower()) && x.Count>0).ToList();
-        tagsDictionary.Add(settings.Category,tags.Select(x=>x.Tag).ToList());
+        var tags = repo.GetPuckTag().Where(x => x.Category.ToLower().Equals(settings.Category.ToLower()) && x.Count > 0).ToList();
+        tagsDictionary.Add(settings.Category, tags.Select(x => x.Tag).ToList());
         ViewBag.Tags = tagsDictionary;
+    }
+    else if (!tagsDictionary.ContainsKey(settings.Category)) { 
+        var tags = repo.GetPuckTag().Where(x => x.Category.ToLower().Equals(settings.Category.ToLower()) && x.Count > 0).ToList();
+        tagsDictionary[settings.Category] = tags.Select(x => x.Tag).ToList();
     }
     var tagList = tagsDictionary[settings.Category];
 }
