@@ -71,11 +71,6 @@ namespace puckweb
                 options.AccessDeniedPath= "/puck/admin/in";
                 options.ForwardAuthenticate = "Identity.Application";
             });
-            services.Configure<RequestLocalizationOptions>(options =>
-            {
-                options.SupportedCultures = CultureInfo.GetCultures(CultureTypes.AllCultures).ToList();
-                options.RequestCultureProviders.Insert(0,new PuckCultureProvider());
-            });
             services.AddHttpContextAccessor();
             services.AddPuckServices(Env,Configuration);
 
@@ -175,7 +170,7 @@ namespace puckweb
             app.UseSession();
             app.UseResponseCaching();
             app.UseRouting();
-            app.UseRequestLocalization();
+            
             app.UseAuthentication();
             
             app.UseAuthorization();

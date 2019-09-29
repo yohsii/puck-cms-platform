@@ -47,23 +47,7 @@ namespace puck.core.Helpers
             this.indexer = Indexer;
             this.logger = Logger;
         }
-        public static string GetRequestVariant(string searchPath) {
-            string variant = null;
-            if (!PuckCache.PathToLocale.TryGetValue(searchPath, out variant))
-            {
-                foreach (var entry in PuckCache.PathToLocale)
-                {
-                    if (searchPath.StartsWith(entry.Key))
-                    {
-                        variant = entry.Value;
-                        break;
-                    }
-                }
-                if (string.IsNullOrEmpty(variant))
-                    variant = PuckCache.SystemVariant;
-            }
-            return variant;
-        }
+        
         public void AddTag(string tag,string category) {
             if (string.IsNullOrEmpty(tag))
                 return;

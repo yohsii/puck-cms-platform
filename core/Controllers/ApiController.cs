@@ -141,8 +141,9 @@ namespace puck.core.Controllers
                 }
             }
             var mod = model.ToBaseModel();
-            var threadVariant = ApiHelper.GetRequestVariant(mod.Path);
-            Thread.CurrentThread.CurrentCulture = CultureInfo.CreateSpecificCulture(threadVariant);
+            var variant = GetVariant(mod.Path);
+            HttpContext.Items["variant"] = variant;
+            //Thread.CurrentThread.CurrentCulture = CultureInfo.CreateSpecificCulture(threadVariant);
             return View(templatePath, mod);
         }
         [Authorize(Roles = PuckRoles.Notify, AuthenticationSchemes = Mvc.AuthenticationScheme)]

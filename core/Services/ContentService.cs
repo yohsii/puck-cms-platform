@@ -983,16 +983,13 @@ namespace puck.core.Services
                 if (makeRevision)
                 {
                     revision = new PuckRevision();
-                    repo.GetPuckRevision()
-                        .Where(x => x.Id.Equals(mod.Id) && x.Variant.ToLower().Equals(mod.Variant.ToLower()) && x.Current)
-                        .ToList()
+                    revisions
                         .ForEach(x => x.Current = false);
                     repo.AddRevision(revision);
                 }
                 else
                 {
-                    revision = repo.GetPuckRevision()
-                        .Where(x => x.Id.Equals(mod.Id) && x.Variant.ToLower().Equals(mod.Variant.ToLower()) && x.Current).FirstOrDefault();
+                    revision = original;
                     if (revision == null)
                     {
                         revision = new PuckRevision();
@@ -1058,11 +1055,11 @@ namespace puck.core.Services
                         };
                         repo.AddMeta(dMeta);
                     }
+                    StateHelper.UpdateDomainMappings(true);
+                    StateHelper.UpdatePathLocaleMappings(true);
                 }
                 repo.SaveChanges();
-                StateHelper.UpdateDomainMappings(true);
-                StateHelper.UpdatePathLocaleMappings(true);
-
+                
                 //index related operations
                 var qh = new QueryHelper<BaseModel>();
                 //get current indexed node with same ID and VARIANT

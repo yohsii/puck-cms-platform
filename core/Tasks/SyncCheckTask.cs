@@ -28,6 +28,8 @@ namespace puck.core.Tasks
             var syncId = int.Parse(lastSyncMeta.Value);
             if (repo.GetPuckInstruction().Any(x => x.Id > syncId && x.ServerName != serverName))
                 PuckCache.ShouldSync = true;
+            else
+                PuckCache.ShouldSync = false;
         }
     }
 }

@@ -384,9 +384,10 @@ namespace puck.core.Helpers
 
         public static TModel Current()
         {
-            var requestCultureFeature = HttpContext.Current.Features.Get<IRequestCultureFeature>();
-            var variant = requestCultureFeature.RequestCulture.Culture.Name.ToLower();
-            //CultureInfo.CurrentCulture.Name.ToLower();
+            //var requestCultureFeature = HttpContext.Current.Features.Get<IRequestCultureFeature>();
+            //var variant = requestCultureFeature.RequestCulture.Culture.Name.ToLower();
+            //var variant = CultureInfo.CurrentCulture.Name.ToLower();
+            var variant = HttpContext.Current.Items["variant"] as string;
             string absPath = HttpContext.Current.Request.GetUri().AbsolutePath.ToLower();
             string path = PathPrefix() + (absPath == "/" ? "" : absPath);
             var qh = new QueryHelper<TModel>();
@@ -410,7 +411,6 @@ namespace puck.core.Helpers
                     {
                         innerQ.Field(x=>x.Type,type.Name);
                     }
-                    innerQ.Field(x=>x.Type,typeof(TModel).Name);
                     this.Must().Group(innerQ).And().Field(x => x.Published, "true");
                 }
                 //this.And().Field(x => x.TypeChain, typeof(TModel).Name.Wrap()).And().Field(x => x.Published, "true");
@@ -826,9 +826,7 @@ namespace puck.core.Helpers
         {
             TrimAnd();
             var key = FieldKeys.Variant;
-            var requestCultureFeature = HttpContext.Current.Features.Get<IRequestCultureFeature>();
-            var variant = requestCultureFeature.RequestCulture.Culture.Name;
-            //var variant = Thread.CurrentThread.CurrentCulture.Name;
+            var variant = HttpContext.Current.Items["variant"] as string;
             query += string.Concat("+",key, ":", variant.ToLower(), " ");
             return this;
         }
