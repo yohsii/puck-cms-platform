@@ -79,6 +79,7 @@
         }
 
         var addTag = function (tag) {
+            debugger;
             if (selected_container.find("[data-tagLowerCase='" + tag.toLowerCase() + "']").length > 0) {
                 tagInput.val("");
                 container.find(".ui-autocomplete").hide();
@@ -86,7 +87,7 @@
             }
                 
             var el = interfaces.find(".selected_node").clone();
-            el.attr({ "data-category": category, "data-tag": tag });
+            el.attr({ "data-category": category, "data-tag": tag, "data-tagLowerCase": tag.toLowerCase() });
             el.find("span").html(tag);
             selected_container.append(el);
             saveTag(tag, category, function () { });
