@@ -165,7 +165,7 @@
             var msgContainer = $("<div class='msgTop'></div>");
             container.append(msgContainer).append(inner);
 
-            overlay(container, "90%", undefined, top, nodename);
+            var overlayEl = overlay(container, "90%", undefined, top, nodename);
             displayMarkup(null, undefined, variant, undefined, id, inner,msgContainer);
         });
     });

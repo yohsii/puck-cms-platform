@@ -755,9 +755,10 @@ var displayMarkup = function (parentId, type, variant, fromVariant,contentId,con
     var tabId = null;
     var scroll = null;
     container = container || cright;
-    if (container.find(".content_edit_page").length > 0 && contentId && cright.find("input[name=Id]").val() == contentId ) {
-        tabId = cright.find("form>.tab-content>.tab-pane.active").attr("id");
-        scroll = $(".rightarea").scrollTop();
+    if (container.find(".content_edit_page").length > 0 && contentId && container.find("input[name=Id]").val() == contentId ) {
+        tabId = container.find("form>.tab-content>.tab-pane.active").attr("id");
+        if (container.parents(".scrollContainer").length>0)
+            scroll = container.parents(".scrollContainer:first").scrollTop();
     }
     container.html("");
     showLoader(container);
@@ -966,18 +967,20 @@ var displayMarkup = function (parentId, type, variant, fromVariant,contentId,con
                 displayMarkup(null, type, variant,undefined,data.id,container,msgContainer);
             });
         }, function (data) {
-            cright.find(".submitLoader").remove();
-            cright.find(".content_btns").removeAttr("disabled");
+            container.find(".submitLoader").remove();
+            container.find(".content_btns").removeAttr("disabled");
             msg(false, data.message,undefined,msgContainer);
         }, function () {
-            cright.find(".content_btns").attr({ disabled: "disabled" });
+            container.find(".content_btns").attr({ disabled: "disabled" });
             var img = $("<img src='/areas/puck/assets/img/tree-loader.gif'/>").addClass("submitLoader");
-            cright.find(".content_edit_page form").append(img);
+            container.find(".content_edit_page form").append(img);
         });
 
-        if (tabId && scroll) {
-            cright.find("[href='#" + tabId + "']").click();
-            $(".rightarea").scrollTop(scroll);
+        if (tabId) {
+            container.find("[href='#" + tabId + "']").click();
+        }
+        if (scroll) {
+            container.parents(".scrollContainer:first").scrollTop(scroll);
         }
 
     }, fromVariant, contentId);
@@ -1054,7 +1057,7 @@ var overlay = function (el, width, height, top, title, isRightSided) {
             width = $(window).width();
     var f = undefined;
     searchDialogClose();
-    var outer = $(".interfaces .overlay_screen").clone().addClass("active").addClass(overlayClass);
+    var outer = $(".interfaces .overlay_screen").clone().addClass("active").addClass(overlayClass).addClass("scrollContainer");
     outer.find(">h1:first").html(title || "")
     var left = (cright.position().left - 30) < -10 ? -10 : (cright.position().left - 30);
     if (isRightSided)
