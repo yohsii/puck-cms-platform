@@ -19,7 +19,7 @@ namespace puckweb.ViewModels
     {
         [Display(Name = "Image Gallery", GroupName = "Images")]
         [UIHint("PuckImagePicker")]
-        [PuckImagePickerEditorSettings(MaxPick = 1)]
+        [PuckImagePickerEditorSettings(MaxPick = 2)]
         public List<PuckPicker> ImageGallery { get; set; }
 
         [Display(GroupName = "Images")]

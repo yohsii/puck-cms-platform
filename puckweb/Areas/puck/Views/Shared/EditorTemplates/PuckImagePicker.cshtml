@@ -40,7 +40,7 @@
             {
                 if (!string.IsNullOrEmpty(m.Variant))
                 {
-                    var node = repo.GetPuckRevision().Where(x => x.Id == m.Id && x.Variant.ToLower().Equals(m.Variant.ToLower())).FirstOrDefault();
+                    var node = repo.GetPuckRevision().Where(x => x.Id == m.Id && x.Variant.ToLower().Equals(m.Variant.ToLower()) && x.Current).FirstOrDefault();
                     if (node != null)
                     {
                         var mod = node.ToBaseModel() as puckweb.ViewModels.ImageVM;
@@ -231,8 +231,9 @@
         }
         selected_container.on("click", "i.remove", function (e) {
             var item = $(this).parents(".item");
-            overlayEl.find(".item[data-id='" + item.attr("data-id") + "'][data-variant='" + item.attr("data-variant") + "']")
-                .removeClass("selected");
+            if(overlayEl)
+                overlayEl.find(".item[data-id='" + item.attr("data-id") + "'][data-variant='" + item.attr("data-variant") + "']")
+                    .removeClass("selected");
             item.remove();
             setValue();
         });

@@ -116,6 +116,22 @@ namespace puck.core.Helpers
                 return qh.GetAllNoCast();
             else
                 return qh.GetAll();
+
+            var sortOrder = new Dictionary<Guid, int>();
+            for (var i = 0; i < pp.Count; i++)
+            {
+                sortOrder[pp[i].Id] = i;
+            }
+            
+            List<T> unsortedResults;
+            if (noCast)
+                unsortedResults = qh.GetAllNoCast();
+            else
+                unsortedResults = qh.GetAll();
+
+            var results = unsortedResults.OrderBy(x=>sortOrder[x.Id]).ToList();
+
+            return results;
         }
 
         public static List<T> GetAll<T>(this PuckPicker pp,bool noCast=false) where T : BaseModel

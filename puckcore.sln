@@ -11,6 +11,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AzureDirectory", "AzureDire
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SyncDirectory", "SyncDirectory\SyncDirectory.csproj", "{8E5865DA-E34C-411C-BED0-B29F0228C323}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ImageSharp.Web", "ImageSharp.Web\ImageSharp.Web.csproj", "{BADE849A-C3E5-4DBE-ABA5-CF351C52072A}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ImageSharp.Web.Providers.Azure", "ImageSharp.Web.Providers.Azure\ImageSharp.Web.Providers.Azure.csproj", "{1D82A103-56E1-4370-B1D8-4DF374E1F6CC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +37,14 @@ Global
 		{8E5865DA-E34C-411C-BED0-B29F0228C323}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8E5865DA-E34C-411C-BED0-B29F0228C323}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8E5865DA-E34C-411C-BED0-B29F0228C323}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BADE849A-C3E5-4DBE-ABA5-CF351C52072A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BADE849A-C3E5-4DBE-ABA5-CF351C52072A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BADE849A-C3E5-4DBE-ABA5-CF351C52072A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BADE849A-C3E5-4DBE-ABA5-CF351C52072A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1D82A103-56E1-4370-B1D8-4DF374E1F6CC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1D82A103-56E1-4370-B1D8-4DF374E1F6CC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1D82A103-56E1-4370-B1D8-4DF374E1F6CC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1D82A103-56E1-4370-B1D8-4DF374E1F6CC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
