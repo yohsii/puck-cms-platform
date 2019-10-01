@@ -38,11 +38,12 @@
 
 <h2>@Model.Title</h2>
 
-<h3>Carousel Items</h3>
+<h3>Image Gallery</h3>
 <div>
-    @foreach (var imageModel in Model?.CarouselItems?.GetAll<ImageVM>() ?? new List<ImageVM>())
+    @foreach (var imageModel in Model?.ImageGallery?.GetAll<ImageVM>() ?? new List<ImageVM>())
     {
-        <img width="700" alt="@imageModel.Image.Description" src="@imageModel.Image.Path" />
+        //if crop alias not found, full size image will be returned
+        <img alt="@imageModel.Image.Description" src="@imageModel.Image.GetCropUrl("hero")" />
     }
 
 </div>
@@ -63,13 +64,4 @@
         @Html.Raw(r.MainContent.Highlight(searchQuery))
     </div>
 }
-
-@{
-    var qstr = @"+path:\/home\/news2";
-    var results = puck.core.State.PuckCache.PuckSearcher.QueryNoCast<BaseModel>(qstr);
-
-}
-<h1>
-    @results.Count
-</h1>
 
