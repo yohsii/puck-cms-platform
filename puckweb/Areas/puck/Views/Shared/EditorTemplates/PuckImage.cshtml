@@ -210,8 +210,7 @@
             cropSize.attr("data-bottom", bottomF);
             //console.log(leftF, topF, rightF, bottomF);
         }
-        container.find(".cropSizes:first .cropSize").click(function () {
-            var el = $(this);
+        var initCropSize = function (el) {
             container.find(".cropSize").removeClass("active");
             el.addClass("active");
             var alias = el.attr("data-alias");
@@ -222,6 +221,10 @@
             var right = el.attr("data-right");
             var bottom = el.attr("data-bottom");
             setupImage(alias,width,height,left,top,right,bottom);
+        }
+        container.find(".cropSizes:first .cropSize").click(function () {
+            var el = $(this);
+            initCropSize(el);
         });
 
         var load = function () {
@@ -243,7 +246,10 @@
                 elCropSize.attr("data-top", top);
                 elCropSize.attr("data-right", right);
                 elCropSize.attr("data-bottom", bottom);
-
+            });
+            container.find(".cropSizes:first .cropSize").each(function () {
+                var el = $(this);
+                initCropSize(el);
             });
         }
         load();

@@ -43,7 +43,7 @@
             {
                 if (!string.IsNullOrEmpty(m.Variant))
                 {
-                    var node = repo.GetPuckRevision().Where(x => x.Id == m.Id && x.Variant.ToLower().Equals(m.Variant.ToLower())).FirstOrDefault();
+                    var node = repo.GetPuckRevision().Where(x => x.Id == m.Id && x.Variant.ToLower().Equals(m.Variant.ToLower()) && x.Current).FirstOrDefault();
                     if (node != null)
                     {
                         <div class="selected_node" data-nodename="@node.NodeName" data-variant="@m.Variant" data-id="@m.Id">
@@ -55,7 +55,7 @@
                 }
                 else
                 {
-                    var nodes = repo.GetPuckRevision().Where(x => x.Id == m.Id).ToList();
+                    var nodes = repo.GetPuckRevision().Where(x => x.Id == m.Id && x.Current).ToList();
                     var node = nodes.Where(x => x.Variant.ToLower().Equals(apiHelper.UserVariant().ToLower())).FirstOrDefault() ?? nodes.FirstOrDefault();
                     if (node != null)
                     {

@@ -583,7 +583,7 @@ var highlightSection = function (href) {
     el.addClass("selected");
 }
 var handleHash = function (hash) {
-    if (/^#content/.test(hash)) {
+    if (/^#\/?content/.test(hash)) {
         highlightSection("#content");
         $(".left_item").hide();
         cleft.find(".left_content").show();
@@ -594,7 +594,7 @@ var handleHash = function (hash) {
             return;
         }
         displayMarkup(null, null, dict["variant"], undefined, dict["id"]);
-    } else if (/^#settings/.test(hash)) {
+    } else if (/^#\/?settings/.test(hash)) {
         highlightSection("#settings");
         //if (!canChangeMainContent())
         //    return false;
@@ -606,12 +606,12 @@ var handleHash = function (hash) {
         cleft.find(".left_settings a[href='"+hash+"']").addClass("current");
         showSettings(path);
         $(".menutop .settings").click();
-    } else if (/^#users/.test(hash)) {
+    } else if (/^#\/?users/.test(hash)) {
         highlightSection("#users");
         $(".left_item").hide();
         cleft.find(".left_users").show();
         showUsers();
-    } else if (/^#developer/.test(hash)) {
+    } else if (/^#\/?developer/.test(hash)) {
         highlightSection("#developer");
         $(".left_item").hide();
         cleft.find(".left_developer").show();

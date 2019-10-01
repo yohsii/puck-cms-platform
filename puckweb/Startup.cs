@@ -33,6 +33,7 @@ using SixLabors.ImageSharp.Web.Processors;
 using SixLabors.ImageSharp.Web.Middleware;
 using puck.core.Globalisation;
 using System.Globalization;
+using Microsoft.Extensions.FileProviders;
 
 namespace puckweb
 {
@@ -76,8 +77,10 @@ namespace puckweb
 
             PhysicalFileSystemProvider PhysicalProviderFactory(IServiceProvider provider)
             {
+                var env = provider.GetRequiredService<Microsoft.AspNetCore.Hosting.IHostingEnvironment>();
+                env.WebRootFileProvider = new PhysicalFileProvider(env.WebRootPath);
                 var p = new PhysicalFileSystemProvider(
-                    provider.GetRequiredService<Microsoft.AspNetCore.Hosting.IHostingEnvironment>(),
+                    env,
                     provider.GetRequiredService<FormatUtilities>())
                 {
                     Match = context =>
@@ -123,6 +126,7 @@ namespace puckweb
                     options.ContainerName = Configuration.GetValue<string>("AzureImageTransformer_ContainerName");
                 })
                 .AddProvider(PhysicalProviderFactory)
+                .AddProcessor<CropWebProcessor>()
                 .AddProcessor<ResizeWebProcessor>()
                 .AddProcessor<FormatWebProcessor>()
                 .AddProcessor<BackgroundColorWebProcessor>();
