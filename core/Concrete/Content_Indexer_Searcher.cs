@@ -69,15 +69,13 @@ namespace puck.core.Concrete
         private IConfiguration config = null;
         public bool CanWrite { get; set; } = true;
         public bool UseAzureDirectory { get; set; } = false;
-        public bool UseSyncDirectory { get; set; } = false;
         public IHostEnvironment env { get; set; }
         public Content_Indexer_Searcher(I_Log Logger,IConfiguration configuration,IHostEnvironment env) {
             this.logger = Logger;
             this.config = configuration;
             this.env = env;
             UseAzureDirectory = config.GetValue<bool?>("UseAzureDirectory") ?? false;
-            UseSyncDirectory = config.GetValue<bool?>("UseSyncDirectory") ?? false;
-            if ((UseAzureDirectory || UseSyncDirectory) && !config.GetValue<bool>("IsEditServer"))
+            if (UseAzureDirectory && !config.GetValue<bool>("IsEditServer"))
                 CanWrite = false;
 
             Ini();
@@ -96,13 +94,7 @@ namespace puck.core.Concrete
         }
         public void Ini()
         {
-            if (UseSyncDirectory)
-            {
-                var primaryDirectoryPath = ReplacePathTokens(config.GetValue<string>("SyncDirectoryPrimaryPath"));
-                var cacheDirectoryPath = ReplacePathTokens(config.GetValue<string>("SyncDirectoryCachePath"));
-                Directory = new SyncDirectory(primaryDirectoryPath,cacheDirectoryPath);
-            }
-            else if (UseAzureDirectory)
+            if (UseAzureDirectory)
             {
                 var azureBlobConnectionString = config.GetValue<string>("AzureDirectoryConnectionString");
                 var azureDirectoryCachePath = ReplacePathTokens(config.GetValue<string>("AzureDirectoryCachePath"));
@@ -127,7 +119,7 @@ namespace puck.core.Concrete
                 try
                 {
                     SetWriter(create);
-                    if (Writer != null && !UseAzureDirectory && !UseSyncDirectory) CloseWriter();
+                    if (Writer != null && !UseAzureDirectory) CloseWriter();
                     //Writer.Optimize();
                 }
                 catch (Lucene.Net.Store.LockObtainFailedException ex)
@@ -159,7 +151,7 @@ namespace puck.core.Concrete
         }
         public void CloseWriter()
         {
-            if (Writer != null && CanWrite && !UseAzureDirectory && !UseSyncDirectory)
+            if (Writer != null && CanWrite && !UseAzureDirectory)
             {
                 Writer.Dispose(false);
                 Writer = null;

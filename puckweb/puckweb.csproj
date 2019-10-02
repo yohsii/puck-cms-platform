@@ -1641,6 +1641,8 @@
     <PackageReference Include="MiniProfiler.AspNetCore.Mvc" Version="4.1.0" />
     <PackageReference Include="SixLabors.ImageSharp" Version="1.0.0-beta0007" />
     <PackageReference Include="SixLabors.ImageSharp.Drawing" Version="1.0.0-beta0007" />
+    <PackageReference Include="SixLabors.ImageSharp.Web" Version="1.0.0-beta0009" />
+    <PackageReference Include="SixLabors.ImageSharp.Web.Providers.Azure" Version="1.0.0-beta0009" />
     <PackageReference Include="WindowsAzure.Storage" Version="9.3.3" />
   </ItemGroup>
 
@@ -1653,8 +1655,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\core\core.csproj" />
-    <ProjectReference Include="..\ImageSharp.Web.Providers.Azure\ImageSharp.Web.Providers.Azure.csproj" />
-    <ProjectReference Include="..\ImageSharp.Web\ImageSharp.Web.csproj" />
   </ItemGroup>
 
 

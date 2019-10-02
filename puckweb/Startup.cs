@@ -34,7 +34,7 @@ using SixLabors.ImageSharp.Web.Middleware;
 using puck.core.Globalisation;
 using System.Globalization;
 using Microsoft.Extensions.FileProviders;
-
+using puck.core.ImageSharp.WebProcessors;
 namespace puckweb
 {
     public class Startup
