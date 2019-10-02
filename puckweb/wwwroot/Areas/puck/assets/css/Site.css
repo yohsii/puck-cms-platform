@@ -954,19 +954,41 @@ div.settings {
     /*
 .leftarea .node span.variant{display:none;}
 */
+@media only screen and (max-width:833px) and (min-width:768px){
+    .leftarea .left_item a {
+        margin-left: 0px!important;
+    }
+
+    .leftarea .left_item i {
+        display: block!important;
+    }
+}
+.leftarea .left_item li:hover {
+    background-color: #c7d1d6;
+}
+.leftarea .left_item li {
+    border-radius: 0.25rem;
+    padding:5px;
+}
     .leftarea .left_item a {
         margin-top: -3px;
+        margin-left:20px;
+        font-size:1rem;
     }
 
     .leftarea .left_content i {
         font-size: 16px !important;
     }
-
-    .leftarea .left_item i {
-        font-size: 21px;
-        vertical-align: sub;
-        display: inline;
-    }
+.leftarea .dropdown-menu i {
+    position: relative;
+    top: -4px;
+}
+.leftarea .left_item i {
+    font-size: 21px;
+    vertical-align: sub;
+    display: inline-block;
+    width: 20px;
+}
 
     .leftarea .node.selected > .inner {
         border-top: 1px solid #0088cc;
