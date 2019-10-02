@@ -84,22 +84,22 @@ $(document).on("click", "ul.content.templates li.node i.expand", function () {
 $(document).on("click", "ul.content:not(.templates) li.node i.expand", function () {
     //get children content
     var node = $(this).parents(".node:first");
-    var descendants = node.find("ul");
+    var descendants = node.find("ul:first");
     if (descendants.length > 0) {//show
         if (descendants.first().is(":hidden")) {
-            node.find("i.expand").removeClass("fa-chevron-right").addClass("fa-chevron-down");
+            node.find("i.expand:first").removeClass("fa-chevron-right").addClass("fa-chevron-down");
             descendants.show();
         } else {//hide
-            node.find("i.expand").removeClass("fa-chevron-down").addClass("fa-chevron-right");
+            node.find("i.expand:first").removeClass("fa-chevron-down").addClass("fa-chevron-right");
             descendants.hide();
         }
     } else {
         getDrawContent(node.attr("data-id"), node, true, function () {
             node.find(".loader").hide();
-            node.find("i.expand").show();
+            node.find("i.expand:first").show();
         });
         node.find(".loader").show();
-        node.find("i.expand").removeClass("fa-chevron-right").addClass("fa-chevron-down").hide();
+        node.find("i.expand:first").removeClass("fa-chevron-right").addClass("fa-chevron-down").hide();
     }
 });
 //node settings dropdown
