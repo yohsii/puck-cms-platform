@@ -66,18 +66,18 @@ $(".republish_entire_site").click(function () { republishEntireSite(); });
 $(document).on("click", "ul.content.templates li.node i.expand", function () {
     //get children content
     var node = $(this).parents(".node:first");
-    var descendants = node.find("ul");
+    var descendants = node.find("ul:first");
     if (descendants.length > 0) {//show
         if (descendants.first().is(":hidden")) {
-            node.find("i.expand").removeClass("fa-chevron-right").addClass("fa-chevron-down");
+            node.find("i.expand:first").removeClass("fa-chevron-right").addClass("fa-chevron-down");
             descendants.show();
         } else {//hide
-            node.find("i.expand").removeClass("fa-chevron-down").addClass("fa-chevron-right");
+            node.find("i.expand:first").removeClass("fa-chevron-down").addClass("fa-chevron-right");
             descendants.hide();
         }
     } else {
         getDrawTemplates(node.attr("data-path"), node);
-        node.find("i.expand").removeClass("fa-chevron-right").addClass("fa-chevron-down");
+        node.find("i.expand:first").removeClass("fa-chevron-right").addClass("fa-chevron-down");
     }
 });
 //content tree expand
