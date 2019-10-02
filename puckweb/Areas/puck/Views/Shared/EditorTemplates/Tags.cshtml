@@ -32,7 +32,7 @@
         {
             foreach (var m in Model.Where(x=>!string.IsNullOrEmpty(x)))
             {
-                <div class="selected_node" data-category="@settings.Category" data-tag="@m" data-tagLowerCase="@m.ToLower()">
+                <div class="selected_node" data-category="@settings.Category" data-tag="@m" data-tagLowerCase="@m.ToLower().Trim()">
                     <span>@m</span><i class="fas fa-trash"></i>
                 </div>
             }
@@ -84,7 +84,6 @@
         }
 
         var addTag = function (tag) {
-            debugger;
             if (selected_container.find("[data-tagLowerCase='" + tag.toLowerCase() + "']").length > 0) {
                 tagInput.val("");
                 container.find(".ui-autocomplete").hide();
