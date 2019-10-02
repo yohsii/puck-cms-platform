@@ -683,7 +683,7 @@ namespace puck.core.Controllers
             return Json(new { current = results, published = publishedContent, children = haveChildren });
         }
         [Authorize(Roles = PuckRoles.Puck, AuthenticationSchemes = Mvc.AuthenticationScheme)]
-        public dynamic ContentByParentId(Guid parentId = default(Guid), bool cast = true)
+        public ActionResult ContentByParentId(Guid parentId = default(Guid), bool cast = true)
         {
             //using path instead of p_path in the method sig means path won't be checked against user's start node - which we don't want for this method
             List<PuckRevision> resultsRev;

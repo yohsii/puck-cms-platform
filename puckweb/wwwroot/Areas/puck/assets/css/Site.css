@@ -963,8 +963,21 @@ div.settings {
         display: block!important;
     }
 }
+
+.leftarea .left_content li:hover {
+    background-color: #fff!important;
+}
+
+.leftarea .left_content li {
+    border-radius: 0!important;
+    padding: 2px 0px!important;
+}
+.leftarea .left_content i {
+    display: inline;
+    width: auto !important;
+}
 .leftarea .left_item li:hover {
-    background-color: #c7d1d6;
+background-color: #c7d1d6;
 }
 .leftarea .left_item li {
     border-radius: 0.25rem;
