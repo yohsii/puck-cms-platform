@@ -276,6 +276,12 @@ namespace puck.core.Concrete
                 .Where(x => x.Id == id && x.Variant.ToLower().Equals(variant.ToLower()) && (x.IsPublishedRevision || (x.HasNoPublishedRevision && x.Current)));
             return results.FirstOrDefault();
         }
+        public IQueryable<PuckRevision> PublishedOrCurrentRevisions(Guid id)
+        {
+            var results = repo.PuckRevision
+                .Where(x => x.Id == id && (x.IsPublishedRevision || (x.HasNoPublishedRevision && x.Current)));
+            return results;
+        }
         public void DeleteMeta(string name,string key,string value)
         {
             var metas = GetPuckMeta();

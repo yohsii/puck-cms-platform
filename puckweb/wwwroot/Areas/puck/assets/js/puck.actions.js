@@ -15,6 +15,8 @@ var dbcontent = [];
 var defaultLanguage = "en-gb";
 var userRoles = [];
 var languages;
+var languageSortDictionary = [];
+var rootLocalisations = [];
 var startPath;
 var startId;
 var newTemplateFolder = function (p) {
@@ -767,11 +769,16 @@ var displayMarkup = function (parentId, type, variant, fromVariant,contentId,con
         if (!type) {
             type = container.find("input[name=Type]").val();
         }
-
+        var path = container.find("input[name=Path]").val();
+        var rootPath = path.indexOf("/", 1) > -1 ? path.substr(0, path.indexOf("/", 1)) : path;
         var translations = $("<ul/>").addClass("translations");
         var node = cleft.find(".node[data-id='" + contentId + "']");
         if (node.length > 0) {
-            var dataTranslations = node.attr("data-variants").split(',');
+            var dataTranslations = node.attr("data-variants").split(',').sort(function (a, b) {
+                var aOrder = getVariantOrder(a, rootPath);
+                var bOrder = getVariantOrder(b, rootPath);
+                return aOrder - bOrder;
+            });
             if (dataTranslations.length > 1) {
                 for (var i = 0; i < dataTranslations.length; i++) {
                     (function () {
@@ -804,6 +811,11 @@ var displayMarkup = function (parentId, type, variant, fromVariant,contentId,con
         } else {
             if (contentId != null && contentId != undefined)
                 getVariantsForId(contentId, function (d) {
+                    d.sort(function (a, b) {
+                        var aOrder = getVariantOrder(a.Variant, rootPath);
+                        var bOrder = getVariantOrder(b.Variant, rootPath);
+                        return aOrder - bOrder;
+                    });
                     if (d.length > 1) {
                         for (var i = 0; i < d.length; i++) {
                             (function () {
@@ -1303,8 +1315,28 @@ var republishEntireSite = function () {
         });
     }
 }
+var getVariantOrder = function (variant,rootPath) {
+    var order = rootLocalisations[rootPath] == variant ? 0 : (languageSortDictionary[variant] || 100);
+    return order;
+}
+getContentByParentId("", function (res) {
+    var ids = "";
+    for (id in res.current) {
+        ids += id + ",";
+    }
+    if (ids)
+        ids = ids.substr(0, ids.length - 1);
+    getRootsLocalisations(ids, function (res) {
+        for (var i = 0; i < res.length; i++) {
+            rootLocalisations[res[i].path] = res[i].variant;
+        }
+    });
+}, true);
 getVariants(function (data) {
     languages = data;
+    for (var i = 0; i < languages.length; i++) {
+        languageSortDictionary[languages[i].Key] = i+1;
+    }
     if (languages.length == 0) {
         onAfterDom(function () {
             msg(0, "take a moment to setup puck. at the very least, choose your languages!");

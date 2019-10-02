@@ -474,7 +474,15 @@ cleft.find("ul.content").on("click", "li.node span.nodename", function () {
     if (!canChangeMainContent())
         return false;
     var node = $(this).parents(".node:first");
-    var firstVariant = node.attr("data-variants").split(",")[0];
+    var path = node.attr("data-path");
+    var rootPath = path.indexOf("/", 1) > -1 ? path.substr(0, path.indexOf("/", 1)) : path;
+    var variants = node.attr("data-variants").split(",");
+    variants.sort(function (a, b) {
+        var aOrder = getVariantOrder(a, rootPath);
+        var bOrder = getVariantOrder(b, rootPath);
+        return aOrder - bOrder;
+    });
+    var firstVariant = variants[0];
     location.hash = "#content?id=" + node.attr("data-id") + "&variant=" + firstVariant;
     //displayMarkup(null, node.attr("data-type"), firstVariant, undefined, node.attr("data-id"));
 });

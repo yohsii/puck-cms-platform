@@ -277,6 +277,18 @@ namespace puck.core.Controllers
             var model = apiHelper.PathLocalisation(p_path);
             return Json(model);
         }
+        [Authorize(Roles = PuckRoles.Puck, AuthenticationSchemes = Mvc.AuthenticationScheme)]
+        public JsonResult RootsLocalisations(string ids)
+        {
+            var guids = ids.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries).Select(x=>Guid.Parse(x));
+            var result = new List<dynamic>();
+            foreach (var guid in guids) {
+                var revision = repo.PublishedOrCurrentRevisions(guid).FirstOrDefault();
+                var variant = apiHelper.PathLocalisation(revision.Path);
+                result.Add(new {path=revision.Path.ToLower(),variant=variant });
+            }
+            return Json(result);
+        }
         [Authorize(Roles = PuckRoles.Localisation, AuthenticationSchemes = Mvc.AuthenticationScheme)]
         [HttpPost]
         public JsonResult Localisation(string p_path, string variant)

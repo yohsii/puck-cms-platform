@@ -55,6 +55,7 @@ namespace puck.core.Abstract
         PuckRevision CurrentRevision(Guid id, string variant);
         PuckRevision PublishedRevision(Guid id,string variant);
         PuckRevision PublishedOrCurrentRevision(Guid id,string variant);
+        IQueryable<PuckRevision> PublishedOrCurrentRevisions(Guid id);
         void SaveChanges();        
     }
 }
