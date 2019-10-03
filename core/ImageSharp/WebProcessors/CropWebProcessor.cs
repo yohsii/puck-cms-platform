@@ -51,7 +51,6 @@ namespace puck.core.ImageSharp.WebProcessors
                 var height = image.Image.Height - y - (bottom * image.Image.Height);
                 var rect = new Rectangle((int)x, (int)y, (int)width, (int)height);
                 image.Image.Mutate(m => m.Crop(rect));
-                return image;
             }
             return image;
         }
