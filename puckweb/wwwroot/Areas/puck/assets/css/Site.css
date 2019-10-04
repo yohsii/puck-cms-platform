@@ -959,7 +959,7 @@ div.settings {
         margin-left: 0px!important;
     }
 
-    .leftarea .left_item i {
+    .leftarea .left_item.left_settings i {
         display: block!important;
     }
 }

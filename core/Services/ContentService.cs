@@ -277,6 +277,12 @@ namespace puck.core.Services
                 {
                     if (ids[i].Equals(n.Id))
                     {
+                        if (!n.IsPublishedRevision) {
+                            var publishedRevision = repo.PublishedRevision(n.Id, n.Variant);
+                            if (publishedRevision != null) {
+                                publishedRevision.SortOrder = i;
+                            }
+                        }
                         n.SortOrder = i;
                     }
                 }
