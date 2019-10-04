@@ -45,6 +45,7 @@
                         <li class="dropdown-item"><a href="#" data-action="localisation" data-permission="_localisation"><i class="fas fa-plane"></i> Localisation</a></li>
                         <li class="dropdown-item"><a href="#" data-action="move" data-permission="_move"><i class="fas fa-arrows-alt"></i> Move</a></li>
                         <li class="dropdown-item"><a href="#" data-action="copy" data-permission="_copy"><i class="fas fa-copy"></i> Copy</a></li>
+                        <li class="dropdown-item"><a href="#" data-action="sort" data-permission="_puck"><i class="fas fa-sort"></i> Sort</a></li>
                         <li class="dropdown-item"><a href="#" data-action="changetype" data-permission="_changetype"><i class="fas fa-edit"></i> Change Type</a></li>
                         <li class="dropdown-item"><a href="#" data-action="domain" data-permission="_domain"><i class="fas fa-globe"></i> Domain</a></li>
                         <li class="dropdown-item"><a href="#" data-action="revert" data-permission="_revert"><i class="fas fa-backward"></i> Revert</a></li>
@@ -116,12 +117,12 @@
         <div class="users-container">
             <div class="userstop">
                 <button class="create btn btn-link"><i class="fas fa-plus-circle"></i>&nbsp;new user</button>
-                <input class="usersearch" type="text" placeholder="filter name" /> 
+                <input class="usersearch" type="text" placeholder="filter name" />
                 <button class="hide usersearch btn btn-link">search</button>
             </div>
             <div class="userlist col-12">
                 <div class="row">
-                    
+
                 </div>
             </div>
         </div>
@@ -137,7 +138,7 @@
                         <option value="">All</option>
                         @foreach (var m in apiHelper.AllModels())
                         {
-                            <option value="@m.AssemblyQualifiedName">@m.Name</option>
+                        <option value="@m.AssemblyQualifiedName">@m.Name</option>
                         }
                     </select>
                 </div>
@@ -184,6 +185,17 @@
                 <div>
                     <button class='btn btn-link'>Submit</button>
                 </div>
+            </div>
+        </div>
+        <div class="tree_container sort">
+            <div class="msg"></div>
+            <div class="error"></div>
+            <ul class="content nomenu redirect">
+                <li class="node root" data-children_path="/"></li>
+            </ul>
+            <div>
+                <button class="btn btn-link float-right">submit</button>
+                <img class="d-none float-right mt-1" src='/areas/puck/assets/img/ajax-loader.gif' />
             </div>
         </div>
         <div class="tree_container copy">

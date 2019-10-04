@@ -963,9 +963,21 @@ div.settings {
         display: block!important;
     }
 }
+.tree_container.sort .node i{
+    display:none;
+}
+.tree_container.sort .root.node{
+    padding-left:20px;
+}
+.tree_container.sort .root li:nth-child(odd) {
+    background: #f7f7f7 !important;
+}
+.overlay_screen .tree_container.sort .node > .inner:hover {
+    background-color: unset;
+}
 
 .leftarea .left_content li:hover {
-    background-color: #fff!important;
+    background-color: #fff !important;
 }
 
 .leftarea .left_content li {

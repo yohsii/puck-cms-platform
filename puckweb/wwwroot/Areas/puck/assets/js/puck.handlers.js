@@ -166,6 +166,12 @@ $(document).on("click", "ul.content li.node i.menu", function (e) {
         dropdown.find("a[data-action='copy']").parents("li").hide();
     else
         dropdown.find("a[data-action='copy']").parents("li").show();
+    //filter sort - disallow when 0 children
+    if (node.attr("data-has_children")=="false")
+        dropdown.find("a[data-action='sort']").parents("li").hide();
+    else
+        dropdown.find("a[data-action='sort']").parents("li").show();
+
     //filter menu items according to permissions -- ie can user access option
     dropdown.find("a[data-action]").each(function () {
         var permission = $(this).attr("data-permission");
@@ -380,6 +386,37 @@ $(document).on("click",".node-dropdown a,.template-dropdown a",function () {
                         msg(false, d.message);
                     }
                     overlayClose();
+                });
+            });
+            break;
+        case "sort":
+            var markup = $(".interfaces .tree_container.sort").clone();
+            var el = markup.find(".node:first");
+            var overlayEl = overlay(markup, 400, undefined, undefined, "Sort Content");
+            overlayEl.find(".msg").html("drag to sort children of content <b>" + node.attr("data-nodename") + "</b>");
+            getDrawContent(node.attr("data-id"), el, false, function () {
+                el.find("ul:first").sortable({axis:"y"});
+            });
+            overlayEl.find("button").click(function (e) {
+                var btn = $(this);
+                btn.attr("disabled", "disabled");
+                overlayEl.find("img").removeClass("d-none");
+                var parent = el;
+                var sortParentId = node.attr("data-id");
+                var items = [];
+                parent.find("li.node").each(function () {
+                    items.push($(this).attr("data-id"));
+                });
+                sortNodes(sortParentId, items, function (res) {
+                    if (res.success) {
+                        msg(true,"sort complete")
+                        getDrawContent(node.attr("data-id"));
+                        overlayClose();
+                    } else {
+                        msg(false, res.message);
+                        btn.removeAttr("disabled");
+                        overlayEl.find("img").addClass("d-none");
+                    }
                 });
             });
             break;

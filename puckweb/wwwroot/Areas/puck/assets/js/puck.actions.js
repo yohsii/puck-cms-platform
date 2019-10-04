@@ -658,8 +658,11 @@ var getDrawContent = function (id, el, sortable, f) {
         draw(data.current, el, sortable);
         el.find(".node").each(function () {
             var n = $(this);
-            if (!haveChildren[n.attr("data-id")])
+            if (!haveChildren[n.attr("data-id")]) {
                 n.find(".expand").css({ visibility: "hidden" });
+                n.attr("data-has_children", "false");
+            } else
+                n.attr("data-has_children", "true");
         });
         if (f != undefined)
             f();
