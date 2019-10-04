@@ -6,25 +6,28 @@
 <div class="cachepolicy cachepolicy_@ViewData.ModelMetadata.PropertyName">
     @{
         var models = apiHelper.AllModels(true);
-        <table>
-            <tr>
-                <td>Model Type</td>
-                <td>Cache Minutes</td>
-                <td></td>
-            </tr>
-            <tr>
-                <td>
-                    <select>
-                        @foreach (var m in models)
-                        {
-                            <option value="@m.Name">@ApiHelper.FriendlyClassName(ApiHelper.ConcreteType(m))</option>
-                        }
-                    </select>
-                </td>
-                <td><input type="number" class="minutes mt-2" /></td>
-                <td><button class="btn btn-light">set</button></td>
-            </tr>
-        </table>
+        <div class="row">
+            <div class="col-md-3">
+                <label>Model Type</label>
+                <select class="w-100">
+                    @foreach (var m in models)
+                    {
+                    <option value="@m.Name">@ApiHelper.FriendlyClassName(ApiHelper.ConcreteType(m))</option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label>Cache Minutes</label>
+                <input type="number" class="minutes w-100" />
+            </div>
+            <div class="col-md-3">
+                <br/>
+                <button class="btn btn-light mt-md-2">
+                    set
+                </button>
+            </div>
+        </div>    
+    
         <table>
             <tr><td>Model Type</td><td>Cache Minutes</td></tr>
             @foreach (var m in Model)
