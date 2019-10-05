@@ -613,10 +613,10 @@ namespace puck.core.Services
                 cmeta.ForEach(x => { repo.DeleteMeta(x); });
                 nmeta.ForEach(x => { repo.DeleteMeta(x); });
             }
+            repo.SaveChanges();
             StateHelper.UpdateDomainMappings(true);
             StateHelper.UpdatePathLocaleMappings(true);
             AddAuditEntry(id, variant ?? "", AuditActions.Delete, notes, userName);
-            repo.SaveChanges();
         }
         public string GetLiveOrCurrentPath(Guid id)
         {
@@ -634,6 +634,7 @@ namespace puck.core.Services
                     throw new Exception("could not find parent node");
                 var slug = ApiHelper.Slugify(name);
                 instance.Path = $"{parent.Path}/";
+                instance.ParentId = parentId;
             }
             else
                 instance.Path = $"/";
