@@ -668,7 +668,8 @@ var getDrawContent = function (id, el, sortable, f) {
             f();
     });
 }
-var draw = function (data, el, sortable) {
+var draw = function (data, el, sortable, renderVariantLinks) {
+    renderVariantLinks = renderVariantLinks || false;
     var str = "";
     var toAppend = $("<ul/>");
     for (var p in data) {//ids as keys
@@ -696,13 +697,17 @@ var draw = function (data, el, sortable) {
         elinner.append($("<img/>").attr({"class":"loader", "src": "/areas/puck/assets/img/tree-loader.gif" }).hide());
         elinner.append($("<i class=\"fas fa-chevron-right expand\"></i>"))
         elinner.append($("<i class=\"fas fa-cog menu\"></i>"))
-                .append("<span class='nodename'>" + node.NodeName + "&nbsp;" + "</span>");
+            .append("<span class='nodename'>" + node.NodeName + (!renderVariantLinks ? "&nbsp;" : "") + "</span>");
         for (var i = 0; i < variants.length; i++) {
-            var vel = $("<span class=\"variant\"/>").attr("data-variant", variants[i]).html(variants[i] + "&nbsp;");
+            var a = $('<a class="variantLink" href="#content?id=' + node.Id + '&variant=' + variants[i] + '"/>');
+            var vel = $("<span class=\"variant\"/>").attr("data-variant", variants[i]).html(variants[i] + (!renderVariantLinks?"&nbsp;":""));
             if (publishedContent[node.Id] != undefined && publishedContent[node.Id][variants[i]] != undefined) {
                 vel.addClass("published");
             }
-            elinner.append(vel);
+            if (renderVariantLinks) {
+                a.append(vel);
+                elinner.append(a);
+            } else elinner.append(vel);
         }
         elnode.attr({
             "data-type_chain": typeFromChain(node.TypeChain)
