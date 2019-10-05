@@ -637,7 +637,8 @@ var drawTemplates = function (data, el, sortable) {
     el.append(toAppend);
 }
 
-var getDrawContent = function (id, el, sortable, f) {
+var getDrawContent = function (id, el, sortable, f, renderVariantLinks) {
+    renderVariantLinks = renderVariantLinks || false;
     if (el == undefined) {
         el = cleft.find(".node[data-id='" + id + "']");
     }
@@ -655,7 +656,7 @@ var getDrawContent = function (id, el, sortable, f) {
         for (var i = 0; i < data.children.length; i++) {
             haveChildren[data.children[i]] = true;
         }
-        draw(data.current, el, sortable);
+        draw(data.current, el, sortable, renderVariantLinks);
         el.find(".node").each(function () {
             var n = $(this);
             if (!haveChildren[n.attr("data-id")]) {
@@ -1360,7 +1361,7 @@ getStartId(function (id) {
         cleft.find(".startpath").html(d);
         $(".interfaces .tree_container ul.content .node").attr("data-children_path", startPath);
     });
-    getDrawContent(id, undefined, true);
+    getDrawContent(id, undefined, true,undefined,true);
 });
 
 

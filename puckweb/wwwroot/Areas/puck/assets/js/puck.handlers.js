@@ -97,7 +97,7 @@ $(document).on("click", "ul.content:not(.templates) li.node i.expand", function 
         getDrawContent(node.attr("data-id"), node, true, function () {
             node.find(".loader").hide();
             node.find("i.expand:first").show();
-        });
+        },true);
         node.find(".loader").show();
         node.find("i.expand:first").removeClass("fa-chevron-right").addClass("fa-chevron-down").hide();
     }
