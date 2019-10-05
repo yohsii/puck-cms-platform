@@ -621,11 +621,26 @@ var getHashValues = function (hash) {
     }
     return dict;
 }
-var highlightSection = function (href) {
+var highlightSection = function (href,id) {
     $(".menutop li").removeClass("selected");
-    var anchor = $(".menutop a[href='" + href + "']");
+    var anchor;
+    if (href)
+        anchor = $(".menutop a[href='" + href + "']");
+    else if (id)
+        anchor = $(".menutop a#" + id);
+    else return;
     var el = anchor.parent();
     el.addClass("selected");
+}
+var showCustomSection = function (id) {
+    var hash = location.hash;
+    highlightSection(undefined,id);
+    $(".left_item").hide();
+    cleft.find(".left_item."+id).show();
+    var dict = getHashValues(hash);
+    cleft.find(".left_item."+id+" a").removeClass("current");
+    cleft.find(".left_item."+id+" a[href='" + hash + "']").addClass("current");
+    return dict;
 }
 var handleHash = function (hash) {
     if (/^#\/?content/.test(hash)) {
@@ -648,7 +663,7 @@ var handleHash = function (hash) {
         var dict = getHashValues(hash);
         var path = dict["path"];
         cleft.find(".left_settings a").removeClass("current");
-        cleft.find(".left_settings a[href='"+hash+"']").addClass("current");
+        cleft.find(".left_settings a[href='" + hash + "']").addClass("current");
         showSettings(path);
         $(".menutop .settings").click();
     } else if (/^#\/?users/.test(hash)) {
@@ -661,6 +676,29 @@ var handleHash = function (hash) {
         $(".left_item").hide();
         cleft.find(".left_developer").show();
         showTasks();
+    } else {
+        if (window.puckCustomHashHandler)
+            puckCustomHashHandler(hash);
+    }
+}
+var loadCustomSections = function () {
+    if (window.puckCustomSections && puckCustomSections.constructor === Array) {
+        var customSectionStr = "";
+        for (var i = 0; i < puckCustomSections.length; i++) {
+            var customSection = puckCustomSections[i];
+            customSectionStr += '<li><a title="' + customSection.title + '" class="' + customSection.id + '" id="' + customSection.id + '" href="' + customSection.hash + '">'
+                + '<i class="' + customSection.iconClasses + '"></i></a></li >'
+            if (customSection.leftItems && customSection.leftItems.constructor === Array) {
+                var leftSection = $("<div/>").addClass("left_item").addClass(customSection.id).appendTo(".leftarea");
+                leftSection.append('<ul data-dropdown="node-dropdown" class="'+customSection.id+' p-0"></ul>');
+                for (var j = 0; j < customSection.leftItems.length; j++) {
+                    var leftItem = customSection.leftItems[j];
+                    var nodeStr = '<li class="node"><i class="' + leftItem.iconClasses + '"></i><a href="' + leftItem.hash + '" class="">' + leftItem.title + '</a></li>';
+                    leftSection.find("ul").append(nodeStr);
+                }
+            }
+        }
+        $(".menutop ul li.last").after(customSectionStr);
     }
 }
 function getQueryString(name, url) {
@@ -673,6 +711,7 @@ function getQueryString(name, url) {
     return decodeURIComponent(results[2].replace(/\+/g, ' '));
 }
 $(window).load(function () {
+    loadCustomSections();
     var hash = getQueryString("hash");
     //console.log("hashQs",hash);
     if (!hash) return;
