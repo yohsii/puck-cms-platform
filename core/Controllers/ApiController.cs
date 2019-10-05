@@ -652,7 +652,8 @@ namespace puck.core.Controllers
         public ActionResult Search(string q, string type, string root)
         {
             var model = DoSearch(q, type, root);
-            return Json(model);
+            var resultStr = JsonConvert.SerializeObject(model);
+            return base.Content(resultStr,"application/json");
         }
         [Authorize(Roles = PuckRoles.Puck, AuthenticationSchemes = Mvc.AuthenticationScheme)]
         public JsonResult VariantsForNode(string path) {
@@ -693,6 +694,29 @@ namespace puck.core.Controllers
             var qh = new QueryHelper<BaseModel>();
             var publishedContent = qh.Directory(p_path).GetAll().GroupByPath();
             return Json(new { current = results, published = publishedContent, children = haveChildren });
+        }
+        [Authorize(Roles = PuckRoles.Puck, AuthenticationSchemes = Mvc.AuthenticationScheme)]
+        public BaseModel GetCurrentModel(Guid id,string variant=null)
+        {
+            BaseModel model;
+            if (string.IsNullOrEmpty(variant))
+                model = repo.GetPuckRevision().Where(x => x.Id == id && x.Current).FirstOrDefault()?.ToBaseModel();
+            else
+                model = repo.CurrentRevision(id, variant)?.ToBaseModel();
+            return model;
+        }
+        [Authorize(Roles = PuckRoles.Puck, AuthenticationSchemes = Mvc.AuthenticationScheme)]
+        public ActionResult GetModels(string ids)
+        {
+            var guids = ids.Split(new char[] { ','},StringSplitOptions.RemoveEmptyEntries).Select(x=>Guid.Parse(x));
+            var models = new List<BaseModel>();
+            foreach (var guid in guids) {
+                var model = GetCurrentModel(guid);
+                if (model != null)
+                    models.Add(model);
+            }
+            var jsonStr = JsonConvert.SerializeObject(models);
+            return base.Content(jsonStr, "application/json");
         }
         [Authorize(Roles = PuckRoles.Puck, AuthenticationSchemes = Mvc.AuthenticationScheme)]
         public ActionResult ContentByParentId(Guid parentId = default(Guid), bool cast = true)

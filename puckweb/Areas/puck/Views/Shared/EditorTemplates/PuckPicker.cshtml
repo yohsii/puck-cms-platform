@@ -1,8 +1,6 @@
 ﻿@using puck.core.Abstract.EditorSettings
 @using puck.core.Models.EditorSettings
 @using puck.core.Models.EditorSettings.Attributes
-@inject I_Api_Helper apiHelper;
-@inject puck.core.Abstract.I_Puck_Repository repo;
 @model List<puck.core.Models.PuckPicker>
 @{
 
@@ -43,27 +41,20 @@
             {
                 if (!string.IsNullOrEmpty(m.Variant))
                 {
-                    var node = repo.GetPuckRevision().Where(x => x.Id == m.Id && x.Variant.ToLower().Equals(m.Variant.ToLower()) && x.Current).FirstOrDefault();
-                    if (node != null)
-                    {
-                        <div class="selected_node" data-nodename="@node.NodeName" data-variant="@m.Variant" data-id="@m.Id">
-                            <span>@node.NodeName</span> - <span class="v">@m.Variant</span>
-                            <span class="view">View</span>
-                            &nbsp;<i class='fas fa-minus-circle'></i>
-                        </div>
-                    }
+                    <div class="selected_node" data-nodename="" data-variant="@m.Variant" data-id="@m.Id">
+                        <span class="nname"></span> - <span class="v">@m.Variant</span>
+                        <span class="view">View</span>
+                        &nbsp;<i class='fas fa-minus-circle'></i>
+                    </div>
+                    
                 }
                 else
                 {
-                    var nodes = repo.GetPuckRevision().Where(x => x.Id == m.Id && x.Current).ToList();
-                    var node = nodes.Where(x => x.Variant.ToLower().Equals(apiHelper.UserVariant().ToLower())).FirstOrDefault() ?? nodes.FirstOrDefault();
-                    if (node != null)
-                    {
-                        <div class="selected_node" data-variant="null" data-id="@m.Id">
-                            <span>@node.NodeName</span>&nbsp;
-                            <i class='fas fa-minus-circle'></i>
-                        </div>
-                    }
+                    <div class="selected_node" data-variant="null" data-id="@m.Id">
+                        <span class="nname"></span>&nbsp;
+                        <i class='fas fa-minus-circle'></i>
+                    </div>
+                    
                 }
             }
         }
@@ -110,6 +101,22 @@
             });
         }
         setValue();
+        var loadData = function () {
+            var ids = "";
+            selected_container.find(".selected_node").each(function () {
+                ids += $(this).attr("data-id")+",";
+            });
+            if (!ids)
+                return;
+            getContentModels(ids, function (res) {
+                for (var i = 0; i < res.length; i++) {
+                    var el = selected_container.find(".selected_node[data-id='" + res[i].Id + "']");
+                    el.attr("data-nodenamme", res[i].NodeName);
+                    el.find(".nname").html(res[i].NodeName);
+                }
+            });
+        }
+        loadData();
         el = container.find(".node:first");
         getDrawContent(_startId, el);
         selected_container.on("click", "i", function (e) {

@@ -1,4 +1,7 @@
-﻿var getRootsLocalisations = function (ids, f) {
+﻿var getContentModels = function (ids, f) {
+    $.get("/puck/api/getModels?ids=" + ids, f);
+};
+var getRootsLocalisations = function (ids, f) {
     $.get("/puck/api/rootsLocalisations?ids=" + ids, f);
 };
 var getModels = function (path, f) {

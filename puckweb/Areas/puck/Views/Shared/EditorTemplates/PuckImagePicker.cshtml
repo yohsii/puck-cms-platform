@@ -1,8 +1,6 @@
 ﻿@using puck.core.Abstract.EditorSettings
 @using puck.core.Models.EditorSettings
 @using puck.core.Models.EditorSettings.Attributes
-@inject I_Api_Helper apiHelper;
-@inject puck.core.Abstract.I_Puck_Repository repo;
 @model List<puck.core.Models.PuckPicker>
 @{
     I_Puck_Image_Picker_Settings settings = this.PuckEditorSettings<PuckImagePickerEditorSettingsAttribute>();
@@ -40,24 +38,19 @@
             {
                 if (!string.IsNullOrEmpty(m.Variant))
                 {
-                    var node = repo.GetPuckRevision().Where(x => x.Id == m.Id && x.Variant.ToLower().Equals(m.Variant.ToLower()) && x.Current).FirstOrDefault();
-                    if (node != null)
-                    {
-                        var mod = node.ToBaseModel() as puckweb.ViewModels.ImageVM;
-                        <div data-id="@node.Id" data-variant="@node.Variant" data-nodename="@node.NodeName" class="item col-md-2">
-                            <div class="actionContainer">
-                                <i class="fas fa-pen view"></i>
-                                <i class="fas fa-trash remove"></i>
-                            </div>
-                            <div class="imageContainer">
-                                <img src="@mod.Image.Path" />
-                            </div>
-                            <div class="metaContainer">
-                                <span class="nodename">@node.NodeName</span>
-                                - <span class="variant">@node.Variant</span>
-                            </div>
+                    <div data-id="@m.Id" data-variant="@m.Variant" data-nodename="" class="item col-md-2">
+                        <div class="actionContainer">
+                            <i class="fas fa-pen view"></i>
+                            <i class="fas fa-trash remove"></i>
                         </div>
-                    }
+                        <div class="imageContainer">
+                            <img src="" />
+                        </div>
+                        <div class="metaContainer">
+                            <span class="nodename"></span>
+                            - <span class="variant">@m.Variant</span>
+                        </div>
+                    </div>
                 }
             }
         }
@@ -121,6 +114,22 @@
             });
         }
         setValue();
+        var loadData = function () {
+            var ids = "";
+            selected_container.find(".item").each(function () {
+                ids += $(this).attr("data-id")+",";
+            });
+            if (!ids) return;
+            getContentModels(ids, function (res) {
+                for (var i = 0; i < res.length; i++) {
+                    var el = selected_container.find(".item[data-id='" + res[i].Id + "']");
+                    el.attr("data-nodenamme", res[i].NodeName);
+                    el.find(".nodename").html(res[i].NodeName);
+                    el.find("img").attr("src",res[i].Image.Path);
+                }
+            });
+        }
+        loadData();
         var overlayEl = null;
         container.find(".addImage").click(function (e) {
             if (selected_container.find(".item").length >= maxPick) {
