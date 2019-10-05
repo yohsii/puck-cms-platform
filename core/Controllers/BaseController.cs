@@ -168,7 +168,7 @@ namespace puck.core.Controllers
             {
                 foreach (var entry in PuckCache.PathToLocale)
                 {
-                    if (searchPath.StartsWith(entry.Key))
+                    if ((searchPath+"/").StartsWith(entry.Key+"/"))
                     {
                         variant = entry.Value;
                         break;

@@ -103,6 +103,14 @@
     <script src="~/areas/puck/assets/js/require.js"></script>
 
     <script>
+        if (!String.prototype.startsWith) {
+            Object.defineProperty(String.prototype, 'startsWith', {
+                value: function(search, rawPos) {
+                    var pos = rawPos > 0 ? rawPos|0 : 0;
+                    return this.substring(pos, pos + search.length) === search;
+                }
+            });
+        }
         $.widget("custom.autocompleteWithRemove", $.ui.autocomplete, {
             _renderItem: function( ul, item ) {
                 var el =$("<li>")

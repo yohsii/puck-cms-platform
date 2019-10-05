@@ -515,8 +515,8 @@ cleft.find("ul.content").on("click", "li.node span.nodename", function () {
     var rootPath = path.indexOf("/", 1) > -1 ? path.substr(0, path.indexOf("/", 1)) : path;
     var variants = node.attr("data-variants").split(",");
     variants.sort(function (a, b) {
-        var aOrder = getVariantOrder(a, rootPath);
-        var bOrder = getVariantOrder(b, rootPath);
+        var aOrder = getVariantOrder(a, path);
+        var bOrder = getVariantOrder(b, path);
         return aOrder - bOrder;
     });
     var firstVariant = variants[0];

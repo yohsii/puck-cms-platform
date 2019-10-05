@@ -784,8 +784,8 @@ var displayMarkup = function (parentId, type, variant, fromVariant,contentId,con
         var node = cleft.find(".node[data-id='" + contentId + "']");
         if (node.length > 0) {
             var dataTranslations = node.attr("data-variants").split(',').sort(function (a, b) {
-                var aOrder = getVariantOrder(a, rootPath);
-                var bOrder = getVariantOrder(b, rootPath);
+                var aOrder = getVariantOrder(a, path);
+                var bOrder = getVariantOrder(b, path);
                 return aOrder - bOrder;
             });
             if (dataTranslations.length > 1) {
@@ -821,8 +821,8 @@ var displayMarkup = function (parentId, type, variant, fromVariant,contentId,con
             if (contentId != null && contentId != undefined)
                 getVariantsForId(contentId, function (d) {
                     d.sort(function (a, b) {
-                        var aOrder = getVariantOrder(a.Variant, rootPath);
-                        var bOrder = getVariantOrder(b.Variant, rootPath);
+                        var aOrder = getVariantOrder(a.Variant, path);
+                        var bOrder = getVariantOrder(b.Variant, path);
                         return aOrder - bOrder;
                     });
                     if (d.length > 1) {
@@ -986,7 +986,7 @@ var displayMarkup = function (parentId, type, variant, fromVariant,contentId,con
                 var pnode = cleft.find(".node[data-id='" + data.parentId + "']");
                 //pnode.find(".expand:first").removeClass("fa-chevron-right").addClass("fa-chevron-down").css({ visibility: "visible" });
                 displayMarkup(null, type, variant,undefined,data.id,container,msgContainer);
-            });
+            },true);
         }, function (data) {
             container.find(".submitLoader").remove();
             container.find(".content_btns").removeAttr("disabled");
@@ -1324,23 +1324,34 @@ var republishEntireSite = function () {
         });
     }
 }
-var getVariantOrder = function (variant,rootPath) {
-    var order = rootLocalisations[rootPath] == variant ? 0 : (languageSortDictionary[variant] || 100);
+var getVariantOrder = function (variant, path) {
+    var variantIsPathLocaleSetting = false;
+    var localeSettingForPath;
+    for (currentPath in pathToLocale) {
+        if ((path + "/").startsWith(currentPath + "/")) {
+            localeSettingForPath = pathToLocale[currentPath];
+            break;
+        }
+    }
+    if (localeSettingForPath == variant)
+        variantIsPathLocaleSetting = true;
+    //var order = rootLocalisations[rootPath] == variant ? 0 : (languageSortDictionary[variant] || 100);
+    var order = variantIsPathLocaleSetting ? 0 : (languageSortDictionary[variant] || 100);
     return order;
 }
-getContentByParentId("", function (res) {
-    var ids = "";
-    for (id in res.current) {
-        ids += id + ",";
-    }
-    if (ids)
-        ids = ids.substr(0, ids.length - 1);
-    getRootsLocalisations(ids, function (res) {
-        for (var i = 0; i < res.length; i++) {
-            rootLocalisations[res[i].path] = res[i].variant;
-        }
-    });
-}, true);
+//getContentByParentId("", function (res) {
+//    var ids = "";
+//    for (id in res.current) {
+//        ids += id + ",";
+//    }
+//    if (ids)
+//        ids = ids.substr(0, ids.length - 1);
+//    getRootsLocalisations(ids, function (res) {
+//        for (var i = 0; i < res.length; i++) {
+//            rootLocalisations[res[i].path] = res[i].variant;
+//        }
+//    });
+//}, true);
 getVariants(function (data) {
     languages = data;
     for (var i = 0; i < languages.length; i++) {
