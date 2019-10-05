@@ -102,6 +102,13 @@ namespace puck.core.Helpers
                             {
                                 searcher.SetSearcher();
                             }
+                            if (instruction.InstructionKey == InstructionKeys.Delete)
+                            {
+                                var qh = new QueryHelper<BaseModel>(prependTypeTerm: false);
+                                qh.SetQuery(instruction.InstructionDetail);
+                                var models = qh.GetAll(limit:int.MaxValue);
+                                Indexer.Delete(models);
+                            }
                             if (instruction.InstructionKey == InstructionKeys.RepublishSite)
                             {
                                 if (!PuckCache.IsRepublishingEntireSite)

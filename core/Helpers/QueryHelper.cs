@@ -432,7 +432,9 @@ namespace puck.core.Helpers
                 //this.And().Field(x => x.TypeChain, typeof(TModel).Name.Wrap()).And().Field(x => x.Published, "true");
             }
         }
-
+        public void SetQuery(string query) {
+            this.query = query;
+        }
         public QueryHelper<TModel> New() {
             return new QueryHelper<TModel>(prependTypeTerm: false);
         }
@@ -805,10 +807,12 @@ namespace puck.core.Helpers
                     .Path(path.ToLower() + "/".WildCardMulti() + "/*");
             return this;
         }
-        public QueryHelper<TModel> Descendants(string path)
+        public QueryHelper<TModel> Descendants(string path,bool must=true)
         {
             TrimAnd();
-            this.And()
+            if (must)
+                this.And();
+            this
                 //.Field(x => x.Path, path.ToLower() + "/".WildCardMulti());
                 .Path(path.ToLower() + "/".WildCardMulti());
             return this;

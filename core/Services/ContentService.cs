@@ -527,23 +527,34 @@ namespace puck.core.Services
                 userName = HttpContext.Current.User.Identity.Name;
             string notes = "";
             //remove from index
-            var qh = new QueryHelper<BaseModel>();
+            var qh = new QueryHelper<BaseModel>(prependTypeTerm:false);
             qh.ID(id);
             if (!string.IsNullOrEmpty(variant))
                 qh.And().Field(x => x.Variant, variant);
             var toDelete = qh.GetAll();
-
+            var addDescendants = false;
             var variants = new List<BaseModel>();
             if (toDelete.Count > 0)
             {
                 variants = toDelete.First().Variants<BaseModel>();
                 if (variants.Count == 0 || string.IsNullOrEmpty(variant))
                 {
-                    var descendants = toDelete.First().Descendants<BaseModel>();
-                    toDelete.AddRange(descendants);
+                    addDescendants = true;
+                    //var descendants = toDelete.First().Descendants<BaseModel>();
+                    //toDelete.AddRange(descendants);
                 }
             }
-            indexer.Delete(toDelete);
+            var deleteQuery = new QueryHelper<BaseModel>(prependTypeTerm: false);
+            var innerQ = deleteQuery.New().ID(id);
+            if (!string.IsNullOrEmpty(variant))
+                innerQ.And().Field(x => x.Variant, variant);
+            deleteQuery.Group(
+                innerQ
+            );
+            if (addDescendants)
+                deleteQuery.Descendants(toDelete.First().Path, must: false);
+
+            //indexer.Delete(deleteQuery.ToString());
             var cancelled = new List<BaseModel>();
             //remove from repo
             var repoItemsQ = repo.GetPuckRevision().Where(x => x.Id == id && x.Current);
@@ -556,7 +567,7 @@ namespace puck.core.Services
                 repoVariants = repo.CurrentRevisionVariants(repoItems.First().Id, repoItems.First().Variant).ToList();
                 if (repoVariants.Count == 0 || string.IsNullOrEmpty(variant))
                 {
-                    var descendants = repo.CurrentRevisionDescendants(repoItems.First().Path).ToList();
+                    var descendants = repo.CurrentRevisionDescendants(repoItems.First().IdPath).ToList();
                     repoItems.AddRange(descendants);
                     if (descendants.Any())
                         notes = $"{descendants.Count} descendant items also deleted";
@@ -564,15 +575,18 @@ namespace puck.core.Services
             }
             repoItems.ForEach(x =>
             {
-                var args = new BeforeIndexingEventArgs() { Node = x, Cancel = false };
+                var args = new BeforeIndexingEventArgs() { Node = x.ToBaseModel(), Cancel = false };
                 OnBeforeDelete(this, args);
                 if (args.Cancel)
                 {
                     cancelled.Add(x);
                     return;
                 }
+                toDelete.Add(args.Node);
                 repo.DeleteRevision(x);
             });
+            repo.SaveChanges();
+            indexer.Delete(toDelete);
             repoItems
                     .Where(x => !cancelled.Contains(x))
                     .ToList()
@@ -616,6 +630,12 @@ namespace puck.core.Services
             repo.SaveChanges();
             StateHelper.UpdateDomainMappings(true);
             StateHelper.UpdatePathLocaleMappings(true);
+            
+            var instruction = new PuckInstruction() { InstructionKey = InstructionKeys.Delete, Count = 1, ServerName = ApiHelper.ServerName() };
+            instruction.InstructionDetail = deleteQuery.ToString();
+            repo.AddPuckInstruction(instruction);
+            
+            repo.SaveChanges();
             AddAuditEntry(id, variant ?? "", AuditActions.Delete, notes, userName);
         }
         public string GetLiveOrCurrentPath(Guid id)
