@@ -27,7 +27,7 @@ namespace puckweb.ViewModels
         public PuckImage Image { get; set; }
         
         [Display(GroupName ="Content")]
-        [UIHint("Tags")]
+        [UIHint("PuckTags")]
         [PuckTagsEditorSettings(Category ="")]
         [IndexSettings(Analyzer=typeof(KeywordAnalyzer))]
         public List<string> Names { get; set; }

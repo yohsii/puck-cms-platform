@@ -1025,7 +1025,7 @@ var highlightSelectedNodeByIdPath = function (idPath) {
                 doGet();
             else
                 highlightSelectedNodeById(lastId);
-        });    
+        },true);    
     }
     doGet();
 };
