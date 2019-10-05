@@ -689,7 +689,7 @@ var loadCustomSections = function () {
             customSectionStr += '<li><a title="' + customSection.title + '" class="' + customSection.id + '" id="' + customSection.id + '" href="' + customSection.hash + '">'
                 + '<i class="' + customSection.iconClasses + '"></i></a></li >'
             if (customSection.leftItems && customSection.leftItems.constructor === Array) {
-                var leftSection = $("<div/>").addClass("left_item").addClass(customSection.id).appendTo(".leftarea");
+                var leftSection = $("<div/>").addClass("left_item").addClass(customSection.id).css("display","none").appendTo(".leftarea");
                 leftSection.append('<ul data-dropdown="node-dropdown" class="'+customSection.id+' p-0"></ul>');
                 for (var j = 0; j < customSection.leftItems.length; j++) {
                     var leftItem = customSection.leftItems[j];

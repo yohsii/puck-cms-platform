@@ -954,6 +954,14 @@ div.settings {
     /*
 .leftarea .node span.variant{display:none;}
 */
+.variantLink {
+    padding:0px!important;
+    margin-left:5px!important;
+    margin-top:0px!important;
+}
+.variantLink:hover {
+    background:#fff;
+}
 @media only screen and (max-width:833px) and (min-width:768px){
     .leftarea .left_item a {
         margin-left: 0px!important;
