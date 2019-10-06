@@ -24,6 +24,7 @@ namespace puck.core.Abstract
         Task Copy(Guid id, Guid parentId, bool includeDescendants, string userName = null);
         Task<T> Create<T>(Guid parentId, string variant, string name, string template = null, bool published = false, string userName = null) where T : BaseModel;
         Task Delete(Guid id, string variant = null, string userName = null);
+        int DeleteRevisions(List<Guid> ids, int step = 100);
         string GetIdPath(BaseModel mod);
         string GetLiveOrCurrentPath(Guid id);
         Task Move(Guid nodeId, Guid destinationId, string userName = null);
