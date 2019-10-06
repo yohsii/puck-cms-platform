@@ -514,6 +514,30 @@ namespace puck.core.Services
             repo.SaveChanges();
             indexer.Index(repoItems);
         }
+        public int DeleteRevisions(List<Guid> ids,int step=100) {
+            int affected = 0;
+            if (ids.Count == 0) return affected;
+            using (var con = new SqlConnection(config.GetConnectionString("DefaultConnection")))
+            {
+                int skip = 0;
+                int take = step;
+                var toDelete = ids.Skip(skip).Take(take);
+                con.Open();
+                while (toDelete.Count() > 0) {
+                    var sql = "delete from PuckRevision where id in(";
+                    foreach (var id in toDelete) { 
+                        sql += $"'{id.ToString()}',";
+                    }
+                    sql = sql.TrimEnd(',');
+                    sql +=")";
+                    var com = new SqlCommand(sql, con);
+                    affected += com.ExecuteNonQuery();
+                    skip += take;
+                    toDelete = ids.Skip(skip).Take(take);
+                }
+            }
+            return affected;
+        }
         public async Task Delete(Guid id, string variant = null, string userName = null)
         {
             PuckUser user = null;
@@ -562,12 +586,13 @@ namespace puck.core.Services
                 repoItemsQ = repoItemsQ.Where(x => x.Variant.ToLower().Equals(variant.ToLower()));
             var repoItems = repoItemsQ.ToList();
             var repoVariants = new List<PuckRevision>();
+            var descendants = new List<PuckRevision>();
             if (repoItems.Count > 0)
             {
                 repoVariants = repo.CurrentRevisionVariants(repoItems.First().Id, repoItems.First().Variant).ToList();
                 if (repoVariants.Count == 0 || string.IsNullOrEmpty(variant))
                 {
-                    var descendants = repo.CurrentRevisionDescendants(repoItems.First().IdPath).ToList();
+                    descendants = repo.CurrentRevisionDescendants(repoItems.First().IdPath).ToList();
                     repoItems.AddRange(descendants);
                     if (descendants.Any())
                         notes = $"{descendants.Count} descendant items also deleted";
@@ -585,8 +610,24 @@ namespace puck.core.Services
                 toDelete.Add(args.Node);
                 repo.DeleteRevision(x);
             });
+            
+            //deletes only happening on current revisions. delete all revisions. this is too costly to do with EF for descendants, we'll handle descendants using sql
+            if (!string.IsNullOrEmpty(variant))
+            {
+                var itemToDelete = toDelete.FirstOrDefault(x => x.Id == id && x.Variant.ToLower().Equals(variant.ToLower()));
+                if (itemToDelete != null) {
+                    repo.GetPuckRevision().Where(x=>x.Id==id &&x.Variant.ToLower().Equals(variant.ToLower())).ToList().ForEach(x=>repo.DeleteRevision(x));
+                }
+            }
+            else {
+                var itemsToDelete = toDelete.Where(x => x.Id == id).ToList();
+                foreach (var item in itemsToDelete) {
+                    repo.GetPuckRevision().Where(x => x.Id == item.Id && x.Variant.ToLower().Equals(item.Variant.ToLower())).ToList().ForEach(x => repo.DeleteRevision(x));
+                }
+            }
             repo.SaveChanges();
             indexer.Delete(toDelete);
+            DeleteRevisions(descendants.Select(x=>x.Id).ToList());
             repoItems
                     .Where(x => !cancelled.Contains(x))
                     .ToList()
