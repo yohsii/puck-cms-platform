@@ -22,7 +22,7 @@ namespace puck.core.Entities
         public bool HasNoPublishedRevision { get; set; }
         public bool IsPublishedRevision { get; set; }
         public string IdPath { get; set; }
-
+        public bool HasChildren { get; set; }
         public BaseModel ToBaseModel()
         {
             try

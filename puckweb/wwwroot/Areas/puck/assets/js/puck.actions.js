@@ -650,6 +650,8 @@ var getDrawContent = function (id, el, sortable, f, renderVariantLinks) {
                 publishedContent[k] = undefined;
             }
         }*/
+        if (jQuery.isEmptyObject(data.current))
+            setHasChildren(id, function () { });
         for (var k in data.published) {
             publishedContent[k] = data.published[k];
         }

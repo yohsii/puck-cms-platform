@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using puck.core.Entities;
 
 namespace puck.core.Migrations
 {
     [DbContext(typeof(PuckContext))]
-    partial class PuckContextModelSnapshot : ModelSnapshot
+    [Migration("20191007171001_revisionHasChildren")]
+    partial class revisionHasChildren
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -270,16 +272,6 @@ namespace puck.core.Migrations
                         .HasMaxLength(10);
 
                     b.HasKey("RevisionID");
-
-                    b.HasIndex("Current");
-
-                    b.HasIndex("HasNoPublishedRevision");
-
-                    b.HasIndex("Id");
-
-                    b.HasIndex("ParentId");
-
-                    b.HasIndex("Variant");
 
                     b.ToTable("PuckRevision");
                 });

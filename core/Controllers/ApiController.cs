@@ -719,6 +719,21 @@ namespace puck.core.Controllers
             return base.Content(jsonStr, "application/json");
         }
         [Authorize(Roles = PuckRoles.Puck, AuthenticationSchemes = Mvc.AuthenticationScheme)]
+        public ActionResult SetHasChildren(Guid id)
+        {
+            if (id != Guid.Empty) {
+                var revisions = repo.GetPuckRevision().Where(x => x.Id == id && x.Current).ToList();
+                if (revisions.Any()) {
+                    var hasChildren = repo.GetPuckRevision().Count(x => x.ParentId == id && x.Current) > 0;
+                    if (revisions.Any(x => x.HasChildren != hasChildren)) {
+                        revisions.ForEach(x => x.HasChildren = hasChildren);
+                        repo.SaveChanges();
+                    }
+                }
+            }
+            return Json(new { success=true,message=""});
+        }
+        [Authorize(Roles = PuckRoles.Puck, AuthenticationSchemes = Mvc.AuthenticationScheme)]
         public ActionResult ContentByParentId(Guid parentId = default(Guid), bool cast = true)
         {
             //using path instead of p_path in the method sig means path won't be checked against user's start node - which we don't want for this method
@@ -737,11 +752,16 @@ namespace puck.core.Controllers
                 .ToDictionary(x => x.Key.ToString(), x => x.Value);
 
             List<string> haveChildren = new List<string>();
-            foreach (var k in results)
+            //foreach (var k in results)
+            //{
+            //    var id = Guid.Parse(k.Key);
+            //    if (repo.CurrentRevisionChildren(id).Count() > 0)
+            //        haveChildren.Add(k.Key);
+            //}
+            foreach (var group in resultsRev.GroupBy(x=>x.Id))
             {
-                var id = Guid.Parse(k.Key);
-                if (repo.CurrentRevisionChildren(id).Count() > 0)
-                    haveChildren.Add(k.Key);
+                if (group.FirstOrDefault().HasChildren)
+                    haveChildren.Add(group.FirstOrDefault().Id.ToString());
             }
             var qh = new QueryHelper<BaseModel>();
             var publishedContent = qh.And().Field(x => x.ParentId, parentId.ToString()).GetAll().GroupById().ToDictionary(x => x.Key.ToString(), x => x.Value);
@@ -1165,13 +1185,14 @@ namespace puck.core.Controllers
                     rnode.IdPath = current.FirstOrDefault().IdPath;
                     rnode.SortOrder = current.FirstOrDefault().SortOrder;
                     rnode.ParentId = current.FirstOrDefault().ParentId;
+                    rnode.HasChildren = current.FirstOrDefault().HasChildren;
                     //rnode.Type = current.FirstOrDefault().Type;
                     //rnode.TypeChain = current.FirstOrDefault().TypeChain;
                 }
                 if (current.Any(x => x.Published))
                 {
                     //var model = JsonConvert.DeserializeObject(rnode.Value,ApiHelper.ConcreteType(ApiHelper.GetType(rnode.Type))) as BaseModel;
-                    var model = JsonConvert.DeserializeObject(rnode.Value, ApiHelper.ConcreteType(ApiHelper.GetTypeFromName(rnode.Type))) as BaseModel;
+                    var model = rnode.ToBaseModel(); //JsonConvert.DeserializeObject(rnode.Value, ApiHelper.ConcreteType(ApiHelper.GetTypeFromName(rnode.Type))) as BaseModel;
                     indexer.Index(new List<BaseModel>(){model});
                 }
                 path = rnode.Path;

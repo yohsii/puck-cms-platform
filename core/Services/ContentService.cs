@@ -577,7 +577,7 @@ namespace puck.core.Services
             );
             if (addDescendants)
                 deleteQuery.Descendants(toDelete.First().Path, must: false);
-
+            Guid? ParentId = null;
             //indexer.Delete(deleteQuery.ToString());
             var cancelled = new List<BaseModel>();
             //remove from repo
@@ -585,6 +585,7 @@ namespace puck.core.Services
             if (!string.IsNullOrEmpty(variant))
                 repoItemsQ = repoItemsQ.Where(x => x.Variant.ToLower().Equals(variant.ToLower()));
             var repoItems = repoItemsQ.ToList();
+            ParentId = repoItems.FirstOrDefault()?.ParentId;
             var repoVariants = new List<PuckRevision>();
             var descendants = new List<PuckRevision>();
             if (repoItems.Count > 0)
@@ -678,6 +679,10 @@ namespace puck.core.Services
             
             repo.SaveChanges();
             AddAuditEntry(id, variant ?? "", AuditActions.Delete, notes, userName);
+            var hasChildren = repo.GetPuckRevision().Count(x=>x.ParentId==ParentId && x.Current)>0;
+            var parentRevisions = repo.GetPuckRevision().Where(x => x.Id == ParentId && x.Current).ToList();
+            parentRevisions.ForEach(x=>x.HasChildren=hasChildren);
+            repo.SaveChanges();
         }
         public string GetLiveOrCurrentPath(Guid id)
         {
@@ -997,7 +1002,7 @@ namespace puck.core.Services
                     {
                         publishedRevision.IdPath = idPath;
                         publishedRevision.Path = mod.Path;
-                        toIndex.Add(publishedRevision);
+                        toIndex.Add(publishedRevision.ToBaseModel());
                     }
                     else
                         toIndex.Add(mod);
@@ -1126,6 +1131,13 @@ namespace puck.core.Services
                     StateHelper.UpdateDomainMappings(true);
                     StateHelper.UpdatePathLocaleMappings(true);
                 }
+                var hasChildren = repo.GetPuckRevision().Count(x => x.ParentId.Equals(mod.Id) && x.Current)>0;
+                revision.HasChildren = hasChildren;
+                if (currentVariantsDb.Any(x => x.HasChildren != hasChildren))
+                    currentVariantsDb.ForEach(x=>x.HasChildren=hasChildren);
+                if (parentVariants.Any(x => !x.HasChildren))
+                    parentVariants.ForEach(x => x.HasChildren = true);
+
                 repo.SaveChanges();
                 
                 //index related operations
@@ -1441,8 +1453,9 @@ namespace puck.core.Services
             }
             else
                 userName = HttpContext.Current.User.Identity.Name;
-
+            Guid? parentId = null;
             var startRevisions = repo.GetPuckRevision().Where(x => x.Id == nodeId && x.Current).ToList();
+            parentId = startRevisions.FirstOrDefault()?.ParentId;
             var destinationRevisions = repo.GetPuckRevision().Where(x => x.Id == destinationId && x.Current).ToList();
             if (startRevisions.Count == 0) throw new Exception("cannot find start node");
             if (destinationRevisions.Count == 0) throw new Exception("cannot find destination node");
@@ -1452,6 +1465,7 @@ namespace puck.core.Services
                 throw new Exception("cannot move root node");
             var startNodes = startRevisions.Select(x => x.ToBaseModel()).ToList();
             var destinationNodes = destinationRevisions.Select(x => x.ToBaseModel()).ToList();
+            BaseModel startNode = null;
             var beforeArgs = new BeforeMoveEventArgs
             {
                 Nodes = startNodes
@@ -1462,7 +1476,7 @@ namespace puck.core.Services
             if (!beforeArgs.Cancel)
             {
                 startNodes.ForEach(x => x.ParentId = destinationId);
-                var startNode = startNodes.FirstOrDefault();
+                startNode = startNodes.FirstOrDefault();
                 await SaveContent(startNode, makeRevision: false);
                 var afterArgs = new MoveEventArgs { Nodes = startNodes, DestinationNodes = startNodes };
                 OnAfterMove(null, afterArgs);
@@ -1473,6 +1487,12 @@ namespace puck.core.Services
             }
             if (startNodes.Any())
                 AddAuditEntry(startNodes.First().Id, startNodes.First().Variant, AuditActions.Move, "", userName);
+            if (parentId.HasValue) {
+                var parentRevisions = repo.GetPuckRevision().Where(x => x.Id == parentId).ToList();
+                var hasChildren = repo.GetPuckRevision().Count(x=>x.ParentId.Equals(parentId)&&x.Current)>0;
+                parentRevisions.ForEach(x=>x.HasChildren=hasChildren);
+                repo.SaveChanges();
+            }
         }
         public async Task Move(string start, string destination)
         {

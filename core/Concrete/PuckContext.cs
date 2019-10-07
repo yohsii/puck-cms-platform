@@ -29,6 +29,14 @@ namespace puck.core.Entities
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
+            builder.Entity<PuckRevision>(e => {
+                e.HasIndex(x=>x.Id);
+                e.HasIndex(x => x.ParentId);
+                e.HasIndex(x => x.Current);
+                e.HasIndex(x => x.Variant);
+                e.HasIndex(x => x.HasNoPublishedRevision);
+            });
+                
             builder.Entity<PuckUser>(b =>
             {
                 // Each User can have many UserClaims

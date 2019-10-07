@@ -239,7 +239,7 @@
     var pathToLocale = [];
     @foreach (var entry in PuckCache.PathToLocale)
     {
-        @Html.Raw($"pathToLocale['{entry.Key}']='{entry.Value}'");
+        @Html.Raw($"pathToLocale['{entry.Key}']='{entry.Value}';");
     }
 </script>
 <script src="~/areas/puck/assets/js/puck.get_set.js" type="text/javascript"></script>
