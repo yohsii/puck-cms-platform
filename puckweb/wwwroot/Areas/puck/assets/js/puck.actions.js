@@ -19,6 +19,7 @@ var languageSortDictionary = [];
 var rootLocalisations = [];
 var startPath;
 var startId;
+var emptyGuid = '00000000-0000-0000-0000-000000000000';
 var newTemplateFolder = function (p) {
     getTemplateFolderCreateDialog(function (d) {
         var overlayEl = overlay(d, 500, 300, undefined, "New Template Folder");
@@ -650,7 +651,7 @@ var getDrawContent = function (id, el, sortable, f, renderVariantLinks) {
                 publishedContent[k] = undefined;
             }
         }*/
-        if (jQuery.isEmptyObject(data.current))
+        if (id != emptyGuid && jQuery.isEmptyObject(data.current))
             setHasChildren(id, function () { });
         for (var k in data.published) {
             publishedContent[k] = data.published[k];
@@ -1017,7 +1018,7 @@ var displayMarkup = function (parentId, type, variant, fromVariant,contentId,con
 }
 var highlightSelectedNodeByIdPath = function (idPath) {
     var ids = idPath.split(",");
-    ids.splice(0, 0, '00000000-0000-0000-0000-000000000000');
+    ids.splice(0, 0, emptyGuid);
     var lastId = ids.pop();
     var doGet = function () {
         var id = ids.splice(0, 1)[0];
@@ -1189,7 +1190,7 @@ var dirOfPath = function (s) {
     return s.substring(0, s.lastIndexOf("/") + 1);
 }
 var isRootItem = function (s) {
-    if (s == "00000000-0000-0000-0000-000000000000")
+    if (s == emptyGuid)
         return true;
     else return false;
     /*var matches = s.match(/\//g);

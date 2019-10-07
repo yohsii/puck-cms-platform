@@ -49,7 +49,7 @@ $("html").on("click", ".left_settings li button", function (e) {
     //showSettings(path);
 });
 //root new content button
-$(".create_default").show().click(function () { newContent("00000000-0000-0000-0000-000000000000"); });
+$(".create_default").show().click(function () { newContent(emptyGuid); });
 //task list
 //$(".menutop .tasks").click(function (e) { e.preventDefault(); showTasks(); });
 //users
