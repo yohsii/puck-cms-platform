@@ -271,6 +271,7 @@ $(document).on("click",".node-dropdown a,.template-dropdown a",function () {
             var doPublish = function (id, variant, descendants) {
                 setPublish(id, variant, descendants, function (data) {
                     if (data.success === true) {
+                        msg(true,"content published");
                         getDrawContent(node.attr("data-parent_id"), undefined, true);
                         node.find(">.inner>.variant[data-variant='"+variant+"']").addClass("published");
                         overlayClose();
@@ -286,7 +287,13 @@ $(document).on("click",".node-dropdown a,.template-dropdown a",function () {
                 dialog.find(".descendantscontainer label").html("Publish descendants?");
                 overlay(dialog, 400, 250,undefined,"Publish");
                 dialog.find("button").click(function () {
-                    doPublish(node.attr("data-id"), dialog.find("select[name=variant]").val(), (dialog.find("select[name=descendants]").val() || []).join(','));
+                    var descendantVariants = (dialog.find("select[name=descendants]").val() || []).join(',');
+                    if (descendantVariants) {
+                        dialog.find("select[name=descendants] option[value='']").removeAttr("selected");
+                        descendantVariants = (dialog.find("select[name=descendants]").val() || []).join(',');
+                    }
+                    //console.log(descendantVariants);
+                    doPublish(node.attr("data-id"), dialog.find("select[name=variant]").val(), descendantVariants);
                 });
             } else {
                 doPublish(node.attr("data-id"), variants[0]);
@@ -296,6 +303,7 @@ $(document).on("click",".node-dropdown a,.template-dropdown a",function () {
             var doUnpublish = function (id, variant, descendants) {
                 setUnpublish(id, variant, descendants, function (data) {
                     if (data.success === true) {
+                        msg(true, "content unpublished");
                         getDrawContent(node.attr("data-parent_id"), undefined, true);
                         node.find(">.inner>.variant[data-variant='" + variant + "']").removeClass("published");
                         publishedContent[id][variant] = undefined;
@@ -309,12 +317,30 @@ $(document).on("click",".node-dropdown a,.template-dropdown a",function () {
             var variants = publishedVariants(node.attr("data-id"));
             if (variants.length > 1 || 1 == 1) {
                 var dialog = dialogForVariants(variants);
-                dialog.find(".descendantscontainer").hide();
-                dialog.find(".descendantscontainer label").html("Unpublish descendants?");
-                overlay(dialog, 400, 250,undefined,"Unpublish");
+                var dCon = dialog.find(".descendantscontainer");
+                dCon.find("label").html("Unpublish descendants?");
+                dCon.find("label").after("<p/>");
+                overlay(dialog, 400, 250, undefined, "Unpublish");
                 dialog.find("button").click(function () {
-                    doUnpublish(node.attr("data-id"), dialog.find("select[name='variant']").val(), (dialog.find("select[name='descendants']").val() || []).join(','));
+                    var variant = dialog.find("select[name='variant']").val();
+                    var descendantVariants = variant;
+                    var selectedDescendants = (dialog.find("select[name='descendants']").val() || []).join(',');
+                    if (selectedDescendants)
+                        descendantVariants += "," + selectedDescendants;
+                    descendantVariants = descendantVariants.replace(",,",",");
+                    //console.log("variant:", variant, "descendantVariants:", descendantVariants);
+                    doUnpublish(node.attr("data-id"), variant, descendantVariants);
                 });
+                var updateVariant = function () {
+                    var variant = dialog.find("select[name='variant']").val();
+                    dCon.find("p").html("Descendant content with language " + variantNames[variant] +" will be unpublished, select any additional languages to unpublish for descendant content");
+                    dCon.find("option").removeAttr("disabled");
+                    dCon.find("option[value='" + variant + "']").attr("disabled", "disabled").removeAttr("selected");
+                }
+                dialog.find("select[name='variant']").change(function () {
+                    updateVariant();
+                });
+                updateVariant();
             } else {
                 doUnpublish(node.attr("data-id"), variants[0]);
             }
