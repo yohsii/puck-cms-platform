@@ -785,7 +785,7 @@ namespace puck.core.Controllers
         }
 
         [Authorize(Roles = PuckRoles.Publish, AuthenticationSchemes = Mvc.AuthenticationScheme)]
-        public async Task<JsonResult> Publish(Guid id, string variant, string descendants)
+        public async Task<JsonResult> Publish(Guid id, string variant, string descendants="")
         {
             var message = string.Empty;
             var success = false;
@@ -804,7 +804,7 @@ namespace puck.core.Controllers
             return Json(new { success = success, message = message });
         }
         [Authorize(Roles = PuckRoles.Unpublish, AuthenticationSchemes = Mvc.AuthenticationScheme)]
-        public async Task<JsonResult> UnPublish(Guid id, string variant, string descendants)
+        public async Task<JsonResult> UnPublish(Guid id, string variant, string descendants="")
         {
 
             var message = string.Empty;

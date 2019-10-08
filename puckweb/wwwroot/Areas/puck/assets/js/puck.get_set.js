@@ -80,17 +80,17 @@ var setDeleteTemplateFolder = function (p, f) {
 }
 var setPublish = function (id, variant, descendants, f) {
     var path = "/puck/api/publish?id=" + id;
-    if (variant != undefined)
+    if (variant)
         path += "&variant=" + variant;
-    if (descendants != undefined)
+    if (descendants)
         path += "&descendants=" + descendants;
     $.get(path, f);
 }
 var setUnpublish = function (id, variant, descendants, f) {
     var path = "/puck/api/unpublish?id=" + id;
-    if (variant != undefined)
+    if (variant)
         path += "&variant=" + variant;
-    if (descendants != undefined)
+    if (descendants)
         path += "&descendants=" + descendants;
     $.get(path, f);
 }
