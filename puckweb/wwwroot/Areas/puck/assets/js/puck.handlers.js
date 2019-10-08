@@ -272,7 +272,7 @@ $(document).on("click",".node-dropdown a,.template-dropdown a",function () {
                 setPublish(id, variant, descendants, function (data) {
                     if (data.success === true) {
                         msg(true,"content published");
-                        getDrawContent(node.attr("data-parent_id"), undefined, true);
+                        getDrawContent(node.attr("data-parent_id"), undefined, true,undefined,true);
                         node.find(">.inner>.variant[data-variant='"+variant+"']").addClass("published");
                         overlayClose();
                     } else {
@@ -304,7 +304,7 @@ $(document).on("click",".node-dropdown a,.template-dropdown a",function () {
                 setUnpublish(id, variant, descendants, function (data) {
                     if (data.success === true) {
                         msg(true, "content unpublished");
-                        getDrawContent(node.attr("data-parent_id"), undefined, true);
+                        getDrawContent(node.attr("data-parent_id"), undefined, true,undefined,true);
                         node.find(">.inner>.variant[data-variant='" + variant + "']").removeClass("published");
                         publishedContent[id][variant] = undefined;
                         overlayClose();
@@ -315,7 +315,7 @@ $(document).on("click",".node-dropdown a,.template-dropdown a",function () {
                 });
             }
             var variants = publishedVariants(node.attr("data-id"));
-            if (variants.length > 1 || 1 == 1) {
+            if (variants.length > 1 ) {
                 var dialog = dialogForVariants(variants);
                 var dCon = dialog.find(".descendantscontainer");
                 dCon.find("label").html("Unpublish descendants?");
