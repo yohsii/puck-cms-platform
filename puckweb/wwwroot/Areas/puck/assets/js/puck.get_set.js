@@ -88,8 +88,11 @@ var setPublish = function (id, variant, descendants, f) {
 }
 var setUnpublish = function (id, variant, descendants, f) {
     var path = "/puck/api/unpublish?id=" + id;
-    if (variant)
+    if (variant) {
         path += "&variant=" + variant;
+        if (!descendants)
+            descendants = variant;
+    }
     if (descendants)
         path += "&descendants=" + descendants;
     $.get(path, f);
