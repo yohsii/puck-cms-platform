@@ -651,6 +651,9 @@ var getDrawContent = function (id, el, sortable, f, renderVariantLinks) {
                 publishedContent[k] = undefined;
             }
         }*/
+        for (k in data.current) {
+            publishedContent[k] = undefined;
+        }
         if (id != emptyGuid && jQuery.isEmptyObject(data.current))
             setHasChildren(id, function () { });
         for (var k in data.published) {
