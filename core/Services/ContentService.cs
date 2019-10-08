@@ -1091,6 +1091,9 @@ namespace puck.core.Services
                 revision.Current = true;
                 revision.ParentId = mod.ParentId;
                 revision.Value = JsonConvert.SerializeObject(mod);
+                if (!makeRevision && !revision.Published) {
+                    revision.IsPublishedRevision = false;
+                }
                 //if published, set the currently published revision. this requires unsetting any previously set publishedrevision flag
                 if (mod.Published)
                 {
