@@ -894,9 +894,13 @@ namespace puck.core.Services
                 var parentVariants = repo.GetPuckRevision().Where(x => x.Id == mod.ParentId && x.Current).ToList();
                 if (mod.ParentId != Guid.Empty && parentVariants.Count() == 0)
                     throw new NoParentExistsException("this is not a root node yet doesn't have a parent");
+                var hasPublishedParent = parentVariants.Any(x=>x.Published);
+                if (!hasPublishedParent) {
+                    hasPublishedParent = repo.PublishedRevisions(mod.ParentId).Count()>0;
+                }
                 //can't publish if parent not published
-                var publishedParentVariants = repo.PublishedRevisions(mod.ParentId).ToList();
-                if (mod.ParentId != Guid.Empty && !publishedParentVariants.Any())//!parentVariants.Any(x => x.Published /*&& x.Variant.ToLower().Equals(mod.Variant.ToLower())*/))
+                //var publishedParentVariants = repo.PublishedRevisions(mod.ParentId).ToList();
+                if (mod.ParentId != Guid.Empty && !hasPublishedParent)//!parentVariants.Any(x => x.Published /*&& x.Variant.ToLower().Equals(mod.Variant.ToLower())*/))
                     mod.Published = false;
 
                 //check this is an update or create
