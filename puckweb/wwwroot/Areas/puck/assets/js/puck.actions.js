@@ -1226,7 +1226,7 @@ var dialogForVariants = function (variants) {
 }
 var unpublishedVariants = function (id) {
     var variants = [];
-    cleft.find(".node[data-id='" + id + "']>.inner>.variant").each(function () {
+    cleft.find(".node[data-id='" + id + "']>.inner .variant").each(function () {
         if (!$(this).hasClass("published"))
             variants.push($(this).attr("data-variant"));
     });
@@ -1234,7 +1234,7 @@ var unpublishedVariants = function (id) {
 }
 var publishedVariants = function (id) {
     var variants = [];
-    cleft.find(".node[data-id='" + id + "']>.inner>.variant").each(function () {
+    cleft.find(".node[data-id='" + id + "']>.inner .variant").each(function () {
         if ($(this).hasClass("published"))
             variants.push($(this).attr("data-variant"));
     });
