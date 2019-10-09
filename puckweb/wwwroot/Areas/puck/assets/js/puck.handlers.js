@@ -247,7 +247,7 @@ $(document).on("click",".node-dropdown a,.template-dropdown a",function () {
                         }
                         getDrawContent(node.attr("data-parent_id"), undefined, undefined, function () {
                             highlightSelectedNode(node.attr("data-id"));
-                        });
+                        },true);
                         overlayClose();
                     } else {
                         msg(false, data.message);
