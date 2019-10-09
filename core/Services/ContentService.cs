@@ -1113,7 +1113,8 @@ namespace puck.core.Services
                 }
                 //prune old revisions
                 revisions.OrderByDescending(x => x.Id).Skip(PuckCache.MaxRevisions).ToList().ForEach(x=>repo.DeleteRevision(x));
-
+                var shouldUpdateDomainMappings = false;
+                var shouldUpdatePathLocaleMappings = false;
                 //if first time node saved and is root node - set locale for path
                 if (currentVariantsDb.Count == 0 && (original == null) && mod.ParentId == Guid.Empty)
                 {
@@ -1135,8 +1136,8 @@ namespace puck.core.Services
                         };
                         repo.AddMeta(dMeta);
                     }
-                    StateHelper.UpdateDomainMappings(true);
-                    StateHelper.UpdatePathLocaleMappings(true);
+                    shouldUpdatePathLocaleMappings = true;
+                    shouldUpdateDomainMappings = true;
                 }
                 var hasChildren = repo.GetPuckRevision().Count(x => x.ParentId.Equals(mod.Id) && x.Current)>0;
                 revision.HasChildren = hasChildren;
@@ -1221,8 +1222,8 @@ namespace puck.core.Services
                         repo.GetPuckMeta().Where(x => x.Name == DBNames.DomainMapping && x.Key.ToLower().Equals(originalPath.ToLower())).ToList()
                             .ForEach(x => x.Key = mod.Path);
                         repo.SaveChanges();
-                        StateHelper.UpdateDomainMappings(true);
-                        StateHelper.UpdatePathLocaleMappings(true);
+                        shouldUpdateDomainMappings = true;
+                        shouldUpdatePathLocaleMappings = true;
                     }
                     if(shouldIndex)
                         indexer.Index(toIndex);
@@ -1237,6 +1238,10 @@ namespace puck.core.Services
                 string auditAction = mod.Published ? AuditActions.Publish : AuditActions.Save;
                 if (original == null) auditAction = AuditActions.Create;
                 AddAuditEntry(mod.Id, mod.Variant, auditAction, "", username);
+                if(shouldUpdateDomainMappings)
+                    StateHelper.UpdateDomainMappings(true);
+                if(shouldUpdatePathLocaleMappings)
+                    StateHelper.UpdatePathLocaleMappings(true);
                 return toIndex;
             }
             finally
