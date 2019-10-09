@@ -436,7 +436,7 @@ $(document).on("click",".node-dropdown a,.template-dropdown a",function () {
                 sortNodes(sortParentId, items, function (res) {
                     if (res.success) {
                         msg(true,"sort complete")
-                        getDrawContent(node.attr("data-id"));
+                        getDrawContent(node.attr("data-id"),undefined,true,undefined,true);
                         overlayClose();
                     } else {
                         msg(false, res.message);
