@@ -713,6 +713,8 @@ var handleHash = function (hash) {
 
         if (page == "tasks")
             showTasks();
+        else if (page == "views")
+            showViews();
         else if (page == "logs") {
             var machine = dict["machine"]||"";
             var name = dict["name"]||"";

@@ -700,7 +700,10 @@ namespace puck.core.Controllers
             //model.GeneratedModels = repo.GetGeneratedModel().ToList();
             return View(model);
         }
-
+        public ActionResult Views()
+        {
+            return View();
+        }
         //
         // GET: /puck/Task/Details/5
 

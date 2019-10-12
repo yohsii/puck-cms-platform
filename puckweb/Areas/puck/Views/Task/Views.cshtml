@@ -1,0 +1,36 @@
+﻿@{
+    Layout = null;
+}
+    <div class="developer settings">
+        
+        <div id="fieldtabs1" class="fieldwrapper">
+            <div class="editor-label">
+                @Html.Label("Views")
+            </div>
+            <div class="editor-field">
+                @{
+                    await Html.RenderPartialAsync("SettingsViewEdit");
+                }
+
+            </div>
+
+        </div>
+
+    </div>
+
+<style>
+    
+</style>
+<script>
+    $(document).ready(function () {
+        var container = $("div.developer.settings");
+        container.find("ul.nav li").click(function (e) {
+            e.preventDefault();
+            container.find("ul.nav li a").removeClass("active");
+            $(this).find("a").addClass("active");
+            container.find("div.fieldwrapper").hide();
+            $($(this).find("a").attr("href")).show();
+            codeMirror.refresh();
+        });
+    });
+</script>

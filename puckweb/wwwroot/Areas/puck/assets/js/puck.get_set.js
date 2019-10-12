@@ -159,6 +159,9 @@ var getDomainMappingDialog = function (p, f) {
 var getTasks = function (f) {
     $.get("/puck/task/index", f);
 }
+var getViews = function (f) {
+    $.get("/puck/task/views", f);
+}
 var getTaskCreateDialog = function (f) {
     $.get("/puck/task/CreateTaskDialog", f);
 }

@@ -459,6 +459,16 @@ var editParameters = function (settingsType, modelType, propertyName, success) {
         });
     }, settingsType, modelType, propertyName);
 }
+var showViews = function () {
+    cright.html("");
+    showLoader(cright);
+    if (!canChangeMainContent())
+        return false;
+    getViews(function (data) {
+        cright.html(data);
+        afterDom();
+    });
+}
 var showTasks = function () {
     cright.html("");
     showLoader(cright);
