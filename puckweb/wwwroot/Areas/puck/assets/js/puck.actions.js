@@ -20,6 +20,7 @@ var rootLocalisations = [];
 var startPath;
 var startId;
 var emptyGuid = '00000000-0000-0000-0000-000000000000';
+var logHelper = new LogHelper();
 var newTemplateFolder = function (p) {
     getTemplateFolderCreateDialog(function (d) {
         var overlayEl = overlay(d, 500, 300, undefined, "New Template Folder");

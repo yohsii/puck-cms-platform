@@ -24,6 +24,7 @@ namespace puck.core.Extensions
             services.AddTransient<I_Log, Logger>();
             services.AddSingleton<I_Task_Dispatcher, Dispatcher>();
             services.AddTransient<I_Api_Helper,ApiHelper>();
+            services.AddTransient<I_Log_Helper,LogHelper>();
             services.AddTransient<I_Content_Service,ContentService>();
             services.AddHostedService<Dispatcher>((IServiceProvider serviceProvider) => { return serviceProvider.GetService<I_Task_Dispatcher>() as Dispatcher; });
 

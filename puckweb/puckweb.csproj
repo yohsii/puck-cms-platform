@@ -5,6 +5,18 @@
     <UserSecretsId>aspnet-puckweb-8B7BB765-2872-4000-9CDA-54028AE0BC40</UserSecretsId>
     <RunPostBuildEvent>Always</RunPostBuildEvent>
     <ANCMPreConfiguredForIIS>true</ANCMPreConfiguredForIIS>
+    <IsPackable>true</IsPackable>
+    <PackageId>PuckCMS</PackageId>
+    <Version>1.0.0-beta0001</Version>
+    <Authors>Simon Yohannes</Authors>
+    <Company>Puck CMS</Company>
+    <Product>Puck CMS</Product>
+    <Description>asp.net core code first mvc CMS</Description>
+    <Copyright>https://github.com/yohsii/puck-core/blob/master/LICENSE</Copyright>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/yohsii/puck-core</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/yohsii/puck-core</RepositoryUrl>
+    <PackageTags>CMS, MVC</PackageTags>
   </PropertyGroup>
   
   <ItemGroup>
@@ -636,6 +648,7 @@
     <Content Remove="wwwroot\Areas\puck\assets\js\jquery.validate.unobtrusive.min.js" />
     <Content Remove="wwwroot\Areas\puck\assets\js\knockout-2.1.0.debug.js" />
     <Content Remove="wwwroot\Areas\puck\assets\js\knockout-2.1.0.js" />
+    <Content Remove="wwwroot\Areas\puck\assets\js\logHelper.js" />
     <Content Remove="wwwroot\Areas\puck\assets\js\modernizr-2.5.3.js" />
     <Content Remove="wwwroot\Areas\puck\assets\js\puck.actions.js" />
     <Content Remove="wwwroot\Areas\puck\assets\js\puck.get_set.js" />
@@ -1446,6 +1459,7 @@
     <None Include="wwwroot\Areas\puck\assets\js\knockout-2.1.0.debug.js" />
     <None Include="wwwroot\Areas\puck\assets\js\knockout-2.1.0.js" />
     <None Include="wwwroot\Areas\puck\assets\js\modernizr-2.5.3.js" />
+    <None Include="wwwroot\Areas\puck\assets\js\LogHelper.js" />
     <None Include="wwwroot\Areas\puck\assets\js\puck.actions.js" />
     <None Include="wwwroot\Areas\puck\assets\js\puck.get_set.js" />
     <None Include="wwwroot\Areas\puck\assets\js\puck.handlers.js" />

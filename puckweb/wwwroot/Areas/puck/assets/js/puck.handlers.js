@@ -651,7 +651,7 @@ var highlightSection = function (href,id) {
     $(".menutop li").removeClass("selected");
     var anchor;
     if (href)
-        anchor = $(".menutop a[href='" + href + "']");
+        anchor = $(".menutop a[href^='" + href + "']");
     else if (id)
         anchor = $(".menutop a#" + id);
     else return;
@@ -701,7 +701,23 @@ var handleHash = function (hash) {
         highlightSection("#developer");
         $(".left_item").hide();
         cleft.find(".left_developer").show();
-        showTasks();
+
+        if (cleft.find(".left_developer ul.machines").length == 0) {
+            logHelper.showMachines();
+        }
+
+        var dict = getHashValues(hash);
+        var page = dict["page"];
+        cleft.find(".left_developer a").removeClass("current");
+        cleft.find(".left_developer a[href='" + hash + "']").addClass("current");
+
+        if (page == "tasks")
+            showTasks();
+        else if (page == "logs") {
+            var machine = dict["machine"]||"";
+            var name = dict["name"]||"";
+            logHelper.showLog(machine,name);
+        }
     } else {
         if (window.puckCustomHashHandler)
             puckCustomHashHandler(hash);

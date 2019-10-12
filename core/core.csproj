@@ -3,6 +3,18 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.1</TargetFramework>
     <RootNamespace>puck.core</RootNamespace>
+    <AssemblyName>puck.core</AssemblyName>
+    <PackageId>PuckCMS_Core</PackageId>
+    <Version>1.0.0-beta0001</Version>
+    <Authors>Simon Yohannes</Authors>
+    <Company>Puck CMS</Company>
+    <Product>Puck CMS</Product>
+    <Description>asp.net core code first mvc CMS</Description>
+    <Copyright>https://github.com/yohsii/puck-core/blob/master/LICENSE</Copyright>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/yohsii/puck-core</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/yohsii/puck-core</RepositoryUrl>
+    <PackageTags>CMS</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>

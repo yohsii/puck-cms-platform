@@ -2,6 +2,14 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <PackageId>PuckCMS_AzureDirectory</PackageId>
+    <Company>azure-contrib</Company>
+    <Description>https://github.com/azure-contrib/AzureDirectory/</Description>
+    <Copyright>https://github.com/azure-contrib/AzureDirectory/blob/master/License.txt</Copyright>
+    <PackageLicenseExpression>MS-PL</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/azure-contrib/AzureDirectory/</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/azure-contrib/AzureDirectory/</RepositoryUrl>
+    <PackageTags>Azure, Lucene</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>

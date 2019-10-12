@@ -962,6 +962,28 @@ div.settings {
 .variantLink:hover {
     background:#fff;
 }
+.node.logs i.expand {
+    cursor:pointer;
+}
+.logsContainer tbody:nth-child(odd) {
+    background: #f7f7f7 !important;
+}
+.logsContainer input {
+    width: 100%;
+}
+.left_developer ul.machines > li {
+    font-size:15px;
+}
+.left_developer ul.machines {
+    margin-left:10px;
+}
+.left_developer ul.logs {
+    /*margin-left: 20px;*/
+    padding:0px;
+}
+.left_developer ul.logs a{
+    margin-left:0px;
+}
 @media only screen and (max-width:833px) and (min-width:768px){
     .leftarea .left_item a {
         margin-left: 0px!important;

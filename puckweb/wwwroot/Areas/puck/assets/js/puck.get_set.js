@@ -1,4 +1,21 @@
-﻿var setHasChildren = function (id, f) {
+﻿var getLogMachines = function (f) {
+    $.get("/puck/log/machines", f);
+}
+var getLogs = function (machine,f) {
+    var url = "/puck/log/logs?";
+    if (machine)
+        url += "machine=" + machine;
+    $.get(url, f);
+}
+var getLog = function (machine,name,f) {
+    var url = "/puck/log/log?";
+    if (machine)
+        url += "machine=" + machine;
+    if (name)
+        url += "&name=" + name;
+    $.get(url, f);
+}
+var setHasChildren = function (id, f) {
     $.get("/puck/api/setHasChildren?id=" + id, f);
 };
 var getContentModels = function (ids, f) {

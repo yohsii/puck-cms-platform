@@ -42,7 +42,6 @@ namespace puck.core.Base
                     return;
                 var task = Run(t);
                 task.GetAwaiter().GetResult();
-                this.LastRun = DateTime.Now;
             }
             catch (Exception ex) {
                 PuckCache.PuckLog.Log(ex);
@@ -50,6 +49,7 @@ namespace puck.core.Base
             finally
             {
                 try {
+                    this.LastRun = DateTime.Now;
                     if (TaskEnd != null)
                         TaskEnd(this, new DispatchEventArgs { Task = this });
                 } catch (Exception ex) {
