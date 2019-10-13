@@ -29,6 +29,10 @@ namespace puck.core.Entities
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
+            builder.Entity<PuckMeta>(e=> {
+                e.HasIndex(x=>x.Name);
+                e.HasIndex(x=>x.Key);
+            });
             builder.Entity<PuckRevision>(e => {
                 e.HasIndex(x=>x.Id);
                 e.HasIndex(x => x.ParentId);

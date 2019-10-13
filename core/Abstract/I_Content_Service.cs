@@ -35,7 +35,7 @@ namespace puck.core.Abstract
         int RenameOrphaned2(string orphanTypeName, string newTypeName);
         Task RePublishEntireSite();
         Task RePublishEntireSite2();
-        Task<List<BaseModel>> SaveContent<T>(T mod, bool makeRevision = true, string userName = null, bool handleNodeNameExists = true, int nodeNameExistsCounter = 0,bool triggerEvents=true,bool shouldIndex=true) where T : BaseModel;
+        Task<List<BaseModel>> SaveContent<T>(T mod, bool makeRevision = true, string userName = null, bool handleNodeNameExists = true, int nodeNameExistsCounter = 0,bool triggerEvents=true, bool triggerIndexEvents = true, bool shouldIndex=true) where T : BaseModel;
         void Sort(Guid parentId, List<Guid> ids);
         Task UnPublish(Guid id, string variant, List<string> descendantVariants, string userName = null);
         int UpdateDescendantHasNoPublishedRevision(string path, string value, List<string> descendantVariants);

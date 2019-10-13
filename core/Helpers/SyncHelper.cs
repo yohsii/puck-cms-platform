@@ -32,9 +32,9 @@ namespace puck.core.Helpers
         public static I_Content_Indexer Indexer { get { return PuckCache.PuckIndexer; } }
         public static I_Content_Service ContentService { get { return PuckCache.ContentService; } } 
         public static bool InitializeSync() {
-            var repo = Repo;
             using (var scope = PuckCache.ServiceProvider.CreateScope())
             {
+                var repo = scope.ServiceProvider.GetService<I_Puck_Repository>();
                 var contentService = scope.ServiceProvider.GetService<I_Content_Service>();
                 var serverName = ApiHelper.ServerName();
                 var meta = repo.GetPuckMeta().Where(x => x.Name == DBNames.SyncId && x.Key == serverName).FirstOrDefault();
@@ -59,13 +59,13 @@ namespace puck.core.Helpers
             {
                 var contentService = scope.ServiceProvider.GetService<I_Content_Service>();
                 var searcher = scope.ServiceProvider.GetService<I_Content_Searcher>();
+                var repo = scope.ServiceProvider.GetService<I_Puck_Repository>();
                 var config = scope.ServiceProvider.GetService<IConfiguration>();
                 try
                 {
                     Monitor.TryEnter(lck, lock_wait, ref taken);
                     if (!taken)
                         return;
-                    var repo = Repo;
                     var serverName = ApiHelper.ServerName();
                     var meta = repo.GetPuckMeta().Where(x => x.Name == DBNames.SyncId && x.Key == serverName).FirstOrDefault();
                     if (meta == null)
@@ -124,19 +124,25 @@ namespace puck.core.Helpers
                                 var toIndex = new List<BaseModel>();
                                 //instruction detail holds comma separated list of ids and variants in format id:variant,id:variant
                                 var idList = instruction.InstructionDetail.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-                                foreach (var idAndVariant in idList)
-                                {
-                                    var idAndVariantArr = idAndVariant.Split(new char[] { ':' }, StringSplitOptions.RemoveEmptyEntries);
-                                    var id = Guid.Parse(idAndVariantArr[0]);
-                                    var variant = idAndVariantArr[1];
-                                    var publishedOrCurrentRevision = repo.PublishedOrCurrentRevision(id, variant);
-                                    if (publishedOrCurrentRevision != null)
+                                if (Indexer.CanWrite) {
+                                    foreach (var idAndVariant in idList)
                                     {
-                                        var model = publishedOrCurrentRevision.ToBaseModel();
-                                        toIndex.Add(model);
+                                        var idAndVariantArr = idAndVariant.Split(new char[] { ':' }, StringSplitOptions.RemoveEmptyEntries);
+                                        var id = Guid.Parse(idAndVariantArr[0]);
+                                        var variant = idAndVariantArr[1];
+                                        var publishedOrCurrentRevision = repo.PublishedOrCurrentRevision(id, variant);
+                                        if (publishedOrCurrentRevision != null)
+                                        {
+                                            var model = publishedOrCurrentRevision.ToBaseModel();
+                                            toIndex.Add(model);
+                                        }
                                     }
+                                    Indexer.Index(toIndex);
                                 }
-                                Indexer.Index(toIndex);
+                                else
+                                {
+                                    searcher.SetSearcher();
+                                }
                             }
                             else if (instruction.InstructionKey == InstructionKeys.UpdateCrops)
                             {

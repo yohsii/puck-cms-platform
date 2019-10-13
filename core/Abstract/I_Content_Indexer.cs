@@ -9,6 +9,7 @@ namespace puck.core.Abstract
 {
     public interface I_Content_Indexer
     {
+        public bool CanWrite { get; set; }
         void Index(Dictionary<string,string> values);
         void Index(List<Dictionary<string, string>> values);
         void Index<T>(T model) where T:BaseModel;
