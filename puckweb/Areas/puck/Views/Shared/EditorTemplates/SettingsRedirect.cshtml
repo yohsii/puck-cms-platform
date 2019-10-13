@@ -23,7 +23,7 @@
             <button class="btn btn-light">add</button>
         </li>
     </ul>
-    <div class="nodisplay entry">&nbsp;<span class="delete"><i class="fas fa-minus-circle"></i></span><span class="edit"><i class="fas fa-pencil-alt"></i></span></div>
+    <div class="nodisplay entry"><span class="info"></span>&nbsp;<span class="delete"><i class="fas fa-minus-circle"></i></span><span class="edit"><i class="fas fa-pencil-alt"></i></span></div>
     <div class="display clearboth">
         @foreach(var r in Model.ToList()){
             var rtype = r.Key.StartsWith(puck.core.Constants.DBNames.Redirect301) ? puck.core.Constants.DBNames.Redirect301 : puck.core.Constants.DBNames.Redirect302;
@@ -125,7 +125,7 @@
                 entry.find("span.delete").click(function () {
                     handleDelete(entry);
                 });
-                entry.prepend(redirect.From + " - " + redirect.To + " - " + redirect.Type);
+                entry.find("span.info").append(redirect.From + " - " + redirect.To + " - " + redirect.Type);
                 display.append(entry);
             }
         });
@@ -136,7 +136,9 @@
                     return;
             } else if (from.val().isEmpty() || to.val().isEmpty())
                 return;
-            var entry = redirectsContainer.find(".entry.nodisplay").clone();
+            var entry = redirectsContainer.find(".display div[data-from='" + (from.val() || "").toLowerCase() + "']");
+            if (entry.length == 0)
+                entry = redirectsContainer.find(".entry.nodisplay").clone();
             entry.removeClass("nodisplay");
             entry.attr("data-from", (from.val() || "").toLowerCase()).attr("data-to", (to.val() || "").toLowerCase()).attr("data-rtype", rtype_sel.val());
             addRedirect(from.val().toLowerCase(), to.val().toLowerCase(), rtype_sel.val(), function (res) {
@@ -147,7 +149,7 @@
                     entry.find("span.delete").click(function () {
                         handleDelete(entry);
                     });
-                    entry.prepend(from.val() + " - " + to.val() + " - " + rtype_sel.val()/*.substr(8, 3)*/);
+                    entry.find("span.info").html(from.val() + " - " + to.val() + " - " + rtype_sel.val()/*.substr(8, 3)*/);
                     display.append(entry);
                 } else {
                     msg(false,res.message);
