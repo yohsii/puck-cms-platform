@@ -53,6 +53,7 @@ namespace puck.core.State
         public static string TemplateDirectory = "~/views/";
         public static string Path404 = null;
         public static string Path500 = null;
+        public static bool RegisterIndexHandler = true;
         public static bool Debug = false;
         public static bool UpdateTaskLastRun = true;
         public static bool UpdateRecurringTaskLastRun = false;
