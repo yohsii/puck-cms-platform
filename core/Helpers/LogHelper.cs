@@ -63,10 +63,11 @@ namespace puck.core.Helpers
             if (!File.Exists(path))
                 return result;
             var txt = File.ReadAllText(path);
-            var rows = txt.Split("\n\n",StringSplitOptions.RemoveEmptyEntries).Where(x => x != "\r\n");
+            var rows = txt.Split("\n\n",StringSplitOptions.RemoveEmptyEntries).Where(x => x != "\r\n" && x!="\n" && x!="\r");
             foreach (var row in rows)
             {
                 var fields = row.TrimStart('\r','\n').Split(new char[] { '|' }, StringSplitOptions.RemoveEmptyEntries);
+                if (fields.Length < 4) continue;
                 var model = new LogEntry();
                 var dateStr = fields[0].TrimEnd('\r', '\n');
                 model.Date = DateTime.ParseExact(dateStr, "dd/MM/yyyy HH:mm:ss", CultureInfo.InvariantCulture);

@@ -15,6 +15,9 @@
     $(document).on("click", "li.node.logs ul.machines>li>.expand", function (e) {
         var el = $(this);
         var parentListItem = el.parents("li:first");
+        if (parentListItem.find("ul.logs").length == 0) {
+            self.showLogs(parentListItem.attr("data-machine"));
+        }
         if (parentListItem.find("ul.logs").is(":visible")) {
             parentListItem.find("ul.logs").hide();
             el.removeClass("fa-chevron-down").addClass("fa-chevron-right");
@@ -90,13 +93,13 @@
                 machinesListEl.append(
                     $("<li/>").attr({"data-machine":machine}).append("<i class=\"expand fas fa-chevron-right\" />"+machine)
                 );
-                self.showLogs(machine);
+                //self.showLogs(machine);
             }
             cleft.find(".left_developer li.logs").append(machinesListEl);
         });
     }
     this.showLogs = function (machine) {
-        var logsListEl = $("<ul/>").addClass("logs").css({ display: "none" });
+        var logsListEl = $("<ul/>").addClass("logs");//.css({ display: "none" });
         getLogs(machine, function (res) {
             console.log("logs", res);
             for (var i = 0; i < res.logs.length; i++) {
