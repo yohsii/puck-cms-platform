@@ -76,7 +76,7 @@ namespace puck.core.Helpers
                 model.StackTrace = fields[3].TrimStart().TrimEnd('\r', '\n');
                 result.Add(model);
             }
-
+            result.Reverse();
             return result;
         }
 

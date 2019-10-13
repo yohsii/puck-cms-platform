@@ -125,18 +125,21 @@ namespace puck.core
                         var apiHelper = scope.ServiceProvider.GetService<I_Api_Helper>();
                         List<PuckUser> usersToNotify;
                         string template;
+                        string subjectStart;
                         if (args.Node.Published) {
                             usersToNotify = await apiHelper.UsersToNotify(args.Node.Path, NotifyActions.Publish);
                             template = System.IO.File.ReadAllText(ApiHelper.MapPath(PuckCache.EmailTemplatePublishPath));
                             template = ApiHelper.EmailTransform(template, args.Node, NotifyActions.Publish);
+                            subjectStart = "content published - ";
                         }
                         else {
                             usersToNotify = await apiHelper.UsersToNotify(args.Node.Path, NotifyActions.Edit);
                             template = System.IO.File.ReadAllText(ApiHelper.MapPath(PuckCache.EmailTemplateEditPath));
                             template = ApiHelper.EmailTransform(template, args.Node, NotifyActions.Edit);
+                            subjectStart = "content edited - ";
                         }
                         if (usersToNotify.Count == 0) return;
-                        var subject = string.Concat("content edited - ", args.Node.NodeName, " - ", args.Node.Path);
+                        var subject = string.Concat(subjectStart, args.Node.NodeName, " - ", args.Node.Path);
                         var emails = string.Join(";", usersToNotify.Select(x => x.Email)).TrimEnd(';');
                         ApiHelper.Email(emails, subject, template);
                     }

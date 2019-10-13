@@ -312,7 +312,9 @@ namespace puck.core.Helpers
                 var hcontext = HttpContext.Current;
                 user = hcontext.User.Identity.Name;
                 var uri = hcontext.Request.GetUri();
-                editUrl = uri.Scheme +"://" + uri.Host + ":" + uri.Port
+                editUrl = uri.Scheme +"://" 
+                    + uri.Host 
+                    + (uri.Port!=80 ?(":" + uri.Port):"")
                     + "/puck?hash="
                     +HttpUtility.UrlEncode("content?id="+model.Id.ToString()+"&variant="+model.Variant);
             }
