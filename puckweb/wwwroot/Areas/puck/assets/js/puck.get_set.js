@@ -1,4 +1,29 @@
-﻿var getLogMachines = function (f) {
+﻿var getRedirects = function (f) {
+    $.get("/puck/api/redirects", f);
+}
+var addRedirect = function (from, to, type, f) {
+    var postStr = "from="+from+"&to="+to+"&type="+type;
+    $.ajax({
+        url: "/puck/api/addRedirect",
+        data: postStr,
+        traditional: true,
+        success: f,
+        type: "POST",
+        datatype: "json"
+    });
+}
+var deleteRedirect = function (from,f) {
+    var postStr = "from=" + from;
+    $.ajax({
+        url: "/puck/api/deleteRedirect",
+        data: postStr,
+        traditional: true,
+        success: f,
+        type: "POST",
+        datatype: "json"
+    });
+}
+var getLogMachines = function (f) {
     $.get("/puck/log/machines", f);
 }
 var getLogs = function (machine,f) {

@@ -22,6 +22,9 @@ namespace puck.core.Abstract
         void AddPuckTag(PuckTag tag);
         void DeletePuckTag(PuckTag tag);
 
+        IQueryable<PuckRedirect> GetPuckRedirect();
+        void AddPuckRedirect(PuckRedirect pr);
+        void DeletePuckRedirect(PuckRedirect pr);
         IQueryable<PuckInstruction> GetPuckInstruction();
         void AddPuckInstruction(PuckInstruction pi);
         void DeletePuckInstruction(PuckInstruction pi);

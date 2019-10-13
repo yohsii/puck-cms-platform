@@ -227,19 +227,19 @@ namespace puck.core.Helpers
         public static void UpdateRedirectMappings(bool addInstruction=false)
         {
             var repo = Repo;
-            var meta301 = repo.GetPuckMeta().Where(x => x.Name == DBNames.Redirect301).ToList();
-            var meta302 = repo.GetPuckMeta().Where(x => x.Name == DBNames.Redirect302).ToList();
+            var meta301 = repo.GetPuckRedirect().Where(x => x.Type=="301").ToList();
+            var meta302 = repo.GetPuckRedirect().Where(x => x.Type == "302").ToList();
             var map301 = new Dictionary<string, string>();
             meta301.ForEach(x =>
             {
                 //map301.Add(x.Key.ToLower(), x.Value.ToLower());
-                map301[x.Key.ToLower()] = x.Value.ToLower();
+                map301[x.From.ToLower()] = x.To.ToLower();
             });
             var map302 = new Dictionary<string, string>();
             meta302.ForEach(x =>
             {
                 //map302.Add(x.Key.ToLower(), x.Value.ToLower());
-                map302[x.Key.ToLower()] = x.Value.ToLower();
+                map302[x.From.ToLower()] = x.To.ToLower();
             });
             PuckCache.Redirect301 = map301;
             PuckCache.Redirect302 = map302;

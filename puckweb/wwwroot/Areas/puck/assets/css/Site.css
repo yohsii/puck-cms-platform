@@ -432,7 +432,7 @@ div.settings {
         }
 
         .settings .redirects .redirect_type {
-            width: 97px;
+            width: 100px;
         }
 
         .settings .redirects button {
@@ -1072,7 +1072,13 @@ background-color: #c7d1d6;
     .search_highlight {
         color: #ffffcc;
     }
-
+div.settings div.redirects span.delete, div.settings div.redirects span.edit {
+    padding: 5px;
+    margin: 5px;
+}
+.overlay_screen .content.nomenu.redirect span.nodename {
+    margin-left:10px;
+}
     .settings_generated_models h3 {
         font-size: 15px;
         margin-bottom: 0px;

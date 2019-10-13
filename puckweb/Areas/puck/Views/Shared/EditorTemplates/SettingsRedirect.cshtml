@@ -13,15 +13,17 @@
         <li>
             <label>Type</label>
             <select class="redirect_type">
-                <option value="@puck.core.Constants.DBNames.Redirect301">Permanent</option>
-                <option value="@puck.core.Constants.DBNames.Redirect302">Temporary</option>
+                @*<option value="@puck.core.Constants.DBNames.Redirect301">Permanent</option>
+                <option value="@puck.core.Constants.DBNames.Redirect302">Temporary</option>*@
+                <option value="301">Permanent</option>
+                <option value="302">Temporary</option>
             </select>
         </li>
         <li>
             <button class="btn btn-light">add</button>
         </li>
     </ul>
-    <div class="nodisplay entry">&nbsp;<span><i class="fas fa-minus-circle"></i></span></div>
+    <div class="nodisplay entry">&nbsp;<span class="delete"><i class="fas fa-minus-circle"></i></span><span class="edit"><i class="fas fa-pencil-alt"></i></span></div>
     <div class="display clearboth">
         @foreach(var r in Model.ToList()){
             var rtype = r.Key.StartsWith(puck.core.Constants.DBNames.Redirect301) ? puck.core.Constants.DBNames.Redirect301 : puck.core.Constants.DBNames.Redirect302;
@@ -96,17 +98,63 @@
                     );
             }
         }
-        redirectsContainer.find("button").click(function (e) {
-            e.preventDefault();
-            if (!from.val().isEmpty() && !to.val().isEmpty() && redirectsContainer.find(".display div[data-from='" + from.val() + "']").length == 0) {
+        var handleEdit = function (entry) {
+            from.val(entry.attr("data-from"));
+            to.val(entry.attr("data-to"));
+            rtype_sel.val(entry.attr("data-rtype"));
+            cright.parents(".scrollContainer").get(0).scroll(0, 0);
+        }
+        var handleDelete = function (entry) {
+            deleteRedirect(entry.attr("data-from"), function (res1) {
+                if (res1.success)
+                    entry.remove();
+                else {
+                    msg(false, res1.message);
+                }
+            });
+        }
+        getRedirects(function (res) {
+            for (var i = 0; i < res.redirects.length; i++) {
+                var redirect = res.redirects[i];
                 var entry = redirectsContainer.find(".entry.nodisplay").clone();
                 entry.removeClass("nodisplay");
-                entry.attr("data-from", from.val()).attr("data-to", to.val()).attr("data-rtype", rtype_sel.val());
-                entry.find("span").click(function () { entry.remove(); setValue(); });
-                entry.prepend(from.val() + " - " + to.val() + " - "+rtype_sel.val().substr(8,3));
+                entry.attr("data-from", redirect.From).attr("data-to", redirect.To).attr("data-rtype", redirect.Type);
+                entry.find("span.edit").click(function () {
+                    handleEdit(entry);
+                });
+                entry.find("span.delete").click(function () {
+                    handleDelete(entry);
+                });
+                entry.prepend(redirect.From + " - " + redirect.To + " - " + redirect.Type);
                 display.append(entry);
-                setValue();
             }
+        });
+        redirectsContainer.find("button").click(function (e) {
+            e.preventDefault();
+            if (!from.val().isEmpty() && !to.val().isEmpty() && redirectsContainer.find(".display div[data-from='" + (from.val() || "").toLowerCase() + "']").length > 0) {
+                if (!confirm("a redirect for this url already exists, do you want to overwrite it?"))
+                    return;
+            } else if (from.val().isEmpty() || to.val().isEmpty())
+                return;
+            var entry = redirectsContainer.find(".entry.nodisplay").clone();
+            entry.removeClass("nodisplay");
+            entry.attr("data-from", (from.val() || "").toLowerCase()).attr("data-to", (to.val() || "").toLowerCase()).attr("data-rtype", rtype_sel.val());
+            addRedirect(from.val().toLowerCase(), to.val().toLowerCase(), rtype_sel.val(), function (res) {
+                if (res.success) {
+                    entry.find("span.edit").click(function () {
+                        handleEdit(entry);
+                    });
+                    entry.find("span.delete").click(function () {
+                        handleDelete(entry);
+                    });
+                    entry.prepend(from.val() + " - " + to.val() + " - " + rtype_sel.val()/*.substr(8, 3)*/);
+                    display.append(entry);
+                } else {
+                    msg(false,res.message);
+                }
+            });
+            //setValue();
+            
         });
     });
     

@@ -47,7 +47,34 @@ namespace puck.core.Helpers
             this.indexer = Indexer;
             this.logger = Logger;
         }
-        
+        public void AddRedirect(string from, string to, string type) {
+            if (string.IsNullOrEmpty(from) || string.IsNullOrEmpty(to) || string.IsNullOrEmpty(type))
+                return;
+            from = from.Trim().ToLower();
+            to = to.Trim().ToLower();
+            type = type.Trim();
+            var redirect = repo.GetPuckRedirect().FirstOrDefault(x => x.From.Equals(from));
+            if (redirect == null) {
+                redirect = new PuckRedirect() {
+                    From = from
+                };
+                repo.AddPuckRedirect(redirect);
+            }
+            redirect.To = to;
+            redirect.Type = type;
+            repo.SaveChanges();
+        }
+        public void DeleteRedirect(string from) {
+            if (string.IsNullOrEmpty(from))
+                return;
+            from = from.Trim().ToLower();
+            var redirect = repo.GetPuckRedirect().FirstOrDefault(x=>x.From.Equals(from));
+            if (redirect != null)
+            {
+                repo.DeletePuckRedirect(redirect);
+                repo.SaveChanges();
+            }
+        }
         public void AddTag(string tag,string category) {
             if (string.IsNullOrEmpty(tag))
                 return;

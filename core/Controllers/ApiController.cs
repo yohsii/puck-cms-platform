@@ -62,6 +62,51 @@ namespace puck.core.Controllers
         public ActionResult KeepAlive() {
             return base.Content("success");
         }
+        public ActionResult Redirects() {
+            bool success = true;
+            string message = "";
+            var results = new List<PuckRedirect>();
+            try
+            {
+                results = repo.GetPuckRedirect().ToList();
+            }
+            catch (Exception ex)
+            {
+                success = false;
+                message = ex.Message;
+            }
+            return Json(new {redirects=results,success = success, message = message });
+        }
+        [HttpPost]
+        public ActionResult AddRedirect(string from,string to,string type) {
+            bool success = true;
+            string message = "";
+            try
+            {
+                apiHelper.AddRedirect(from,to,type);
+            }
+            catch (Exception ex) {
+                success = false;
+                message = ex.Message;
+            }
+            return Json(new {success=success,message=message });
+        }
+        [HttpPost]
+        public ActionResult DeleteRedirect(string from)
+        {
+            bool success = true;
+            string message = "";
+            try
+            {
+                apiHelper.DeleteRedirect(from);
+            }
+            catch (Exception ex)
+            {
+                success = false;
+                message = ex.Message;
+            }
+            return Json(new { success = success, message = message });
+        }
         public ActionResult DevPage(string id = "0a2ebbd3-b118-4add-a219-4dbc54cd742a") {
             var guid = Guid.Parse(id);
             var revision = repo.GetPuckRevision().FirstOrDefault(x => x.Current && x.Id == guid);
