@@ -10,38 +10,8 @@
     <meta name="viewport" content="width=device-width" />
 
     <link rel="Stylesheet" href="~/areas/puck/assets/css/Site.css" />
-    @*<link rel="Stylesheet" href="~/areas/puck/assets/css/960_12_col.css" />*@
     <link href="~/areas/puck/assets/css/select2.css" rel="stylesheet" />
-    <script>
-        // Edit to suit your needs.
-        var ADAPT_CONFIG = {
-            // Where is your CSS?
-            path: '/areas/puck/assets/css/',
-
-            // false = Only run once, when page first loads.
-            // true = Change on window resize and page tilt.
-            dynamic: true,
-
-            // Optional callback... myCallback(i, width)
-            callback: function (i, width, w) {
-                puckmaxwidth = w;
-            },
-
-            // First range entry is the minimum.
-            // Last range entry is the maximum.
-            // Separate ranges by "to" keyword.
-            range: [
-                //'0px    to 760px  = mobile.css',
-                '760px  to 980px  = 720.css',
-                '980px  to 1280px = 960.css',
-                '1280px to 1600px = 1200.css',
-                '1600px to 1920px = 1560.css',
-                '1940px to 2540px = 1920.css',
-                '2540px           = 2520.css'
-            ]
-        };
-    </script>
-
+    
     <link href="~/areas/puck/assets/css/all.css" rel="stylesheet" />
 
     <link rel="Stylesheet" href="~/areas/puck/assets/css/themes/base/jquery-ui.css" />
@@ -51,30 +21,17 @@
     <script type="text/javascript" src="~/areas/puck/assets/js/wysihtml5-0.3.0_rc2.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.js"></script>
     <script src="~/areas/puck/assets/js/jquery.browser.js"></script>
-    @*<script type="text/javascript" src="~/areas/puck/assets/js/jquery-1.7.1.js"></script>*@
-
-    @*<script src="https://code.jquery.com/jquery-2.2.4.js"
-        integrity="sha256-iT6Q9iMJYuQiMWNd9lDyBUStIq/8PuOW33aOqmvFpqI="
-        crossorigin="anonymous"></script>*@
-    @*<script src="https://code.jquery.com/jquery-1.12.4.js"
-        integrity="sha256-Qw82+bXyGq6MydymqBxNPYTaUXXq7c8v3CwiYwLLNXU="
-        crossorigin="anonymous"></script>*@
-
-
-    @*<script type="text/javascript" src="~/areas/puck/assets/js/jquery-ui-1.8.20.js"></script>*@
+    
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"
             integrity="sha256-T0Vest3yCU7pafRw9r+settMBX6JkKN06dqBnpQ8d30="
             crossorigin="anonymous"></script>
 
     <script type="text/javascript" src="~/areas/puck/assets/js/jquery.validate.js"></script>
-    @*<script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.1/dist/jquery.validate.js"></script>*@
-    @*<script type="text/javascript" src="~/areas/puck/assets/js/jquery.validate.unobtrusive.js"></script>*@
     <script type="text/javascript" src="https://ajax.aspnetcdn.com/ajax/mvc/5.1/jquery.validate.unobtrusive.min.js"></script>
     <script type="text/javascript" src="~/areas/puck/assets/js/modernizr-2.5.3.js"></script>
     <script type="text/javascript" src="~/areas/puck/assets/js/jquery-ui-timepicker-addon.js"></script>
     <script type="text/javascript" src="~/areas/puck/assets/js/globalize.js"></script>
 
-    @*<script type="text/javascript" src="~/areas/puck/assets/js/tinymceMIN/js/tinymce/tinymce.min.js"></script>*@
     <script src="~/areas/puck/assets/js/tinymce5/js/tinymce/tinymce.min.js"></script>
     <script src="~/areas/puck/assets/js/select2.js"></script>
     <script type="text/javascript" src="~/areas/puck/assets/js/chosen.jquery.min.js"></script>
@@ -82,7 +39,6 @@
     <script src="~/Areas/puck/assets/js/moment.js"></script>
 
     <script type="text/javascript" src="~/areas/puck/assets/js/codemirror.js"></script>
-
     <script type="text/javascript" src="~/areas/puck/assets/js/code_mirror_modes/htmlmixed/htmlmixed.js"></script>
     <script type="text/javascript" src="~/areas/puck/assets/js/code_mirror_modes/javascript/javascript.js"></script>
     <script type="text/javascript" src="~/areas/puck/assets/js/code_mirror_modes/xml/xml.js"></script>
@@ -93,17 +49,8 @@
 
     <link href="~/areas/puck/assets/css/bootstrap-wysihtml5-0.0.2.css" rel="stylesheet" />
 
-    @*<script type="text/javascript" src="~/areas/puck/assets/js/adapt.js"></script>
-        <link rel="Stylesheet" href="~/areas/puck/assets/css/960_12_col.css" />*@
-    @*<link rel="Stylesheet" href="~/areas/puck/assets/css/bootstrap.css" />
-        <link rel="Stylesheet" href="~/areas/puck/assets/css/bootstrap-responsive.css" />
-        <script type="text/javascript" src="~/areas/puck/assets/js/bootstrap.js"></script>
-        <script type="text/javascript" src="~/areas/puck/assets/js/bootstrap-wysihtml5-0.0.2.js"></script>*@
     <link href="~/areas/puck/assets/css/bootstrap4.css" rel="stylesheet" />
     <script src="~/areas/puck/assets/js/bootstrap.bundle.min.js"></script>
-
-    <script src="~/areas/puck/assets/js/require.js"></script>
-
     <script>
         if (!String.prototype.startsWith) {
             Object.defineProperty(String.prototype, 'startsWith', {
