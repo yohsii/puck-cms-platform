@@ -138,7 +138,11 @@
             }
             var el = container.find(".interfaces .imagePickerOverlayContainer").clone();
             overlayEl=overlay(el, 400, undefined, undefined, "Image Picker", true);
-            showFolderContent(_startId,"/");
+            showFolderContent(_startId, "/", function () {
+                if (overlayEl.find(".item").length == 0) {
+                    overlayEl.find("div.path").after($("<p/>").css({"margin-top":"20px"}).html("there is no content to select."));
+                }
+            });
             overlayEl.off("click.imgPickerMeta").on("click.imgPickerMeta", ".metaContainer.folder", function (e) {
                 var el = $(this);
                 var item = el.parents(".item");
@@ -186,7 +190,7 @@
                 }
             });
         });
-        var showFolderContent = function(id,name) {
+        var showFolderContent = function(id,name,f) {
             var cont = overlayEl;
             var itemContainer = overlayEl.find(".itemContainer");
             if (cont.length == 0) return;
@@ -208,7 +212,7 @@
                         vCount++;
                     }
                 }
-
+                if (f) f();
             },false);
         }
 
@@ -345,6 +349,7 @@
 
         .puckimagepicker .actionContainer i {
             cursor: pointer;
+            margin:0px 3px;
         }
 
     .puckimagepicker .item {

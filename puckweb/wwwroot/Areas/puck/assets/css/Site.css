@@ -51,11 +51,11 @@ margin-bottom: 30px;
 .menutop ul {
 overflow:hidden;    
 }
-ul.content {
+ul.content,ul.contentTree {
 padding:0px;
 }
-ul.content ul {
-padding:0px;
+ul.content ul, ul.contentTree ul {
+    padding: 0px;
 }
 .fas {
     color:#333;
@@ -176,10 +176,30 @@ h1.master{position:absolute;top:10px;right:10px;border-bottom:6px solid #6f6f6f;
         display: none;
     }
 
-    ul.content > li > ul {
-        margin-left: 0px !important;
-    }
-
+ul.content > li > ul, ul.contentTree > li > ul {
+    margin-left: 0px !important;
+}
+ul.contentTree li {
+    margin:3px 0px;
+}
+ul.contentTree .puck_icon {
+    display:none;
+}
+ul.contentTree {
+    padding-left:20px;
+}
+ul.contentTree .menu {
+    display:none;
+}
+ul.contentTree span.nodename {
+    margin-left:5px;
+}
+ul.contentTree ul {
+    margin-left: 10px !important;
+}
+ul.contentTree .node.selected>.inner>span.nodename{
+    background: #ccffcc;
+}
     .leftarea .startpath {
         clear: both;
         margin-top: 5px;

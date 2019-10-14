@@ -12,7 +12,7 @@
         {
             AllowDuplicates = false,
             AllowUnpublished = true,
-            MaxPick = 2,
+            MaxPick = 5,
             SelectionType = "both",
             StartPath = null
         };
@@ -31,7 +31,10 @@
 }
 <div data-guid="@guid.ToString()" class="puckpicker puckpicker_@ViewData.ModelMetadata.PropertyName puckpicker_@ViewData.TemplateInfo.HtmlFieldPrefix.Replace("[","_").Replace("]","_").Replace(".","_")">
     <div style="display:none;" class="propName" data-propName="@ViewData.TemplateInfo.HtmlFieldPrefix"></div>
-    <ul class="content nomenu">
+    <div>
+        <button type="button" class="btn btn-light addItem"><i class="fas fa-plus"></i></button>
+    </div>
+    <ul class="nodisplay contentTree nomenu">
         <li class="node" data-children_path="/"></li>
     </ul>
     <div class="selected_content">
@@ -117,48 +120,97 @@
             });
         }
         loadData();
-        el = container.find(".node:first");
-        getDrawContent(_startId, el);
         selected_container.on("click", "i", function (e) {
-            $(this).parent().remove();
+            var el = $(this).parent();
+            if (overlayEl) {
+                overlayEl.find(".node[data-id='" + el.attr("data-id") + "']").removeClass("selected");
+            }
+            el.remove();
             setValue();
         });
-        container.on("click", ".node span", function (e) {
-            var clicked = $(this);
-            var node = clicked.parents(".node:first");
-            var isVariantSelection = clicked.hasClass("variant");
-
-            if (selected_content().length >= maxPick) {
+        var overlayEl = undefined; 
+        container.find(".addItem").click(function (e) {
+            if (selected_container.find(".selected_node").length >= maxPick) {
+                msg(undefined, "you cannot select any more, max selection is set to " + maxPick, undefined, undefined);
                 return false;
             }
+            var tree = container.find("ul.contentTree").clone().removeClass("nodisplay");
+            overlayEl = overlay(tree, 400, undefined, undefined, "Content Picker", true);
+            el = overlayEl.find(".node:first");
+            getDrawContent(_startId, el, false, function () {
+                selected_container.find(".selected_node").each(function () {
+                    var selected = $(this);
+                    overlayEl.find(".node[data-id='" + selected.attr("data-id") + "']").addClass("selected");
+                });
+                if (overlayEl.find(".node").length == 1) {
+                    overlayEl.find("ul.contentTree").before($("<p/>").html("there is no content to select."));
+                }
+            }, false);
+            overlayEl.on("click", ".node span", function (e) {
+                var clicked = $(this);
+                var node = clicked.parents(".node:first");
+                var isVariantSelection = clicked.hasClass("variant");
 
-            if (node.attr("data-published") == "false" && !allowUnpublished) {
-                return false;
-            }
-            var variant;
-            if (!isVariantSelection) {
-                //changed to only allow variant selection
-                variant = clicked.nextAll(".variant:first").attr("data-variant");
-                isVariantSelection = true;
-            }
-            else
-                variant = clicked.attr("data-variant");
-            if (selected_content().filter("[data-id='" + node.attr("data-id") + "'][data-variant='"+variant+"']").length > 0 && !allowDuplicates) {
-                return;
-            }
-            if (isVariantSelection && (selectionType == "variant" || selectionType == "both")) {
-                selected_container.append(
-                    "<div class='selected_node' data-nodename='"+node.attr("data-nodename")+"' data-variant='" + variant + "' data-id='" + node.attr("data-id") + "'>"
-                    + "<span>"+ node.attr("data-nodename") + "</span> - <span class='v'>" + variant + "</span>"
-                    + "&nbsp;<span class='view'>View</span> &nbsp;<i class='fas fa-minus-circle remove'></i></div>"
-                );
-            } else if (!isVariantSelection && (selectionType == "node" || selectionType == "both")) {
-                selected_container.append(
-                    "<div class='selected_node' data-variant='' data-id='" + node.attr("data-id") + "'><span>" + node.attr("data-nodename") + "</span>&nbsp;<i class='fas fa-minus-circle remove'></i></div>"
-                );
-            }
-            setValue();
+                if (selected_content().length >= maxPick) {
+                    msg(undefined, "you cannot select any more, max selection is set to " + maxPick, undefined, undefined);
+                    return false;
+                }
+                
+                if (node.attr("data-published") == "false" && !allowUnpublished) {
+                    return false;
+                }
+                node.addClass("selected");
+                var variant;
+                if (!isVariantSelection) {
+                    //changed to only allow variant selection
+                    variant = clicked.parents(".node:first").find(".variant:first").attr("data-variant");
+                    isVariantSelection = true;
+                }
+                else
+                    variant = clicked.attr("data-variant");
+                if (selected_content().filter("[data-id='" + node.attr("data-id") + "'][data-variant='"+variant+"']").length > 0 && !allowDuplicates) {
+                    return;
+                }
+                if (isVariantSelection && (selectionType == "variant" || selectionType == "both")) {
+                    selected_container.append(
+                        "<div class='selected_node' data-nodename='"+node.attr("data-nodename")+"' data-variant='" + variant + "' data-id='" + node.attr("data-id") + "'>"
+                        + "<span>"+ node.attr("data-nodename") + "</span> - <span class='v'>" + variant + "</span>"
+                        + "&nbsp;<span class='view'>View</span> &nbsp;<i class='fas fa-minus-circle remove'></i></div>"
+                    );
+                } else if (!isVariantSelection && (selectionType == "node" || selectionType == "both")) {
+                    selected_container.append(
+                        "<div class='selected_node' data-variant='' data-id='" + node.attr("data-id") + "'><span>" + node.attr("data-nodename") + "</span>&nbsp;<i class='fas fa-minus-circle remove'></i></div>"
+                    );
+                }
+                setValue();
+            });
+            overlayEl.on("click", "ul.contentTree li.node i.expand", function () {
+                //get children content
+                var node = $(this).parents(".node:first");
+                var descendants = node.find("ul:first");
+                if (descendants.length > 0) {//show
+                    if (descendants.first().is(":hidden")) {
+                        node.find("i.expand:first").removeClass("fa-chevron-right").addClass("fa-chevron-down");
+                        descendants.show();
+                    } else {//hide
+                        node.find("i.expand:first").removeClass("fa-chevron-down").addClass("fa-chevron-right");
+                        descendants.hide();
+                    }
+                } else {
+                    getDrawContent(node.attr("data-id"), node, false, function () {
+                        node.find(".loader").hide();
+                        node.find("i.expand:first").show();
+                        selected_container.find(".selected_node").each(function () {
+                            var selected = $(this);
+                            overlayEl.find(".node[data-id='" + selected.attr("data-id") + "']").addClass("selected");
+                        });
+                    },false);
+                    node.find(".loader").show();
+                    node.find("i.expand:first").removeClass("fa-chevron-right").addClass("fa-chevron-down").hide();
+                }
+            });
         });
+        
         selected_container.on("click", ".selected_node .view", function (e) {
             var el = $(this);
             var selectedNode = el.parent();
@@ -174,5 +226,6 @@
             var overlayEl = overlay(container, "90%", undefined, top, nodename);
             displayMarkup(null, undefined, variant, undefined, id, inner,msgContainer);
         });
+
     });
 </script>
