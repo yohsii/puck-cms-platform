@@ -266,7 +266,10 @@ ul.contentTree .node.selected>.inner>span.nodename{
         border-left: none;
         box-shadow: 1px 1px 8px -2px;
     }
-
+    .overlay_screen .overlay_close {
+        font-size:20px;
+        padding:5px;
+    }
     .overlay_screen {
         overflow: scroll;
     }
