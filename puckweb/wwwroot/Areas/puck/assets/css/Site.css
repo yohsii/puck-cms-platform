@@ -1776,7 +1776,7 @@ div.settings div.redirects span.delete, div.settings div.redirects span.edit {
         width: 300px;
     }
 
-    @media only screen and (min-width:768px) {
+    @media only screen and (min-width:/*768px*/993px) {
 
         .content_edit_page input {
             width: 480px;
