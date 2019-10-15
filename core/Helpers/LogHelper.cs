@@ -67,13 +67,14 @@ namespace puck.core.Helpers
             foreach (var row in rows)
             {
                 var fields = row.TrimStart('\r','\n').Split(new char[] { '|' }, StringSplitOptions.RemoveEmptyEntries);
-                if (fields.Length < 4) continue;
+                if (fields.Length < 5) continue;
                 var model = new LogEntry();
                 var dateStr = fields[0].TrimEnd('\r', '\n');
                 model.Date = DateTime.ParseExact(dateStr, "dd/MM/yyyy HH:mm:ss", CultureInfo.InvariantCulture);
                 model.Level = fields[1].TrimEnd('\r', '\n');
-                model.Message = fields[2].TrimEnd('\r', '\n');
-                model.StackTrace = fields[3].TrimStart().TrimEnd('\r', '\n');
+                model.ExceptionType = fields[2].TrimEnd('\r', '\n');
+                model.Message = fields[3].TrimEnd('\r', '\n');
+                model.StackTrace = fields[4].TrimStart().TrimEnd('\r', '\n');
                 result.Add(model);
             }
             result.Reverse();

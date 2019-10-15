@@ -76,7 +76,7 @@
             var tr1 = $("<tr/>");
             tr1.append($("<td/>").html(entry.Time));
             tr1.append($("<td/>").html(entry.Level));
-            tr1.append($("<td/>").html(entry.Message));
+            tr1.append($("<td/>").attr({title:entry.ExceptionType}).html(entry.Message));
             var tr2 = $("<tr/>");
             tr2.append($("<td colspan=\"3\"/>").html(entry.StackTrace.replace("\n", "<br/>")));
             table.append(tbody.append(tr1).append(tr2));

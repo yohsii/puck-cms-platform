@@ -14,9 +14,9 @@ namespace puck.core.Concrete
         public string DATADIRECTORY { get { return ApiHelper.MapPath($"~/App_Data/Log/{ApiHelper.ServerName()}"); } }
         private static Object log_lock = new Object();
         public void Log(Exception ex) {
-            this.Log(ex.Message,ex.StackTrace,"error");
+            this.Log(ex.Message,ex.StackTrace,"error",ex.GetType());
         }
-        public void Log(string message,string stackTrace,string level="error")
+        public void Log(string message,string stackTrace,string level="error",Type exceptionType=null)
         {
             lock (log_lock)
             {
@@ -47,6 +47,7 @@ namespace puck.core.Concrete
                 if (sw == null) sw = File.AppendText(lfpath);
                 sw.WriteLine("|" + DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss"));
                 sw.WriteLine("|" + level);
+                sw.WriteLine("|"+ exceptionType?.Name??"");
                 sw.WriteLine("|" + message);
                 sw.WriteLine("|" + stackTrace);
                 sw.WriteLine("\n");

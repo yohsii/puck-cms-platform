@@ -12,6 +12,7 @@ namespace puck.core.Models.Logging
         public string Message { get; set; }
         [Display(Name ="Stack Trace")]
         public string StackTrace { get; set; }
-
+        [Display(Name ="Type")]
+        public string ExceptionType { get; set; }
     }
 }
