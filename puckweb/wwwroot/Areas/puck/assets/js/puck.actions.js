@@ -1081,7 +1081,6 @@ var overlay = function (el, width, height, top, title, isRightSided) {
     top = top || "0px";
     overlayClose(false,overlayClass);
     var cleftIsVisible = false;
-    //if ($(window).width() < 750 /*768*/) {
     if (window.innerWidth < 768) {
         if (cleft.is(":visible")) {
             cleftIsVisible = true;
