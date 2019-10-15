@@ -76,13 +76,13 @@ h1.master{position:absolute;top:10px;right:10px;border-bottom:6px solid #6f6f6f;
     padding:30px 0 0 0;
 }
 .main.grid{height:100%;font-family:courier;font-size:12px;}
-.main.grid .menutop{/*height:11%;max-height:50px;*/padding:30px 0 0 0px;}
+.main.grid .menutop{/*height:11%;max-height:50px;*/padding:15px 0 0 0px;}
 .main.grid ul{list-style-type:none;margin-left:0px;}
 .main.grid .menutop li{float:left;margin-right:10px;}
 .main.grid .menutop li a{border-bottom:2px solid #e2e2e2;font-weight:bold;font-size:20px;}
 .main.grid .menutop li.selected a{border-bottom:2px solid #0088cc;}
 .main.grid .menutop ul{margin-left:20px;}
-@media only screen and (max-width:800px) {
+@media only screen and (max-width:1000px) {
     .main.grid .menutop {
         padding-top: 5px;
     }
@@ -1011,9 +1011,11 @@ div.settings {
     .leftarea .left_item a {
         margin-left: 0px!important;
     }
-
+    .leftarea .left_item a.variantLink {
+        margin-left:5px!important;
+    }
     .leftarea .left_item.left_settings i {
-        display: block!important;
+        display: block !important;
     }
 }
 .tree_container.sort .node i{
