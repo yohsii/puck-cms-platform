@@ -185,8 +185,11 @@
                         var copy = el.clone().removeClass("col-4").addClass("col-md-2");
                         selected_container.append(copy);
                         setValue();
-                    } else msg(undefined, "you cannot select any more, max selection is set to " + maxPick,undefined,undefined);
+                    } else msg(undefined, "you cannot select any more, max selection is set to " + maxPick, undefined, undefined);
 
+                } else {
+                    selected_container.find("[data-id='" + el.attr("data-id") + "'][data-variant='" + el.attr("data-variant") + "']").remove();
+                    el.removeClass("selected");
                 }
             });
         });

@@ -9,9 +9,9 @@ namespace puck.core.Abstract.EditorSettings
     {
         string StartPathId { get; set; }
         int MaxPick { get; set; }
-        string SelectionType { get; set; }
+        //string SelectionType { get; set; }
         bool AllowUnpublished { get; set; }
-        bool AllowDuplicates { get; set; }
+        //bool AllowDuplicates { get; set; }
         List<PuckPicker> StartPath { get; set; }
     }
 }

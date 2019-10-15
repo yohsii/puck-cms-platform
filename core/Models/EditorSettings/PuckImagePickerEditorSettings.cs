@@ -17,9 +17,16 @@ namespace puck.core.Models.EditorSettings
         {
             if (MaxPick == 0) MaxPick = 1;
         }
+
+        [Display(Name ="Max Pick")]
         public int MaxPick { get; set; }
+        
         [UIHint("PuckPicker")]
+        [Display(Name ="Start Path")]
+        [Attributes.PuckPickerEditorSettings(MaxPick =1)]
         public List<PuckPicker> StartPath { get; set; }
+        
+        [Display(Name ="Start Path Id")]
         [HiddenInput(DisplayValue =false)]
         public string StartPathId { get; set; }
     }

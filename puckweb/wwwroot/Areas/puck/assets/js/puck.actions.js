@@ -819,7 +819,7 @@ var displayMarkup = function (parentId, type, variant, fromVariant,contentId,con
                         if (!published)
                             dtli.addClass("unpublished");
                         if (dataTranslation != variant) {
-                            var lnk = $("<a href='#'/>").html("-" + variantNames[dataTranslation]);
+                            var lnk = $("<a href='#content?id=" + contentId + "&variant=" + dataTranslation + "'/>").html("-" + variantNames[dataTranslation]);
                             lnk.click(function (e) {
                                 e.preventDefault();
                                 var vcode = dataTranslation;
@@ -849,7 +849,7 @@ var displayMarkup = function (parentId, type, variant, fromVariant,contentId,con
                                 if (!d[i].Published)
                                     dtli.addClass("unpublished");
                                 if (d[i].Variant != variant) {
-                                    var lnk = $("<a href='#'/>").html("-" + variantNames[d[i].Variant]);
+                                    var lnk = $("<a href='#content?id="+contentId+"&variant="+d[i].Variant+"'/>").html("-" + variantNames[d[i].Variant]);
                                     (function () {
                                         var v = d[i].Variant;
                                         lnk.click(function (e) {

@@ -909,7 +909,7 @@ div.settings {
         }
 
             .fieldwrapper.complex label {
-                text-decoration: underline;
+                /*text-decoration: underline;*/
             }
 
         .fieldwrapper.complex_child {

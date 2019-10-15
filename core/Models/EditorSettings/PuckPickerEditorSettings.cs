@@ -17,15 +17,24 @@ namespace puck.core.Models.EditorSettings
         public PuckPickerEditorSettings() {
             if (MaxPick == 0) MaxPick = 1;
         }
+        [Display(Name ="Max Pick")]
         public int MaxPick { get; set; }
-        [UIHint("PuckPickerSelectionType")]
-        public string SelectionType { get; set; }
+        
+        //[Display(Name ="Selection Type")]
+        //[UIHint("PuckPickerSelectionType")]
+        //public string SelectionType { get; set; }
+        
+        [Display(Name ="Allow Unpublished")]
         public bool AllowUnpublished { get; set; }
-        public bool AllowDuplicates { get; set; }
+        //public bool AllowDuplicates { get; set; }
 
         [UIHint("PuckPicker")]
+        [Display(Name="Start Path")]
+        [Attributes.PuckPickerEditorSettings(MaxPick =1)]
         public List<PuckPicker> StartPath { get; set; }
+        
         [HiddenInput(DisplayValue =false)]
+        [Display(Name = "Start Path Id")]
         public string StartPathId { get; set; }
     }
 }

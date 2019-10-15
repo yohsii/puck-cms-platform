@@ -16,9 +16,9 @@ namespace puck.core.Models.EditorSettings.Attributes
     {
         public string StartPathId { get; set; }
         public int MaxPick { get; set; }
-        public string SelectionType { get; set; }
+        //public string SelectionType { get; set; }
         public bool AllowUnpublished { get; set; }
-        public bool AllowDuplicates { get; set; }
+        //public bool AllowDuplicates { get; set; }
         public List<PuckPicker> StartPath { get; set; }
     }
 }
