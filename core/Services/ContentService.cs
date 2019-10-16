@@ -1321,7 +1321,7 @@ namespace puck.core.Services
                             //var type = ApiHelper.GetType(aqn);
                             var type = ApiHelper.GetTypeFromName(aqn);
                             if (type == null) continue;
-                            var model = JsonConvert.DeserializeObject(reader.GetString(2), type) as BaseModel;
+                            var model = JsonConvert.DeserializeObject(value, type) as BaseModel;
                             model.Type = aqn;
                             model.Path = reader.GetString(0);
                             model.TypeChain = reader.GetString(3);
@@ -1555,10 +1555,10 @@ namespace puck.core.Services
 
             var qh = new QueryHelper<BaseModel>(prependTypeTerm: false);
             qh.Must().Field(x => x.Type, orphanTypeName);
-            toIndex = qh.GetAllNoCast(limit: int.MaxValue);
+            toIndex = qh.GetAllNoCast(limit: int.MaxValue,typeOverride:newType);
 
             toIndex.ForEach(x => { x.Type = newTypeName; x.TypeChain = newTypeChain; });
-
+            AddPublishInstruction(toIndex);
             indexer.Index(toIndex);
 
             //update relevant meta entries

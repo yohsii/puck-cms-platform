@@ -1,4 +1,13 @@
-﻿/*stuff from bootstrap 2*/
+﻿/*select2 plugin*/
+.select2-search-choice {
+    /*border: none !important;
+    box-shadow: 0 0 2px #fff inset, 0px 2px 0 rgba(0, 0, 0, 0.3) !important;
+    -webkit-box-shadow: 0 0 2px #fff inset, 0px 2px 0 rgba(0, 0, 0, 0.3) !important;
+    background-color: #f1f2f3!important;
+    background-image:none!important;*/
+}
+
+/*stuff from bootstrap 2*/
 select{
     height: 30px;
     *margin-top: 4px;
