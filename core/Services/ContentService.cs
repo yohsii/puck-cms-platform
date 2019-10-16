@@ -1553,11 +1553,16 @@ namespace puck.core.Services
 
             var affected = UpdateTypeAndTypeChain(orphanTypeName, newTypeName, newTypeChain);
 
-            var qh = new QueryHelper<BaseModel>(prependTypeTerm: false);
-            qh.Must().Field(x => x.Type, orphanTypeName);
-            toIndex = qh.GetAllNoCast(limit: int.MaxValue,typeOverride:newType);
+            var revisions = repo.GetPuckRevision().Where(x => x.Type.Equals(newTypeName) && (x.IsPublishedRevision || (x.Current && x.HasNoPublishedRevision)))
+                .ToList();
 
-            toIndex.ForEach(x => { x.Type = newTypeName; x.TypeChain = newTypeChain; });
+            toIndex = revisions.Select(x => x.ToBaseModel()).Where(x => x != null).ToList();
+            
+            //var qh = new QueryHelper<BaseModel>(prependTypeTerm: false);
+            //qh.Must().Field(x => x.Type, orphanTypeName);
+            //toIndex = qh.GetAllNoCast(limit: int.MaxValue,typeOverride:newType);
+
+            //toIndex.ForEach(x => { x.Type = newTypeName; x.TypeChain = newTypeChain; });
             AddPublishInstruction(toIndex);
             indexer.Index(toIndex);
 
