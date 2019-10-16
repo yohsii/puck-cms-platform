@@ -1331,7 +1331,7 @@ var pollRepublishStatus = function () {
     });
 }
 var republishEntireSite = function () {
-    if (confirm("This can take minutes to complete, during which you won't be able to save or publish content, do you want to continue?")) {
+    if (confirm("Republishing the entire site can take minutes to complete, during which you won't be able to save or publish content, do you want to continue?")) {
         setRepublishEntireSite(function (data) {
             if (data.success) {
                 pollRepublishStatus();
