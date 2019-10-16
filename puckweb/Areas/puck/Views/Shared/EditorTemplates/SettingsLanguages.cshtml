@@ -23,7 +23,7 @@
             var item = $(this);
             data.push({id:item.attr("value"),text:item.html()});
         });
-        $("input.@ViewData.ModelMetadata.PropertyName").select2({ data: data,multiple:true,width:550});
+        $("input.@ViewData.ModelMetadata.PropertyName").select2({ data: data,multiple:true,width:"100%"});
 
         $("input.@ViewData.ModelMetadata.PropertyName").select2("container").find("ul.select2-choices").sortable({
             containment: 'parent',
