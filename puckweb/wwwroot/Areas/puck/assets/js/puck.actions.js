@@ -1085,14 +1085,14 @@ var overlay = function (el, width, height, top, title, isRightSided) {
         if (cleft.is(":visible")) {
             cleftIsVisible = true;
             console.log("overlay width set from cleft");
-            if(width!="100%")
-                width = cleft.width();
+            if (width != "100%")
+                width = cleft.outerWidth();
             cleft.hide();
         }
     }
     if(width!="100%")
-        if (width > $(window).width())
-            width = $(window).width();
+        if (width > window.innerWidth)
+            width = window.innerWidth;
     var f = undefined;
     searchDialogClose();
     var outer = $(".interfaces .overlay_screen").clone().addClass("active").addClass(overlayClass).addClass("scrollContainer");

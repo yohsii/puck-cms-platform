@@ -755,6 +755,7 @@ function getQueryString(name, url) {
     return decodeURIComponent(results[2].replace(/\+/g, ' '));
 }
 $(window).load(function () {
+    setAreaHeights();
     loadCustomSections();
     var hash = getQueryString("hash");
     //console.log("hashQs",hash);
