@@ -1084,7 +1084,7 @@ var overlay = function (el, width, height, top, title, isRightSided) {
     if (window.innerWidth < 768) {
         if (cleft.is(":visible")) {
             cleftIsVisible = true;
-            console.log("overlay width set from cleft");
+            //console.log("overlay width set from cleft");
             if (width != "100%")
                 width = cleft.outerWidth();
             cleft.hide();

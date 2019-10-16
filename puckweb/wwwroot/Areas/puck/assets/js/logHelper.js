@@ -52,7 +52,7 @@
                 machine = res.machine;
             if (!name)
                 name = res.name;
-            console.log("log", res);
+            //console.log("log", res);
             self.entries = res.entries;
             var container = cinterfaces.find(".logsContainer").clone();
             var dateStr = name.replace(".txt", "");
@@ -86,7 +86,7 @@
     }
     this.showMachines = function () {
         getLogMachines(function (res) {
-            console.log("machines",res);
+            //console.log("machines",res);
             var machinesListEl = $("<ul/>").addClass("machines").css({display:"none"});
             for (var i = 0; i < res.machines.length; i++) {
                 var machine = res.machines[i];
@@ -101,7 +101,7 @@
     this.showLogs = function (machine) {
         var logsListEl = $("<ul/>").addClass("logs");//.css({ display: "none" });
         getLogs(machine, function (res) {
-            console.log("logs", res);
+            //console.log("logs", res);
             for (var i = 0; i < res.logs.length; i++) {
                 var log = res.logs[i].replace(".txt","");
                 var listItem = $("<li>");

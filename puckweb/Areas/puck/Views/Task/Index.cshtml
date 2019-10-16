@@ -73,6 +73,9 @@
                 }
 
             </table>
+            @if (Model.Tasks.Count == 0) { 
+                <p>there are no tasks to display</p>
+            }
         </div>
 
     </div>
