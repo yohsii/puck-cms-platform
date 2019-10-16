@@ -505,6 +505,7 @@ div.settings {
     }
 
         .settings .fieldgroups div.type {
+            padding-top:20px;
             clear: left;
         }
 

@@ -36,12 +36,14 @@
             </select>
         </li>
         <li>
-            <input class="groupname" />
+            <input placeholder="group name..." class="groupname" />
         </li>
         <li>
-            <button class="add btn btn-light">new group</button>
+            <button class="add btn btn-light">add group</button>
+            
         </li>
     </ul>
+    
     @{
         var typeGroupProp = new List<Tuple<string, string, string>>();
         var friendlyName = new Dictionary<string, string>();
