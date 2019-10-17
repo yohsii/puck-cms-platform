@@ -19,7 +19,7 @@ it's fast, with queries avoiding the database and instead using Lucene. it's als
 - not much to learn - models designed as regular poco decorated with attributes as you normally would with .net mvc
 - full text search - data storage is lucene based and you can set analyzers and field settings (analyze,store,ignore,keep casing) per property in your model
 - spatial search
-- image cropping using imagesharp
+- image cropping
 - basic user permissions to grant/deny permissions to particular actions and limit access to content based on a start path
 - hooks - you can transform data before it is indexed using attributes to modify how a field is indexed and how it is stored
 - supports conditional template switching (display modes were removed from asp.net core but this works in the same way)
