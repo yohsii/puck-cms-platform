@@ -104,10 +104,17 @@ namespace puck.core.Helpers
                             }
                             if (instruction.InstructionKey == InstructionKeys.Delete)
                             {
-                                var qh = new QueryHelper<BaseModel>(prependTypeTerm: false);
-                                qh.SetQuery(instruction.InstructionDetail);
-                                var models = qh.GetAll(limit:int.MaxValue);
-                                Indexer.Delete(models);
+                                hasPublishInstruction = true;
+                                if (Indexer.CanWrite)
+                                {
+                                    var qh = new QueryHelper<BaseModel>(prependTypeTerm: false);
+                                    qh.SetQuery(instruction.InstructionDetail);
+                                    var models = qh.GetAll(limit: int.MaxValue);
+                                    Indexer.Delete(models);
+                                }
+                                else {
+                                    searcher.SetSearcher();
+                                }
                             }
                             if (instruction.InstructionKey == InstructionKeys.RepublishSite)
                             {
