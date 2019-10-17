@@ -421,7 +421,10 @@ $(document).on("click",".node-dropdown a,.template-dropdown a",function () {
             var overlayEl = overlay(markup, 400, undefined, undefined, "Sort Content");
             overlayEl.find(".msg").html("drag to sort children of content <b>" + node.attr("data-nodename") + "</b>");
             getDrawContent(node.attr("data-id"), el, false, function () {
-                el.find("ul:first").sortable({axis:"y"});
+                el.find("ul:first").sortable({ axis: "y" });
+                el.find("li").each(function () {
+                    initTouch(this);
+                });
             });
             overlayEl.find("button").click(function (e) {
                 var btn = $(this);
@@ -765,3 +768,26 @@ $(window).load(function () {
     }, 500);
     
 });
+
+function touchHandler(event) {
+    var touch = event.changedTouches[0];
+
+    var simulatedEvent = document.createEvent("MouseEvent");
+    simulatedEvent.initMouseEvent({
+        touchstart: "mousedown",
+        touchmove: "mousemove",
+        touchend: "mouseup"
+    }[event.type], true, true, window, 1,
+        touch.screenX, touch.screenY,
+        touch.clientX, touch.clientY, false,
+        false, false, false, 0, null);
+
+    touch.target.dispatchEvent(simulatedEvent);
+    event.preventDefault();
+}
+function initTouch(el) {
+    el.addEventListener("touchstart", touchHandler, true);
+    el.addEventListener("touchmove", touchHandler, true);
+    el.addEventListener("touchend", touchHandler, true);
+    el.addEventListener("touchcancel", touchHandler, true);
+}

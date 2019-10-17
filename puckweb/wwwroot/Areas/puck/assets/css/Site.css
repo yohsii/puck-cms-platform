@@ -538,10 +538,11 @@ div.settings {
 
     .settings .settings_type_allowed_types .list, .settings .settings_type_allowed_templates .list {
         float: left;
-        padding: 20px;
-        margin: 10px;
+        /*padding: 20px;*/
+        padding:1%;
+        margin: 2%;
         background: #f9f9f9;
-        width: 43%;
+        width: 46%;
     }
 
     .settings .settings_type_allowed_types .field, .settings .settings_type_allowed_templates .field {
@@ -550,6 +551,7 @@ div.settings {
 
     .settings .settings_type_allowed_types select, .settings .settings_type_allowed_templates select {
         width: 400px;
+        max-width:100%;
     }
 
     .settings .fieldwrapper {
@@ -737,7 +739,9 @@ div.settings {
         padding: 5px;
         display: none;
     }
-
+.overlay_screen .tree_container.sort {
+    padding: 0px 40px 0px 0px;
+}
     .overlay_screen .tree_container ul.content > li > ul > li:nth-child(odd) {
         background-color: #fbfbfb;
     }

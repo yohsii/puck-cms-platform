@@ -85,6 +85,9 @@
                 setValue();
             }
         });
+        container.find(".lists .field").each(function () {
+            initTouch(this);
+        });
         emptyMessage();
     });
 </script>

@@ -99,6 +99,7 @@
         var interfaces = function (c) {
             return container.find(".interfaces ."+c).clone();
         }
+        
         var propertyName = function (i) {
             return "@ViewData.ModelMetadata.PropertyName";
         }
@@ -185,6 +186,10 @@
                 }
             });
 
+            container.find(".type .field[data-inherited='false']").each(function () {
+                initTouch(this);
+            });
+        
         }
         //console.log("select last val: %o", container.find("select option:last").val());
         drawType(container.find("select option:nth-child(1)").val());
