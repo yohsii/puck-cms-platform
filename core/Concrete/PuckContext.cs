@@ -5,6 +5,9 @@ using System.Text;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Console;
+using puck.core.State;
 
 namespace puck.core.Entities
 {
@@ -12,6 +15,8 @@ namespace puck.core.Entities
         ,IdentityUserClaim<string>,PuckUserRole,IdentityUserLogin<string>
         ,IdentityRoleClaim<string>,IdentityUserToken<string>>
     {
+        public static readonly ILoggerFactory _loggerFactory = LoggerFactory.Create(builder => { builder.AddConsole(); });
+        
         private string connectionString;
         public PuckContext(DbContextOptions options):base(options)
         {
@@ -22,6 +27,8 @@ namespace puck.core.Entities
             this.connectionString = connectionString;
         }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) {
+            if(PuckCache.Debug)
+                optionsBuilder.UseLoggerFactory(_loggerFactory);
             if (!optionsBuilder.IsConfigured && !string.IsNullOrEmpty(connectionString)) {
                 optionsBuilder.UseSqlServer(connectionString);
             }

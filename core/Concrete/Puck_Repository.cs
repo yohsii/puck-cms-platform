@@ -15,6 +15,7 @@ namespace puck.core.Concrete
             repo = new PuckContext(config.GetConnectionString("DefaultConnection"));
         }
         public PuckContext repo;
+        public PuckContext Context { get { return repo; } }
         public IQueryable<PuckRedirect> GetPuckRedirect()
         {
             return repo.PuckRedirect;

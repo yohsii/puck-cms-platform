@@ -699,11 +699,11 @@ namespace puck.core.Services
                 if (parent == null)
                     throw new Exception("could not find parent node");
                 var slug = ApiHelper.Slugify(name);
-                instance.Path = $"{parent.Path}/";
+                instance.Path = ""; //$"{parent.Path}/";
                 instance.ParentId = parentId;
             }
             else
-                instance.Path = $"/";
+                instance.Path = ""; //$"/";
             if (!string.IsNullOrEmpty(template))
                 instance.TemplatePath = template;
             else
@@ -833,24 +833,12 @@ namespace puck.core.Services
                 await ObjectDumper.Transform(mod, int.MaxValue);
 
                 //get sibling nodes
-                if (mod.ParentId == Guid.Empty)
-                {
-                    mod.Path = "/" + ApiHelper.Slugify(mod.NodeName);
-                }
-                else
-                {
-                    var parentPath = GetLiveOrCurrentPath(mod.ParentId);
-                    mod.Path = $"{parentPath}/{ApiHelper.Slugify(mod.NodeName)}";
-                }
-                var nodeDirectory = mod.Path.Substring(0, mod.Path.LastIndexOf('/') + 1);
+                //var nodeDirectory = mod.Path.Substring(0, mod.Path.LastIndexOf('/') + 1);
 
-                var nodesAtPath = repo.CurrentRevisionsByParentId(mod.ParentId).Where(x => x.Id != mod.Id)
-                    .ToList()
-                    .Select(x =>
-                        x.ToBaseModel()
-                        ).Where(x => x != null).ToList().GroupByID();
+                var nodesAtPath = repo.CurrentRevisionsByParentId(mod.ParentId).Where(x => x.Id != mod.Id);
+                    
                 //check node name is unique at path
-                if (nodesAtPath.Any(x => x.Value.Any(y => y.Value.NodeName.ToLower().Equals(mod.NodeName))))
+                if (nodesAtPath.Any(x => x.NodeName.ToLower().Equals(mod.NodeName.ToLower())))
                 {
                     if (handleNodeNameExists)
                     {
@@ -868,12 +856,12 @@ namespace puck.core.Services
                     }
                     else
                     {
-                        throw new NodeNameExistsException($"Nodename:{mod.NodeName} exists at this path:{nodeDirectory}, choose another.");
+                        throw new NodeNameExistsException($"Nodename:{mod.NodeName} already exists with same parent id:{mod.ParentId}, choose another nodename.");
                     }
                 }
                 //set sort order for new content
                 if (mod.SortOrder == -1)
-                    mod.SortOrder = nodesAtPath.Count;
+                    mod.SortOrder = nodesAtPath.Count();
                 if (triggerEvents)
                 {
                     var beforeArgs = new BeforeIndexingEventArgs { Node = mod };
@@ -891,13 +879,14 @@ namespace puck.core.Services
                 }
                 mod.Updated = DateTime.Now;
                 //get parent check published
-                var parentVariants = repo.GetPuckRevision().Where(x => x.Id == mod.ParentId && x.Current).ToList();
-                if (mod.ParentId != Guid.Empty && parentVariants.Count() == 0)
+                var parentVariants = repo.GetPuckRevision().Where(x => x.Id == mod.ParentId && (x.IsPublishedRevision || (x.Current && x.HasNoPublishedRevision)));
+                var parentVariantsCount = parentVariants.Count();
+                if (mod.ParentId != Guid.Empty && parentVariantsCount == 0)
                     throw new NoParentExistsException("this is not a root node yet doesn't have a parent");
                 var hasPublishedParent = parentVariants.Any(x=>x.Published);
-                if (!hasPublishedParent) {
-                    hasPublishedParent = repo.PublishedRevisions(mod.ParentId).Count()>0;
-                }
+                //if (!hasPublishedParent) {
+                //    hasPublishedParent = repo.PublishedRevisions(mod.ParentId).Count()>0;
+                //}
                 //can't publish if parent not published
                 //var publishedParentVariants = repo.PublishedRevisions(mod.ParentId).ToList();
                 if (mod.ParentId != Guid.Empty && !hasPublishedParent)//!parentVariants.Any(x => x.Published /*&& x.Variant.ToLower().Equals(mod.Variant.ToLower())*/))
@@ -944,7 +933,12 @@ namespace puck.core.Services
                         originalPath = original.Path;
                     }
                 }
-                var idPath = GetIdPath(mod);
+                var idPath = "";// = original?.IdPath ?? GetIdPath(mod);
+                if (original == null || nameChanged || parentChanged)
+                    idPath = GetIdPath(mod);
+                else {
+                    idPath = original.IdPath;
+                }
                 var currentVariantsDb = repo.CurrentRevisionVariants(mod.Id, mod.Variant).ToList();
                 var publishedVariantsDb = repo.PublishedRevisionVariants(mod.Id, mod.Variant).ToList();
                 var hasNoPublishedVariants = publishedVariantsDb.Count == 0;
@@ -1035,7 +1029,17 @@ namespace puck.core.Services
                         }
                     }
                 }
-
+                if (nameChanged || parentChanged || string.IsNullOrEmpty(mod.Path)) {
+                    if (mod.ParentId == Guid.Empty)
+                    {
+                        mod.Path = "/" + ApiHelper.Slugify(mod.NodeName);
+                    }
+                    else
+                    {
+                        var parentPath = GetLiveOrCurrentPath(mod.ParentId);
+                        mod.Path = $"{parentPath}/{ApiHelper.Slugify(mod.NodeName)}";
+                    }
+                }
                 /*if (nameChanged)
                 {
                     var regex = new Regex(Regex.Escape(originalPath), RegexOptions.Compiled);
@@ -1112,7 +1116,7 @@ namespace puck.core.Services
                     revisions.ForEach(x => x.HasNoPublishedRevision = true);
                 }
                 //prune old revisions
-                revisions.OrderByDescending(x => x.Id).Skip(PuckCache.MaxRevisions).ToList().ForEach(x=>repo.DeleteRevision(x));
+                revisions.OrderByDescending(x => x.RevisionID).Skip(PuckCache.MaxRevisions).ToList().ForEach(x=>repo.DeleteRevision(x));
                 var shouldUpdateDomainMappings = false;
                 var shouldUpdatePathLocaleMappings = false;
                 //if first time node saved and is root node - set locale for path
@@ -1126,7 +1130,7 @@ namespace puck.core.Services
                     };
                     repo.AddMeta(lMeta);
                     //if first item - set wildcard domain mapping
-                    if (nodesAtPath.Count == 0)
+                    if (nodesAtPath.Count() == 0)
                     {
                         var dMeta = new PuckMeta()
                         {
@@ -1144,7 +1148,7 @@ namespace puck.core.Services
                 if (currentVariantsDb.Any(x => x.HasChildren != hasChildren))
                     currentVariantsDb.ForEach(x=>x.HasChildren=hasChildren);
                 if (parentVariants.Any(x => !x.HasChildren))
-                    parentVariants.ForEach(x => x.HasChildren = true);
+                    parentVariants.ToList().ForEach(x => x.HasChildren = true);
 
                 repo.SaveChanges();
                 
