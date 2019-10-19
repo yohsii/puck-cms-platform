@@ -873,7 +873,8 @@ namespace puck.core.Services
                         parentChanged = true;
                     }
                     if (!original.Path.ToLower().Equals(mod.Path.ToLower())
-                        || !original.NodeName.ToLower().Equals(mod.NodeName.ToLower()))
+                        || !original.NodeName.ToLower().Equals(mod.NodeName.ToLower())
+                        || parentChanged)
                     {
                         nameChanged = true;
                         nameDifferentThanCurrent = true;
@@ -883,9 +884,14 @@ namespace puck.core.Services
                 }
                 if (publishedRevisionOrVariant != null)
                 {
+                    if (publishedRevisionOrVariant.ParentId != mod.ParentId)
+                    {
+                        parentChanged = true;
+                    }
                     //if (!original.NodeName.ToLower().Equals(mod.NodeName.ToLower()))
                     if (!publishedRevisionOrVariant.Path.ToLower().Equals(mod.Path.ToLower())
-                        || !publishedRevisionOrVariant.NodeName.ToLower().Equals(mod.NodeName.ToLower()))
+                        || !publishedRevisionOrVariant.NodeName.ToLower().Equals(mod.NodeName.ToLower())
+                        || parentChanged)
                     {
                         nameChanged = true;
                         nameDifferentThanPublished = true;
@@ -925,7 +931,7 @@ namespace puck.core.Services
                 }
                 else
                 {
-                    if (publishedVariantsDb.Any(x => !x.Path.ToLower().Equals(mod.Path.ToLower())))
+                    if (publishedVariantsDb.Any(x => !x.NodeName.ToLower().Equals(mod.NodeName.ToLower())))
                     {//update path of published variants
                         nameChanged = true;
                         if (string.IsNullOrEmpty(originalPath))
@@ -1081,7 +1087,8 @@ namespace puck.core.Services
                     //if this revision or any previous revisions have a published revision, HasNoPublishedRevision must be false
                     revision.HasNoPublishedRevision = false;
                     //revisions.ForEach(x => x.HasNoPublishedRevision = false);
-                    int _affected = UpdateHasNoPublishedRevisionAndIsPublishedRevision(mod.Id, mod.Variant, false, false);
+                    int? isPublishedIgnoreRevisionId = makeRevision ? (int?)null : revision.RevisionID;
+                    int _affected = UpdateHasNoPublishedRevisionAndIsPublishedRevision(mod.Id, mod.Variant, false, false,isPublishedRevisionIgnoreRevisionId:isPublishedIgnoreRevisionId);
                 }
                 else if (publishedRevision == null)
                 {
