@@ -906,42 +906,11 @@ namespace puck.core.Services
                 else {
                     idPath = original.IdPath;
                 }
-                var currentVariantsDb = repo.CurrentRevisionVariants(mod.Id, mod.Variant).ToList();
-                var publishedVariantsDb = repo.PublishedRevisionVariants(mod.Id, mod.Variant).ToList();
-                var hasNoPublishedVariants = publishedVariantsDb.Count == 0;
-                //if (variantsDb.Any(x => !x.NodeName.ToLower().Equals(mod.NodeName.ToLower())))
-                if (currentVariantsDb.Any(x => x.ParentId != mod.ParentId))
-                {//update parentId of variants
-                    currentVariantsDb.ForEach(x => { x.ParentId = mod.ParentId; x.IdPath = idPath; });
-                }
-                if (publishedVariantsDb.Any(x => x.ParentId != mod.ParentId))
-                {//update parentId of variants
-                    publishedVariantsDb.ForEach(x => { x.ParentId = mod.ParentId; x.IdPath = idPath; });
-                }
-                bool updateCurrentVariantsDb = false;
-                bool updatePublishedVariantsDb = false;
-                if (!mod.Published)
-                {
-                    if (currentVariantsDb.Where(x => !x.Published).Any(x => !x.NodeName.ToLower().Equals(mod.NodeName.ToLower())))
-                    {//update path of variants
-                        nameChanged = true;
-                        if (string.IsNullOrEmpty(originalPath))
-                            originalPath = currentVariantsDb.First().Path;
-                        updateCurrentVariantsDb = true;
-                    }
-                }
-                else
-                {
-                    if (publishedVariantsDb.Any(x => !x.NodeName.ToLower().Equals(mod.NodeName.ToLower())))
-                    {//update path of published variants
-                        nameChanged = true;
-                        if (string.IsNullOrEmpty(originalPath))
-                            originalPath = publishedVariantsDb.First().Path;
-                        updatePublishedVariantsDb = true;
-                    }
-                }
+                
                 var pAffected = 0;
                 var affected = 0;
+                var currentVariantsDb = new List<PuckRevision>();
+                var publishedVariantsDb = new List<PuckRevision>();
                 if (nameChanged || parentChanged || string.IsNullOrEmpty(mod.Path))
                 {
                     if (mod.ParentId == Guid.Empty)
@@ -952,6 +921,41 @@ namespace puck.core.Services
                     {
                         var parentPath = GetLiveOrCurrentPath(mod.ParentId);
                         mod.Path = $"{parentPath}/{ApiHelper.Slugify(mod.NodeName)}";
+                    }
+                }
+                if (nameChanged || parentChanged)
+                {
+                    currentVariantsDb = repo.CurrentRevisionVariants(mod.Id, mod.Variant).ToList();
+                    publishedVariantsDb = repo.PublishedRevisionVariants(mod.Id, mod.Variant).ToList();
+                    var hasNoPublishedVariants = publishedVariantsDb.Count == 0;
+                    //if (variantsDb.Any(x => !x.NodeName.ToLower().Equals(mod.NodeName.ToLower())))
+                    if (currentVariantsDb.Any(x => x.ParentId != mod.ParentId))
+                    {//update parentId of variants
+                        currentVariantsDb.ForEach(x => { x.ParentId = mod.ParentId; x.IdPath = idPath; });
+                    }
+                    if (publishedVariantsDb.Any(x => x.ParentId != mod.ParentId))
+                    {//update parentId of variants
+                        publishedVariantsDb.ForEach(x => { x.ParentId = mod.ParentId; x.IdPath = idPath; });
+                    }
+                    if (!mod.Published)
+                    {
+                        if (currentVariantsDb.Where(x => !x.Published).Any(x => !x.NodeName.ToLower().Equals(mod.NodeName.ToLower())))
+                        {//update path of variants
+                            nameChanged = true;
+                            if (string.IsNullOrEmpty(originalPath))
+                                originalPath = currentVariantsDb.First().Path;
+                            currentVariantsDb.Where(x => !x.Published).ToList().ForEach(x => { x.NodeName = mod.NodeName; x.Path = mod.Path; });
+                        }
+                    }
+                    else
+                    {
+                        if (publishedVariantsDb.Any(x => !x.NodeName.ToLower().Equals(mod.NodeName.ToLower())))
+                        {//update path of published variants
+                            nameChanged = true;
+                            if (string.IsNullOrEmpty(originalPath))
+                                originalPath = publishedVariantsDb.First().Path;
+                            publishedVariantsDb.ToList().ForEach(x => { x.NodeName = mod.NodeName; x.Path = mod.Path; });
+                        }
                     }
                 }
                 if (parentChanged)
@@ -987,7 +991,7 @@ namespace puck.core.Services
                 }
                 else
                 {
-                    if (original != null && original.HasNoPublishedRevision && hasNoPublishedVariants && !mod.Published && nameDifferentThanCurrent)
+                    if (original != null && original.HasNoPublishedRevision && /*hasNoPublishedVariants*/publishedRevisionOrVariant==null && !mod.Published && nameDifferentThanCurrent)
                     {
                         //update descendant paths
                         affected = UpdateDescendantPaths(original.Path + "/", mod.Path + "/");
@@ -1009,11 +1013,7 @@ namespace puck.core.Services
                         }
                     }
                 }
-                if (updateCurrentVariantsDb)
-                    currentVariantsDb.Where(x => !x.Published).ToList().ForEach(x => { x.NodeName = mod.NodeName; x.Path = mod.Path; });
-                if (updatePublishedVariantsDb)
-                    publishedVariantsDb.ToList().ForEach(x => { x.NodeName = mod.NodeName; x.Path = mod.Path; });
-
+                
                 /*if (nameChanged)
                 {
                     var regex = new Regex(Regex.Escape(originalPath), RegexOptions.Compiled);
@@ -1118,7 +1118,7 @@ namespace puck.core.Services
                 var shouldUpdateDomainMappings = false;
                 var shouldUpdatePathLocaleMappings = false;
                 //if first time node saved and is root node - set locale for path
-                if (currentVariantsDb.Count == 0 && (original == null) && mod.ParentId == Guid.Empty)
+                if (repo.CurrentRevisionVariants(mod.Id,mod.Variant).Count() == 0 && (original == null) && mod.ParentId == Guid.Empty)
                 {
                     var lMeta = new PuckMeta()
                     {
@@ -1143,8 +1143,10 @@ namespace puck.core.Services
                 }
                 var hasChildren = repo.GetPuckRevision().Count(x => x.ParentId.Equals(mod.Id) && x.Current)>0;
                 revision.HasChildren = hasChildren;
-                if (currentVariantsDb.Any(x => x.HasChildren != hasChildren))
-                    currentVariantsDb.ForEach(x=>x.HasChildren=hasChildren);
+                if (original != null && original.HasChildren != hasChildren)
+                {
+                    repo.CurrentRevisionVariants(mod.Id,mod.Variant).ToList().ForEach(x => x.HasChildren = hasChildren);
+                }
                 if (parentVariants.Any(x => !x.HasChildren))
                     parentVariants.ToList().ForEach(x => x.HasChildren = true);
 
