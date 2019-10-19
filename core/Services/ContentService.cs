@@ -828,13 +828,7 @@ namespace puck.core.Services
                         throw new SaveCancelledException("Saving was cancelled by a custom event handler");
                 }
                 var revisions = repo.GetPuckRevision().Where(x => x.Id.Equals(mod.Id) && x.Variant.ToLower().Equals(mod.Variant.ToLower()));
-                if (makeRevision)
-                {
-                    if (revisions.Count() == 0)
-                        mod.Revision = 1;
-                    else
-                        mod.Revision = revisions.Max(x => x.Revision) + 1;
-                }
+                
                 mod.Updated = DateTime.Now;
                 //get parent check published
                 var parentVariants = repo.GetPuckRevision().Where(x => x.Id == mod.ParentId && (x.IsPublishedRevision || (x.Current && x.HasNoPublishedRevision)));
@@ -865,6 +859,13 @@ namespace puck.core.Services
                 string publishedRevisionPath = string.Empty;
                 string originalPath = string.Empty;
                 bool publishedRevisionRepublished = false;
+                if (makeRevision)
+                {
+                    if (original==null)
+                        mod.Revision = 1;
+                    else
+                        mod.Revision = original.Revision + 1;
+                }
                 if (original != null)
                 {//this must be an edit
                  //if (!original.NodeName.ToLower().Equals(mod.NodeName.ToLower()))
