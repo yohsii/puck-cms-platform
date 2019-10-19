@@ -112,10 +112,10 @@ namespace puck.core.Helpers
                 );
             }
             qh.And().Group(qhinner1);
-            if (noCast)
-                return qh.GetAllNoCast();
-            else
-                return qh.GetAll();
+            //if (noCast)
+            //    return qh.GetAllNoCast();
+            //else
+            //    return qh.GetAll();
 
             var sortOrder = new Dictionary<Guid, int>();
             for (var i = 0; i < pp.Count; i++)
