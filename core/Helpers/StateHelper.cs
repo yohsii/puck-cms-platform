@@ -425,7 +425,8 @@ namespace puck.core.Helpers
                 var modelTypes = apiHelper.Models();
                 foreach (var modelType in modelTypes)
                 {
-                    var derivedClasses = ApiHelper.TypeChainType(modelType);
+                    //var derivedClasses = ApiHelper.TypeChainType(modelType);
+                    var derivedClasses = ApiHelper.FindDerivedClasses(modelType,inclusive:true).ToList();
                     PuckCache.ModelDerivedModels[modelType.Name] = derivedClasses;
                 }
             }
