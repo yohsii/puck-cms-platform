@@ -1,6 +1,7 @@
 ﻿@using Page = puckweb.ViewModels.Page;
 @model puckweb.ViewModels.Section
 @{
+    /*NOTE: this template is only here to show different examples of querying, feel free to delete*/
     ViewBag.Title = "Section";
     var pages = Model.Children<Page>();
     var descendants = Model.Descendants<Page>();
