@@ -1267,7 +1267,7 @@ namespace puck.core.Services
             if (addPublishInstruction)
                 AddPublishInstruction(toIndex);
         }
-        int UpdateHasNoPublishedRevisionAndIsPublishedRevision(Guid id, string variant, bool? hasNoPublishedRevision,
+        public int UpdateHasNoPublishedRevisionAndIsPublishedRevision(Guid id, string variant, bool? hasNoPublishedRevision,
                     bool? isPublishedRevision, int? hasNoPublishedRevisionIgnoreRevisionId = null, int? isPublishedRevisionIgnoreRevisionId = null)
         {
             var affected = 0;

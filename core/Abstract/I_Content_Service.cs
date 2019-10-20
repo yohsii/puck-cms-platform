@@ -44,5 +44,8 @@ namespace puck.core.Abstract
         int UpdateDescendantPaths(string oldPath, string newPath);
         void UpdatePathRelatedMeta(string oldPath, string newPath);
         int UpdateTypeAndTypeChain(string oldType, string newType, string newTypeChain);
+        int UpdateHasNoPublishedRevisionAndIsPublishedRevision(Guid id, string variant, bool? hasNoPublishedRevision,
+                    bool? isPublishedRevision, int? hasNoPublishedRevisionIgnoreRevisionId = null, int? isPublishedRevisionIgnoreRevisionId = null);
+        void Index(List<BaseModel> toIndex, bool addPublishInstruction = true, bool triggerEvents = true);
     }
 }
