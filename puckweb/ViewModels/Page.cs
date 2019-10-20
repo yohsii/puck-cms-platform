@@ -19,6 +19,8 @@ namespace puckweb.ViewModels
     {
         [Display(Name = "Image Gallery", GroupName = "Images")]
         [UIHint("PuckImagePicker")]
+        /*this is an editor template setting, the editor template reads this attribute to modify its behaviour. settings can be set
+         using attributes or in the back office on the "settings->editor parameters" page*/
         [PuckImagePickerEditorSettings(MaxPick = 2)]
         public List<PuckPicker> ImageGallery { get; set; }
 
@@ -32,6 +34,8 @@ namespace puckweb.ViewModels
         [IndexSettings(Analyzer=typeof(KeywordAnalyzer))]
         public List<string> Names { get; set; }
 
+        /*NOTE, the group name sets the tab. the short name specifies a jquery selector to get the row title. 
+         * if a short name isn't provided, your rows will be titled - item1, item2 etc*/
         [Display(ShortName = "[name$='Name']",GroupName ="Content")]
         [UIHint("ListEditor")]
         public List<TestModel> Test { get; set; }
