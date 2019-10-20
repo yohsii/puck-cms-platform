@@ -1,7 +1,7 @@
 NOTE: this is an asp.net core migration of the mvc 5 project which you can find [here](https://github.com/yohsii/puck).
 
-# puck
-a code first content management system based on asp.net core that uses entity framework and lucene for storage.
+# puck cms
+Fast, scalable, code-first, unobtrusive and extensible with powerful querying and Lucene integration.
 
 [Wiki](https://github.com/yohsii/puck-core/wiki)
 
