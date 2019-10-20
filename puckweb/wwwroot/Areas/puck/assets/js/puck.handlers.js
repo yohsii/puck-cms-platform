@@ -342,7 +342,13 @@ $(document).on("click",".node-dropdown a,.template-dropdown a",function () {
                 });
                 updateVariant();
             } else {
-                doUnpublish(node.attr("data-id"), variants[0]);
+                var descendantVariants = "";
+                $(languages).each(function (i) {
+                    descendantVariants += this.Key;
+                    if (i < languages.length - 1)
+                        descendantVariants += ",";
+                });
+                doUnpublish(node.attr("data-id"), variants[0], descendantVariants);
             }
             break;
         case "revert":
