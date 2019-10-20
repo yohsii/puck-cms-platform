@@ -931,15 +931,19 @@ namespace puck.core.Services
                     //if (variantsDb.Any(x => !x.NodeName.ToLower().Equals(mod.NodeName.ToLower())))
                     if (currentVariantsDb.Any(x => x.ParentId != mod.ParentId))
                     {//update parentId of variants
-                        currentVariantsDb.ForEach(x => { x.ParentId = mod.ParentId; x.IdPath = idPath; });
+                        currentVariantsDb.ForEach(x => { x.ParentId = mod.ParentId; x.IdPath = idPath;x.NodeName = mod.NodeName;x.Path = mod.Path; });
                     }
                     if (publishedVariantsDb.Any(x => x.ParentId != mod.ParentId))
                     {//update parentId of variants
-                        publishedVariantsDb.ForEach(x => { x.ParentId = mod.ParentId; x.IdPath = idPath; });
+                        publishedVariantsDb.ForEach(x => { x.ParentId = mod.ParentId; x.IdPath = idPath; x.NodeName = mod.NodeName; x.Path = mod.Path; });
                     }
                     if (!mod.Published)
                     {
-                        if (currentVariantsDb.Where(x => !x.Published).Any(x => !x.NodeName.ToLower().Equals(mod.NodeName.ToLower())))
+                        if (currentVariantsDb.Where(x => !x.Published)
+                            .Any(x => !x.NodeName.ToLower().Equals(mod.NodeName.ToLower())
+                                || !x.Path.ToLower().Equals(mod.Path.ToLower())
+                            )
+                        )
                         {//update path of variants
                             nameChanged = true;
                             if (string.IsNullOrEmpty(originalPath))
@@ -949,7 +953,11 @@ namespace puck.core.Services
                     }
                     else
                     {
-                        if (publishedVariantsDb.Any(x => !x.NodeName.ToLower().Equals(mod.NodeName.ToLower())))
+                        if (publishedVariantsDb.Any(x => 
+                                !x.NodeName.ToLower().Equals(mod.NodeName.ToLower())
+                                || !x.Path.ToLower().Equals(mod.Path.ToLower())
+                            )
+                        )
                         {//update path of published variants
                             nameChanged = true;
                             if (string.IsNullOrEmpty(originalPath))
@@ -1237,7 +1245,8 @@ namespace puck.core.Services
                     var afterArgs = new IndexingEventArgs { Node = mod };
                     OnAfterSave(this, afterArgs);
                 }
-                AddPublishInstruction(toIndex);
+                if(shouldIndex)
+                    AddPublishInstruction(toIndex);
 
                 string auditAction = mod.Published ? AuditActions.Publish : AuditActions.Save;
                 if (original == null) auditAction = AuditActions.Create;
@@ -1252,6 +1261,11 @@ namespace puck.core.Services
             {
                 slock1.Release();
             }
+        }
+        public void Index(List<BaseModel> toIndex,bool addPublishInstruction=true,bool triggerEvents=true) {
+            indexer.Index(toIndex,triggerEvents:triggerEvents);
+            if (addPublishInstruction)
+                AddPublishInstruction(toIndex);
         }
         int UpdateHasNoPublishedRevisionAndIsPublishedRevision(Guid id, string variant, bool? hasNoPublishedRevision,
                     bool? isPublishedRevision, int? hasNoPublishedRevisionIgnoreRevisionId = null, int? isPublishedRevisionIgnoreRevisionId = null)
