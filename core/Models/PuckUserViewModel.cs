@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.ComponentModel.DataAnnotations;
 using puck.core.Entities;
+using puck.core.Models.EditorSettings.Attributes;
 
 namespace puck.core.Models
 {
@@ -14,6 +15,7 @@ namespace puck.core.Models
         public DateTime? LastLoginDate { get; set; }
         public string LastLoginDateString { get; set; }
         //[Required]
+        [Display(Name ="Username")]
         public string UserName { get; set; }
         [System.ComponentModel.DataAnnotations.EmailAddress]
         public string CurrentEmail { get; set; }
@@ -34,6 +36,8 @@ namespace puck.core.Models
         public string UserVariant { get; set;}
 
         [UIHint("PuckPicker")]
+        [PuckPickerEditorSettings(MaxPick = 1)]
+        [Display(Name ="Start Node")]
         public List<PuckPicker> StartNode { get; set; }
         
         [DataType(DataType.Password)]

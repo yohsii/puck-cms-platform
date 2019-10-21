@@ -157,6 +157,9 @@ var showUserMarkup = function (username) {
             overlayClose();
         }, function (data) {
             overlayEl.find(".msg").show().html(data.message);
+            overlayEl.find("button.update").removeAttr("disabled");
+        }, function () {
+            overlayEl.find("button.update").attr("disabled", "disabled");
         });
     });
 }

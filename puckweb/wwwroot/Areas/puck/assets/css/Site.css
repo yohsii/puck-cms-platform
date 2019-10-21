@@ -646,8 +646,10 @@ div.settings {
     .cache_exclude_dialog .fieldwrapper {
         padding: 0 5px 0 5px;
     }
-
-    .user_edit button {
+    .userlist .card-text p{
+        margin-bottom:5px;
+    }
+    .user_edit button.update {
         float: right;
         padding: 20px;
     }
