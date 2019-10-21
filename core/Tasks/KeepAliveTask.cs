@@ -17,8 +17,10 @@ namespace puck.core.Tasks
         public KeepAliveTask() {
             this.ID = -3;
             this.Recurring = true;
-            this.IntervalSeconds = 120;
+            this.IntervalSeconds = 60;
             this.RunOn = DateTime.Now;
+            if (PuckCache.UseAzureDirectory && PuckCache.IsEditServer)
+                this.IntervalSeconds = 10;
         }
         public override async Task Run(CancellationToken t)
         {
