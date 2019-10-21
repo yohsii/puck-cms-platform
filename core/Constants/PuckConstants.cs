@@ -24,6 +24,15 @@ namespace puck.core.Constants
     {
         Edit, Publish, Delete, Move
     }
+    public static class EditorTemplates {
+        public const string PuckPicker = "PuckPicker";
+        public const string PuckImagePicker = "PuckImagePicker";
+        public const string GoogleLongLat = "PuckGoogleLongLat";
+        public const string RichTextEditor = "rte";
+        public const string Tags = "PuckTags";
+        public const string ListEditor = "ListEditor";
+
+    }
     public static class Mvc {
         public const string AuthenticationScheme = "puck";
     }
@@ -53,64 +62,64 @@ namespace puck.core.Constants
     }
     public static class FieldKeys
     {
-        public static string Score = "score";
-        public static string Published = "published";
-        public static string PuckDefaultField = "";
-        public static string PuckValue = "_puckvalue";
-        public static string PuckTypeChain = "typechain";
-        public static string PuckType = "type";
-        public static string ID = "id";
-        public static string Path = "path";
-        public static string Variant = "variant";
-        public static string TemplatePath = "templatepath";
+        public const string Score = "score";
+        public const string Published = "published";
+        public const string PuckDefaultField = "";
+        public const string PuckValue = "_puckvalue";
+        public const string PuckTypeChain = "typechain";
+        public const string PuckType = "type";
+        public const string ID = "id";
+        public const string Path = "path";
+        public const string Variant = "variant";
+        public const string TemplatePath = "templatepath";
     }
     public static class DBNames
     {
-        public static string SyncId = "syncid";
-        public static string TypeChain = "typechain";
-        public static string TypeAllowedTemplates = "typeallowedtemplates";
-        public static string EditorSettings = "editorsettings";
-        public static string Redirect301 = "redirect301:";
-        public static string Redirect302 = "redirect302:";
-        public static string PathToLocale = "pathtolocale";
-        public static string Settings = "settings";
-        public static string FieldGroups = "fieldgroups:";
-        public static string DomainMapping = "domainmapping";
-        public static string TypeAllowedTypes = "typeallowedtypes";
-        public static string Tasks = "task";
-        public static string CachePolicy = "cache";
-        public static string CacheExclude = "cacheexclude";
-        public static string UserStartNode = "userstartnode";
-        public static string UserVariant = "uservariant";
-        public static string GeneratedModel = "generatedmodel";
-        public static string Notify = "notify";
-        public static string TimedPublish = "timedpublish";
-        public static string TimedUnpublish = "timedunpublish";
+        public const string SyncId = "syncid";
+        public const string TypeChain = "typechain";
+        public const string TypeAllowedTemplates = "typeallowedtemplates";
+        public const string EditorSettings = "editorsettings";
+        public const string Redirect301 = "redirect301:";
+        public const string Redirect302 = "redirect302:";
+        public const string PathToLocale = "pathtolocale";
+        public const string Settings = "settings";
+        public const string FieldGroups = "fieldgroups:";
+        public const string DomainMapping = "domainmapping";
+        public const string TypeAllowedTypes = "typeallowedtypes";
+        public const string Tasks = "task";
+        public const string CachePolicy = "cache";
+        public const string CacheExclude = "cacheexclude";
+        public const string UserStartNode = "userstartnode";
+        public const string UserVariant = "uservariant";
+        public const string GeneratedModel = "generatedmodel";
+        public const string Notify = "notify";
+        public const string TimedPublish = "timedpublish";
+        public const string TimedUnpublish = "timedunpublish";
     }
     public static class DBKeys
     {
         //public static string ObjectCacheMinutes = "objectcachemin";
-        public static string ObjectCacheMinutes = "objectcachemin";
-        public static string Languages = "languages";
-        public static string DefaultLanguage = "defaultlanguage";
-        public static string EnableLocalePrefix = "enablelocaleprefix";
+        public const string ObjectCacheMinutes = "objectcachemin";
+        public const string Languages = "languages";
+        public const string DefaultLanguage = "defaultlanguage";
+        public const string EnableLocalePrefix = "enablelocaleprefix";
     }
     public static class InstructionKeys {
-        public static string SetSearcher = "setsearcher";
-        public static string RepublishSite = "republishsite";
-        public static string Publish = "publish";
-        public static string RePublish = "republish";
-        public static string Delete = "delete";
-        public static string UpdateSettings = "updatesettings";
-        public static string UpdateCrops = "updatecrops";
-        public static string UpdatePathLocales = "updatepathlocales";
-        public static string UpdateCacheMappings = "updatecachemappings";
-        public static string UpdateDomainMappings = "updatedomainmappings";
-        public static string UpdateRedirects = "updateredirects";
-        public static string UpdateTaskMappings = "updatetaskmappings";
+        public const string SetSearcher = "setsearcher";
+        public const string RepublishSite = "republishsite";
+        public const string Publish = "publish";
+        public const string RePublish = "republish";
+        public const string Delete = "delete";
+        public const string UpdateSettings = "updatesettings";
+        public const string UpdateCrops = "updatecrops";
+        public const string UpdatePathLocales = "updatepathlocales";
+        public const string UpdateCacheMappings = "updatecachemappings";
+        public const string UpdateDomainMappings = "updatedomainmappings";
+        public const string UpdateRedirects = "updateredirects";
+        public const string UpdateTaskMappings = "updatetaskmappings";
     }
     public static class CacheKeys {
-        public static string PrefixTemplateExist = "fexist:";
+        public const string PrefixTemplateExist = "fexist:";
     }
     public static class AuditActions {
         public const string Publish = "publish";

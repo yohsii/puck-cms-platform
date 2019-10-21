@@ -8,6 +8,7 @@ using Lucene.Net.Analysis.Snowball;
 using Lucene.Net.Documents;
 using puck.core.Attributes;
 using puck.core.Base;
+using puck.core.Constants;
 using puck.core.Models;
 using puck.core.Models.EditorSettings;
 using puck.core.Models.EditorSettings.Attributes;
@@ -18,18 +19,17 @@ namespace puckweb.ViewModels
     public class Page:BaseModel
     {
         [Display(Name = "Image Gallery", GroupName = "Images")]
-        [UIHint("PuckImagePicker")]
+        [UIHint(EditorTemplates.PuckImagePicker)]
         /*this is an editor template setting, the editor template reads this attribute to modify its behaviour. settings can be set
          using attributes or in the back office on the "settings->editor parameters" page*/
         [PuckImagePickerEditorSettings(MaxPick = 2)]
         public List<PuckPicker> ImageGallery { get; set; }
 
         [Display(GroupName = "Images")]
-        [UIHint("PuckImage")]
         public PuckImage Image { get; set; }
         
         [Display(GroupName ="Content")]
-        [UIHint("PuckTags")]
+        [UIHint(EditorTemplates.Tags)]
         [PuckTagsEditorSettings(Category ="")]
         [IndexSettings(Analyzer=typeof(KeywordAnalyzer))]
         public List<string> Names { get; set; }
@@ -37,7 +37,7 @@ namespace puckweb.ViewModels
         /*NOTE, the group name sets the tab. the short name specifies a jquery selector to get the row title. 
          * if a short name isn't provided, your rows will be titled - item1, item2 etc*/
         [Display(ShortName = "[name$='Name']",GroupName ="Content")]
-        [UIHint("ListEditor")]
+        [UIHint(EditorTemplates.ListEditor)]
         public List<TestModel> Test { get; set; }
 
         [Required]
@@ -57,13 +57,13 @@ namespace puckweb.ViewModels
         public string Title { get; set; }
         
         [Required]
-        [UIHint("rte")]
+        [UIHint(EditorTemplates.RichTextEditor)]
         [Display(Name="Main Content",GroupName ="Content")]
         [IndexSettings(FieldIndexSetting = Field.Index.ANALYZED, Analyzer = typeof(SnowballAnalyzer))]
         public string MainContent { get; set; }
 
         
-        [UIHint("PuckGoogleLongLat")]
+        [UIHint(EditorTemplates.GoogleLongLat)]
         [Display(GroupName ="Content")]
         public GeoPosition Location { get; set; }                
     }
@@ -78,7 +78,7 @@ namespace puckweb.ViewModels
         [Required]
         public string Name { get; set; }
         [Display(ShortName = "input")]
-        [UIHint("ListEditor")]
+        [UIHint(EditorTemplates.ListEditor)]
         public List<TestModel3> Cities { get; set; }
     }
     public class TestModel
@@ -86,11 +86,11 @@ namespace puckweb.ViewModels
         public int Age { get; set; }
         public string Name { get; set; }
         [Display(ShortName = "[name$='Name']")]
-        [UIHint("ListEditor")]
+        [UIHint(EditorTemplates.ListEditor)]
         public List<TestModel2> Test2 { get; set; }
 
         [Display(ShortName = "input")]
-        [UIHint("ListEditor")]
+        [UIHint(EditorTemplates.ListEditor)]
         public List<string> AddressLines { get; set; }
         
     }
