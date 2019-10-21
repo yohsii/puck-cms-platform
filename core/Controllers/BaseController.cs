@@ -27,13 +27,7 @@ namespace puck.core.Controllers
             try
             {
                 StateHelper.SetFirstRequestUrl();
-                if (PuckCache.ShouldSync&&!PuckCache.IsSyncQueued)
-                {
-                    PuckCache.IsSyncQueued = true;
-                    //was using HostingEnvironment.QueueBackgroundWorkItem and passing in cancellation token
-                    //can't do that in asp.net core so passing in a new cancellation token which is a bit pointless
-                    System.Threading.Tasks.Task.Factory.StartNew(()=> SyncHelper.Sync(new CancellationToken()));
-                }
+                SyncIfNecessary();
                 var uri = Request.GetUri();
                 string path = uri.AbsolutePath.ToLower();
 
@@ -195,6 +189,16 @@ namespace puck.core.Controllers
             }
             return dmode;
         }
-        
+
+        protected void SyncIfNecessary() {
+            if (PuckCache.ShouldSync && !PuckCache.IsSyncQueued)
+            {
+                PuckCache.IsSyncQueued = true;
+                //was using HostingEnvironment.QueueBackgroundWorkItem and passing in cancellation token
+                //can't do that in asp.net core so passing in a new cancellation token which is a bit pointless
+                System.Threading.Tasks.Task.Factory.StartNew(() => SyncHelper.Sync(new CancellationToken()));
+            }
+        }
+
     }
 }

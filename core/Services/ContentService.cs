@@ -1092,6 +1092,11 @@ namespace puck.core.Services
                                 //revisions.ForEach(x => x.HasNoPublishedRevision = true);
                                 int _affected = UpdateHasNoPublishedRevisionAndIsPublishedRevision(mod.Id, mod.Variant, true, null);
                                 indexer.Delete(mod);
+                                var deleteQuery = new QueryHelper<BaseModel>(prependTypeTerm: false);
+                                deleteQuery.ID(mod.Id).Variant(mod.Variant);
+                                var instruction = new PuckInstruction() { InstructionKey = InstructionKeys.Delete, Count = 1, ServerName = ApiHelper.ServerName() };
+                                instruction.InstructionDetail = deleteQuery.ToString();
+                                repo.AddPuckInstruction(instruction);
                             }
                         }
                         else if (mod.Published)

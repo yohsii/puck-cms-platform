@@ -58,6 +58,7 @@ namespace puck.core.Controllers
             this.contentService = cs;
             this.apiHelper = ah;
             StateHelper.SetFirstRequestUrl();
+            SyncIfNecessary();
         }
         public ActionResult KeepAlive() {
             return base.Content("success");
