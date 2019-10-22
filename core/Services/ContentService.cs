@@ -995,23 +995,23 @@ namespace puck.core.Services
                             {//update parentId of variants
                                 publishedVariantsDb.ForEach(x => { x.ParentId = mod.ParentId; x.IdPath = idPath; x.NodeName = mod.NodeName; x.Path = mod.Path; });
                             }
-                            if (!mod.Published || (hasNoPublishedVariants&&mod.Published))
-                            {
-                                if (currentVariantsDb.Where(x => !x.Published)
-                                    .Any(x => !x.NodeName.ToLower().Equals(mod.NodeName.ToLower())
-                                        || !x.Path.ToLower().Equals(mod.Path.ToLower())
-                                    )
+                            //if (!mod.Published || (hasNoPublishedVariants&&mod.Published))
+                            //{
+                            if (currentVariantsDb.Where(x => !x.Published)
+                                .Any(x => !x.NodeName.ToLower().Equals(mod.NodeName.ToLower())
+                                    || !x.Path.ToLower().Equals(mod.Path.ToLower())
                                 )
-                                {//update path of variants
-                                    nameChanged = true;
-                                    nameDifferentThanCurrentVariant=true;
-                                    currentVariantOriginalPath = currentVariantsDb.First().Path;
-                                    if (string.IsNullOrEmpty(originalPath))
-                                        originalPath = currentVariantsDb.First().Path;
-                                    currentVariantsDb.Where(x => !x.Published).ToList().ForEach(x => { x.NodeName = mod.NodeName; x.Path = mod.Path; });
-                                }
+                            )
+                            {//update path of variants
+                                nameChanged = true;
+                                nameDifferentThanCurrentVariant=true;
+                                currentVariantOriginalPath = currentVariantsDb.First().Path;
+                                if (string.IsNullOrEmpty(originalPath))
+                                    originalPath = currentVariantsDb.First().Path;
+                                currentVariantsDb.Where(x => !x.Published).ToList().ForEach(x => { x.NodeName = mod.NodeName; x.Path = mod.Path; });
                             }
-                            else
+                            //}
+                            if(mod.Published)
                             {
                                 if (publishedVariantsDb.Any(x =>
                                         !x.NodeName.ToLower().Equals(mod.NodeName.ToLower())
