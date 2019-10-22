@@ -899,7 +899,7 @@ namespace puck.core.Services
                 bool nameDifferentThanPublished = false;
                 string publishedRevisionPath = string.Empty;
                 string originalPath = string.Empty;
-                bool publishedRevisionRepublished = false;
+                
                 if (makeRevision)
                 {
                     if (original==null)
@@ -907,8 +907,7 @@ namespace puck.core.Services
                     else
                         mod.Revision = original.Revision + 1;
                 }
-                if (string.IsNullOrEmpty(mod.Path))
-                {
+                void _SetPath() {
                     if (mod.ParentId == Guid.Empty)
                     {
                         mod.Path = "/" + ApiHelper.Slugify(mod.NodeName);
@@ -918,6 +917,12 @@ namespace puck.core.Services
                         var parentPath = GetLiveOrCurrentPath(mod.ParentId);
                         mod.Path = $"{parentPath}/{ApiHelper.Slugify(mod.NodeName)}";
                     }
+                }
+                bool pathSet = false;
+                if (string.IsNullOrEmpty(mod.Path))
+                {
+                    _SetPath();
+                    pathSet = true;
                 }
                 if (original != null)
                 {//this must be an edit
@@ -968,17 +973,9 @@ namespace puck.core.Services
                 string currentVariantOriginalPath = "";
                 bool nameDifferentThanPublishedVariant = false;
                 string publishedVariantOriginalPath = "";
-                if (nameChanged || parentChanged || string.IsNullOrEmpty(mod.Path))
+                if ((nameChanged || parentChanged)&&!pathSet)
                 {
-                    if (mod.ParentId == Guid.Empty)
-                    {
-                        mod.Path = "/" + ApiHelper.Slugify(mod.NodeName);
-                    }
-                    else
-                    {
-                        var parentPath = GetLiveOrCurrentPath(mod.ParentId);
-                        mod.Path = $"{parentPath}/{ApiHelper.Slugify(mod.NodeName)}";
-                    }
+                    _SetPath();
                 }
                 using (var transaction = repo.Context.Database.BeginTransaction())
                 {
@@ -1098,19 +1095,6 @@ namespace puck.core.Services
                             }
                         }
 
-                        /*if (nameChanged)
-                        {
-                            var regex = new Regex(Regex.Escape(originalPath), RegexOptions.Compiled);
-                            //update path of decendants
-                            var descendantsDb = repo.CurrentRevisionDescendants(originalPath).ToList();
-                            descendantsDb.ForEach(x => { x.Path = regex.Replace(x.Path, mod.Path, 1); });
-                            repo.GetPuckMeta().Where(x => x.Name.StartsWith(DBNames.Notify))
-                                    .Where(x => x.Key.ToLower().Equals(originalPath.ToLower())
-                                    || originalPath.ToLower().StartsWith(x.Key.ToLower()) && x.Name.Contains(":*:"))
-                                    .ToList()
-                                    .ForEach(x => x.Key = mod.Path);
-                        }
-                        */
                         string username = string.Empty;
                         if (user == null)
                             username = HttpContext.Current.User.Identity.Name;
@@ -1324,8 +1308,8 @@ namespace puck.core.Services
                         return toIndex;
                     }
                     catch (Exception ex) {
-                        logger.Log(ex);
                         transaction.Rollback();
+                        logger.Log($"failed to save model id:{mod.Id} variant:{mod.Variant} nodename:{mod.NodeName}. " + ex.Message, ex.StackTrace, exceptionType: ex.GetType());
                         throw;
                     }
                 }
