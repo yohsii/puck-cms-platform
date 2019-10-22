@@ -560,129 +560,145 @@ namespace puck.core.Services
             var cancelled = new List<BaseModel>();
             PuckRevision currentRevision = null;
             PuckRevision publishedRevision = null;
-            //remove from repo
-            var repoItemsQ = repo.GetPuckRevision().Where(x => x.Id == id && x.Current);
-            if (!string.IsNullOrEmpty(variant))
+            using (var transaction = repo.Context.Database.BeginTransaction())
             {
-                repoItemsQ = repoItemsQ.Where(x => x.Variant.ToLower().Equals(variant.ToLower()));
-                currentRevision = repoItemsQ.FirstOrDefault();
-                publishedRevision = repo.PublishedRevision(currentRevision.Id,currentRevision.Variant);
-            }
-            bool addRepoDescendants = false;
-            var repoItems = repoItemsQ.ToList();
-            ParentId = repoItems.FirstOrDefault()?.ParentId;
-            var repoVariants = new List<PuckRevision>();
-            var descendants = new List<PuckRevision>();
-            if (repoItems.Count > 0)
-            {
-                repoVariants = repo.CurrentRevisionVariants(repoItems.First().Id, repoItems.First().Variant).ToList();
-                if (repoVariants.Count == 0 || string.IsNullOrEmpty(variant))
+                try
                 {
-                    addRepoDescendants = true;
-                    descendants = repo.CurrentRevisionDescendants(repoItems.First().IdPath).ToList();
-                    repoItems.AddRange(descendants);
-                    if (descendants.Any())
-                        notes = $"{descendants.Count} descendant items also deleted";
-                }
-            }
-            repoItems.ForEach(x =>
-            {
-                var args = new BeforeIndexingEventArgs() { Node = x.ToBaseModel(), Cancel = false };
-                OnBeforeDelete(this, args);
-                if (args.Cancel)
-                {
-                    cancelled.Add(x);
-                    return;
-                }
-                toDelete.Add(args.Node);
-                repo.DeleteRevision(x);
-            });
-            
-            //deletes only happening on current revisions. delete all revisions. this is too costly to do with EF for descendants, we'll handle descendants using sql
-            if (!string.IsNullOrEmpty(variant))
-            {
-                var itemToDelete = toDelete.FirstOrDefault(x => x.Id == id && x.Variant.ToLower().Equals(variant.ToLower()));
-                if (itemToDelete != null) {
-                    repo.GetPuckRevision().Where(x=>x.Id==id &&x.Variant.ToLower().Equals(variant.ToLower())).ToList().ForEach(x=>repo.DeleteRevision(x));
-                }
-            }
-            else {
-                var itemsToDelete = toDelete.Where(x => x.Id == id).ToList();
-                foreach (var item in itemsToDelete) {
-                    repo.GetPuckRevision().Where(x => x.Id == item.Id && x.Variant.ToLower().Equals(item.Variant.ToLower())).ToList().ForEach(x => repo.DeleteRevision(x));
-                }
-            }
-            repo.SaveChanges();
-            indexer.Delete(toDelete);
-            DeleteRevisions(descendants.Select(x=>x.Id).ToList());
-            if (publishedRevision != null && !addRepoDescendants)
-            {
-                var publishedVariants = repo.PublishedRevisionVariants(currentRevision.Id, currentRevision.Variant).ToList();
-                var unpublishedCurrentVariants = repo.CurrentRevisionVariants(currentRevision.Id, currentRevision.Variant).Where(x => !x.Published).ToList();
-                if (publishedVariants.Count() == 0 && unpublishedCurrentVariants.Any()
-                    && !publishedRevision.Path.ToLower().Equals(unpublishedCurrentVariants.FirstOrDefault().Path.ToLower()))
-                {
-                    //since we're deleting the published revision (which descendant paths are based on), we should set descendant paths to be based off of the remaining unpublished variant
-                    //this is only necessary when the remaining unpublished variant has a different path and there are no remaining published variants
-                    int affected = UpdateDescendantPaths(publishedRevision.Path + "/", unpublishedCurrentVariants.FirstOrDefault().Path + "/");
-                    UpdatePathRelatedMeta(publishedRevision.Path, unpublishedCurrentVariants.FirstOrDefault().Path);
-                }
-            }
+                    //remove from repo
+                    var repoItemsQ = repo.GetPuckRevision().Where(x => x.Id == id && x.Current);
+                    if (!string.IsNullOrEmpty(variant))
+                    {
+                        repoItemsQ = repoItemsQ.Where(x => x.Variant.ToLower().Equals(variant.ToLower()));
+                        currentRevision = repoItemsQ.FirstOrDefault();
+                        publishedRevision = repo.PublishedRevision(currentRevision.Id, currentRevision.Variant);
+                    }
+                    bool addRepoDescendants = false;
+                    var repoItems = repoItemsQ.ToList();
+                    ParentId = repoItems.FirstOrDefault()?.ParentId;
+                    var repoVariants = new List<PuckRevision>();
+                    var descendants = new List<PuckRevision>();
+                    if (repoItems.Count > 0)
+                    {
+                        repoVariants = repo.CurrentRevisionVariants(repoItems.First().Id, repoItems.First().Variant).ToList();
+                        if (repoVariants.Count == 0 || string.IsNullOrEmpty(variant))
+                        {
+                            addRepoDescendants = true;
+                            descendants = repo.CurrentRevisionDescendants(repoItems.First().IdPath).ToList();
+                            repoItems.AddRange(descendants);
+                            if (descendants.Any())
+                                notes = $"{descendants.Count} descendant items also deleted";
+                        }
+                    }
+                    repoItems.ForEach(x =>
+                    {
+                        var args = new BeforeIndexingEventArgs() { Node = x.ToBaseModel(), Cancel = false };
+                        OnBeforeDelete(this, args);
+                        if (args.Cancel)
+                        {
+                            cancelled.Add(x);
+                            return;
+                        }
+                        toDelete.Add(args.Node);
+                        repo.DeleteRevision(x);
+                    });
 
-            repoItems
-                    .Where(x => !cancelled.Contains(x))
-                    .ToList()
-                    .ForEach(x => { OnAfterDelete(this, new IndexingEventArgs() { Node = x }); });
+                    //deletes only happening on current revisions. delete all revisions. this is too costly to do with EF for descendants, we'll handle descendants using sql
+                    if (!string.IsNullOrEmpty(variant))
+                    {
+                        var itemToDelete = toDelete.FirstOrDefault(x => x.Id == id && x.Variant.ToLower().Equals(variant.ToLower()));
+                        if (itemToDelete != null)
+                        {
+                            repo.GetPuckRevision().Where(x => x.Id == id && x.Variant.ToLower().Equals(variant.ToLower())).ToList().ForEach(x => repo.DeleteRevision(x));
+                        }
+                    }
+                    else
+                    {
+                        var itemsToDelete = toDelete.Where(x => x.Id == id).ToList();
+                        foreach (var item in itemsToDelete)
+                        {
+                            repo.GetPuckRevision().Where(x => x.Id == item.Id && x.Variant.ToLower().Equals(item.Variant.ToLower())).ToList().ForEach(x => repo.DeleteRevision(x));
+                        }
+                    }
 
-            //remove localisation setting
-            string lookUpPath = string.Empty;
-            if (repoItems.Any())
-                lookUpPath = repoItems.First().Path;
-            else if (toDelete.Any())
-                lookUpPath = toDelete.First().Path;
+                    repo.SaveChanges();
+                    indexer.Delete(toDelete);
+                    DeleteRevisions(descendants.Select(x => x.Id).ToList());
+                    if (publishedRevision != null && !addRepoDescendants)
+                    {
+                        var publishedVariants = repo.PublishedRevisionVariants(currentRevision.Id, currentRevision.Variant).ToList();
+                        var unpublishedCurrentVariants = repo.CurrentRevisionVariants(currentRevision.Id, currentRevision.Variant).Where(x => !x.Published).ToList();
+                        if (publishedVariants.Count() == 0 && unpublishedCurrentVariants.Any()
+                            && !publishedRevision.Path.ToLower().Equals(unpublishedCurrentVariants.FirstOrDefault().Path.ToLower()))
+                        {
+                            //since we're deleting the published revision (which descendant paths are based on), we should set descendant paths to be based off of the remaining unpublished variant
+                            //this is only necessary when the remaining unpublished variant has a different path and there are no remaining published variants
+                            int affected = UpdateDescendantPaths(publishedRevision.Path + "/", unpublishedCurrentVariants.FirstOrDefault().Path + "/");
+                            UpdatePathRelatedMeta(publishedRevision.Path, unpublishedCurrentVariants.FirstOrDefault().Path);
+                        }
+                    }
 
-            if (!string.IsNullOrEmpty(lookUpPath))
-            {
-                var lmeta = new List<PuckMeta>();
-                var dmeta = new List<PuckMeta>();
-                var cmeta = new List<PuckMeta>();
-                var nmeta = new List<PuckMeta>();
-                //if descendants are being deleted - descendants are included if there are no variants for the deleted node (therefore orphaning descendants) or if variant argument is not present (which means you wan't all variants deleted)
-                if (repoVariants.Any() && !string.IsNullOrEmpty(variant))
-                {
-                    //lmeta = repo.GetPuckMeta().Where(x => x.Name == DBNames.PathToLocale && x.Key.ToLower().Equals(lookUpPath.ToLower())).ToList();
-                    //dmeta = repo.GetPuckMeta().Where(x => x.Name == DBNames.DomainMapping && x.Key.ToLower().Equals(lookUpPath.ToLower())).ToList();
-                    //cmeta = repo.GetPuckMeta().Where(x => x.Name == DBNames.CacheExclude && x.Key.ToLower().Equals(lookUpPath.ToLower())).ToList();
+                    repoItems
+                            .Where(x => !cancelled.Contains(x))
+                            .ToList()
+                            .ForEach(x => { OnAfterDelete(this, new IndexingEventArgs() { Node = x }); });
+
+                    //remove localisation setting
+                    string lookUpPath = string.Empty;
+                    if (repoItems.Any())
+                        lookUpPath = repoItems.First().Path;
+                    else if (toDelete.Any())
+                        lookUpPath = toDelete.First().Path;
+
+                    if (!string.IsNullOrEmpty(lookUpPath))
+                    {
+                        var lmeta = new List<PuckMeta>();
+                        var dmeta = new List<PuckMeta>();
+                        var cmeta = new List<PuckMeta>();
+                        var nmeta = new List<PuckMeta>();
+                        //if descendants are being deleted - descendants are included if there are no variants for the deleted node (therefore orphaning descendants) or if variant argument is not present (which means you wan't all variants deleted)
+                        if (repoVariants.Any() && !string.IsNullOrEmpty(variant))
+                        {
+                            //lmeta = repo.GetPuckMeta().Where(x => x.Name == DBNames.PathToLocale && x.Key.ToLower().Equals(lookUpPath.ToLower())).ToList();
+                            //dmeta = repo.GetPuckMeta().Where(x => x.Name == DBNames.DomainMapping && x.Key.ToLower().Equals(lookUpPath.ToLower())).ToList();
+                            //cmeta = repo.GetPuckMeta().Where(x => x.Name == DBNames.CacheExclude && x.Key.ToLower().Equals(lookUpPath.ToLower())).ToList();
+                        }
+                        else
+                        {
+                            lmeta = repo.GetPuckMeta().Where(x => x.Name == DBNames.PathToLocale && x.Key.ToLower().StartsWith(lookUpPath.ToLower())).ToList();
+                            dmeta = repo.GetPuckMeta().Where(x => x.Name == DBNames.DomainMapping && x.Key.ToLower().StartsWith(lookUpPath.ToLower())).ToList();
+                            cmeta = repo.GetPuckMeta().Where(x => x.Name == DBNames.CacheExclude && x.Key.ToLower().StartsWith(lookUpPath.ToLower())).ToList();
+                            nmeta = repo.GetPuckMeta().Where(x => x.Name.StartsWith(DBNames.Notify) && (
+                                 x.Key.ToLower().Equals(lookUpPath.ToLower())
+                                || (lookUpPath.ToLower().StartsWith(x.Key.ToLower()) && x.Name.Contains(":*:"))
+                                )).ToList();
+                        }
+                        lmeta.ForEach(x => { repo.DeleteMeta(x); });
+                        dmeta.ForEach(x => { repo.DeleteMeta(x); });
+                        cmeta.ForEach(x => { repo.DeleteMeta(x); });
+                        nmeta.ForEach(x => { repo.DeleteMeta(x); });
+                    }
+                    repo.SaveChanges();
+                    StateHelper.UpdateDomainMappings(true);
+                    StateHelper.UpdatePathLocaleMappings(true);
+
+                    var instruction = new PuckInstruction() { InstructionKey = InstructionKeys.Delete, Count = 1, ServerName = ApiHelper.ServerName() };
+                    instruction.InstructionDetail = deleteQuery.ToString();
+                    repo.AddPuckInstruction(instruction);
+
+                    repo.SaveChanges();
+                    AddAuditEntry(id, variant ?? "", AuditActions.Delete, notes, userName);
+                    var hasChildren = repo.GetPuckRevision().Count(x => x.ParentId == ParentId && x.Current) > 0;
+                    var parentRevisions = repo.GetPuckRevision().Where(x => x.Id == ParentId && x.Current).ToList();
+                    parentRevisions.ForEach(x => x.HasChildren = hasChildren);
+                    repo.SaveChanges();
+                    transaction.Commit();
                 }
-                else
-                {
-                    lmeta = repo.GetPuckMeta().Where(x => x.Name == DBNames.PathToLocale && x.Key.ToLower().StartsWith(lookUpPath.ToLower())).ToList();
-                    dmeta = repo.GetPuckMeta().Where(x => x.Name == DBNames.DomainMapping && x.Key.ToLower().StartsWith(lookUpPath.ToLower())).ToList();
-                    cmeta = repo.GetPuckMeta().Where(x => x.Name == DBNames.CacheExclude && x.Key.ToLower().StartsWith(lookUpPath.ToLower())).ToList();
-                    nmeta = repo.GetPuckMeta().Where(x => x.Name.StartsWith(DBNames.Notify) && (
-                         x.Key.ToLower().Equals(lookUpPath.ToLower())
-                        || (lookUpPath.ToLower().StartsWith(x.Key.ToLower()) && x.Name.Contains(":*:"))
-                        )).ToList();
+                catch (Exception ex) {
+                    transaction.Rollback();
+                    logger.Log($"failed to delete id:{id} variant:{variant??""}. "+ex.Message,ex.StackTrace,exceptionType:ex.GetType());
+                    throw;
                 }
-                lmeta.ForEach(x => { repo.DeleteMeta(x); });
-                dmeta.ForEach(x => { repo.DeleteMeta(x); });
-                cmeta.ForEach(x => { repo.DeleteMeta(x); });
-                nmeta.ForEach(x => { repo.DeleteMeta(x); });
             }
-            repo.SaveChanges();
-            StateHelper.UpdateDomainMappings(true);
-            StateHelper.UpdatePathLocaleMappings(true);
-            
-            var instruction = new PuckInstruction() { InstructionKey = InstructionKeys.Delete, Count = 1, ServerName = ApiHelper.ServerName() };
-            instruction.InstructionDetail = deleteQuery.ToString();
-            repo.AddPuckInstruction(instruction);
-            
-            repo.SaveChanges();
-            AddAuditEntry(id, variant ?? "", AuditActions.Delete, notes, userName);
-            var hasChildren = repo.GetPuckRevision().Count(x=>x.ParentId==ParentId && x.Current)>0;
-            var parentRevisions = repo.GetPuckRevision().Where(x => x.Id == ParentId && x.Current).ToList();
-            parentRevisions.ForEach(x=>x.HasChildren=hasChildren);
-            repo.SaveChanges();
         }
         public string GetLiveOrCurrentPath(Guid id)
         {
@@ -810,6 +826,9 @@ namespace puck.core.Services
                     if (user == null)
                         throw new UserNotFoundException("there is no user for provided username");
                 }
+                if (mod.Id == Guid.Empty) throw new ArgumentException("model id cannot be empty");
+                if (string.IsNullOrEmpty(mod.Variant)) throw new ArgumentException("model variant must be set");
+
                 await ObjectDumper.Transform(mod, int.MaxValue);
 
                 //get sibling nodes

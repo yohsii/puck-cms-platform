@@ -82,7 +82,7 @@ ul.content ul, ul.contentTree ul {
 .overlay_close {position:absolute;top:10px;right:15px;cursor:pointer;}
 h1.master{position:absolute;top:10px;right:10px;border-bottom:6px solid #6f6f6f;float:left;color:#6f6f6f;font-family:Courier;}
 .main.grid .top .message {
-    padding:20px 0 0 0;
+    padding:15px 0 0 0;
 }
 .main.grid{height:100%;font-family:courier;font-size:12px;}
 .main.grid .menutop{/*height:11%;max-height:50px;*/padding:15px 0 0 0px;}
