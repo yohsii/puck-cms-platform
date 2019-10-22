@@ -888,6 +888,18 @@ namespace puck.core.Services
                     else
                         mod.Revision = original.Revision + 1;
                 }
+                if (string.IsNullOrEmpty(mod.Path))
+                {
+                    if (mod.ParentId == Guid.Empty)
+                    {
+                        mod.Path = "/" + ApiHelper.Slugify(mod.NodeName);
+                    }
+                    else
+                    {
+                        var parentPath = GetLiveOrCurrentPath(mod.ParentId);
+                        mod.Path = $"{parentPath}/{ApiHelper.Slugify(mod.NodeName)}";
+                    }
+                }
                 if (original != null)
                 {//this must be an edit
                  //if (!original.NodeName.ToLower().Equals(mod.NodeName.ToLower()))
