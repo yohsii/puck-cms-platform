@@ -1019,7 +1019,7 @@ namespace puck.core.Controllers
                     var concreteType = ApiHelper.ConcreteType(modelType);
                     model = ApiHelper.CreateInstance(concreteType);
                     var baseModel = model as BaseModel;
-                    baseModel.Path = result.Path;
+                    baseModel.Path = "";
                     baseModel.ParentId = result.ParentId;
                     baseModel.Id = result.Id;
                     baseModel.TemplatePath = result.TemplatePath;
@@ -1048,6 +1048,7 @@ namespace puck.core.Controllers
                         mod.Revision = 0;
                         mod.CreatedBy = User.Identity.Name;
                         mod.LastEditedBy = mod.CreatedBy;
+                        mod.Path = "";
                     }
                 }
             }

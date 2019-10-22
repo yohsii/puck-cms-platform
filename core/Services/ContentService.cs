@@ -498,24 +498,21 @@ namespace puck.core.Services
         public int DeleteRevisions(List<Guid> ids,int step=100) {
             int affected = 0;
             if (ids.Count == 0) return affected;
-            using (var con = new SqlConnection(config.GetConnectionString("DefaultConnection")))
-            {
-                int skip = 0;
-                int take = step;
-                var toDelete = ids.Skip(skip).Take(take);
-                con.Open();
-                while (toDelete.Count() > 0) {
-                    var sql = "delete from PuckRevision where id in(";
-                    foreach (var id in toDelete) { 
-                        sql += $"'{id.ToString()}',";
-                    }
-                    sql = sql.TrimEnd(',');
-                    sql +=")";
-                    var com = new SqlCommand(sql, con);
-                    affected += com.ExecuteNonQuery();
-                    skip += take;
-                    toDelete = ids.Skip(skip).Take(take);
+            
+            int skip = 0;
+            int take = step;
+            var toDelete = ids.Skip(skip).Take(take);
+            
+            while (toDelete.Count() > 0) {
+                var sql = "delete from PuckRevision where id in(";
+                foreach (var id in toDelete) { 
+                    sql += $"'{id.ToString()}',";
                 }
+                sql = sql.TrimEnd(',');
+                sql +=")";
+                affected += repo.Context.Database.ExecuteSqlRaw(sql);
+                skip += take;
+                toDelete = ids.Skip(skip).Take(take);
             }
             return affected;
         }
@@ -561,10 +558,17 @@ namespace puck.core.Services
             Guid? ParentId = null;
             //indexer.Delete(deleteQuery.ToString());
             var cancelled = new List<BaseModel>();
+            PuckRevision currentRevision = null;
+            PuckRevision publishedRevision = null;
             //remove from repo
             var repoItemsQ = repo.GetPuckRevision().Where(x => x.Id == id && x.Current);
             if (!string.IsNullOrEmpty(variant))
+            {
                 repoItemsQ = repoItemsQ.Where(x => x.Variant.ToLower().Equals(variant.ToLower()));
+                currentRevision = repoItemsQ.FirstOrDefault();
+                publishedRevision = repo.PublishedRevision(currentRevision.Id,currentRevision.Variant);
+            }
+            bool addRepoDescendants = false;
             var repoItems = repoItemsQ.ToList();
             ParentId = repoItems.FirstOrDefault()?.ParentId;
             var repoVariants = new List<PuckRevision>();
@@ -574,6 +578,7 @@ namespace puck.core.Services
                 repoVariants = repo.CurrentRevisionVariants(repoItems.First().Id, repoItems.First().Variant).ToList();
                 if (repoVariants.Count == 0 || string.IsNullOrEmpty(variant))
                 {
+                    addRepoDescendants = true;
                     descendants = repo.CurrentRevisionDescendants(repoItems.First().IdPath).ToList();
                     repoItems.AddRange(descendants);
                     if (descendants.Any())
@@ -610,6 +615,20 @@ namespace puck.core.Services
             repo.SaveChanges();
             indexer.Delete(toDelete);
             DeleteRevisions(descendants.Select(x=>x.Id).ToList());
+            if (publishedRevision != null && !addRepoDescendants)
+            {
+                var publishedVariants = repo.PublishedRevisionVariants(currentRevision.Id, currentRevision.Variant).ToList();
+                var unpublishedCurrentVariants = repo.CurrentRevisionVariants(currentRevision.Id, currentRevision.Variant).Where(x => !x.Published).ToList();
+                if (publishedVariants.Count() == 0 && unpublishedCurrentVariants.Any()
+                    && !publishedRevision.Path.ToLower().Equals(unpublishedCurrentVariants.FirstOrDefault().Path.ToLower()))
+                {
+                    //since we're deleting the published revision (which descendant paths are based on), we should set descendant paths to be based off of the remaining unpublished variant
+                    //this is only necessary when the remaining unpublished variant has a different path and there are no remaining published variants
+                    int affected = UpdateDescendantPaths(publishedRevision.Path + "/", unpublishedCurrentVariants.FirstOrDefault().Path + "/");
+                    UpdatePathRelatedMeta(publishedRevision.Path, unpublishedCurrentVariants.FirstOrDefault().Path);
+                }
+            }
+
             repoItems
                     .Where(x => !cancelled.Contains(x))
                     .ToList()
@@ -668,7 +687,10 @@ namespace puck.core.Services
         public string GetLiveOrCurrentPath(Guid id)
         {
             var node = repo.GetPuckRevision()
-                .Where(x => x.Id == id && ((x.HasNoPublishedRevision && x.Current) || x.IsPublishedRevision)).OrderByDescending(x => x.Updated).FirstOrDefault();
+                .Where(x => x.Id == id && ((x.HasNoPublishedRevision && x.Current) || x.IsPublishedRevision))
+                .OrderByDescending(x=>x.Published)
+                .ThenByDescending(x => x.Updated)
+                .FirstOrDefault();
             return node?.Path;
         }
         public async Task<T> Create<T>(Guid parentId, string variant, string name, string template = null, bool published = false, string userName = null) where T : BaseModel
@@ -897,7 +919,7 @@ namespace puck.core.Services
                         nameChanged = true;
                         nameDifferentThanPublished = true;
                         publishedRevisionPath = publishedRevisionOrVariant.Path;
-                        originalPath = original.Path;
+                        originalPath = original?.Path??publishedRevisionPath;
                     }
                 }
                 var idPath = "";// = original?.IdPath ?? GetIdPath(mod);
@@ -911,6 +933,10 @@ namespace puck.core.Services
                 var affected = 0;
                 var currentVariantsDb = new List<PuckRevision>();
                 var publishedVariantsDb = new List<PuckRevision>();
+                bool nameDifferentThanCurrentVariant = false;
+                string currentVariantOriginalPath = "";
+                bool nameDifferentThanPublishedVariant = false;
+                string publishedVariantOriginalPath = "";
                 if (nameChanged || parentChanged || string.IsNullOrEmpty(mod.Path))
                 {
                     if (mod.ParentId == Guid.Empty)
@@ -927,7 +953,7 @@ namespace puck.core.Services
                 {
                     try
                     {
-                        if (nameChanged || parentChanged)
+                        if (nameChanged || parentChanged || original==null)
                         {
                             currentVariantsDb = repo.CurrentRevisionVariants(mod.Id, mod.Variant).ToList();
                             publishedVariantsDb = repo.PublishedRevisionVariants(mod.Id, mod.Variant).ToList();
@@ -941,7 +967,7 @@ namespace puck.core.Services
                             {//update parentId of variants
                                 publishedVariantsDb.ForEach(x => { x.ParentId = mod.ParentId; x.IdPath = idPath; x.NodeName = mod.NodeName; x.Path = mod.Path; });
                             }
-                            if (!mod.Published)
+                            if (!mod.Published || (hasNoPublishedVariants&&mod.Published))
                             {
                                 if (currentVariantsDb.Where(x => !x.Published)
                                     .Any(x => !x.NodeName.ToLower().Equals(mod.NodeName.ToLower())
@@ -950,6 +976,8 @@ namespace puck.core.Services
                                 )
                                 {//update path of variants
                                     nameChanged = true;
+                                    nameDifferentThanCurrentVariant=true;
+                                    currentVariantOriginalPath = currentVariantsDb.First().Path;
                                     if (string.IsNullOrEmpty(originalPath))
                                         originalPath = currentVariantsDb.First().Path;
                                     currentVariantsDb.Where(x => !x.Published).ToList().ForEach(x => { x.NodeName = mod.NodeName; x.Path = mod.Path; });
@@ -964,6 +992,8 @@ namespace puck.core.Services
                                 )
                                 {//update path of published variants
                                     nameChanged = true;
+                                    nameDifferentThanPublishedVariant = true;
+                                    publishedVariantOriginalPath = publishedVariantsDb.FirstOrDefault().Path;
                                     if (string.IsNullOrEmpty(originalPath))
                                         originalPath = publishedVariantsDb.First().Path;
                                     publishedVariantsDb.ToList().ForEach(x => { x.NodeName = mod.NodeName; x.Path = mod.Path; });
@@ -1009,7 +1039,7 @@ namespace puck.core.Services
                                 affected = UpdateDescendantPaths(original.Path + "/", mod.Path + "/");
                                 UpdatePathRelatedMeta(original.Path, mod.Path);
                             }
-                            if (mod.Published && (nameDifferentThanCurrent || nameDifferentThanPublished))
+                            else if (mod.Published && (nameDifferentThanCurrent || nameDifferentThanPublished))
                             {
                                 if (!string.IsNullOrEmpty(publishedRevisionPath))
                                 {
@@ -1023,6 +1053,17 @@ namespace puck.core.Services
                                     affected = UpdateDescendantPaths(currentRevisionPath + "/", mod.Path + "/");
                                     UpdatePathRelatedMeta(currentRevisionPath, mod.Path);
                                 }
+                            }
+                            else if (nameDifferentThanCurrentVariant) {
+                                //update descendant paths
+                                affected = UpdateDescendantPaths(currentVariantOriginalPath + "/", mod.Path + "/");
+                                UpdatePathRelatedMeta(currentVariantOriginalPath, mod.Path);
+                            }
+                            else if (nameDifferentThanPublishedVariant)
+                            {
+                                //update descendant paths
+                                affected = UpdateDescendantPaths(publishedVariantOriginalPath + "/", mod.Path + "/");
+                                UpdatePathRelatedMeta(publishedVariantOriginalPath, mod.Path);
                             }
                         }
 
@@ -1371,59 +1412,39 @@ namespace puck.core.Services
                 var values = new List<string>();
                 var models = new List<BaseModel>();
                 var typeAndValues = new List<KeyValuePair<string, string>>();
-                using (var con = new SqlConnection(config.GetConnectionString("DefaultConnection")))
+                using (var command = repo.Context.Database.GetDbConnection().CreateCommand())
                 {
                     PuckCache.IndexingStatus = $"retrieving records to republish";
-                    var sql = "SELECT Path,Type,Value,TypeChain,SortOrder,ParentId,TemplatePath FROM PuckRevision where ([IsPublishedRevision] = 1 OR ([HasNoPublishedRevision]=1 AND [Current] = 1))";
-                    var com = new SqlCommand(sql, con);
-                    //com.Parameters.AddWithValue("@pricePoint", paramValue);
-                    con.Open();
-                    SqlDataReader reader = com.ExecuteReader();
-                    using (MiniProfiler.Current.Step("get all models"))
+                    command.CommandText = "SELECT Path,Type,Value,TypeChain,SortOrder,ParentId,TemplatePath FROM PuckRevision where ([IsPublishedRevision] = 1 OR ([HasNoPublishedRevision]=1 AND [Current] = 1))";
+                    repo.Context.Database.OpenConnection();
+                    using (var reader = command.ExecuteReader())
                     {
-                        while (reader.Read())
+                        using (MiniProfiler.Current.Step("get all models"))
                         {
-                            var aqn = reader.GetString(1);
-                            var value = reader.GetString(2);
-                            //var type = ApiHelper.GetType(aqn);
-                            var type = ApiHelper.GetTypeFromName(aqn);
-                            if (type == null) continue;
-                            var model = JsonConvert.DeserializeObject(value, type) as BaseModel;
-                            model.Type = aqn;
-                            model.Path = reader.GetString(0);
-                            model.TypeChain = reader.GetString(3);
-                            model.SortOrder = reader.GetInt32(4);
-                            model.ParentId = reader.GetGuid(5);
-                            model.TemplatePath = reader.GetString(6);
-                            models.Add(model);
-                            //typeAndValues.Add(new KeyValuePair<string, string>(aqn, value));
-                            //values.Add(reader.GetString(2));
+                            while (reader.Read())
+                            {
+                                var aqn = reader.GetString(1);
+                                var value = reader.GetString(2);
+                                //var type = ApiHelper.GetType(aqn);
+                                var type = ApiHelper.GetTypeFromName(aqn);
+                                if (type == null) continue;
+                                var model = JsonConvert.DeserializeObject(value, type) as BaseModel;
+                                model.Type = aqn;
+                                model.Path = reader.GetString(0);
+                                model.TypeChain = reader.GetString(3);
+                                model.SortOrder = reader.GetInt32(4);
+                                model.ParentId = reader.GetGuid(5);
+                                model.TemplatePath = reader.GetString(6);
+                                models.Add(model);
+                                //typeAndValues.Add(new KeyValuePair<string, string>(aqn, value));
+                                //values.Add(reader.GetString(2));
+                            }
                         }
                     }
-                    reader.Close();
                 }
-                //using (MiniProfiler.Current.Step("deserialize"))
-                //{
-                //    PuckCache.IndexingStatus = $"deserializing records";
-                //    foreach (var item in typeAndValues)
-                //    {
-                //        try
-                //        {
-                //            //var model = JsonConvert.DeserializeObject(item.Value, ApiHelper.GetType(item.Key)) as BaseModel;
-                //            //models.Add(model);
-                //            //values.Add(reader.GetString(2));
-                //        }
-                //        catch (Exception ex) { }
-
-                //    }
-                //}
-                //var qh = new QueryHelper<BaseModel>(prependTypeTerm: false);
-                //qh.And().Field(x => x.TypeChain, typeof(BaseModel).Name.Wrap());
-                //var query = qh.ToString();
                 PuckCache.IndexingStatus = $"deleting all indexed items";
                 using (MiniProfiler.Current.Step("delete models"))
                 {
-                    //indexer.Delete(query, reloadSearcher: false);
                     indexer.DeleteAll();
                 }
                 using (MiniProfiler.Current.Step("index models"))
@@ -1433,8 +1454,6 @@ namespace puck.core.Services
             }
             catch (Exception ex)
             {
-                //PuckCache.IsRepublishingEntireSite = false;
-                //PuckCache.IndexingStatus = "";
                 logger.Log(ex);
                 errored = true;
                 errorMsg = ex.Message;
@@ -1599,16 +1618,8 @@ namespace puck.core.Services
         public int UpdateTypeAndTypeChain(string oldType, string newType, string newTypeChain)
         {
             int rowsAffected = 0;
-            using (var con = new SqlConnection(config.GetConnectionString("DefaultConnection")))
-            {
-                var sql = "update PuckRevision set [Type] = @newType, [TypeChain] = @newTypeChain where [Type] = @oldType";
-                var com = new SqlCommand(sql, con);
-                com.Parameters.AddWithValue("@oldType", oldType);
-                com.Parameters.AddWithValue("@newType", newType);
-                com.Parameters.AddWithValue("@newTypeChain", newTypeChain);
-                con.Open();
-                rowsAffected = com.ExecuteNonQuery();
-            }
+            var sql = $"update PuckRevision set [Type] = '{newType}', [TypeChain] = '{newTypeChain}' where [Type] = '{oldType}'";
+            rowsAffected = repo.Context.Database.ExecuteSqlRaw(sql);
             return rowsAffected;
         }
         public int RenameOrphaned2(string orphanTypeName, string newTypeName)
