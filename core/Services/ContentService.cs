@@ -1066,12 +1066,12 @@ namespace puck.core.Services
                                     UpdatePathRelatedMeta(currentRevisionPath, mod.Path);
                                 }
                             }
-                            else if (nameDifferentThanCurrentVariant) {
+                            else if (nameDifferentThanCurrentVariant && publishedRevisionOrVariant==null) {
                                 //update descendant paths
                                 affected = UpdateDescendantPaths(currentVariantOriginalPath + "/", mod.Path + "/");
                                 UpdatePathRelatedMeta(currentVariantOriginalPath, mod.Path);
                             }
-                            else if (nameDifferentThanPublishedVariant)
+                            else if (nameDifferentThanPublishedVariant && mod.Published)
                             {
                                 //update descendant paths
                                 affected = UpdateDescendantPaths(publishedVariantOriginalPath + "/", mod.Path + "/");
@@ -1167,24 +1167,7 @@ namespace puck.core.Services
                         {
                             revision.HasNoPublishedRevision = true;
                         }
-
-                        ////if published, set the currently published revision. this requires unsetting any previously set publishedrevision flag
-                        //if (mod.Published)
-                        //{
-                        //    revisions.ForEach(x => x.IsPublishedRevision = false);
-                        //    revision.IsPublishedRevision = true;
-                        //}
-                        ////if this revision or any previous revisions have a published revision, HasNoPublishedRevision must be false
-                        //if (revision.IsPublishedRevision || revisions.Any(x => x.IsPublishedRevision))
-                        //{
-                        //    revision.HasNoPublishedRevision = false;
-                        //    revisions.ForEach(x => x.HasNoPublishedRevision = false);
-                        //}
-                        //else
-                        //{//current revision or previous revisions don't have have IsPublishedRevision set so this must mean there is no published revision
-                        //    revision.HasNoPublishedRevision = true;
-                        //    revisions.ForEach(x => x.HasNoPublishedRevision = true);
-                        //}
+                        
                         //prune old revisions
                         revisions.OrderByDescending(x => x.RevisionID).Skip(PuckCache.MaxRevisions).ToList().ForEach(x => repo.DeleteRevision(x));
                         var shouldUpdateDomainMappings = false;
