@@ -28,9 +28,7 @@ namespace puck.core.Helpers
 
         private static object lck = new object();
         private static int lock_wait = 1;
-        public static I_Puck_Repository Repo {get{return PuckCache.PuckRepo;}}
         public static I_Content_Indexer Indexer { get { return PuckCache.PuckIndexer; } }
-        public static I_Content_Service ContentService { get { return PuckCache.ContentService; } } 
         public static bool InitializeSync() {
             using (var scope = PuckCache.ServiceProvider.CreateScope())
             {

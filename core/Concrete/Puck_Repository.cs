@@ -6,13 +6,22 @@ using System.Data;
 using puck.core.Abstract;
 using puck.core.Entities;
 using Microsoft.Extensions.Configuration;
+using Microsoft.EntityFrameworkCore;
 
 namespace puck.core.Concrete
 {
     public class Puck_Repository : I_Puck_Repository
     {
-        public Puck_Repository(IConfiguration config) {
-            repo = new PuckContext(config.GetConnectionString("DefaultConnection"));
+        //public Puck_Repository(IConfiguration config) {
+        //    repo = new PuckContext(config.GetConnectionString("DefaultConnection"));
+        //}
+        //public Puck_Repository(DbContextOptions options)
+        //{
+        //    repo = new PuckContext(options);
+        //}
+        public Puck_Repository(PuckContext context)
+        {
+            repo = context;
         }
         public PuckContext repo;
         public PuckContext Context { get { return repo; } }

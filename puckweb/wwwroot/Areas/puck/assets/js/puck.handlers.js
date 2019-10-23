@@ -403,7 +403,7 @@ $(document).on("click",".node-dropdown a,.template-dropdown a",function () {
                 var toId = dest_node.attr("data-id");
                 var nodeTitle = node.find("span:first").text();
                 var includeDescendants = markup.find("input").is(":checked");
-                console.log("includeDescendants",includeDescendants);
+                //console.log("includeDescendants",includeDescendants);
                 if (!confirm("copy " + nodeTitle + " to " + to + " ?")) {
                     return;
                 }
@@ -413,7 +413,7 @@ $(document).on("click",".node-dropdown a,.template-dropdown a",function () {
                         console.log({ el: tonode });
                         if (tonode.length == 0) return;
                         tonode.find(".expand:first").removeClass("fa-chevron-right").addClass("fa-chevron-down").css({ visibility: "visible" });
-                        getDrawContent(toId);
+                        getDrawContent(toId, undefined, true, function () { },true);
                     } else {
                         msg(false, d.message);
                     }

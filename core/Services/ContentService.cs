@@ -709,7 +709,7 @@ namespace puck.core.Services
                 .FirstOrDefault();
             return node?.Path;
         }
-        public async Task<T> Create<T>(Guid parentId, string variant, string name, string template = null, bool published = false, string userName = null) where T : BaseModel
+        public async Task<T> Create<T>(Guid parentId, string variant, string name, string template = null, bool published = true, string userName = null) where T : BaseModel
         {
             var instance = (T)ApiHelper.CreateInstance(typeof(T));
             if (parentId != Guid.Empty)
@@ -816,7 +816,8 @@ namespace puck.core.Services
         }
         public async Task<List<BaseModel>> SaveContent<T>(T mod, bool makeRevision = true, string userName = null, bool handleNodeNameExists = true, int nodeNameExistsCounter = 0,bool triggerEvents=true,bool triggerIndexEvents=true,bool shouldIndex=true) where T : BaseModel
         {
-            await slock1.WaitAsync();
+            if(nodeNameExistsCounter==0)
+                await slock1.WaitAsync();
             try
             {
                 PuckUser user = null;
@@ -973,7 +974,7 @@ namespace puck.core.Services
                 string currentVariantOriginalPath = "";
                 bool nameDifferentThanPublishedVariant = false;
                 string publishedVariantOriginalPath = "";
-                if ((nameChanged || parentChanged)&&!pathSet)
+                if ((nameChanged || parentChanged ||nodeNameExistsCounter>0)&&!pathSet)
                 {
                     _SetPath();
                 }
@@ -1316,7 +1317,8 @@ namespace puck.core.Services
             }
             finally
             {
-                slock1.Release();
+                if(nodeNameExistsCounter==0)
+                    slock1.Release();
             }
         }
         public void Index(List<BaseModel> toIndex,bool addPublishInstruction=true,bool triggerEvents=true) {
@@ -1487,19 +1489,20 @@ namespace puck.core.Services
 
             string notes = "";
 
-            var itemsToCopy = repo.GetPuckRevision().Where(x => x.Id == id && x.Current).ToList();
-            if (itemsToCopy.Count == 0) return;
+            var revisionsToCopy = repo.GetPuckRevision().Where(x => x.Id == id && x.Current).ToList();
+            if (revisionsToCopy.Count == 0) return;
             var descendants = new List<PuckRevision>();
             if (includeDescendants)
             {
-                descendants = repo.CurrentRevisionDescendants(itemsToCopy.First().IdPath).ToList();
+                descendants = repo.CurrentRevisionDescendants(revisionsToCopy.First().IdPath).ToList();
                 if (descendants.Any())
                     notes = $"{descendants.Count} descendant items also copied";
             }
+            var itemsToCopy = revisionsToCopy.Select(x => x.ToBaseModel()).ToList();
 
-            var allItemsToCopy = new List<PuckRevision>();
+            var allItemsToCopy = new List<BaseModel>();
             allItemsToCopy.AddRange(itemsToCopy);
-            allItemsToCopy.AddRange(descendants);
+            allItemsToCopy.AddRange(descendants.Select(x=>x.ToBaseModel()));
 
             var ids = allItemsToCopy.Select(x => x.Id).Distinct();
 
@@ -1520,16 +1523,15 @@ namespace puck.core.Services
 
             itemsToCopy.ForEach(x => x.ParentId = parentId);
 
-            async Task SaveCopies(Guid pId, List<PuckRevision> items)
+            async Task SaveCopies(Guid pId, List<BaseModel> items)
             {
                 var children = items.Where(x => x.ParentId == pId).ToList();
                 var childrenGroupedById = children.GroupBy(x => x.Id);
                 foreach (var group in childrenGroupedById)
                 {
-                    foreach (var revision in group)
+                    foreach (var model in group)
                     {
-                        var model = ApiHelper.RevisionToBaseModel(revision);
-                        await SaveContent(model);
+                        await SaveContent(model,userName:userName);
                     }
                     await SaveCopies(group.Key, items);
                 }

@@ -28,7 +28,7 @@ namespace puck.core.Tasks
             using (var scope = PuckCache.ServiceProvider.CreateScope())
             {
                 await base.Run(t);
-                var repo = PuckCache.PuckRepo;
+                var repo = scope.ServiceProvider.GetService<I_Puck_Repository>();
                 var contentService = scope.ServiceProvider.GetService<I_Content_Service>();
                 var publishMeta = repo.GetPuckMeta().Where(x => x.Name == DBNames.TimedPublish && x.Dt.HasValue && x.Dt.Value <= DateTime.Now).ToList();
                 var unpublishMeta = repo.GetPuckMeta().Where(x => x.Name == DBNames.TimedUnpublish && x.Dt.HasValue && x.Dt.Value <= DateTime.Now).ToList();

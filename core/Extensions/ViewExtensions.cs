@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.Razor;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace puck.core.Extensions
 {
@@ -47,29 +48,34 @@ namespace puck.core.Extensions
             }
             if (string.IsNullOrEmpty(propertyName))
                 propertyName = page.ViewContext.ViewData.TemplateInfo.HtmlFieldPrefix;
-            var repo = PuckCache.PuckRepo;
+            using (var scope = PuckCache.ServiceProvider.CreateScope())
+            {
+                var repo = scope.ServiceProvider.GetService<I_Puck_Repository>();
 
-            var modelType = page.ViewBag.Level0Type as Type;
-            if (modelType == null)
-                return default(T);
-            var settingsType = typeof(T);
-            //var propertyName =ExpressionMetadataProvider.FromStringExpression("", page.ViewData,).PropertyName;
-            var type = modelType;
-            while (type != typeof(object)) {
-                var key = string.Concat(settingsType.FullName, ":", type.Name, ":", propertyName);
-                var meta = repo.GetPuckMeta().Where(x => x.Name == DBNames.EditorSettings && x.Key.Equals(key)).FirstOrDefault();
-                if (meta == null) {
-                    key = string.Concat(settingsType.FullName, ":", type.Name, ":");
-                    meta = repo.GetPuckMeta().Where(x => x.Name == DBNames.EditorSettings && x.Key.Equals(key)).FirstOrDefault();
-                }
-                if (meta != null)
+                var modelType = page.ViewBag.Level0Type as Type;
+                if (modelType == null)
+                    return default(T);
+                var settingsType = typeof(T);
+                //var propertyName =ExpressionMetadataProvider.FromStringExpression("", page.ViewData,).PropertyName;
+                var type = modelType;
+                while (type != typeof(object))
                 {
-                    var data = JsonConvert.DeserializeObject(meta.Value, settingsType);
-                    return data == null ? default(T) : (T)data;
+                    var key = string.Concat(settingsType.FullName, ":", type.Name, ":", propertyName);
+                    var meta = repo.GetPuckMeta().Where(x => x.Name == DBNames.EditorSettings && x.Key.Equals(key)).FirstOrDefault();
+                    if (meta == null)
+                    {
+                        key = string.Concat(settingsType.FullName, ":", type.Name, ":");
+                        meta = repo.GetPuckMeta().Where(x => x.Name == DBNames.EditorSettings && x.Key.Equals(key)).FirstOrDefault();
+                    }
+                    if (meta != null)
+                    {
+                        var data = JsonConvert.DeserializeObject(meta.Value, settingsType);
+                        return data == null ? default(T) : (T)data;
+                    }
+                    type = type.BaseType;
                 }
-                type = type.BaseType;
+                return default(T);
             }
-            return default(T);            
         }
         
     }

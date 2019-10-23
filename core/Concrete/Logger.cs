@@ -11,8 +11,14 @@ namespace puck.core.Concrete
 {
     public class Logger:I_Log
     {
-        public string DATADIRECTORY { get { return ApiHelper.MapPath($"~/App_Data/Log/{ApiHelper.ServerName()}"); } }
+        public string DATADIRECTORY { get; set; }
         private static Object log_lock = new Object();
+        public Logger() { 
+            DATADIRECTORY= ApiHelper.MapPath($"~/App_Data/Log/{ApiHelper.ServerName()}");
+        }
+        public Logger(string logPath) {
+            DATADIRECTORY = logPath;
+        }
         public void Log(Exception ex) {
             this.Log(ex.Message,ex.StackTrace,"error",ex.GetType());
         }

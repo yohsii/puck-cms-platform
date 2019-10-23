@@ -115,7 +115,7 @@ namespace puck.core.Helpers
         public static string TypeChain(Type type, string chain = "")
         {
             var result = DoTypeChain(type, chain);
-            foreach (var gen in PuckCache.IGeneratedToModel)
+            foreach (var gen in PuckCache.IGeneratedToModel??new Dictionary<string, Type>())
             {
                 var t = ApiHelper.GetType(gen.Key);
                 result = result.Replace(gen.Value.FullName, t.FullName);

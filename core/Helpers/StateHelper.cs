@@ -24,16 +24,12 @@ namespace puck.core.Helpers
 {
     public static class StateHelper
     {
-        public static I_Puck_Repository Repo{get{
-                return PuckCache.PuckRepo;
-        }}
         public static I_Task_Dispatcher tdispatcher{get{
                 return PuckCache.PuckDispatcher;
         }}
         public static I_Content_Indexer indexer{get{
                 return PuckCache.PuckIndexer;
         }}
-        public static I_Api_Helper apiHelper { get { return PuckCache.ApiHelper; } }
         public static I_Log logger { get { return PuckCache.PuckLog; } }
         public static async Task SeedDb(IConfiguration config, IHostEnvironment env, IServiceProvider serviceProvider) {
             if (env.IsDevelopment())

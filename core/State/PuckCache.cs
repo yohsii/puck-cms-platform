@@ -86,7 +86,8 @@ namespace puck.core.State
         public static HashSet<string> OutputCacheExclusion { get; set; }
         public static IServiceProvider ServiceProvider { get; set; }
         public static I_Task_Dispatcher PuckDispatcher { get { return ServiceProvider.GetService<I_Task_Dispatcher>(); } }
-        public static I_Content_Searcher PuckSearcher { get { return ServiceProvider.GetService<I_Content_Searcher>(); } }
+        public static I_Content_Searcher _puckSearcher { get; set; }
+        public static I_Content_Searcher PuckSearcher { get { return _puckSearcher ?? ServiceProvider.GetService<I_Content_Searcher>(); } }
         public static I_Content_Indexer PuckIndexer { get { return ServiceProvider.GetService<I_Content_Indexer>(); } }
         public static I_Puck_Repository PuckRepo { get { return ServiceProvider.GetService<I_Puck_Repository>(); } }
         public static UserManager<PuckUser> PuckUserManager { get { return ServiceProvider.GetService<UserManager<PuckUser>>(); } }

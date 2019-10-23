@@ -13,6 +13,7 @@ using puck.core.Constants;
 using Newtonsoft.Json;
 using puck.core.State;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace puck.core.Concrete
 {
@@ -57,13 +58,16 @@ namespace puck.core.Concrete
             }
             if ((PuckCache.UpdateTaskLastRun && !e.Task.Recurring) || (PuckCache.UpdateRecurringTaskLastRun && e.Task.Recurring))
             {
-                var repo = PuckCache.PuckRepo;
-                var taskMeta = repo.GetPuckMeta().Where(x => x.Name == DBNames.Tasks && x.ID == e.Task.ID).FirstOrDefault();
-                if (taskMeta != null)
+                using (var scope = PuckCache.ServiceProvider.CreateScope())
                 {
-                    taskMeta.Value = JsonConvert.SerializeObject(e.Task);
-                    repo.SaveChanges();
-                    repo = null;
+                    var repo = scope.ServiceProvider.GetService<I_Puck_Repository>();
+                    var taskMeta = repo.GetPuckMeta().Where(x => x.Name == DBNames.Tasks && x.ID == e.Task.ID).FirstOrDefault();
+                    if (taskMeta != null)
+                    {
+                        taskMeta.Value = JsonConvert.SerializeObject(e.Task);
+                        repo.SaveChanges();
+                        repo = null;
+                    }
                 }
             }
         }
