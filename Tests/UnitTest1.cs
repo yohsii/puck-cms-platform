@@ -78,7 +78,7 @@ namespace Tests
         }
 
         [Test]
-        public async Task CreateCreateRoot()
+        public async Task CreateRoot()
         {
             var model = await contentService.Create<Folder>(Guid.Empty, "en-gb", "home", template: "~/views/home/homepage.cshtml", published: true, userName: "darkezmo@hotmail.com");
             await contentService.SaveContent(model,triggerEvents:false,userName:"darkezmo@hotmail.com");
