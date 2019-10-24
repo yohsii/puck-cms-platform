@@ -20,7 +20,7 @@ namespace puck.tests
 {
     //NOTE: to run tests you will need to set correct values for appSettings.json (in this test project not in web project)
     //specifically, you need to set "LuceneIndexPath", "LogPath" and "ContentRootPath"
-    public class Tests
+    public class ContentServiceTests
     {
         I_Content_Service contentService;
         I_Content_Indexer indexer;
