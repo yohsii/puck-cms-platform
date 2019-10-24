@@ -8,15 +8,15 @@ using puck.core.Entities;
 using puck.core.Helpers;
 using puck.core.State;
 using puck.core.Base;
-using Tests.ViewModels;
+using puck.tests.Helpers;
+using puck.tests.ViewModels;
 using System;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using System.Text;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Data.Sqlite;
 
-namespace Tests
+namespace puck.tests
 {
     //NOTE: to run tests you will need to set correct values for appSettings.json (in this test project not in web project)
     //specifically, you need to set "LuceneIndexPath", "LogPath" and "ContentRootPath"

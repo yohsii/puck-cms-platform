@@ -8,20 +8,12 @@ using Microsoft.AspNetCore.Identity.UI;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.EntityFrameworkCore;
-using puckweb.Data;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using puck.core.Entities;
-using puck.core.Abstract;
-using puck.core.Concrete;
-using puck.core.Helpers;
-using puck.core.Services;
-using puck.core.State;
 using puck.core.Extensions;
 using Microsoft.AspNetCore.Http;
-using Newtonsoft.Json.Serialization;
-using System.Text.Json;
 using StackExchange.Profiling.Storage;
 using SixLabors.ImageSharp.Web.Providers;
 using SixLabors.ImageSharp.Web;
@@ -31,10 +23,9 @@ using SixLabors.ImageSharp.Web.Commands;
 using SixLabors.ImageSharp.Web.Caching;
 using SixLabors.ImageSharp.Web.Processors;
 using SixLabors.ImageSharp.Web.Middleware;
-using puck.core.Globalisation;
-using System.Globalization;
 using Microsoft.Extensions.FileProviders;
 using puck.core.ImageSharp.WebProcessors;
+
 namespace puckweb
 {
     public class Startup

@@ -11,7 +11,7 @@ using Moq;
 using puck.core.Abstract;
 using puck.core.Entities;
 
-namespace Tests
+namespace puck.tests.Helpers
 {
     public static class MockHelpers
     {

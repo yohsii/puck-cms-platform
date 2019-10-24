@@ -9,7 +9,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "core", "core\core.csproj", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AzureDirectory", "AzureDirectory\AzureDirectory.csproj", "{E472DE45-612E-4732-9F43-DD9B8CC6FE47}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests", "Tests\Tests.csproj", "{E479C3BA-8946-47BC-B787-E30FF588FD26}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "tests", "Tests\tests.csproj", "{E479C3BA-8946-47BC-B787-E30FF588FD26}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

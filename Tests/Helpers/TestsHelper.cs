@@ -10,10 +10,9 @@ using puck.core.State;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using Tests.ViewModels;
+using puck.tests.ViewModels;
 
-namespace Tests
+namespace puck.tests.Helpers
 {
     public static class TestsHelper
     {

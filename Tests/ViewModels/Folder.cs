@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Tests.ViewModels
+namespace puck.tests.ViewModels
 {
     public class Folder:BaseModel
     {
