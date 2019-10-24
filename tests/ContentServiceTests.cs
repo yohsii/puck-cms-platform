@@ -34,11 +34,9 @@ namespace puck.tests
         SqliteConnection con;
         DbContextOptionsBuilder<PuckContext> dbContextOptionsBuilder;
         PuckContext context;
-        public QueryHelper<T> NewQueryHelper<T>() where T:BaseModel {
-            QueryHelper<T>.searcher = searcher;
-            return new QueryHelper<T>();
-        }
+        
         public I_Puck_Repository NewRepo() {
+            var context = new PuckContext(dbContextOptionsBuilder.Options);
             repo = new Puck_Repository(context);
             return repo;
         }
