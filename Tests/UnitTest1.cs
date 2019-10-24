@@ -69,7 +69,7 @@ namespace Tests
             roleManager = MockHelpers.MockRoleManager<PuckRole>().Object;
             userManager = MockHelpers.MockUserManager().Object;
             apiHelper = new ApiHelper(roleManager, userManager, repo, tDispatcher, indexer, logger);
-            contentService = new ContentService(config, roleManager, userManager, repo,tDispatcher, indexer, logger);
+            contentService = new ContentService(config, roleManager, userManager, repo,tDispatcher, indexer, logger,apiHelper);
             PuckCache._puckSearcher = searcher;
             PuckCache.ServiceProvider = MockHelpers.MockServiceProvider(repo).Object;
             TestsHelper.SetAQNMappings();

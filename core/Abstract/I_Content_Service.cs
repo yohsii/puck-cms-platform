@@ -22,7 +22,7 @@ namespace puck.core.Abstract
         void AddAuditEntry(Guid id, string variant, string action, string notes, string username);
         void AddPublishInstruction(List<BaseModel> toIndex);
         Task Copy(Guid id, Guid parentId, bool includeDescendants, string userName = null);
-        Task<T> Create<T>(Guid parentId, string variant, string name, string template = null, bool published = false, string userName = null) where T : BaseModel;
+        Task<T> Create<T>(Guid parentId, string variant, string name, string template = null, bool published = true, string userName = null) where T : BaseModel;
         Task Delete(Guid id, string variant = null, string userName = null);
         int DeleteRevisions(List<Guid> ids, int step = 100);
         string GetIdPath(BaseModel mod);

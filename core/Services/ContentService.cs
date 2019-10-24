@@ -42,6 +42,7 @@ namespace puck.core.Services
         public I_Task_Dispatcher tdispatcher { get; set; }
         public I_Content_Indexer indexer { get; set; }
         public I_Log logger { get; set; }
+        public I_Api_Helper apiHelper { get; set; }
         public IConfiguration config { get; set; }
         private static SemaphoreSlim slock1 = new SemaphoreSlim(1);
         private static void DelegateBeforeEvent(Dictionary<string, Tuple<Type, Action<object, BeforeIndexingEventArgs>, bool>> list, object n, BeforeIndexingEventArgs e)
@@ -244,7 +245,7 @@ namespace puck.core.Services
             BeforeMove += new EventHandler<BeforeMoveEventArgs>(DelegateBeforeMove);
             AfterMove += new EventHandler<MoveEventArgs>(DelegateAfterMove);
         }
-        public ContentService(IConfiguration config, RoleManager<PuckRole> RoleManager, UserManager<PuckUser> UserManager, I_Puck_Repository Repo, I_Task_Dispatcher TaskDispatcher, I_Content_Indexer Indexer, I_Log Logger)
+        public ContentService(IConfiguration config, RoleManager<PuckRole> RoleManager, UserManager<PuckUser> UserManager, I_Puck_Repository Repo, I_Task_Dispatcher TaskDispatcher, I_Content_Indexer Indexer, I_Log Logger,I_Api_Helper apiHelper)
         {
             this.roleManager = RoleManager;
             this.userManager = UserManager;
@@ -253,6 +254,7 @@ namespace puck.core.Services
             this.indexer = Indexer;
             this.logger = Logger;
             this.config = config;
+            this.apiHelper = apiHelper;
         }
 
         public void Sort(Guid parentId, List<Guid> ids)
@@ -727,14 +729,12 @@ namespace puck.core.Services
                 instance.TemplatePath = template;
             else
             {
-                var meta = repo.GetPuckMeta()
-                    .Where(x => x.Name == DBNames.TypeAllowedTemplates && x.Key == typeof(T).Name)
-                    .ToList();
-                if (meta == null || meta.Count == 0)
+                var allowedViews = apiHelper.AllowedViews(typeof(T).Name);
+                if (allowedViews.Count == 0)
                 {
-                    throw new Exception($"you've not specified a template parameter. tried to pick one from allowable templates (set in settings section) but none have been set for type:{ApiHelper.FriendlyClassName(typeof(T))}");
+                    throw new NoTemplateException($"you've not specified a template parameter. tried to pick one from allowable templates (set in settings section) but none have been set for type:{ApiHelper.FriendlyClassName(typeof(T))}");
                 }
-                instance.TemplatePath = meta.FirstOrDefault().Value;
+                instance.TemplatePath = ApiHelper.ToVirtualPath(allowedViews.FirstOrDefault().FullName);
             }
             instance.NodeName = name;
             instance.Variant = variant;
@@ -1451,6 +1451,9 @@ namespace puck.core.Services
                 {
                     indexer.Index(models, triggerEvents: false);
                 }
+                var instruction = new PuckInstruction() { Count = 1,InstructionKey=InstructionKeys.RepublishSite,ServerName=ApiHelper.ServerName() };
+                repo.AddPuckInstruction(instruction);
+                repo.SaveChanges();
             }
             catch (Exception ex)
             {

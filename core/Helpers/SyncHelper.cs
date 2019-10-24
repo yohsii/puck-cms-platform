@@ -116,12 +116,16 @@ namespace puck.core.Helpers
                             }
                             if (instruction.InstructionKey == InstructionKeys.RepublishSite)
                             {
-                                if (!PuckCache.IsRepublishingEntireSite)
+                                if (Indexer.CanWrite)
                                 {
-                                    PuckCache.IsRepublishingEntireSite = true;
-                                    var republishTask = contentService.RePublishEntireSite2();
-                                    republishTask.GetAwaiter().GetResult();
+                                    if (!PuckCache.IsRepublishingEntireSite)
+                                    {
+                                        PuckCache.IsRepublishingEntireSite = true;
+                                        var republishTask = contentService.RePublishEntireSite2();
+                                        republishTask.GetAwaiter().GetResult();
+                                    }
                                 }
+                                else searcher.SetSearcher();
                             }
                             else if (instruction.InstructionKey == InstructionKeys.Publish)
                             {
