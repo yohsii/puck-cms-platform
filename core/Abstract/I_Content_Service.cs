@@ -38,9 +38,9 @@ namespace puck.core.Abstract
         Task<List<BaseModel>> SaveContent<T>(T mod, bool makeRevision = true, string userName = null, bool handleNodeNameExists = true, int nodeNameExistsCounter = 0,bool triggerEvents=true, bool triggerIndexEvents = true, bool shouldIndex=true) where T : BaseModel;
         void Sort(Guid parentId, List<Guid> ids);
         Task UnPublish(Guid id, string variant, List<string> descendantVariants, string userName = null);
-        int UpdateDescendantHasNoPublishedRevision(string path, string value, List<string> descendantVariants);
+        int UpdateDescendantHasNoPublishedRevision(string path, bool value, List<string> descendantVariants);
         int UpdateDescendantIdPaths(string oldPath, string newPath);
-        int UpdateDescendantIsPublishedRevision(string path, string value, bool addWhereIsCurrentClause, List<string> descendantVariants);
+        int UpdateDescendantIsPublishedRevision(string path, bool value, bool addWhereIsCurrentClause, List<string> descendantVariants);
         int UpdateDescendantPaths(string oldPath, string newPath);
         void UpdatePathRelatedMeta(string oldPath, string newPath);
         int UpdateTypeAndTypeChain(string oldType, string newType, string newTypeChain);

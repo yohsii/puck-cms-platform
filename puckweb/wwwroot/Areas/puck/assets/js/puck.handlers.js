@@ -381,7 +381,7 @@ $(document).on("click",".node-dropdown a,.template-dropdown a",function () {
                         var tonode = cleft.find(".node[data-id='" + toId + "']");
                         console.log({ el: tonode });
                         tonode.find(".expand:first").removeClass("fa-chevron-right").addClass("fa-chevron-down").css({ visibility: "visible" });
-                        getDrawContent(toId);
+                        getDrawContent(toId, undefined, true, function () { },true);
                     } else {
                         msg(false, d.message);
                     }
