@@ -1664,7 +1664,7 @@ namespace puck.core.Services
             {
                 startNodes.ForEach(x => x.ParentId = destinationId);
                 startNode = startNodes.FirstOrDefault();
-                await SaveContent(startNode, makeRevision: false);
+                await SaveContent(startNode, makeRevision: false,userName:userName);
                 var afterArgs = new MoveEventArgs { Nodes = startNodes, DestinationNodes = startNodes };
                 OnAfterMove(null, afterArgs);
             }
