@@ -235,7 +235,6 @@ namespace puck.tests
         {
             var con = repo.Context.Database.GetDbConnection();
             var con2 = repo.Context.Database.GetDbConnection();
-            var parameter = repo.Context.Database.GetDbConnection().CreateCommand().CreateParameter();
             Assert.That(con==con2);
         }
 
