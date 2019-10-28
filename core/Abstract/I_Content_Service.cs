@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Common;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
@@ -47,5 +48,10 @@ namespace puck.core.Abstract
         int UpdateHasNoPublishedRevisionAndIsPublishedRevision(Guid id, string variant, bool? hasNoPublishedRevision,
                     bool? isPublishedRevision, int? hasNoPublishedRevisionIgnoreRevisionId = null, int? isPublishedRevisionIgnoreRevisionId = null);
         void Index(List<BaseModel> toIndex, bool addPublishInstruction = true, bool triggerEvents = true);
+        DbParameter CreateParameter(string name, object value);
+        public string GetSubStringFunctionForProvider();
+        public string GetLengthFunctionForProvider();
+        public string GetConcatOperatorForProvider();
+        public string GetProviderPrefix();
     }
 }

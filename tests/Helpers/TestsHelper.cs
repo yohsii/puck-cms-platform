@@ -11,6 +11,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using puck.tests.ViewModels;
+using puck.tests.Models;
+using System.Threading.Tasks;
+using puck.core.Abstract;
 
 namespace puck.tests.Helpers
 {
@@ -77,6 +80,39 @@ namespace puck.tests.Helpers
             PuckCache.Analyzers = panalyzers;
             PuckCache.AnalyzerForModel = analyzerForModel;
         }
-
+        public static async Task<SiteTree> CreateSite(I_Content_Service cs,I_Puck_Repository repo,string rootName,List<string> variants,List<bool> variantIsPublished,int levels,int branches,string username) {
+            var tree = new SiteTree();
+            tree.Level = 1;
+            tree.Branch = 1;
+            for (var i = 0; i < variants.Count; i++) {
+                var published = variantIsPublished[i];
+                var root = await cs.Create<Folder>(Guid.Empty, variants[i], rootName, template: "template.cshtml", published: published, userName: username);
+                await cs.SaveContent(root,triggerEvents:false,userName:username);
+                var revision = repo.CurrentRevision(root.Id,root.Variant);
+                tree.Variants.Add(revision);
+            }
+            
+            async Task CreateLevel(int level,SiteTree ctree) {
+                if (level > levels) return;
+                for (var j = 0; j < branches; j++)
+                {
+                    var btree = new SiteTree();
+                    btree.Level = level;
+                    btree.Branch = j + 1;
+                    for (var k = 0; k < variants.Count; k++)
+                    {
+                        var published = variantIsPublished[k];
+                        var model = await cs.Create<Folder>(ctree.Variants.First().Id, variants[k], (j+1).ToString(), template: "template.cshtml", published: published, userName: username);
+                        await cs.SaveContent(model, triggerEvents: false, userName: username);
+                        var revision = repo.CurrentRevision(model.Id, model.Variant);
+                        btree.Variants.Add(revision);
+                    }
+                    ctree.Children.Add(btree);
+                    await CreateLevel(level+1,btree);
+                }
+            }
+            await CreateLevel(2,tree);
+            return tree;
+        }
     }
 }

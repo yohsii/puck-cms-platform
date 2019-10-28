@@ -791,24 +791,70 @@ namespace puck.core.Services
         {
             int rowsAffected = 0;
             
-            var sql = $"update PuckRevision set [Path] = @newPath + SUBSTRING([Path], LEN(@oldPath)+1,8000) where [Path] LIKE @likeStr";
+            var sql = $"update PuckRevision set [Path] = @newPath {GetConcatOperatorForProvider()} {GetSubStringFunctionForProvider()}([Path], {GetLengthFunctionForProvider()}(@oldPath)+1,8000) where [Path] LIKE @likeStr";
             var parameters = new List<DbParameter>();
             parameters.Add(CreateParameter("@oldPath", oldPath));
             parameters.Add(CreateParameter("@newPath", newPath));
             parameters.Add(CreateParameter("@likeStr", oldPath + "%"));
+            sql = GetProviderPrefix() + sql;
             rowsAffected = repo.Context.Database.ExecuteSqlRaw(sql,parameters);
             return rowsAffected;
         }
         public int UpdateDescendantIdPaths(string oldPath, string newPath)
         {
             int rowsAffected = 0;
-            var sql = $"update PuckRevision set [IdPath] = @newPath + SUBSTRING([IdPath], LEN(@oldPath)+1,8000) where [IdPath] LIKE @likeStr";
+            var sql = $"update PuckRevision set [IdPath] = @newPath {GetConcatOperatorForProvider()} {GetSubStringFunctionForProvider()}([IdPath], {GetLengthFunctionForProvider()}(@oldPath)+1,8000) where [IdPath] LIKE @likeStr";
             var parameters = new List<DbParameter>();
             parameters.Add(CreateParameter("@oldPath",oldPath));
             parameters.Add(CreateParameter("@newPath",newPath));
             parameters.Add(CreateParameter("@likeStr", oldPath + "%"));
+            sql = GetProviderPrefix() + sql;
             rowsAffected = repo.Context.Database.ExecuteSqlRaw(sql,parameters);
             return rowsAffected;
+        }
+        public string GetProviderPrefix() {
+            var result = "";
+            if (repo.Context.Database.IsMySql())
+                result = "SET sql_mode='PIPES_AS_CONCAT';";
+            return result;
+        }
+        public string GetConcatOperatorForProvider()
+        {
+            var result = "+";
+            if (repo.Context.Database.IsSqlServer())
+                result = "+";
+            else if (repo.Context.Database.IsSqlite())
+                result = "||";
+            else if (repo.Context.Database.IsNpgsql())
+                result = "||";
+            else if (repo.Context.Database.IsMySql())
+                result = "||";
+            return result;
+        }
+        public string GetSubStringFunctionForProvider()
+        {
+            var result = "substring";
+            if (repo.Context.Database.IsSqlServer())
+                result = "substring";
+            else if (repo.Context.Database.IsSqlite())
+                result = "substr";
+            else if (repo.Context.Database.IsNpgsql())
+                result = "substr";
+            else if (repo.Context.Database.IsMySql())
+                result = "substr";
+            return result;
+        }
+        public string GetLengthFunctionForProvider() {
+            var result = "length";
+            if (repo.Context.Database.IsSqlServer())
+                result = "len";
+            else if (repo.Context.Database.IsSqlite())
+                result = "length";
+            else if (repo.Context.Database.IsNpgsql())
+                result = "length";
+            else if (repo.Context.Database.IsMySql())
+                result = "length";
+            return result;
         }
         public void UpdatePathRelatedMeta(string oldPath, string newPath)
         {
