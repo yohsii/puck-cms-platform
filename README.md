@@ -32,5 +32,5 @@ it's fast, with queries avoiding the database and instead using Lucene. it's als
 - scheduled publish
 - can be used headless or decoupled
 - supports sql server (tested), sqlite (tested),
-  - mysql (with pomelo ef core provider) - still to be tested
+  - mysql (with pomelo ef core provider) - problem with authorize attribute causing 500 errors - identity not working
   - postgresql - problem with EF connector which errors during migrations, issue open [here](https://github.com/npgsql/efcore.pg/issues/1096)
