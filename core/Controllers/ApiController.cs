@@ -852,7 +852,6 @@ namespace puck.core.Controllers
         [Authorize(Roles = PuckRoles.Unpublish, AuthenticationSchemes = Mvc.AuthenticationScheme)]
         public async Task<JsonResult> UnPublish(Guid id, string variant, string descendants="")
         {
-
             var message = string.Empty;
             var success = false;
             try

@@ -41,14 +41,29 @@ namespace puckweb
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddMemoryCache(x => x.SizeLimit = null);
+
+            /* SQL SERVER */
             services.AddDbContext<PuckContext>(options =>
                 options.UseSqlServer(
                     Configuration.GetConnectionString("DefaultConnection"))
-                ,optionsLifetime:ServiceLifetime.Transient);
+                , optionsLifetime: ServiceLifetime.Transient);
+
+            /* POSTGRES */
+            //services.AddEntityFrameworkNpgsql().AddDbContext<PuckContext>(options =>
+            //    options.UseNpgsql(
+            //        Configuration.GetConnectionString("DefaultConnection"))
+            //    , optionsLifetime: ServiceLifetime.Transient);
+            
+            /* MYSQL */
+            //services.AddEntityFrameworkMySql().AddDbContext<PuckContext>(options =>
+            //    options.UseMySql(
+            //        Configuration.GetConnectionString("DefaultConnection"))
+            //    , optionsLifetime: ServiceLifetime.Transient);
+            
             services.AddDefaultIdentity<PuckUser>(options => { options.SignIn.RequireConfirmedAccount = false;})
                 .AddRoles<PuckRole>()
                 .AddEntityFrameworkStores<PuckContext>();
-            services.AddMemoryCache();
             services.AddResponseCaching();
             services.AddSession();
             services.AddControllersWithViews()

@@ -31,6 +31,8 @@ namespace puck.core
         public static void Ini(IConfiguration config,IHostEnvironment env,IServiceProvider serviceProvider
             , IHttpContextAccessor httpContextAccessor
             ,Dictionary<string,Func<Microsoft.AspNetCore.Http.HttpContext,bool>> displayModes=null) {
+
+            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
             System.Web.HttpContext.Configure(httpContextAccessor);
             puck.core.State.PuckCache.Configure(config, env, serviceProvider);
             PuckCache.DisplayModes = displayModes;
