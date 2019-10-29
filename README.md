@@ -31,6 +31,4 @@ it's fast, with queries avoiding the database and instead using Lucene. it's als
 - task api - supports one-off and recurring background custom tasks with editable parameters
 - scheduled publish
 - can be used headless or decoupled
-- supports sql server (tested), sqlite (tested),
-  - mysql (with pomelo ef core provider) - problem with authorize attribute causing 500 errors - identity not working. [issue](https://github.com/PomeloFoundation/Pomelo.EntityFrameworkCore.MySql/issues/902)
-  - postgresql - problem with EF connector which errors during migrations, issue open [here](https://github.com/npgsql/efcore.pg/issues/1096)
+- supports sql server, sqlite, mysql (with pomelo ef core provider), postgresql
