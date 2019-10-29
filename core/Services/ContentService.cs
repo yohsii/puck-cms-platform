@@ -560,7 +560,7 @@ namespace puck.core.Services
 
             while (toDelete.Count() > 0)
             {
-                var sql = "delete from PuckRevision where [Id] in(";
+                var sql = "delete from [PuckRevision] where [Id] in(";
                 if(repo.Context.Database.IsNpgsql())
                     sql = "delete from \"PuckRevision\" where \"Id\" in(";
                 else if (repo.Context.Database.IsMySql())
