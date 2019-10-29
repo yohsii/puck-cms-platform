@@ -548,43 +548,7 @@ namespace puck.core.Services
                 repo.SaveChanges();
             }
         }
-        public void Publish(Guid id, string variant, List<string> descendants, bool publish)
-        {
-            //get items to delete
-            var repoQ = repo.GetPuckRevision().Where(x => x.Id == id && x.Current);
-            if (!string.IsNullOrEmpty(variant))
-                repoQ = repoQ.Where(x => x.Variant.ToLower().Equals(variant.ToLower()));
-            //return as models
-            var repoItems = repoQ.ToList().Select(x =>
-            {
-                var mod = x.ToBaseModel();
-                mod.Published = publish;
-                x.Published = publish;
-                x.Value = JsonConvert.SerializeObject(mod);
-                return mod;
-            }).ToList();
-
-            if (repoItems.Count == 0)
-                throw new Exception("no results with ID:" + id + " Variant:" + variant + " to publish");
-
-            var parentVariants = repo.CurrentRevisionParent(repoItems.First().Path).ToList();
-            //can't publish if parent not published unless root item
-            if (parentVariants.Count == 0 && repoItems.First().Path.Count(c => c == '/') > 1)
-                throw new NoParentExistsException("you cannot publish an item if it has no parent, unless it's a root node");
-
-            if (descendants.Count > 0)
-                repoItems.AddRange(
-                    repo.CurrentRevisionDescendants(repoItems.First().Path).Where(x => descendants.Contains(x.Variant.ToLower())).ToList().Select(x =>
-                    {
-                        var mod = x.ToBaseModel();
-                        mod.Published = publish;
-                        x.Published = publish;
-                        x.Value = JsonConvert.SerializeObject(mod);
-                        return mod;
-                    }).ToList());
-            repo.SaveChanges();
-            indexer.Index(repoItems);
-        }
+        
         public int DeleteRevisions(List<Guid> ids, int step = 100)
         {
             int affected = 0;
@@ -596,7 +560,11 @@ namespace puck.core.Services
 
             while (toDelete.Count() > 0)
             {
-                var sql = "delete from PuckRevision where id in(";
+                var sql = "delete from PuckRevision where [Id] in(";
+                if(repo.Context.Database.IsNpgsql())
+                    sql = "delete from \"PuckRevision\" where \"Id\" in(";
+                else if (repo.Context.Database.IsMySql())
+                    sql = "delete from `PuckRevision` where `Id` in(";
                 foreach (var id in toDelete)
                 {
                     sql += $"'{id.ToString()}',";
