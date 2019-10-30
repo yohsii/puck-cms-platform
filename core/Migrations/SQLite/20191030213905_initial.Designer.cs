@@ -9,7 +9,7 @@ using puck.core.Concrete;
 namespace puck.core.Migrations.SQLite
 {
     [DbContext(typeof(PuckContextSQLite))]
-    [Migration("20191030201309_initial")]
+    [Migration("20191030213905_initial")]
     partial class initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -181,10 +181,6 @@ namespace puck.core.Migrations.SQLite
                         .HasColumnType("TEXT");
 
                     b.HasKey("ID");
-
-                    b.HasIndex("Key");
-
-                    b.HasIndex("Name");
 
                     b.ToTable("PuckMeta");
                 });

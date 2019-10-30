@@ -188,10 +188,6 @@ namespace puck.core.Migrations.PostgreSQL
 
                     b.HasKey("ID");
 
-                    b.HasIndex("Key");
-
-                    b.HasIndex("Name");
-
                     b.ToTable("PuckMeta");
                 });
 

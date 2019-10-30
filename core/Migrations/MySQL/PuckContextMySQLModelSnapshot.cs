@@ -181,10 +181,6 @@ namespace puck.core.Migrations.MySQL
 
                     b.HasKey("ID");
 
-                    b.HasIndex("Key");
-
-                    b.HasIndex("Name");
-
                     b.ToTable("PuckMeta");
                 });
 

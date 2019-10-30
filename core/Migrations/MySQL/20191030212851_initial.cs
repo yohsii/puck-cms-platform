@@ -1,7 +1,8 @@
 ﻿using System;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 
-namespace puck.core.Migrations.SQLite
+namespace puck.core.Migrations.MySQL
 {
     public partial class initial : Migration
     {
@@ -56,7 +57,7 @@ namespace puck.core.Migrations.SQLite
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
                     ContentId = table.Column<Guid>(nullable: false),
                     Variant = table.Column<string>(nullable: true),
                     Action = table.Column<string>(nullable: true),
@@ -74,7 +75,7 @@ namespace puck.core.Migrations.SQLite
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
                     ServerName = table.Column<string>(nullable: true),
                     Count = table.Column<int>(nullable: false),
                     InstructionKey = table.Column<string>(nullable: true),
@@ -90,7 +91,7 @@ namespace puck.core.Migrations.SQLite
                 columns: table => new
                 {
                     ID = table.Column<int>(nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
                     Name = table.Column<string>(maxLength: 2048, nullable: true),
                     Key = table.Column<string>(maxLength: 2048, nullable: true),
                     Value = table.Column<string>(nullable: true),
@@ -107,7 +108,7 @@ namespace puck.core.Migrations.SQLite
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
                     From = table.Column<string>(nullable: true),
                     To = table.Column<string>(nullable: true),
                     Type = table.Column<string>(nullable: true)
@@ -122,7 +123,7 @@ namespace puck.core.Migrations.SQLite
                 columns: table => new
                 {
                     RevisionID = table.Column<int>(nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
                     Id = table.Column<Guid>(nullable: false),
                     ParentId = table.Column<Guid>(nullable: false),
                     NodeName = table.Column<string>(nullable: false),
@@ -155,7 +156,7 @@ namespace puck.core.Migrations.SQLite
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
                     Category = table.Column<string>(nullable: true),
                     Tag = table.Column<string>(nullable: true),
                     Count = table.Column<int>(nullable: false)
@@ -170,7 +171,7 @@ namespace puck.core.Migrations.SQLite
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
                     RoleId = table.Column<string>(nullable: false),
                     ClaimType = table.Column<string>(nullable: true),
                     ClaimValue = table.Column<string>(nullable: true)
@@ -191,7 +192,7 @@ namespace puck.core.Migrations.SQLite
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
                     UserId = table.Column<string>(nullable: false),
                     ClaimType = table.Column<string>(nullable: true),
                     ClaimValue = table.Column<string>(nullable: true)
@@ -307,16 +308,6 @@ namespace puck.core.Migrations.SQLite
                 table: "AspNetUsers",
                 column: "NormalizedUserName",
                 unique: true);
-
-            migrationBuilder.CreateIndex(
-                name: "IX_PuckMeta_Key",
-                table: "PuckMeta",
-                column: "Key");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_PuckMeta_Name",
-                table: "PuckMeta",
-                column: "Name");
 
             migrationBuilder.CreateIndex(
                 name: "IX_PuckRevision_Current",

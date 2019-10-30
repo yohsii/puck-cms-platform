@@ -180,10 +180,6 @@ namespace puck.core.Migrations.SQLite
 
                     b.HasKey("ID");
 
-                    b.HasIndex("Key");
-
-                    b.HasIndex("Name");
-
                     b.ToTable("PuckMeta");
                 });
 
