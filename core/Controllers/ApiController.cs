@@ -30,6 +30,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using puck.core.Events;
 using System.Net;
 using System.Globalization;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace puck.core.Controllers
 {
@@ -1075,13 +1076,18 @@ namespace puck.core.Controllers
             string message = "republish entire site started";
             if (!PuckCache.IsRepublishingEntireSite)
             {
-                System.Threading.Tasks.Task.Factory.StartNew(() => {
-                    contentService.RePublishEntireSite2();
-                    if (PuckCache.UseAzureDirectory || PuckCache.UseSyncDirectory && PuckCache.IsEditServer)
+                System.Threading.Tasks.Task.Factory.StartNew(async () => {
+                    using (var scope = PuckCache.ServiceProvider.CreateScope())
                     {
-                        var instruction = new PuckInstruction() { InstructionKey = InstructionKeys.SetSearcher, Count = 1, ServerName = ApiHelper.ServerName() };
-                        repo.AddPuckInstruction(instruction);
-                        repo.SaveChanges();
+                        var _repo = scope.ServiceProvider.GetService<I_Puck_Repository>();
+                        var _contentService = scope.ServiceProvider.GetService<I_Content_Service>();
+                        await _contentService.RePublishEntireSite2();
+                        if (PuckCache.UseAzureDirectory || PuckCache.UseSyncDirectory && PuckCache.IsEditServer)
+                        {
+                            var instruction = new PuckInstruction() { InstructionKey = InstructionKeys.SetSearcher, Count = 1, ServerName = ApiHelper.ServerName() };
+                            _repo.AddPuckInstruction(instruction);
+                            _repo.SaveChanges();
+                        }
                     }
                 });
                 PuckCache.IsRepublishingEntireSite = true;
