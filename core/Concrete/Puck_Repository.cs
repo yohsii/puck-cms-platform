@@ -19,12 +19,12 @@ namespace puck.core.Concrete
         //{
         //    repo = new PuckContext(options);
         //}
-        public Puck_Repository(PuckContext context)
+        public Puck_Repository(I_Puck_Context context)
         {
             repo = context;
         }
-        public PuckContext repo;
-        public PuckContext Context { get { return repo; } }
+        public I_Puck_Context repo;
+        public I_Puck_Context Context { get { return repo; } }
         public IQueryable<PuckRedirect> GetPuckRedirect()
         {
             return repo.PuckRedirect;

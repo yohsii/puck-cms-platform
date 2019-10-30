@@ -7,13 +7,15 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Console;
+using puck.core.Abstract;
+using puck.core.Entities;
 using puck.core.State;
 
-namespace puck.core.Entities
+namespace puck.core.Concrete
 {
     public partial class PuckContext : IdentityDbContext<PuckUser,PuckRole,string
         ,IdentityUserClaim<string>,PuckUserRole,IdentityUserLogin<string>
-        ,IdentityRoleClaim<string>,IdentityUserToken<string>>
+        ,IdentityRoleClaim<string>,IdentityUserToken<string>> , I_Puck_Context
     {
         public static readonly ILoggerFactory _loggerFactory = LoggerFactory.Create(builder => { builder.AddConsole(); });
         

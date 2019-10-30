@@ -25,6 +25,8 @@ using SixLabors.ImageSharp.Web.Processors;
 using SixLabors.ImageSharp.Web.Middleware;
 using Microsoft.Extensions.FileProviders;
 using puck.core.ImageSharp.WebProcessors;
+using puck.core.Concrete;
+using puck.core.Abstract;
 
 namespace puckweb
 {
@@ -43,27 +45,37 @@ namespace puckweb
         {
             services.AddMemoryCache(x => x.SizeLimit = null);
 
-            /* SQL SERVER */
-            services.AddDbContext<PuckContext>(options =>
-                options.UseSqlServer(
-                    Configuration.GetConnectionString("DefaultConnection"))
-                , optionsLifetime: ServiceLifetime.Transient);
-
-            /* POSTGRES */
-            //services.AddEntityFrameworkNpgsql().AddDbContext<PuckContext>(options =>
-            //    options.UseNpgsql(
-            //        Configuration.GetConnectionString("DefaultConnection"))
-            //    , optionsLifetime: ServiceLifetime.Transient);
-            
-            /* MYSQL */
-            //services.AddEntityFrameworkMySql().AddDbContext<PuckContext>(options =>
-            //    options.UseMySql(
-            //        Configuration.GetConnectionString("DefaultConnection"))
-            //    , optionsLifetime: ServiceLifetime.Transient);
-            
-            services.AddDefaultIdentity<PuckUser>(options => { options.SignIn.RequireConfirmedAccount = false;})
+            if (Configuration.GetValue<bool?>("UseSQLServer") ?? false) {
+                services.AddEntityFrameworkSqlServer().AddDbContext<PuckContextSQLServer>(optionsLifetime:ServiceLifetime.Transient);
+                services.AddDefaultIdentity<PuckUser>(options => { options.SignIn.RequireConfirmedAccount = false; })
                 .AddRoles<PuckRole>()
-                .AddEntityFrameworkStores<PuckContext>();
+                .AddEntityFrameworkStores<PuckContextSQLServer>();
+                services.AddTransient<I_Puck_Context>(x=>x.GetService<PuckContextSQLServer>());
+            }else if (Configuration.GetValue<bool?>("UsePostgreSQL") ?? false)
+            {
+                services.AddEntityFrameworkNpgsql().AddDbContext<PuckContextPostgreSQL>(optionsLifetime: ServiceLifetime.Transient);
+                services.AddDefaultIdentity<PuckUser>(options => { options.SignIn.RequireConfirmedAccount = false; })
+                .AddRoles<PuckRole>()
+                .AddEntityFrameworkStores<PuckContextPostgreSQL>();
+                services.AddTransient<I_Puck_Context>(x => x.GetService<PuckContextPostgreSQL>());
+            }
+            else if (Configuration.GetValue<bool?>("UseMySQL") ?? false)
+            {
+                services.AddEntityFrameworkMySql().AddDbContext<PuckContextMySQL>(optionsLifetime: ServiceLifetime.Transient);
+                services.AddDefaultIdentity<PuckUser>(options => { options.SignIn.RequireConfirmedAccount = false; })
+                .AddRoles<PuckRole>()
+                .AddEntityFrameworkStores<PuckContextMySQL>();
+                services.AddTransient<I_Puck_Context>(x => x.GetService<PuckContextMySQL>());
+            }
+            else if (Configuration.GetValue<bool?>("UseSQLite") ?? false)
+            {
+                services.AddEntityFrameworkSqlite().AddDbContext<PuckContextSQLite>(optionsLifetime: ServiceLifetime.Transient);
+                services.AddDefaultIdentity<PuckUser>(options => { options.SignIn.RequireConfirmedAccount = false; })
+                .AddRoles<PuckRole>()
+                .AddEntityFrameworkStores<PuckContextSQLite>();
+                services.AddTransient<I_Puck_Context>(x => x.GetService<PuckContextSQLite>());
+            }
+            
             services.AddResponseCaching();
             services.AddSession();
             services.AddControllersWithViews()

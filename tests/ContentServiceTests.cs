@@ -170,6 +170,62 @@ namespace puck.tests
         }
 
         [Test]
+        public async Task RepublishEntireSite2()
+        {
+            // home
+            var homePage = await contentService.Create<Folder>(Guid.Empty, "en-gb", "homeRepublish", template: "~/views/home/homepage.cshtml", published: true, userName: "darkezmo@hotmail.com");
+            await contentService.SaveContent(homePage, triggerEvents: false, userName: uname);
+
+            // home/news
+            var newsPageEn = await contentService.Create<Folder>(homePage.Id, "en-gb", "news", template: "~/views/home/homepage.cshtml", published: true, userName: uname);
+            await contentService.SaveContent(newsPageEn, triggerEvents: false, userName: uname);
+            var newsPageJp = await contentService.Create<Folder>(homePage.Id, "ja-jp", "news", template: "~/views/home/homepage.cshtml", published: false, userName: uname);
+            newsPageJp.Id = newsPageEn.Id;
+            await contentService.SaveContent(newsPageJp, triggerEvents: false, userName: uname);
+
+            // home/news/images
+            var imagesPageEn = await contentService.Create<Folder>(newsPageEn.Id, "en-gb", "images", template: "~/views/home/homepage.cshtml", published: true, userName: uname);
+            await contentService.SaveContent(imagesPageEn, triggerEvents: false, userName: uname);
+            var imagesPageJp = await contentService.Create<Folder>(newsPageEn.Id, "ja-jp", "images", template: "~/views/home/homepage.cshtml", published: false, userName: uname);
+            imagesPageJp.Id = imagesPageEn.Id;
+            await contentService.SaveContent(imagesPageJp, triggerEvents: false, userName: uname);
+
+            // home/news/images/tokyo
+            var tokyoPageEn = await contentService.Create<Folder>(imagesPageEn.Id, "en-gb", "tokyo", template: "~/views/home/homepage.cshtml", published: true, userName: uname);
+            await contentService.SaveContent(tokyoPageEn, triggerEvents: false, userName: uname);
+
+            // home/news/images/london
+            var londonPageEn = await contentService.Create<Folder>(imagesPageEn.Id, "en-gb", "london", template: "~/views/home/homepage.cshtml", published: true, userName: uname);
+            await contentService.SaveContent(londonPageEn, triggerEvents: false, userName: uname);
+
+            var repo2 = NewRepo();
+
+            var londonRevision = repo2.CurrentRevision(londonPageEn.Id, londonPageEn.Variant);
+
+            //add new ru-ru translation for imagesPage with different name
+            var imagesPageRu = await contentService.Create<Folder>(newsPageEn.Id, "ru-ru", "images1", template: "~/views/home/homepage.cshtml", published: false, userName: uname);
+            imagesPageRu.Id = imagesPageEn.Id;
+            await contentService.SaveContent(imagesPageRu, triggerEvents: false, userName: uname);
+
+            // images-jp, since it was unpublished, should have its nodename changed to images1
+            var _imagesJp = NewRepo().CurrentRevision(imagesPageJp.Id, imagesPageJp.Variant);
+            
+            // now publish images-jp
+            var _imageJpMod = _imagesJp.ToBaseModel();
+            _imageJpMod.Published = true;
+            await contentService.SaveContent(_imageJpMod, triggerEvents: false, userName: uname);
+
+            var _imagesEn = NewRepo().CurrentRevision(imagesPageEn.Id, imagesPageEn.Variant);
+            // images-en should now have its nodename changed
+            
+            // since the nodename change is now published, descendant content should have its path changed
+            var _londonEn = NewRepo().CurrentRevision(londonPageEn.Id, londonPageEn.Variant);
+
+            await contentService.RePublishEntireSite2();
+            Assert.Pass();
+        }
+
+        [Test]
         public async Task Move()
         {
             var rootName = "homemove";

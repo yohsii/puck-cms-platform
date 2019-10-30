@@ -39,7 +39,7 @@ namespace puck.core
             //create db if it doesn't exist
             using (var scope = serviceProvider.CreateScope())
             {
-                var context = scope.ServiceProvider.GetRequiredService<PuckContext>();
+                var context = scope.ServiceProvider.GetRequiredService<I_Puck_Context>();
                 context.Database.Migrate();
             }
 

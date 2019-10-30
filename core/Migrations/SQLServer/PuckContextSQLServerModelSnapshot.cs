@@ -3,21 +3,19 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using puck.core.Entities;
+using puck.core.Concrete;
 
-namespace puck.core.Migrations
+namespace puck.core.Migrations.SQLServer
 {
-    [DbContext(typeof(PuckContext))]
-    [Migration("20190909191322_initial")]
-    partial class initial
+    [DbContext(typeof(PuckContextSQLServer))]
+    partial class PuckContextSQLServerModelSnapshot : ModelSnapshot
     {
-        protected override void BuildTargetModel(ModelBuilder modelBuilder)
+        protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "3.0.0-preview9.19423.6")
+                .HasAnnotation("ProductVersion", "3.0.0")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
@@ -72,12 +70,10 @@ namespace puck.core.Migrations
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
                 {
                     b.Property<string>("LoginProvider")
-                        .HasColumnType("nvarchar(128)")
-                        .HasMaxLength(128);
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("ProviderKey")
-                        .HasColumnType("nvarchar(128)")
-                        .HasMaxLength(128);
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("ProviderDisplayName")
                         .HasColumnType("nvarchar(max)");
@@ -99,12 +95,10 @@ namespace puck.core.Migrations
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("LoginProvider")
-                        .HasColumnType("nvarchar(128)")
-                        .HasMaxLength(128);
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Name")
-                        .HasColumnType("nvarchar(128)")
-                        .HasMaxLength(128);
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Value")
                         .HasColumnType("nvarchar(max)");
@@ -194,7 +188,32 @@ namespace puck.core.Migrations
 
                     b.HasKey("ID");
 
+                    b.HasIndex("Key");
+
+                    b.HasIndex("Name");
+
                     b.ToTable("PuckMeta");
+                });
+
+            modelBuilder.Entity("puck.core.Entities.PuckRedirect", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("From")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("To")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Type")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("PuckRedirect");
                 });
 
             modelBuilder.Entity("puck.core.Entities.PuckRevision", b =>
@@ -211,6 +230,9 @@ namespace puck.core.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("Current")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("HasChildren")
                         .HasColumnType("bit");
 
                     b.Property<bool>("HasNoPublishedRevision")
@@ -270,6 +292,16 @@ namespace puck.core.Migrations
 
                     b.HasKey("RevisionID");
 
+                    b.HasIndex("Current");
+
+                    b.HasIndex("HasNoPublishedRevision");
+
+                    b.HasIndex("Id");
+
+                    b.HasIndex("ParentId");
+
+                    b.HasIndex("Variant");
+
                     b.ToTable("PuckRevision");
                 });
 
@@ -300,6 +332,27 @@ namespace puck.core.Migrations
                     b.ToTable("AspNetRoles");
                 });
 
+            modelBuilder.Entity("puck.core.Entities.PuckTag", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("Category")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Count")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Tag")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("PuckTag");
+                });
+
             modelBuilder.Entity("puck.core.Entities.PuckUser", b =>
                 {
                     b.Property<string>("Id")
@@ -318,6 +371,12 @@ namespace puck.core.Migrations
 
                     b.Property<bool>("EmailConfirmed")
                         .HasColumnType("bit");
+
+                    b.Property<string>("FirstName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("LastLoginDate")
+                        .HasColumnType("datetime2");
 
                     b.Property<bool>("LockoutEnabled")
                         .HasColumnType("bit");
@@ -347,6 +406,9 @@ namespace puck.core.Migrations
 
                     b.Property<Guid>("StartNodeId")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Surname")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("TwoFactorEnabled")
                         .HasColumnType("bit");

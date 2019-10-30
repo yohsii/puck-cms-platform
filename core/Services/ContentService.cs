@@ -838,11 +838,13 @@ namespace puck.core.Services
         {
             int rowsAffected = 0;
 
-            var sql = $"update PuckRevision set [Path] = @newPath {GetConcatOperatorForProvider()} {GetSubStringFunctionForProvider()}([Path], {GetLengthFunctionForProvider()}(@oldPath)+1,8000) where [Path] LIKE @likeStr";
+            var sql = $"update PuckRevision set [Path] = @newPath + substring([Path], len(@oldPath)+1,8000) where [Path] LIKE @likeStr";
+            if (repo.Context.Database.IsSqlite())
+                sql = $"update PuckRevision set [Path] = @newPath || substr([Path], length(@oldPath)+1,8000) where [Path] LIKE @likeStr";
             if (repo.Context.Database.IsNpgsql())
-                sql = $"update \"PuckRevision\" set \"Path\" = @newPath {GetConcatOperatorForProvider()} {GetSubStringFunctionForProvider()}(\"Path\", {GetLengthFunctionForProvider()}(@oldPath)+1,8000) where \"Path\" LIKE @likeStr";
+                sql = $"update \"PuckRevision\" set \"Path\" = @newPath || substr(\"Path\", length(@oldPath)+1,8000) where \"Path\" LIKE @likeStr";
             else if (repo.Context.Database.IsMySql())
-                sql = $"update `PuckRevision` set `Path` = @newPath {GetConcatOperatorForProvider()} {GetSubStringFunctionForProvider()}(`Path`, {GetLengthFunctionForProvider()}(@oldPath)+1,8000) where `Path` LIKE @likeStr";
+                sql = $"update `PuckRevision` set `Path` = @newPath || substr(`Path`, length(@oldPath)+1,8000) where `Path` LIKE @likeStr";
 
             var parameters = new List<DbParameter>();
             parameters.Add(CreateParameter("@oldPath", oldPath));
@@ -855,11 +857,13 @@ namespace puck.core.Services
         public int UpdateDescendantIdPaths(string oldPath, string newPath)
         {
             int rowsAffected = 0;
-            var sql = $"update PuckRevision set [IdPath] = @newPath {GetConcatOperatorForProvider()} {GetSubStringFunctionForProvider()}([IdPath], {GetLengthFunctionForProvider()}(@oldPath)+1,8000) where [IdPath] LIKE @likeStr";
+            var sql = $"update PuckRevision set [IdPath] = @newPath + substring([IdPath], len(@oldPath)+1,8000) where [IdPath] LIKE @likeStr";
+            if (repo.Context.Database.IsSqlite())
+                sql = $"update PuckRevision set [IdPath] = @newPath || substr([IdPath], length(@oldPath)+1,8000) where [IdPath] LIKE @likeStr";
             if (repo.Context.Database.IsNpgsql())
-                sql = $"update \"PuckRevision\" set \"IdPath\" = @newPath {GetConcatOperatorForProvider()} {GetSubStringFunctionForProvider()}(\"IdPath\", {GetLengthFunctionForProvider()}(@oldPath)+1,8000) where \"IdPath\" LIKE @likeStr";
+                sql = $"update \"PuckRevision\" set \"IdPath\" = @newPath || substr(\"IdPath\", length(@oldPath)+1,8000) where \"IdPath\" LIKE @likeStr";
             if (repo.Context.Database.IsMySql())
-                sql = $"update `PuckRevision` set `IdPath` = @newPath {GetConcatOperatorForProvider()} {GetSubStringFunctionForProvider()}(`IdPath`, {GetLengthFunctionForProvider()}(@oldPath)+1,8000) where `IdPath` LIKE @likeStr";
+                sql = $"update `PuckRevision` set `IdPath` = @newPath || substr(`IdPath`, length(@oldPath)+1,8000) where `IdPath` LIKE @likeStr";
 
             var parameters = new List<DbParameter>();
             parameters.Add(CreateParameter("@oldPath", oldPath));
@@ -1591,11 +1595,11 @@ namespace puck.core.Services
                 using (var command = repo.Context.Database.GetDbConnection().CreateCommand())
                 {
                     PuckCache.IndexingStatus = $"retrieving records to republish";
-                    string sql = "SELECT Path,Type,Value,TypeChain,SortOrder,ParentId,TemplatePath FROM PuckRevision where ([IsPublishedRevision] = 1 OR ([HasNoPublishedRevision]=1 AND [Current] = 1))";
+                    string sql = "SELECT [Path],[Type],[Value],[TypeChain],[SortOrder],[ParentId],[TemplatePath],[Variant] FROM PuckRevision where ([IsPublishedRevision] = 1 OR ([HasNoPublishedRevision]=1 AND [Current] = 1))";
                     if (repo.Context.Database.IsNpgsql())
-                        sql = "SELECT \"Path\",\"Type\",\"Value\",\"TypeChain\",\"SortOrder\",\"ParentId\",\"TemplatePath\" FROM \"PuckRevision\" where (\"IsPublishedRevision\" = true OR (\"HasNoPublishedRevision\"=true AND \"Current\" = true))";
+                        sql = "SELECT \"Path\",\"Type\",\"Value\",\"TypeChain\",\"SortOrder\",\"ParentId\",\"TemplatePath\",\"Variant\" FROM \"PuckRevision\" where (\"IsPublishedRevision\" = true OR (\"HasNoPublishedRevision\"=true AND \"Current\" = true))";
                     else if (repo.Context.Database.IsMySql())
-                        sql = "SELECT `Path`,`Type`,`Value`,`TypeChain`,`SortOrder`,`ParentId`,`TemplatePath` FROM `PuckRevision` where (`IsPublishedRevision` = 1 OR (`HasNoPublishedRevision`=1 AND `Current` = 1))";
+                        sql = "SELECT `Path`,`Type`,`Value`,`TypeChain`,`SortOrder`,`ParentId`,`TemplatePath`,`Variant` FROM `PuckRevision` where (`IsPublishedRevision` = 1 OR (`HasNoPublishedRevision`=1 AND `Current` = 1))";
                     command.CommandText = sql;
                     repo.Context.Database.OpenConnection();
                     using (var reader = command.ExecuteReader())
@@ -1616,6 +1620,7 @@ namespace puck.core.Services
                                 model.SortOrder = reader.GetInt32(4);
                                 model.ParentId = reader.GetGuid(5);
                                 model.TemplatePath = reader.GetString(6);
+                                model.Variant = reader.GetString(7);
                                 models.Add(model);
                                 //typeAndValues.Add(new KeyValuePair<string, string>(aqn, value));
                                 //values.Add(reader.GetString(2));

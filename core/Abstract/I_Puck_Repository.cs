@@ -8,7 +8,7 @@ namespace puck.core.Abstract
 {
     public interface I_Puck_Repository
     {
-        PuckContext Context { get; }
+        I_Puck_Context Context { get; }
         IQueryable<GeneratedModel> GetGeneratedModel();
         IQueryable<GeneratedProperty> GetGeneratedProperty();
         IQueryable<GeneratedAttribute> GetGeneratedAttribute();

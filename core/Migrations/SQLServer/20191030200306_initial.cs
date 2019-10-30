@@ -1,7 +1,7 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 
-namespace puck.core.Migrations
+namespace puck.core.Migrations.SQLServer
 {
     public partial class initial : Migration
     {
@@ -40,6 +40,9 @@ namespace puck.core.Migrations
                     LockoutEnd = table.Column<DateTimeOffset>(nullable: true),
                     LockoutEnabled = table.Column<bool>(nullable: false),
                     AccessFailedCount = table.Column<int>(nullable: false),
+                    LastLoginDate = table.Column<DateTime>(nullable: true),
+                    FirstName = table.Column<string>(nullable: true),
+                    Surname = table.Column<string>(nullable: true),
                     UserVariant = table.Column<string>(nullable: true),
                     StartNodeId = table.Column<Guid>(nullable: false)
                 },
@@ -100,6 +103,21 @@ namespace puck.core.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "PuckRedirect",
+                columns: table => new
+                {
+                    Id = table.Column<int>(nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    From = table.Column<string>(nullable: true),
+                    To = table.Column<string>(nullable: true),
+                    Type = table.Column<string>(nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_PuckRedirect", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "PuckRevision",
                 columns: table => new
                 {
@@ -124,11 +142,27 @@ namespace puck.core.Migrations
                     Value = table.Column<string>(nullable: true),
                     HasNoPublishedRevision = table.Column<bool>(nullable: false),
                     IsPublishedRevision = table.Column<bool>(nullable: false),
-                    IdPath = table.Column<string>(nullable: true)
+                    IdPath = table.Column<string>(nullable: true),
+                    HasChildren = table.Column<bool>(nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_PuckRevision", x => x.RevisionID);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "PuckTag",
+                columns: table => new
+                {
+                    Id = table.Column<int>(nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Category = table.Column<string>(nullable: true),
+                    Tag = table.Column<string>(nullable: true),
+                    Count = table.Column<int>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_PuckTag", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -177,8 +211,8 @@ namespace puck.core.Migrations
                 name: "AspNetUserLogins",
                 columns: table => new
                 {
-                    LoginProvider = table.Column<string>(maxLength: 128, nullable: false),
-                    ProviderKey = table.Column<string>(maxLength: 128, nullable: false),
+                    LoginProvider = table.Column<string>(nullable: false),
+                    ProviderKey = table.Column<string>(nullable: false),
                     ProviderDisplayName = table.Column<string>(nullable: true),
                     UserId = table.Column<string>(nullable: false)
                 },
@@ -222,8 +256,8 @@ namespace puck.core.Migrations
                 columns: table => new
                 {
                     UserId = table.Column<string>(nullable: false),
-                    LoginProvider = table.Column<string>(maxLength: 128, nullable: false),
-                    Name = table.Column<string>(maxLength: 128, nullable: false),
+                    LoginProvider = table.Column<string>(nullable: false),
+                    Name = table.Column<string>(nullable: false),
                     Value = table.Column<string>(nullable: true)
                 },
                 constraints: table =>
@@ -275,6 +309,41 @@ namespace puck.core.Migrations
                 column: "NormalizedUserName",
                 unique: true,
                 filter: "[NormalizedUserName] IS NOT NULL");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PuckMeta_Key",
+                table: "PuckMeta",
+                column: "Key");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PuckMeta_Name",
+                table: "PuckMeta",
+                column: "Name");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PuckRevision_Current",
+                table: "PuckRevision",
+                column: "Current");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PuckRevision_HasNoPublishedRevision",
+                table: "PuckRevision",
+                column: "HasNoPublishedRevision");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PuckRevision_Id",
+                table: "PuckRevision",
+                column: "Id");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PuckRevision_ParentId",
+                table: "PuckRevision",
+                column: "ParentId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PuckRevision_Variant",
+                table: "PuckRevision",
+                column: "Variant");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
@@ -304,7 +373,13 @@ namespace puck.core.Migrations
                 name: "PuckMeta");
 
             migrationBuilder.DropTable(
+                name: "PuckRedirect");
+
+            migrationBuilder.DropTable(
                 name: "PuckRevision");
+
+            migrationBuilder.DropTable(
+                name: "PuckTag");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");
