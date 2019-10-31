@@ -55,8 +55,4 @@
     <ProjectReference Include="..\AzureDirectory\AzureDirectory.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Migrations\SQLite\" />
-  </ItemGroup>
-
 </Project>
