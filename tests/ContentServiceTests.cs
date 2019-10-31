@@ -35,12 +35,12 @@ namespace puck.tests
             var repo = new Puck_Repository(context);
             return repo;
         }
-        [SetUp]
+        [OneTimeSetUp]
         public void Setup() {
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
             ServiceDictionary = new Dictionary<string, Services>();
         }
-        [TearDown]
+        [OneTimeTearDown]
         public void Cleanup() {
             foreach(var item in ServiceDictionary) {
                 item.Value.Repo.Context.Database.EnsureDeleted();
