@@ -29,12 +29,9 @@ namespace puck.core.Controllers
                 StateHelper.SetFirstRequestUrl();
                 SyncIfNecessary();
                 var uri = Request.GetUri();
-                string path = uri.AbsolutePath.ToLower();
+                string path = uri.AbsolutePath.ToLower().TrimEnd('/');
 
                 var dmode = this.GetDisplayModeId();
-                                
-                if (path=="/")
-                    path = string.Empty;                
                 
                 string domain = uri.Host.ToLower();
                 string searchPathPrefix;
