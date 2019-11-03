@@ -781,6 +781,86 @@ namespace puck.core.Controllers
             return Json(new { success=true,message=""});
         }
         [Authorize(Roles = PuckRoles.Puck, AuthenticationSchemes = Mvc.AuthenticationScheme)]
+        public ActionResult MinimumContentByParentId(Guid parentId = default(Guid))
+        {
+            //using path instead of p_path in the method sig means path won't be checked against user's start node - which we don't want for this method
+            List<PuckRevision> resultsRev;
+#if DEBUG
+            using (MiniProfiler.Current.Step("content by path from DB"))
+            {
+                resultsRev = repo.CurrentRevisionsByParentId(parentId).Select(x => new PuckRevision
+                {
+                    TypeChain = x.TypeChain,
+                    Type = x.Type,
+                    Id=x.Id,
+                    ParentId=x.ParentId,
+                    Path=x.Path,
+                    NodeName=x.NodeName,
+                    Variant=x.Variant,
+                    Published=x.Published,
+                    HasChildren=x.HasChildren,
+                    SortOrder=x.SortOrder
+                }).ToList();
+            }
+#else
+            resultsRev = repo.CurrentRevisionsByParentId(parentId).Select(x => new PuckRevision
+                {
+                    TypeChain = x.TypeChain,
+                    Type = x.Type,
+                    Id=x.Id,
+                    ParentId=x.ParentId,
+                    Path=x.Path,
+                    NodeName=x.NodeName,
+                    Variant=x.Variant,
+                    Published=x.Published,
+                    HasChildren=x.HasChildren,
+                    SortOrder=x.SortOrder
+                }).ToList();
+#endif
+            var results = resultsRev.Select(x => x as BaseModel).ToList()
+                .GroupById()
+                .OrderBy(x => x.Value.First().Value.SortOrder)
+                .ToDictionary(x => x.Key.ToString(), x => x.Value);
+
+            List<string> haveChildren = new List<string>();
+            foreach (var group in resultsRev.GroupBy(x => x.Id))
+            {
+                if (group.FirstOrDefault().HasChildren)
+                    haveChildren.Add(group.FirstOrDefault().Id.ToString());
+            }
+            var qh = new QueryHelper<BaseModel>().And().Field(x => x.ParentId, parentId.ToString());
+            //var publishedContent = qh.And().Field(x => x.ParentId, parentId.ToString()).GetAll().GroupById().ToDictionary(x => x.Key.ToString(), x => x.Value);
+            var publishedContentDictionaryList = searcher.Query(
+                qh.ToString(), 
+                typeof(BaseModel).Name,
+                fieldsToLoad:new HashSet<string> {FieldKeys.ID,FieldKeys.Variant,FieldKeys.PuckType});
+            List<BaseModel> publishedBaseModels = new List<BaseModel>();
+            foreach (var dict in publishedContentDictionaryList) {
+                string idStr = "";
+                string variant = "";
+                var mod = new BaseModel();
+                if (dict.TryGetValue(FieldKeys.ID, out idStr))
+                {
+                    if (!string.IsNullOrEmpty(idStr))
+                        mod.Id = Guid.Parse(idStr);
+                    else continue;
+                }
+                else continue;
+                if (dict.TryGetValue(FieldKeys.Variant, out variant))
+                {
+                    if (!string.IsNullOrEmpty(variant))
+                        mod.Variant = variant;
+                    else continue;
+                }
+                else continue;
+                publishedBaseModels.Add(mod);
+            }
+            var publishedContent = publishedBaseModels.GroupById().ToDictionary(x => x.Key.ToString(), x => x.Value);
+            
+            var jsonStr = JsonConvert.SerializeObject(new { current = results, published = publishedContent, children = haveChildren });
+            return base.Content(jsonStr, "application/json");
+        }
+        [Authorize(Roles = PuckRoles.Puck, AuthenticationSchemes = Mvc.AuthenticationScheme)]
         public ActionResult ContentByParentId(Guid parentId = default(Guid), bool cast = true)
         {
             //using path instead of p_path in the method sig means path won't be checked against user's start node - which we don't want for this method

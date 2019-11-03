@@ -10,9 +10,9 @@ namespace puck.core.Abstract
 {
     public interface I_Content_Searcher
     {
-        IList<Dictionary<string, string>> Query(Query query);
+        IList<Dictionary<string, string>> Query(Query query,HashSet<string> fieldsToLoad=null);
         IList<Dictionary<string, string>> Query(string query);
-        IList<Dictionary<string, string>> Query(string query,string typeName);
+        IList<Dictionary<string, string>> Query(string query,string typeName,HashSet<string> fieldsToLoad=null);
         IList<T> Query<T>(string query) where T:BaseModel;
         IList<T> QueryNoCast<T>(string query) where T:BaseModel;
         IList<T> Query<T>(string query,Filter filter,Sort sort,out int total,int limit,int skip) where T:BaseModel;

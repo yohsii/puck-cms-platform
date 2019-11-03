@@ -63,15 +63,15 @@ namespace puck.core.Constants
     public static class FieldKeys
     {
         public const string Score = "score";
-        public const string Published = "published";
+        public const string Published = "Published";
         public const string PuckDefaultField = "";
         public const string PuckValue = "_puckvalue";
-        public const string PuckTypeChain = "typechain";
-        public const string PuckType = "type";
-        public const string ID = "id";
-        public const string Path = "path";
-        public const string Variant = "variant";
-        public const string TemplatePath = "templatepath";
+        public const string PuckTypeChain = "TypeChain";
+        public const string PuckType = "Type";
+        public const string ID = "Id";
+        public const string Path = "Path";
+        public const string Variant = "Variant";
+        public const string TemplatePath = "TemplatePath";
     }
     public static class DBNames
     {

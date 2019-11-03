@@ -338,7 +338,7 @@ namespace puck.core.Helpers
             str = nameArrayRegex.Replace(str, "");
             var match = nameRegex.Match(str);
             string result = match.Groups[1].Value;
-            result = result.ToLower();
+            //result = result.ToLower();
             return result;
         }
 

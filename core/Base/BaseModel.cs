@@ -34,7 +34,7 @@ namespace puck.core.Base
         }
         [UIHint("SettingsReadOnly")]
         [DefaultGUIDTransformer()]
-        [IndexSettings(FieldIndexSetting=Lucene.Net.Documents.Field.Index.NOT_ANALYZED,Analyzer=typeof(KeywordAnalyzer))]
+        [IndexSettings(FieldStoreSetting = Lucene.Net.Documents.Field.Store.YES, FieldIndexSetting=Lucene.Net.Documents.Field.Index.NOT_ANALYZED,Analyzer=typeof(KeywordAnalyzer))]
         public Guid Id { get; set; }
 
         [UIHint("SettingsReadOnly")]
@@ -71,7 +71,7 @@ namespace puck.core.Base
         public int Revision { get; set; }
 
         [UIHint("SettingsReadOnly")]
-        [IndexSettings(FieldIndexSetting = Lucene.Net.Documents.Field.Index.NOT_ANALYZED, Analyzer = typeof(KeywordAnalyzer))]
+        [IndexSettings(FieldStoreSetting = Lucene.Net.Documents.Field.Store.YES,FieldIndexSetting = Lucene.Net.Documents.Field.Index.NOT_ANALYZED, Analyzer = typeof(KeywordAnalyzer))]
         [MaxLength(10)]
         public string Variant { get; set; }
         

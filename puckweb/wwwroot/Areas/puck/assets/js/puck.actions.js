@@ -657,7 +657,7 @@ var getDrawContent = function (id, el, sortable, f, renderVariantLinks) {
     if (el == undefined) {
         el = cleft.find(".node[data-id='" + id + "']");
     }
-    getContentByParentId(id, function (data) {
+    getMinimumContentByParentId(id, function (data) {
         /*var plevel = path.split('/').length - 1;
         for (var k in publishedContent) {
             var level = k.split('/').length - 1;

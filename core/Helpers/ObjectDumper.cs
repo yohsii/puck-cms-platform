@@ -42,7 +42,7 @@ namespace puck.core.Helpers
                 ParentListAttributes = new object[] { };
 
             //lower case keys
-            Key = Key.ToLower();
+            //Key = Key.ToLower();
             
             //find field settings
             var settings = Attributes.Where(x => x.GetType() == typeof(IndexSettings));

@@ -319,22 +319,22 @@ namespace puck.core.Concrete
                 {
                     if (p.Value is int)
                     {
-                        var nf = new Int32Field(p.Key.ToLower(), int.Parse(p.Value.ToString()), p.FieldStoreSetting);
+                        var nf = new Int32Field(p.Key, int.Parse(p.Value.ToString()), p.FieldStoreSetting);
                         doc.Add(nf);
                     }
                     else if (p.Value is long)
                     {
-                        var nf = new Int64Field(p.Key.ToLower(), long.Parse(p.Value.ToString()), p.FieldStoreSetting);
+                        var nf = new Int64Field(p.Key, long.Parse(p.Value.ToString()), p.FieldStoreSetting);
                         doc.Add(nf);
                     }
                     else if (p.Value is float)
                     {
-                        var nf = new SingleField(p.Key.ToLower(), float.Parse(p.Value.ToString()), p.FieldStoreSetting);
+                        var nf = new SingleField(p.Key, float.Parse(p.Value.ToString()), p.FieldStoreSetting);
                         doc.Add(nf);
                     }
                     else if (p.Value is double)
                     {
-                        var nf = new DoubleField(p.Key.ToLower(), double.Parse(p.Value.ToString()), p.FieldStoreSetting);
+                        var nf = new DoubleField(p.Key, double.Parse(p.Value.ToString()), p.FieldStoreSetting);
                         doc.Add(nf);
                     }
                     else if (p.Spatial) {
@@ -631,7 +631,7 @@ namespace puck.core.Concrete
                 }
             }
         }
-        public IList<Dictionary<string, string>> Query(Query contentQuery)
+        public IList<Dictionary<string, string>> Query(Query contentQuery,HashSet<string> fieldsToLoad=null)
         {
             EnsureSearcher();
             var hits = Searcher.Search(contentQuery, 10).ScoreDocs;
@@ -639,16 +639,27 @@ namespace puck.core.Concrete
             var result = new List<Dictionary<string, string>>();
             for (var i = 0; i < hits.Count(); i++)
             {
-                var doc = Searcher.Doc(hits[i].Doc);
-                var d = new Dictionary<string, string>();
-                d.Add(FieldKeys.ID, doc.GetValues(FieldKeys.ID).FirstOrDefault() ?? "");
-                d.Add(FieldKeys.PuckType, doc.GetValues(FieldKeys.PuckType).FirstOrDefault() ?? "");
-                d.Add(FieldKeys.PuckValue, doc.GetValues(FieldKeys.PuckValue).FirstOrDefault() ?? "");
-                d.Add(FieldKeys.Path, doc.GetValues(FieldKeys.Path).FirstOrDefault() ?? "");
-                d.Add(FieldKeys.Variant, doc.GetValues(FieldKeys.Variant).FirstOrDefault() ?? "");
-                d.Add(FieldKeys.TemplatePath, doc.GetValues(FieldKeys.TemplatePath).FirstOrDefault() ?? "");
-                d.Add(FieldKeys.Score, hits[i].Score.ToString());
-                result.Add(d);
+                if (fieldsToLoad == null)
+                {
+                    var doc = Searcher.Doc(hits[i].Doc);
+                    var d = new Dictionary<string, string>();
+                    d.Add(FieldKeys.ID, doc.GetValues(FieldKeys.ID).FirstOrDefault() ?? "");
+                    d.Add(FieldKeys.PuckType, doc.GetValues(FieldKeys.PuckType).FirstOrDefault() ?? "");
+                    d.Add(FieldKeys.PuckValue, doc.GetValues(FieldKeys.PuckValue).FirstOrDefault() ?? "");
+                    d.Add(FieldKeys.Path, doc.GetValues(FieldKeys.Path).FirstOrDefault() ?? "");
+                    d.Add(FieldKeys.Variant, doc.GetValues(FieldKeys.Variant).FirstOrDefault() ?? "");
+                    d.Add(FieldKeys.TemplatePath, doc.GetValues(FieldKeys.TemplatePath).FirstOrDefault() ?? "");
+                    d.Add(FieldKeys.Score, hits[i].Score.ToString());
+                    result.Add(d);
+                }
+                else {
+                    var doc = Searcher.Doc(hits[i].Doc,fieldsToLoad);
+                    var d = new Dictionary<string, string>();
+                    foreach(var key in fieldsToLoad) {
+                        d.Add(key, doc.GetValues(key).FirstOrDefault() ?? "");
+                    }
+                    result.Add(d);
+                }
             }
             return result;            
         }
@@ -656,7 +667,7 @@ namespace puck.core.Concrete
         {
             return Query(terms, null);
         }
-        public IList<Dictionary<string, string>> Query(string terms,string typeName)
+        public IList<Dictionary<string, string>> Query(string terms,string typeName,HashSet<string> fieldsToLoad=null)
         {
             QueryParser parser;
             if (!string.IsNullOrEmpty(typeName))
@@ -671,7 +682,7 @@ namespace puck.core.Concrete
             }
 
             var contentQuery = parser.Parse(terms);
-            return Query(contentQuery);            
+            return Query(contentQuery,fieldsToLoad:fieldsToLoad);
         }
         public IList<T> QueryNoCast<T>(string qstr) where T:BaseModel
         {
