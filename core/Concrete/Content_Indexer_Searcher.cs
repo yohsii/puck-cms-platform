@@ -631,10 +631,10 @@ namespace puck.core.Concrete
                 }
             }
         }
-        public IList<Dictionary<string, string>> Query(Query contentQuery,HashSet<string> fieldsToLoad=null)
+        public IList<Dictionary<string, string>> Query(Query contentQuery,HashSet<string> fieldsToLoad=null,int limit=500)
         {
             EnsureSearcher();
-            var hits = Searcher.Search(contentQuery, 10).ScoreDocs;
+            var hits = Searcher.Search(contentQuery,limit).ScoreDocs;
 
             var result = new List<Dictionary<string, string>>();
             for (var i = 0; i < hits.Count(); i++)
@@ -667,7 +667,7 @@ namespace puck.core.Concrete
         {
             return Query(terms, null);
         }
-        public IList<Dictionary<string, string>> Query(string terms,string typeName,HashSet<string> fieldsToLoad=null)
+        public IList<Dictionary<string, string>> Query(string terms,string typeName,HashSet<string> fieldsToLoad=null,int limit=500)
         {
             QueryParser parser;
             if (!string.IsNullOrEmpty(typeName))
@@ -682,7 +682,7 @@ namespace puck.core.Concrete
             }
 
             var contentQuery = parser.Parse(terms);
-            return Query(contentQuery,fieldsToLoad:fieldsToLoad);
+            return Query(contentQuery,fieldsToLoad:fieldsToLoad,limit:limit);
         }
         public IList<T> QueryNoCast<T>(string qstr) where T:BaseModel
         {

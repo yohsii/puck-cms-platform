@@ -833,7 +833,8 @@ namespace puck.core.Controllers
             var publishedContentDictionaryList = searcher.Query(
                 qh.ToString(), 
                 typeof(BaseModel).Name,
-                fieldsToLoad:new HashSet<string> {FieldKeys.ID,FieldKeys.Variant,FieldKeys.PuckType});
+                fieldsToLoad:new HashSet<string> {FieldKeys.ID,FieldKeys.Variant,FieldKeys.PuckType}
+                ,limit:int.MaxValue);
             List<BaseModel> publishedBaseModels = new List<BaseModel>();
             foreach (var dict in publishedContentDictionaryList) {
                 string idStr = "";
@@ -891,7 +892,7 @@ namespace puck.core.Controllers
                     haveChildren.Add(group.FirstOrDefault().Id.ToString());
             }
             var qh = new QueryHelper<BaseModel>();
-            var publishedContent = qh.And().Field(x => x.ParentId, parentId.ToString()).GetAll().GroupById().ToDictionary(x => x.Key.ToString(), x => x.Value);
+            var publishedContent = qh.And().Field(x => x.ParentId, parentId.ToString()).GetAll(limit:int.MaxValue).GroupById().ToDictionary(x => x.Key.ToString(), x => x.Value);
             var jsonStr = JsonConvert.SerializeObject(new { current = results, published = publishedContent, children = haveChildren });
             return base.Content(jsonStr, "application/json");
         }
