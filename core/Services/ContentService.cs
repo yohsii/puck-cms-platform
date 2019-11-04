@@ -1042,12 +1042,12 @@ namespace puck.core.Services
                 {
                     if (mod.ParentId == Guid.Empty)
                     {
-                        mod.Path = "/" + ApiHelper.Slugify(mod.NodeName);
+                        mod.Path = "/" + ApiHelper.Slugify(mod.NodeName).ToLower();
                     }
                     else
                     {
                         var parentPath = GetLiveOrCurrentPath(mod.ParentId);
-                        mod.Path = $"{parentPath}/{ApiHelper.Slugify(mod.NodeName)}";
+                        mod.Path = $"{parentPath}/{ApiHelper.Slugify(mod.NodeName).ToLower()}";
                     }
                 }
                 bool pathSet = false;
