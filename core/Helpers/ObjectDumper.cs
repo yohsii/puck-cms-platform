@@ -52,7 +52,7 @@ namespace puck.core.Helpers
             if (settings.Any())
             {
                 var sattr = (IndexSettings)settings.First();
-                KeepValueCasing = sattr.KeepValueCasing;
+                KeepValueCasing = !sattr.LowerCaseValue;
                 Ignore = sattr.Ignore;
                 Spatial = sattr.Spatial;
                 FieldIndexSetting = sattr.FieldIndexSetting;
@@ -77,6 +77,7 @@ namespace puck.core.Helpers
             }
             else
             {
+                KeepValueCasing = true;
                 FieldIndexSetting = FieldSettings.FieldIndexSetting;
                 FieldStoreSetting = FieldSettings.FieldStoreSetting;
             }

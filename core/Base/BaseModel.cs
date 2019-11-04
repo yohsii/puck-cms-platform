@@ -55,7 +55,7 @@ namespace puck.core.Base
         public string CreatedBy { get; set; }
         
         [UIHint("PuckPath")]
-        [IndexSettings(FieldIndexSetting = Lucene.Net.Documents.Field.Index.NOT_ANALYZED, Analyzer = typeof(KeywordAnalyzer))]
+        [IndexSettings(LowerCaseValue = true,FieldIndexSetting = Lucene.Net.Documents.Field.Index.NOT_ANALYZED, Analyzer = typeof(KeywordAnalyzer))]
         [MaxLength(2048)]
         public string Path { get; set; }
         
@@ -71,7 +71,7 @@ namespace puck.core.Base
         public int Revision { get; set; }
 
         [UIHint("SettingsReadOnly")]
-        [IndexSettings(FieldStoreSetting = Lucene.Net.Documents.Field.Store.YES,FieldIndexSetting = Lucene.Net.Documents.Field.Index.NOT_ANALYZED, Analyzer = typeof(KeywordAnalyzer))]
+        [IndexSettings(LowerCaseValue = true,FieldStoreSetting = Lucene.Net.Documents.Field.Store.YES,FieldIndexSetting = Lucene.Net.Documents.Field.Index.NOT_ANALYZED, Analyzer = typeof(KeywordAnalyzer))]
         [MaxLength(10)]
         public string Variant { get; set; }
         
@@ -94,7 +94,7 @@ namespace puck.core.Base
         public string TypeChain { get; set; }
 
         [UIHint("SettingsReadOnly")]
-        [IndexSettings(FieldIndexSetting = Lucene.Net.Documents.Field.Index.NOT_ANALYZED,KeepValueCasing=true ,Analyzer = typeof(KeywordAnalyzer), FieldStoreSetting = Lucene.Net.Documents.Field.Store.YES)]
+        [IndexSettings(FieldIndexSetting = Lucene.Net.Documents.Field.Index.NOT_ANALYZED,Analyzer = typeof(KeywordAnalyzer), FieldStoreSetting = Lucene.Net.Documents.Field.Store.YES)]
         public string Type { get; set; }
     }
 }
