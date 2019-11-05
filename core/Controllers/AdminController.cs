@@ -192,24 +192,29 @@ namespace puck.core.Controllers
                     {
                         puser.UserName = user.UserName;
                     }
-
+                    user.Roles = user.Roles ?? new List<string>();
                     var roles = (await userManager.GetRolesAsync(puser)).ToList();
-                    //never remove Puck role
-                    if (roles != null && roles.Contains(PuckRoles.Puck))
-                    {
-                        roles.RemoveAll(x => x.Equals(PuckRoles.Puck));                        
+                    List<string> rolesToAdd = new List<string>();
+                    List<string> rolesToRemove = new List<string>();
+                    //get roles to remove
+                    foreach (var r in roles) {
+                        if (!user.Roles.Contains(r))
+                            rolesToRemove.Add(r);
                     }
-                    if (roles.Count > 0)
-                    {
-                        await userManager.RemoveFromRolesAsync(puser, roles.ToArray());
+                    //get roles to add
+                    foreach (var r in user.Roles) {
+                        if (!roles.Contains(r))
+                            rolesToAdd.Add(r);
                     }
-                    if (user.Roles != null && user.Roles.Count > 0)
+                    rolesToRemove.RemoveAll(x => x.Equals(PuckRoles.Puck));
+                    if (rolesToRemove.Count > 0)
                     {
-                        if (user.Roles.Count > 0) {
-                            var rolesToAdd = user.Roles.Where(x => x != PuckRoles.Puck).ToArray();
-                            await userManager.AddToRolesAsync(puser, rolesToAdd);
-                        }
+                        await userManager.RemoveFromRolesAsync(puser, rolesToRemove.ToArray());
                     }
+                    if (rolesToAdd.Count > 0) {
+                        await userManager.AddToRolesAsync(puser, rolesToAdd);
+                    }
+                    
                     if (!await userManager.IsInRoleAsync(puser,PuckRoles.Puck))
                     {
                         await userManager.AddToRoleAsync(puser, PuckRoles.Puck);                        
