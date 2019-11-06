@@ -112,7 +112,7 @@ namespace puck.core.Controllers
         public ActionResult DevPage(string id = "0a2ebbd3-b118-4add-a219-4dbc54cd742a") {
             var guid = Guid.Parse(id);
             var revision = repo.GetPuckRevision().FirstOrDefault(x => x.Current && x.Id == guid);
-            var model = ApiHelper.RevisionToBaseModel(revision);
+            var model = revision.ToBaseModel();
             return View(model);
         }
         //[Authorize(Roles = PuckRoles.Puck, AuthenticationSchemes = "Identity.Application")]
@@ -537,7 +537,7 @@ namespace puck.core.Controllers
                 var revisions = repo.GetPuckRevision().Where(x => x.Id == id && x.Current).ToList();
                 foreach (var revision in revisions)
                 {
-                    var model = ApiHelper.RevisionToBaseModel(revision);
+                    var model = revision.ToBaseModel();
                     //var tNewType = ApiHelper.GetType(newType);
                     var tNewType = ApiHelper.GetTypeFromName(newType);
                     var newModel = Activator.CreateInstance(tNewType);
@@ -728,7 +728,7 @@ namespace puck.core.Controllers
 #else
             resultsRev = repo.CurrentRevisionsByDirectory(p_path).ToList();
 #endif
-            var results = resultsRev.Select(x => ApiHelper.RevisionToBaseModelCast(x)).ToList()
+            var results = resultsRev.Select(x => x.ToBaseModel(cast:true)).ToList()
                 .GroupByPath()
                 .OrderBy(x => x.Value.First().Value.SortOrder)
                 .ToDictionary(x => x.Key, x => x.Value);
@@ -874,7 +874,7 @@ namespace puck.core.Controllers
 #else
             resultsRev = repo.CurrentRevisionsByParentId(parentId).ToList();
 #endif
-            var results = resultsRev.Select(x => cast ? ApiHelper.RevisionToBaseModelCast(x) : x.ToBaseModel()).ToList()
+            var results = resultsRev.Select(x => cast ? x.ToBaseModel(cast:true) : x.ToBaseModel()).ToList()
                 .GroupById()
                 .OrderBy(x => x.Value.First().Value.SortOrder)
                 .ToDictionary(x => x.Key.ToString(), x => x.Value);
@@ -1118,7 +1118,7 @@ namespace puck.core.Controllers
                 }
                 else
                 {
-                    model = ApiHelper.RevisionToModel(result);
+                    model = result.ToBaseModel();
                     if (!string.IsNullOrEmpty(p_fromVariant))
                     {
                         var mod = model as BaseModel;

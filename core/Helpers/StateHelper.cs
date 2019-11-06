@@ -202,7 +202,7 @@ namespace puck.core.Helpers
                     {
                         //update typechain in revision and in model which may need to be published
                         revision.TypeChain = ApiHelper.TypeChain(type);
-                        var model = ApiHelper.RevisionToBaseModel(revision);
+                        var model = revision.ToBaseModel();
                         model.TypeChain = ApiHelper.TypeChain(type);
                         revision.Value = JsonConvert.SerializeObject(model);
                         if (model.Published && revision.Current)

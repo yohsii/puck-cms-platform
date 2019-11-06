@@ -23,11 +23,12 @@ namespace puck.core.Entities
         public bool IsPublishedRevision { get; set; }
         public string IdPath { get; set; }
         public bool HasChildren { get; set; }
-        public BaseModel ToBaseModel()
+        public BaseModel ToBaseModel(bool cast=false)
         {
             try
             {
-                var model = JsonConvert.DeserializeObject(this.Value, ApiHelper.ConcreteType(ApiHelper.GetTypeFromName(this.Type)));
+                var _t = cast ? typeof(BaseModel) : ApiHelper.ConcreteType(ApiHelper.GetTypeFromName(this.Type));
+                var model = JsonConvert.DeserializeObject(this.Value, _t);
                 var mod = model as BaseModel;
                 mod.Id = this.Id;
                 mod.ParentId = this.ParentId;
@@ -37,6 +38,7 @@ namespace puck.core.Entities
                 mod.Published = this.Published;
                 mod.Type = this.Type;
                 mod.TypeChain = this.TypeChain;
+                mod.Variant = this.Variant;
                 return mod;
             }
             catch (Exception ex)

@@ -451,7 +451,7 @@ namespace puck.core.Services
                         throw new Exception("You cannot publish this node because its parent is not published.");
                     }
                 }
-                var mod = ApiHelper.RevisionToBaseModel(currentRevision);
+                var mod = currentRevision.ToBaseModel();
                 mod.Published = true;
                 await SaveContent(mod, makeRevision: false, userName: userName);
                 var affected = 0;
@@ -466,7 +466,7 @@ namespace puck.core.Services
                     affected = UpdateDescendantIsPublishedRevision(currentRevision.IdPath + ",", true, true, descendantVariants);
                     var descendantVariantsLowerCase = descendantVariants.Select(x => x.ToLower()).ToList();
                     var descendantRevisions = repo.CurrentRevisionDescendants(currentRevision.IdPath).Where(x => descendantVariantsLowerCase.Contains(x.Variant.ToLower())).ToList();
-                    var descendantModels = descendantRevisions.Select(x => ApiHelper.RevisionToBaseModel(x)).ToList();
+                    var descendantModels = descendantRevisions.Select(x => x.ToBaseModel()).ToList();
                     AddPublishInstruction(descendantModels);
                     indexer.Index(descendantModels);
                     if (descendantModels.Any())
@@ -497,7 +497,7 @@ namespace puck.core.Services
                 var toIndex = new List<BaseModel>();
                 var currentRevision = repo.CurrentRevision(id, variant);
                 var publishedRevision = repo.PublishedRevision(id, variant);
-                var mod = ApiHelper.RevisionToBaseModel(currentRevision);
+                var mod = currentRevision.ToBaseModel();
                 mod.Published = false;
                 await SaveContent(mod, makeRevision: false, userName: userName);
                 toIndex.Add(mod);
@@ -521,7 +521,7 @@ namespace puck.core.Services
                     affected = UpdateDescendantIsPublishedRevision(currentRevision.IdPath + ",", false, false, descendantVariants);
                     var descendantVariantsLowerCase = descendantVariants.Select(x => x.ToLower()).ToList();
                     var descendantRevisions = repo.CurrentRevisionDescendants(currentRevision.IdPath).Where(x => descendantVariantsLowerCase.Contains(x.Variant.ToLower())).ToList();
-                    var descendantModels = descendantRevisions.Select(x => ApiHelper.RevisionToBaseModel(x)).ToList();
+                    var descendantModels = descendantRevisions.Select(x => x.ToBaseModel()).ToList();
                     toIndex.AddRange(descendantModels);
                     if (descendantModels.Any())
                         notes = $"{descendantModels.Count} descendant items also unpublished";
@@ -1176,10 +1176,10 @@ namespace puck.core.Services
                                 affected = UpdateDescendantPaths(currentRevisionPath + "/", mod.Path + "/");
                                 UpdatePathRelatedMeta(currentRevisionPath, mod.Path);
                             }
-                            var descendants = repo.CurrentOrPublishedDescendants(idPath).ToList().Select(x => ApiHelper.RevisionToBaseModel(x)).ToList();
+                            var descendants = repo.CurrentOrPublishedDescendants(idPath).ToList().Select(x => x.ToBaseModel()).ToList();
                             var variantsToIndex = new List<BaseModel>();
-                            variantsToIndex.AddRange(currentVariantsDb.Select(x => ApiHelper.RevisionToBaseModel(x)).ToList());
-                            variantsToIndex.AddRange(publishedVariantsDb.Select(x => ApiHelper.RevisionToBaseModel(x)).ToList());
+                            variantsToIndex.AddRange(currentVariantsDb.Select(x => x.ToBaseModel()).ToList());
+                            variantsToIndex.AddRange(publishedVariantsDb.Select(x => x.ToBaseModel()).ToList());
                             toIndex.AddRange(descendants);
                             toIndex.AddRange(variantsToIndex);
                             //if current model is not set to publish, update the currently published revision to reflect parent id being changed

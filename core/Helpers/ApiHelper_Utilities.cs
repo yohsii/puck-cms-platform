@@ -29,61 +29,6 @@ namespace puck.core.Helpers
             var result = Environment.MachineName;// +HttpRuntime.AppDomainAppId.Replace("/","_");
             return result;
         }
-        public static object RevisionToModel(PuckRevision revision)
-        {
-            try
-            {
-                //var model = JsonConvert.DeserializeObject(revision.Value, ConcreteType(ApiHelper.GetType(revision.Type)));
-                var model = JsonConvert.DeserializeObject(revision.Value, ConcreteType(ApiHelper.GetTypeFromName(revision.Type)));
-                var mod = model as BaseModel;
-                mod.ParentId = revision.ParentId;
-                mod.Path = revision.Path; mod.SortOrder = revision.SortOrder; mod.NodeName = revision.NodeName; mod.Published = revision.Published;
-                mod.Type = revision.Type;
-                mod.TypeChain = revision.TypeChain;
-                return model;
-            }
-            catch (Exception ex)
-            {
-                return null;
-            }
-        }
-        public static BaseModel RevisionToBaseModel(PuckRevision revision)
-        {
-            try
-            {
-                //var model = JsonConvert.DeserializeObject(revision.Value, ConcreteType(ApiHelper.GetType(revision.Type)));
-                var model = JsonConvert.DeserializeObject(revision.Value, ConcreteType(ApiHelper.GetTypeFromName(revision.Type)));
-                var mod = model as BaseModel;
-                mod.Id = revision.Id;
-                mod.ParentId = revision.ParentId;
-                mod.Path = revision.Path; mod.SortOrder = revision.SortOrder; mod.NodeName = revision.NodeName; mod.Published = revision.Published;
-                mod.Type = revision.Type;
-                mod.TypeChain = revision.TypeChain;
-                return mod;
-            }
-            catch (Exception ex)
-            {
-                return null;
-            }
-        }
-        public static BaseModel RevisionToBaseModelCast(PuckRevision revision)
-        {
-            try
-            {
-                var model = JsonConvert.DeserializeObject(revision.Value, typeof(BaseModel));
-                var mod = model as BaseModel;
-                mod.ParentId = revision.ParentId;
-                mod.Path = revision.Path; mod.SortOrder = revision.SortOrder; mod.NodeName = revision.NodeName; mod.Published = revision.Published;
-                mod.Type = revision.Type;
-                mod.TypeChain = revision.TypeChain;
-                return mod;
-            }
-            catch (Exception ex)
-            {
-                return null;
-            }
-        }
-
         public static string DirOfPath(string s)
         {
             if (s.EndsWith("/"))
