@@ -83,7 +83,7 @@ namespace puck.core.Helpers
 
         }
         public static void UpdateCrops(bool addInstruction=false) {
-            var settingsType = typeof(PuckImageEditorSettings);
+            var settingsType = typeof(PuckCropsEditorSettings);
             var modelType = typeof(BaseModel);
             PuckCache.CropSizes = new Dictionary<string, Models.CropInfo>();
             using (var scope = PuckCache.ServiceProvider.CreateScope())
@@ -93,7 +93,7 @@ namespace puck.core.Helpers
                 var meta = repo.GetPuckMeta().Where(x => x.Name == DBNames.EditorSettings && x.Key.Equals(key)).FirstOrDefault();
                 if (meta != null)
                 {
-                    var data = JsonConvert.DeserializeObject(meta.Value, settingsType) as PuckImageEditorSettings;
+                    var data = JsonConvert.DeserializeObject(meta.Value, settingsType) as PuckCropsEditorSettings;
                     if (data != null)
                     {
                         foreach (var crop in data.Crops ?? new List<Models.CropInfo>())

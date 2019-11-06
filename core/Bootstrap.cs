@@ -89,7 +89,7 @@ namespace puck.core
             //bind notification handlers
             //publish
             ApiHelper.AfterEditorSettingsSave += (object o,puck.core.Events.AfterEditorSettingsSaveEventArgs args)=> {
-                if (args.Setting is PuckImageEditorSettings) {
+                if (args.Setting is PuckCropsEditorSettings) {
                     StateHelper.UpdateCrops(addInstruction:true);
                 }
             };

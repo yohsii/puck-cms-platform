@@ -8,9 +8,9 @@ using puck.core.Attributes;
 
 namespace puck.core.Models.EditorSettings
 {
-    [FriendlyClassName(Name="Puck Image Editor Settings")]
-    [Display(Name = "Puck Image Editor Settings")]
-    public class PuckImageEditorSettings:I_Puck_Editor_Settings
+    [FriendlyClassName(Name="Puck Crops Editor Settings")]
+    [Display(Name = "Puck Crops Editor Settings")]
+    public class PuckCropsEditorSettings:I_Puck_Editor_Settings
     {   
         [UIHint("PuckCrops")]
         public List<CropInfo> Crops { get; set; }    

@@ -1,8 +1,8 @@
 ﻿@model puck.Models.PuckImage
 
 @{
-    var settings = this.PuckEditorSettings<puck.core.Models.EditorSettings.PuckImageEditorSettings>()
-        ?? new puck.core.Models.EditorSettings.PuckImageEditorSettings()
+    var settings = this.PuckEditorSettings<puck.core.Models.EditorSettings.PuckCropsEditorSettings>()
+        ?? new puck.core.Models.EditorSettings.PuckCropsEditorSettings()
         {
             Crops=new List<puck.core.Models.CropInfo>()
         };
@@ -67,7 +67,7 @@
                 <div class=""></div>
                 <div class="message">
                     @if (settings.Crops == null || settings.Crops.Count == 0) {
-                        <div>Look like you haven't set up any crops. Visit the <a target="_blank" href="/puck#settings?path=/puck/settings/editorparameters">settings</a> section and add an Editor Parameter, with parameters type "Puck Image Editor Settings" and model type "BaseModel".</div>
+                        <div>Look like you haven't set up any crops. Click <a class="addCropSizesLink" href="#">here</a> to add some crop sizes.</div>
                     }
                 </div>
                 <div class="viewport" style="height:auto;width:500px;">
@@ -93,6 +93,7 @@
         var guid = "@guid.ToString()";
         var modelType = "@Html.Raw(ViewBag.Level0Type.Name)";
         var propname = "@Html.Raw(ViewData.TemplateInfo.HtmlFieldPrefix)";
+        var cropSettingsTypeFullName = "@Html.Raw(typeof(puck.core.Models.EditorSettings.PuckCropsEditorSettings).FullName)";
         var isPrePopulated = '@ViewBag.IsPrePopulated' == 'True';
         
         var escapePropname = function (str) {
@@ -109,8 +110,14 @@
         var selected_container = container.find(".selected_content:first");
         var getPropName = function () {
             return container.find("div:hidden.propName:first").attr("data-propName");
-        }        
+        }
         //container.parents(".editor-field:first").css({ clear: "both" });
+        container.find(".addCropSizesLink").click(function (e) {
+            e.preventDefault();
+            if (canChangeMainContent()) {
+                location.hash = "settings?path=/puck/settings/editorparameters&stype=" + cropSettingsTypeFullName + "&mtype=BaseModel";
+            }
+        });
         var setValue = function () {
             selected_container.find("input:hidden").remove();
             container.find(".cropSizes:first .cropSize").each(function (i) {

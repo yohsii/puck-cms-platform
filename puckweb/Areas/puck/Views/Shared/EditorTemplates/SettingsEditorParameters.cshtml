@@ -191,6 +191,16 @@
             }
         });
         showProptertiesForModel();
+
+        var dict = getHashValues(location.hash);
+        var stype = dict["stype"];
+        var mtype = dict["mtype"];
+        if (stype && mtype) {
+            settings_sel.val(stype);
+            models_sel.val(mtype);
+            props_sel.filter("[data-model='" + mtype + "']").first().val("");
+            edit_btn.click();            
+        }
     });
     </script>
 </div>
