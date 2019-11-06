@@ -413,12 +413,13 @@ namespace puck.core.Helpers
         }
 
         //constructor
-        public QueryHelper(bool prependTypeTerm = true)
+        public QueryHelper(bool prependTypeTerm = true,bool publishedContentOnly=true)
         {
             if (prependTypeTerm)
             {
                 if (typeof(TModel) == typeof(BaseModel)) {
-                    this.And().Field(x => x.Published, "true");
+                    if(publishedContentOnly)
+                        this.And().Field(x => x.Published, "true");
                 }
                 else
                 {
@@ -427,7 +428,9 @@ namespace puck.core.Helpers
                     {
                         innerQ.Field(x=>x.Type,type.Name);
                     }
-                    this.Must().Group(innerQ).And().Field(x => x.Published, "true");
+                    this.Must().Group(innerQ);//.And().Field(x => x.Published, "true");
+                    if (publishedContentOnly)
+                        this.And().Field(x => x.Published, "true");
                 }
                 //this.And().Field(x => x.TypeChain, typeof(TModel).Name.Wrap()).And().Field(x => x.Published, "true");
             }
