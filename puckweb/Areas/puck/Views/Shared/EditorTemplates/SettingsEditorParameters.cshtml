@@ -171,7 +171,17 @@
             var modelFullName = models_sel.find("option:selected").html();
             var propName = props_sel.filter("[data-model='" + modelType + "']").first().val();
             editParameters(settingsType, modelType, propName, function () {
-                appendToTable(settingsType, settingsFullName, modelType, modelFullName, propName);
+                var exists = false;
+                table.find(".row").each(function () {
+                    var row = $(this);
+                    if (row.find(".paramtype[data-type='" + settingsType + "']").length > 0
+                        && row.find(".modeltype[data-type='" + modelType + "']").length > 0
+                        && row.find(".propertyname[data-property='" + propName + "']").length > 0
+                    )
+                        exists = true;
+                });
+                if(!exists)
+                    appendToTable(settingsType, settingsFullName, modelType, modelFullName, propName);
             });
         });
         table.on("click", "a", function (e) {
