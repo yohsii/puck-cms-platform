@@ -1356,7 +1356,7 @@ namespace puck.core.Services
                             if (shouldIndex)
                                 indexer.Index(toIndex, triggerEvents: triggerIndexEvents);
                         }
-                        else if (mod.Published || currentMod == null)//add to lucene index if published or no such node exists in index
+                        else if (mod.Published /*|| currentMod == null*/)//add to lucene index if published or no such node exists in index
                                                                      /*note that you can only have one node with particular id/variant in index at any one time
                                                                      * the reason that you want to add node to index when it's not published but there is no such node currently in index
                                                                      * is to make sure there is always at least one version of the node in the index for back office search operations
@@ -1424,6 +1424,12 @@ namespace puck.core.Services
                             if (shouldIndex)
                                 indexer.Index(toIndex, triggerEvents: triggerIndexEvents);
                         }
+                        else if (publishedRevision == null) {
+                            toIndex.Add(mod);
+                            if (shouldIndex)
+                                indexer.Index(toIndex, triggerEvents: triggerIndexEvents);
+                        }
+
                         if (triggerEvents)
                         {
                             var afterArgs = new IndexingEventArgs { Node = mod };
