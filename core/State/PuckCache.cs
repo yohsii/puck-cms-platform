@@ -46,11 +46,11 @@ namespace puck.core.State
         public static string ContentRootPath="";
         public static string SmtpFrom = "no-reply@puckcms.com";
         public static string SmtpHost = "localhost";
-        public static string EmailTemplatePublishPath = "~/app_data/notification_publish_template.txt";
-        public static string EmailTemplateEditPath = "~/app_data/notification_edit_template.txt";
-        public static string EmailTemplateDeletePath = "~/app_data/notification_delete_template.txt";
-        public static string EmailTemplateMovePath = "~/app_data/notification_move_template.txt";
-        public static string TemplateDirectory = "~/views/";
+        public static string EmailTemplatePublishPath = "~/App_Data/EmailTemplates/notification_publish_template.txt";
+        public static string EmailTemplateEditPath = "~/App_Data/EmailTemplates/notification_edit_template.txt";
+        public static string EmailTemplateDeletePath = "~/App_Data/EmailTemplates/notification_delete_template.txt";
+        public static string EmailTemplateMovePath = "~/App_Data/EmailTemplates/notification_move_template.txt";
+        public static string TemplateDirectory = "~/Views/";
         public static string Path404 = null;
         public static string Path500 = null;
         public static bool RegisterIndexHandler = true;

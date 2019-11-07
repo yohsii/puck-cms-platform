@@ -1447,8 +1447,10 @@
   <Target Name="CopyCustomContentOnPublish" AfterTargets="Publish">
     <ItemGroup>
       <Views Include="Views\**" />
+      <EmailTemplates Include="App_Data\EmailTemplates\**" />
     </ItemGroup>
     <Copy SourceFiles="@(Views)" DestinationFolder="$(PublishDir)\Views\%(RecursiveDir)" />
+    <Copy SourceFiles="@(EmailTemplates)" DestinationFolder="$(PublishDir)\App_Data\EmailTemplates\" />
   </Target>
 
   <ItemGroup>
