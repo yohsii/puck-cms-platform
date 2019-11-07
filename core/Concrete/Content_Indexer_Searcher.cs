@@ -689,7 +689,7 @@ namespace puck.core.Concrete
             int total;
             return QueryNoCast<T>(qstr,null,null,out total);
         }
-        public IList<T> QueryNoCast<T>(string qstr, Filter filter,Sort sort,out int total,int limit=500,int skip=0,Type typeOverride=null) where T:BaseModel
+        public IList<T> QueryNoCast<T>(string qstr, Filter filter,Sort sort,out int total,int limit=500,int skip=0,Type typeOverride=null,bool fallBackToBaseModel=false) where T:BaseModel
         {
             EnsureSearcher();
             var analyzer = PuckCache.AnalyzerForModel[typeof(T)];
@@ -713,7 +713,11 @@ namespace puck.core.Concrete
                 //var type = ApiHelper.GetType(doc.GetValues(FieldKeys.PuckType).FirstOrDefault());
                 Type type;
                 if (typeOverride == null)
+                {
                     type = ApiHelper.GetTypeFromName(doc.GetValues(FieldKeys.PuckType).FirstOrDefault());
+                    if (type == null && fallBackToBaseModel)
+                        type = typeof(BaseModel);
+                }
                 else type = typeOverride;
                 T result = (T)JsonConvert.DeserializeObject(doc.GetValues(FieldKeys.PuckValue)[0],type);
                 results.Add(result);

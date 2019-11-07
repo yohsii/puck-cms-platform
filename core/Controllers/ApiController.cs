@@ -1041,10 +1041,12 @@ namespace puck.core.Controllers
             }
             ViewBag.ShouldBindListEditor = false;
             ViewBag.IsPrepopulated = true;
+            ViewBag.TypeMissing = false;
             object model = null;
             //empty model of type
             //var modelType = ApiHelper.GetType(p_type);
             var modelType = ApiHelper.GetTypeFromName(p_type);
+            if (modelType == null) return View("Edit",new BaseModel());
             var concreteType = ApiHelper.ConcreteType(modelType);
             model = ApiHelper.CreateInstance(concreteType);
             ObjectDumper.SetPropertyValues(model, onlyPopulateListEditorLists: true);
@@ -1058,6 +1060,7 @@ namespace puck.core.Controllers
             if (p_variant == "null" || string.IsNullOrEmpty(p_variant))
                 p_variant = PuckCache.SystemVariant;
             object model = null;
+            ViewBag.TypeMissing = false;
             if (!string.IsNullOrEmpty(p_type))
             {
                 //empty model of type
@@ -1078,6 +1081,9 @@ namespace puck.core.Controllers
                     basemodel.CreatedBy = User.Identity.Name;
                     basemodel.LastEditedBy = basemodel.CreatedBy;
                     ContentService.OnCreate(this, new CreateEventArgs { Node = basemodel, Type = basemodel.GetType() });
+                    ViewBag.ShouldBindListEditor = true;
+                    ViewBag.IsPrepopulated = false;
+                    ViewBag.Level0Type = basemodel.GetType();
                     return View(model);
                 }
             }
@@ -1094,6 +1100,14 @@ namespace puck.core.Controllers
 
             if (results.Count > 0) {
                 var result = results.FirstOrDefault();
+                if (ApiHelper.GetTypeFromName(result.Type) == null) {
+                    ViewBag.TypeMissing = true;
+                    ViewBag.MissingType = result.Type;
+                    ViewBag.ShouldBindListEditor = true;
+                    ViewBag.IsPrepopulated = false;
+                    ViewBag.Level0Type = typeof(BaseModel);
+                    return View(new BaseModel()); 
+                }
                 if (!string.IsNullOrEmpty(p_fromVariant) && p_fromVariant.Equals("none"))
                 {//create blank new translation of existing content
                     var modelType = ApiHelper.GetTypeFromName(result.Type);

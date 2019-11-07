@@ -16,7 +16,7 @@ namespace puck.core.Abstract
         IList<T> Query<T>(string query) where T:BaseModel;
         IList<T> QueryNoCast<T>(string query) where T:BaseModel;
         IList<T> Query<T>(string query,Filter filter,Sort sort,out int total,int limit,int skip) where T:BaseModel;
-        IList<T> QueryNoCast<T>(string query,Filter filter,Sort sort,out int total,int limit,int skip,Type typeOverride=null) where T:BaseModel;
+        IList<T> QueryNoCast<T>(string query,Filter filter,Sort sort,out int total,int limit,int skip,Type typeOverride=null,bool fallBackToBaseModel=false) where T:BaseModel;
         IList<T> Get<T>(int limit);
         IList<T> Get<T>();
         int Count<T>(string query) where T:BaseModel;

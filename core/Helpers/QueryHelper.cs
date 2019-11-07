@@ -977,9 +977,9 @@ namespace puck.core.Helpers
             return result;
         }
 
-        public List<TModel> GetAllNoCast(int limit=500,int skip = 0,Type typeOverride=null)
+        public List<TModel> GetAllNoCast(int limit=500,int skip = 0,Type typeOverride=null,bool fallBackToBaseModel=false)
         {
-            var result = searcher.QueryNoCast<TModel>(query,filter,sort,out totalHits,limit,skip,typeOverride:typeOverride).ToList();
+            var result = searcher.QueryNoCast<TModel>(query,filter,sort,out totalHits,limit,skip,typeOverride:typeOverride,fallBackToBaseModel:fallBackToBaseModel).ToList();
             return result;
         }
 

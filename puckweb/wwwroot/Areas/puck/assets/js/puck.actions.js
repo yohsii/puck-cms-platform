@@ -797,6 +797,7 @@ var displayMarkup = function (parentId, type, variant, fromVariant,contentId,con
         container./*hide().*/html(data);
         if (!type) {
             type = container.find("input[name=Type]").val();
+            if (!type) return;
         }
         var path = container.find("input[name=Path]").val();
         var rootPath = path.indexOf("/", 1) > -1 ? path.substr(0, path.indexOf("/", 1)) : path;

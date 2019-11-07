@@ -107,7 +107,7 @@ namespace puck.core.Helpers
                                 {
                                     var qh = new QueryHelper<BaseModel>(prependTypeTerm: false);
                                     qh.SetQuery(instruction.InstructionDetail);
-                                    var models = qh.GetAll(limit: int.MaxValue);
+                                    var models = qh.GetAllNoCast(limit: int.MaxValue,fallBackToBaseModel:true);
                                     Indexer.Delete(models);
                                 }
                                 else {

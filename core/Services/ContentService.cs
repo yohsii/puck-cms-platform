@@ -650,9 +650,10 @@ namespace puck.core.Services
                                 notes = $"{descendants.Count} descendant items also deleted";
                         }
                     }
+                    toDelete.Clear();
                     repoItems.ForEach(x =>
                     {
-                        var args = new BeforeIndexingEventArgs() { Node = x.ToBaseModel(), Cancel = false };
+                        var args = new BeforeIndexingEventArgs() { Node = ApiHelper.GetTypeFromName(x.Type)==null? x.ToBaseModel(cast:true):x.ToBaseModel(), Cancel = false };
                         OnBeforeDelete(this, args);
                         if (args.Cancel)
                         {
@@ -698,10 +699,10 @@ namespace puck.core.Services
                         }
                     }
 
-                    repoItems
-                            .Where(x => !cancelled.Contains(x))
-                            .ToList()
-                            .ForEach(x => { OnAfterDelete(this, new IndexingEventArgs() { Node = x }); });
+                    //repoItems
+                    //        .Where(x => !cancelled.Any(xx=>x.Id==xx.Id&&x.Variant.ToLower().Equals(xx.Variant.ToLower())))
+                    //        .ToList()
+                    //        .ForEach(x => { OnAfterDelete(this, new IndexingEventArgs() { Node = ApiHelper.GetTypeFromName(x.Type) == null ? x.ToBaseModel(cast: true) : x.ToBaseModel() }); });
 
                     //remove localisation setting
                     string lookUpPath = string.Empty;
@@ -753,10 +754,18 @@ namespace puck.core.Services
                     parentRevisions.ForEach(x => x.HasChildren = hasChildren);
                     repo.SaveChanges();
                     transaction.Commit();
+                    toDelete.ForEach(x => { OnAfterDelete(this, new IndexingEventArgs() { Node = x }); });
                 }
                 catch (Exception ex)
                 {
-                    transaction.Rollback();
+                    try
+                    {
+                        transaction.Rollback();
+                    }
+                    catch (Exception ex2) {
+                        logger.Log("error rolling back transaction in ContentService.Delete. "+ex.Message,ex.StackTrace,exceptionType:ex2.GetType());
+                        throw ex;
+                    }
                     logger.Log($"failed to delete id:{id} variant:{variant ?? ""}. " + ex.Message, ex.StackTrace, exceptionType: ex.GetType());
                     throw;
                 }
@@ -1726,6 +1735,7 @@ namespace puck.core.Services
                 {
                     foreach (var model in group)
                     {
+                        model.Path = "";
                         await SaveContent(model, userName: userName);
                     }
                     await SaveCopies(group.Key, items);
