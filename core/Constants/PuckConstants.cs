@@ -59,6 +59,7 @@ namespace puck.core.Constants
         public const string ChangeType = "_changetype";
         public const string TimedPublish = "_timedpublish";
         public const string Audit = "_audit";
+        public const string Sync = "_sync";
     }
     public static class FieldKeys
     {

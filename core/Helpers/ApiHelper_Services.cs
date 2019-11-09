@@ -26,6 +26,7 @@ using puck.core.State;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Configuration;
 
 namespace puck.core.Helpers
 {
@@ -38,7 +39,8 @@ namespace puck.core.Helpers
         public I_Task_Dispatcher tdispatcher { get; set; }
         public I_Content_Indexer indexer { get; set; }
         public I_Log logger { get; set; }
-        public ApiHelper(RoleManager<PuckRole> RoleManager, UserManager<PuckUser> UserManager, I_Puck_Repository Repo, I_Task_Dispatcher TaskDispatcher, I_Content_Indexer Indexer, I_Log Logger)
+        public IConfiguration config { get; set; }
+        public ApiHelper(RoleManager<PuckRole> RoleManager, UserManager<PuckUser> UserManager, I_Puck_Repository Repo, I_Task_Dispatcher TaskDispatcher, I_Content_Indexer Indexer, I_Log Logger,IConfiguration config)
         {
             this.roleManager = RoleManager;
             this.userManager = UserManager;
@@ -46,6 +48,45 @@ namespace puck.core.Helpers
             this.tdispatcher = TaskDispatcher;
             this.indexer = Indexer;
             this.logger = Logger;
+            this.config = config;
+        }
+        public string GetConnectionStringName() {
+            var connectionStringName = "";
+            if (config.GetValue<bool?>("UseSQLServer") ?? false)
+            {
+                connectionStringName = "SQLServer";
+            }
+            else if (config.GetValue<bool?>("UsePostgreSQL") ?? false)
+            {
+                connectionStringName = "PostgreSQL";
+            }
+            else if (config.GetValue<bool?>("UseMySQL") ?? false)
+            {
+                connectionStringName = "MySQL";
+            }
+            else if (config.GetValue<bool?>("UseSQLite") ?? false)
+            {
+                connectionStringName = "SQLite";
+            }
+            return connectionStringName;
+        }
+        public List<ConfigContainer> GetConfigs() {
+            var result = new List<ConfigContainer>();
+            var rootDir = new DirectoryInfo(ApiHelper.MapPath("~/"));
+            var configFiles = rootDir.GetFiles().Where(x=>x.Name.ToLower().StartsWith("appsettings.")&&x.Name.ToLower().EndsWith(".json") && !x.Name.ToLower().Equals("appsettings.json"));
+            foreach (var configFile in configFiles) {
+                var configContainer = new ConfigContainer();
+                configContainer.Config = new ConfigurationBuilder()
+                    .SetBasePath(ApiHelper.MapPath("~/"))
+                    .AddJsonFile(configFile.Name)
+                    .Build();
+                configContainer.Name = configFile.Name;
+                var ename = configFile.Name.Substring(configFile.Name.IndexOf(".")+1);
+                ename = ename.Substring(0,ename.IndexOf("."));
+                configContainer.EnvironmentName = ename;
+                result.Add(configContainer);
+            }
+            return result;
         }
         public void AddRedirect(string from, string to, string type) {
             if (string.IsNullOrEmpty(from) || string.IsNullOrEmpty(to) || string.IsNullOrEmpty(type))

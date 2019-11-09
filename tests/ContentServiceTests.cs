@@ -99,7 +99,7 @@ namespace puck.tests
             services.Searcher = indexerSearcher;
             services.RoleManager = MockHelpers.MockRoleManager<PuckRole>().Object;
             services.UserManager = MockHelpers.MockUserManager().Object;
-            services.ApiHelper = new ApiHelper(services.RoleManager, services.UserManager, services.Repo, services.TDispatcher, services.Indexer, services.Logger);
+            services.ApiHelper = new ApiHelper(services.RoleManager, services.UserManager, services.Repo, services.TDispatcher, services.Indexer, services.Logger,config);
             services.ContentService = new ContentService(config, services.RoleManager, services.UserManager, services.Repo,services.TDispatcher, services.Indexer, services.Logger,services.ApiHelper);
             PuckCache._puckSearcher = services.Searcher;
             PuckCache.ServiceProvider = MockHelpers.MockServiceProvider(services.Repo).Object;

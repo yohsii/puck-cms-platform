@@ -482,6 +482,9 @@ $(document).on("click",".node-dropdown a,.template-dropdown a",function () {
         case "audit":
             showAudit(node.attr("data-id"),"","",1,20,cright);
             break;
+        case "sync":
+            sync(node.attr("data-id"));
+            break;
         case "translate":
             getCreateDialog(function (data) {
                 var overlayEl=overlay(data, 400, 250,undefined,"Translate");

@@ -1,4 +1,10 @@
-﻿var getRedirects = function (f) {
+﻿var getCacheItem = function (key,f) {
+    $.get("/puck/api/GetCacheItem?key=" + key, f);
+}
+var getSyncDialog = function (id, f) {
+    $.get("/puck/api/SyncDialog?id="+id, f,"html");
+}
+var getRedirects = function (f) {
     $.get("/puck/api/redirects", f);
 }
 var addRedirect = function (from, to, type, f) {

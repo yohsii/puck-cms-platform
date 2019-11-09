@@ -1,0 +1,40 @@
+﻿@model puck.core.Models.SyncModel
+@{
+    Layout = null;
+    
+}
+    <div class="create_dialog settings">
+        @using (Html.BeginForm("Sync", "Api", new {}, FormMethod.Post)) { 
+            <div class="">
+                @if (Model.Configs.Count == 0)
+                {
+                    <p>there are no alternative connections to sync to</p>
+                }
+                else
+                {
+                    <p>Sync <b>@Model.Model.NodeName</b></p>
+                    <div class="fieldwrapper">
+                        <label>Select environment to sync to</label>
+                        <select name="@(nameof(Model.SelectedConfig))">
+                            @foreach (var c in Model.Configs)
+                            {
+                                <option value="@c.Name">@c.EnvironmentName</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="fieldwrapper">
+                        @Html.LabelFor(x => x.IncludeDescendants)
+                        @Html.CheckBoxFor(x => x.IncludeDescendants)
+                    </div>
+                    <div class="fieldwrapper">
+                        @Html.LabelFor(x => x.OnlyOverwriteIfNewer)
+                        @Html.CheckBoxFor(x => x.OnlyOverwriteIfNewer)
+                    </div>
+                    @Html.HiddenFor(x=>x.Id)
+                }
+            </div>
+        <div>
+            <button class='btn-link btn' style="@(Model.Configs.Count==0?"display:none;":"")">Submit</button>
+        </div>
+        }
+    </div>

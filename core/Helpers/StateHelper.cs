@@ -32,28 +32,28 @@ namespace puck.core.Helpers
         }}
         public static I_Log logger { get { return PuckCache.PuckLog; } }
         public static async Task SeedDb(IConfiguration config, IHostEnvironment env, IServiceProvider serviceProvider) {
-            if (env.IsDevelopment())
+            if (env.IsDevelopment()||env.IsStaging())
             {
                 using (var scope = serviceProvider.CreateScope())
                 {
                     var userManager = (UserManager<PuckUser>)scope.ServiceProvider.GetService(typeof(UserManager<PuckUser>));
                     var roleManager = (RoleManager<PuckRole>)scope.ServiceProvider.GetService(typeof(RoleManager<PuckRole>));
                     var repo = scope.ServiceProvider.GetService<I_Puck_Repository>();
+                    
+                    var roles = new List<string> {PuckRoles.Cache,PuckRoles.Create,PuckRoles.Delete,PuckRoles.Domain,PuckRoles.Edit,PuckRoles.Localisation
+                        ,PuckRoles.Move,PuckRoles.Notify,PuckRoles.Publish,PuckRoles.Puck,PuckRoles.Revert,PuckRoles.Settings,PuckRoles.Sort,PuckRoles.Tasks
+                        ,PuckRoles.Unpublish,PuckRoles.Users,PuckRoles.Republish,PuckRoles.Copy,PuckRoles.ChangeType,PuckRoles.TimedPublish,PuckRoles.Audit,PuckRoles.Sync};
+                    foreach (var roleName in roles)
+                    {
+                        if (!await roleManager.RoleExistsAsync(roleName))
+                        {
+                            var role = new PuckRole();
+                            role.Name = roleName;
+                            await roleManager.CreateAsync(role);
+                        }
+                    }
                     if (repo.GetPuckUser().Count() == 0)
                     {
-                        var roles = new List<string> {PuckRoles.Cache,PuckRoles.Create,PuckRoles.Delete,PuckRoles.Domain,PuckRoles.Edit,PuckRoles.Localisation
-                        ,PuckRoles.Move,PuckRoles.Notify,PuckRoles.Publish,PuckRoles.Puck,PuckRoles.Revert,PuckRoles.Settings,PuckRoles.Sort,PuckRoles.Tasks
-                        ,PuckRoles.Unpublish,PuckRoles.Users,PuckRoles.Republish,PuckRoles.Copy,PuckRoles.ChangeType,PuckRoles.TimedPublish,PuckRoles.Audit};
-
-                        foreach (var roleName in roles)
-                        {
-                            if (!await roleManager.RoleExistsAsync(roleName))
-                            {
-                                var role = new PuckRole();
-                                role.Name = roleName;
-                                await roleManager.CreateAsync(role);
-                            }
-                        }
                         var adminEmail = config.GetValue<string>("InitialUserEmail");
                         var adminPassword = config.GetValue<string>("InitialUserPassword");
                         if (!string.IsNullOrEmpty(adminEmail))

@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Data.Common;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
-using puck.core.Abstract;
 using puck.core.Base;
 using puck.core.Entities;
 
@@ -22,6 +22,7 @@ namespace puck.core.Abstract
 
         void AddAuditEntry(Guid id, string variant, string action, string notes, string username);
         void AddPublishInstruction(List<BaseModel> toIndex);
+        Task Sync(Guid id, Guid parentId, bool includeDescendants, bool onlyOverwriteIfNewer, I_Content_Service destinationContentService, IMemoryCache cache,string cacheKey, string userName = null);
         Task Copy(Guid id, Guid parentId, bool includeDescendants, string userName = null);
         Task<T> Create<T>(Guid parentId, string variant, string name, string template = null, bool published = true, string userName = null) where T : BaseModel;
         Task Delete(Guid id, string variant = null, string userName = null);

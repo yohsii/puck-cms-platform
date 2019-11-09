@@ -31,6 +31,7 @@ using System.Threading;
 using System.Data;
 using Microsoft.EntityFrameworkCore;
 using System.Data.Common;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace puck.core.Services
 {
@@ -1677,6 +1678,83 @@ namespace puck.core.Services
                             PuckCache.IndexingStatus = "";
                     });
                 }
+            }
+        }
+        public async Task Sync(Guid id, Guid parentId, bool includeDescendants,bool onlyOverwriteIfNewer,I_Content_Service destinationContentService,IMemoryCache cache,string cacheKey, string userName = null)
+        {
+            try
+            {
+                PuckUser user = null;
+                if (!string.IsNullOrEmpty(userName))
+                {
+                    user = await userManager.FindByNameAsync(userName);
+                    if (user == null)
+                        throw new UserNotFoundException("there is no user for provided username");
+                }
+                else
+                    userName = HttpContext.Current.User.Identity.Name;
+
+                string notes = "";
+
+                var revisionsToCopy = repo.GetPuckRevision().Where(x => x.Id == id && x.Current).ToList();
+                if (revisionsToCopy.Count == 0) return;
+                var descendants = new List<PuckRevision>();
+                if (includeDescendants)
+                {
+                    descendants = repo.CurrentRevisionDescendants(revisionsToCopy.First().IdPath).ToList();
+                    if (descendants.Any())
+                        notes = $"{descendants.Count} descendant items also copied";
+                }
+                var itemsToCopy = revisionsToCopy.Select(x => x.ToBaseModel()).ToList();
+
+                var allItemsToCopy = new List<BaseModel>();
+                allItemsToCopy.AddRange(itemsToCopy);
+                allItemsToCopy.AddRange(descendants.Select(x => x.ToBaseModel()));
+
+                itemsToCopy.ForEach(x => x.ParentId = parentId);
+                int i = 1;
+                async Task SaveCopies(Guid pId, List<BaseModel> items)
+                {
+                    var children = items.Where(x => x.ParentId == pId).ToList();
+                    var childrenGroupedById = children.GroupBy(x => x.Id);
+                    foreach (var group in childrenGroupedById)
+                    {
+                        foreach (var model in group)
+                        {
+                            cache.Set(cacheKey, $"Syncing item {i} of {allItemsToCopy.Count}");
+                            model.Path = "";
+                            var destinationRevision = destinationContentService.repo.CurrentRevision(model.Id, model.Variant);
+                            if (onlyOverwriteIfNewer && destinationRevision != null && destinationRevision.Updated > model.Updated)
+                            {
+                                i++;
+                                continue;
+                            }
+                            await destinationContentService.SaveContent(model, userName: userName, triggerEvents: false, triggerIndexEvents: false, shouldIndex: false);
+                            i++;
+                        }
+                        await SaveCopies(group.Key, items);
+                    }
+                }
+                await SaveCopies(parentId, allItemsToCopy);
+                if (parentId == Guid.Empty)
+                {
+                    var instruction1 = new PuckInstruction();
+                    instruction1.InstructionKey = InstructionKeys.UpdateDomainMappings;
+                    instruction1.Count = 1;
+                    instruction1.ServerName = "_puck";
+                    destinationContentService.repo.AddPuckInstruction(instruction1);
+                    var instruction2 = new PuckInstruction();
+                    instruction2.InstructionKey = InstructionKeys.UpdatePathLocales;
+                    instruction2.Count = 1;
+                    instruction2.ServerName = "_puck";
+                    destinationContentService.repo.AddPuckInstruction(instruction2);
+                    destinationContentService.repo.SaveChanges();
+                }
+                //AddAuditEntry(id, "", AuditActions.Copy, notes, userName);
+                cache.Set(cacheKey, $"Sync complete.");
+            }
+            catch (Exception ex) {
+                cache.Set(cacheKey, $"Error. {ex.Message}");
             }
         }
         public async Task Copy(Guid id, Guid parentId, bool includeDescendants, string userName = null)

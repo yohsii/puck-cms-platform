@@ -31,6 +31,10 @@ using puck.core.Events;
 using System.Net;
 using System.Globalization;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Configuration;
+using puck.core.Concrete;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace puck.core.Controllers
 {
@@ -48,7 +52,10 @@ namespace puck.core.Controllers
         SignInManager<PuckUser> signInManager;
         I_Content_Service contentService;
         I_Api_Helper apiHelper;
-        public ApiController(I_Api_Helper ah, I_Content_Service cs, I_Content_Indexer i, I_Content_Searcher s, I_Log l, I_Puck_Repository r, RoleManager<PuckRole> rm, UserManager<PuckUser> um, SignInManager<PuckUser> sm) {
+        IHostEnvironment env;
+        IConfiguration config;
+        IMemoryCache cache;
+        public ApiController(I_Api_Helper ah, I_Content_Service cs, I_Content_Indexer i, I_Content_Searcher s, I_Log l, I_Puck_Repository r, RoleManager<PuckRole> rm, UserManager<PuckUser> um, SignInManager<PuckUser> sm,IHostEnvironment env,IConfiguration config,IMemoryCache cache) {
             this.indexer = i;
             this.searcher = s;
             this.log = l;
@@ -58,6 +65,9 @@ namespace puck.core.Controllers
             this.signInManager = sm;
             this.contentService = cs;
             this.apiHelper = ah;
+            this.env = env;
+            this.config = config;
+            this.cache = cache;
             StateHelper.SetFirstRequestUrl();
             SyncIfNecessary();
         }
@@ -244,6 +254,102 @@ namespace puck.core.Controllers
                 message = ex.Message;
             }
             return Json(new { message = message, success = success });
+        }
+        [Authorize(Roles = PuckRoles.Puck, AuthenticationSchemes = Mvc.AuthenticationScheme)]
+        public ActionResult GetCacheItem(string key) {
+            var item = cache.Get(key);
+            return Json(new {item=item});
+        }
+        [Authorize(Roles = PuckRoles.Sync, AuthenticationSchemes = Mvc.AuthenticationScheme)]
+        public async Task<ActionResult> Sync(SyncModel syncModel) {
+            string message = "";
+            bool success = false;
+            var cacheKey = Guid.NewGuid().ToString();
+            var username = User.Identity.Name;
+            try
+            {
+                PuckCache.Cache.Set(cacheKey, $"initializing sync");
+                System.Threading.Tasks.Task.Factory.StartNew(async () =>
+                {
+                    using (var scope = PuckCache.ServiceProvider.CreateScope())
+                    {
+                        var tDispatcher = scope.ServiceProvider.GetService<I_Task_Dispatcher>();
+                        var indexer = scope.ServiceProvider.GetService<I_Content_Indexer>();
+                        var apiHelper = scope.ServiceProvider.GetService<I_Api_Helper>();
+                        var repo = scope.ServiceProvider.GetService<I_Puck_Repository>();
+                        var cService = scope.ServiceProvider.GetService<I_Content_Service>();
+                        var config = scope.ServiceProvider.GetService<IConfiguration>();
+                        I_Puck_Context context = null;
+                        var roleManager = scope.ServiceProvider.GetService<RoleManager<PuckRole>>();
+                        var userManager = scope.ServiceProvider.GetService<UserManager<PuckUser>>();
+                        var logger = scope.ServiceProvider.GetService<I_Log>();
+                        var configs = apiHelper.GetConfigs();
+                        var configContainer = configs.FirstOrDefault(x => x.Name.ToLower().Equals(syncModel.SelectedConfig.ToLower()));
+                        var connectionStringName = apiHelper.GetConnectionStringName();
+                        var connectionString = configContainer.Config.GetConnectionString(connectionStringName);
+                        var revision = repo.GetPuckRevision().FirstOrDefault(x => x.Id == syncModel.Id && x.Current);
+                        PuckRevision parent = null;
+                        if (revision.ParentId != Guid.Empty)
+                            parent = repo.GetPuckRevision().FirstOrDefault(x => x.Id == revision.ParentId && x.Current);
+
+                        switch (connectionStringName)
+                        {
+                            case "SQLServer":
+                                context = new PuckContextSQLServer(configContainer.Config);
+                                break;
+                            case "PostgreSQL":
+                                context = new PuckContextPostgreSQL(configContainer.Config);
+                                break;
+                            case "MySQL":
+                                context = new PuckContextMySQL(configContainer.Config);
+                                break;
+                            case "SQLite":
+                                context = new PuckContextSQLite(configContainer.Config);
+                                break;
+                        }
+                        var destinationRepo = new Puck_Repository(context);
+                        var destinationContentService = new ContentService(config, cService.roleManager, cService.userManager, destinationRepo, tDispatcher, indexer, logger, apiHelper);
+                        if (revision.ParentId != Guid.Empty && !destinationRepo.GetPuckRevision().Any(x => x.Id == revision.ParentId && x.Current))
+                        {
+                            PuckCache.Cache.Set(cacheKey,$"Error. Cannot sync, the destination database doesn't contain the parent element \"{parent.NodeName}\" with id {parent.Id}");
+                            return;
+                        }
+                        try
+                        {
+                            await cService.Sync(revision.Id, revision.ParentId, syncModel.IncludeDescendants, syncModel.OnlyOverwriteIfNewer, destinationContentService, PuckCache.Cache,cacheKey, userName: username);
+                        }
+                        catch (Exception ex) {
+                            PuckCache.Cache.Set(cacheKey,$"Error. {ex.Message}");
+                        }
+                    }
+                });
+                success = true;
+            }
+            catch (Exception ex) {
+                log.Log(ex);
+                message = ex.Message;
+            }
+            return Json(new {message=message,success=success,cacheKey=cacheKey });
+        }
+        [Authorize(Roles = PuckRoles.Sync, AuthenticationSchemes = Mvc.AuthenticationScheme)]
+        public async Task<ActionResult> SyncDialog(Guid id) {
+            var model = new SyncModel();
+            var revision = repo.GetPuckRevision().FirstOrDefault(x=>x.Id==id&&x.Current);
+            model.Model = revision.ToBaseModel();
+            model.Id = revision.Id;
+            model.Configs = apiHelper.GetConfigs();
+            model.Configs.RemoveAll(x => x.Name.ToLower().Equals($"appsettings.{env.EnvironmentName.ToLower()}.json"));
+            var toRemove = new List<ConfigContainer>();
+            var connectionStringName = apiHelper.GetConnectionStringName();
+            foreach (var cc in model.Configs) {
+                if (string.IsNullOrEmpty(cc.Config.GetConnectionString(connectionStringName))) {
+                    toRemove.Add(cc);
+                } else if (cc.Config.GetConnectionString(connectionStringName).ToLower().Equals(config.GetConnectionString(connectionStringName).ToLower())) {
+                    toRemove.Add(cc);
+                }
+            }
+            toRemove.ForEach(x=>model.Configs.Remove(x));
+            return View(model);
         }
 
         [Authorize(Roles = PuckRoles.Copy, AuthenticationSchemes = Mvc.AuthenticationScheme)]

@@ -19,8 +19,10 @@ namespace puck.core.Abstract
         RoleManager<PuckRole> roleManager { get; set; }
         I_Task_Dispatcher tdispatcher { get; set; }
         UserManager<PuckUser> userManager { get; set; }
-        public void AddRedirect(string from, string to, string type);
-        public void DeleteRedirect(string from);
+        string GetConnectionStringName();
+        List<ConfigContainer> GetConfigs();
+        void AddRedirect(string from, string to, string type);
+        void DeleteRedirect(string from);
         void AddTag(string tag, string category);
         void DeleteTag(string tag, string category);
         List<Type> AllModels(bool inclusive = false);

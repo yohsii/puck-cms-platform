@@ -1259,6 +1259,34 @@ var publishedVariants = function (id) {
     return variants.length == 0 ? false : variants;
 }
 
+var pollSyncStatus = function (cacheKey) {
+    getCacheItem(cacheKey, function (data) {
+        if (data.item) {
+            if (data.item.indexOf("Error") == 0) {
+                msg(false,data.item,true,undefined,20000);
+            } else if (data.item.indexOf("complete") > -1) {
+                msg(true,data.item);
+            } else {
+                msg(undefined, data.item);
+                setTimeout(function () { pollSyncStatus(cacheKey); },1000);
+            }
+        }
+    });
+}
+
+var sync = function (id) {
+    getSyncDialog(id, function (data) {
+        var overlayEl = overlay(data, 400, 250, undefined, "Sync");
+        var form = overlayEl.find('form');
+        wireForm(form, function (data) {
+            pollSyncStatus(data.cacheKey);
+            overlayClose();
+        }, function (data) {
+            msg(false, data.message);
+        });
+    });
+}
+
 var setLocalisation = function (p) {
     getLocalisationDialog(p, function (data) {
         var overlayEl = overlay(data, 400, 250, undefined, "Localisation");
