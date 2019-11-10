@@ -705,10 +705,8 @@ namespace puck.core.Concrete
             }
             total = docs.TotalHits;
             var results = new List<T>();
-            for (var i = 0; i < docs.ScoreDocs.Count(); i++)
+            for (var i = skip; i < docs.ScoreDocs.Count(); i++)
             {
-                if (!(i >= skip))
-                    continue;
                 var doc = Searcher.Doc(docs.ScoreDocs[i].Doc);
                 //var type = ApiHelper.GetType(doc.GetValues(FieldKeys.PuckType).FirstOrDefault());
                 Type type;
@@ -755,9 +753,7 @@ namespace puck.core.Concrete
             }
             total = docs.TotalHits;
             var results = new List<T>();
-            for (var i = 0; i < docs.ScoreDocs.Count(); i++) {
-                if (!(i >= skip))
-                    continue;
+            for (var i = skip; i < docs.ScoreDocs.Count(); i++) {
                 var doc = Searcher.Doc(docs.ScoreDocs[i].Doc);
                 T result = JsonConvert.DeserializeObject<T>(doc.GetValues(FieldKeys.PuckValue)[0]);
                 results.Add(result);
