@@ -625,7 +625,13 @@ div.settings {
     .content .content_edit_page .puckpicker {
         padding: 0px;
     }
-
+.sync_dialog span.cancel {
+    padding-top: 5px;
+    display: inline-block;
+}
+.sync_dialog button.submit {
+    float:right;
+}
     .create_dialog button, .task_create_dialog button, .revision_for_dialog button {
         float: right;
     }

@@ -1,4 +1,7 @@
-﻿var getCacheItem = function (key,f) {
+﻿var cancelSync = function (key, f) {
+    $.post("/puck/api/CancelSync?key=" + key, f);
+}
+var getCacheItem = function (key, f) {
     $.get("/puck/api/GetCacheItem?key=" + key, f);
 }
 var getSyncDialog = function (id, f) {

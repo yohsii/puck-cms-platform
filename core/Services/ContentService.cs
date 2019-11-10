@@ -1713,6 +1713,7 @@ namespace puck.core.Services
 
                 itemsToCopy.ForEach(x => x.ParentId = parentId);
                 int i = 1;
+                bool cancelled = false;
                 async Task SaveCopies(Guid pId, List<BaseModel> items)
                 {
                     var children = items.Where(x => x.ParentId == pId).ToList();
@@ -1721,7 +1722,14 @@ namespace puck.core.Services
                     {
                         foreach (var model in group)
                         {
+                            cache.Set($"name{cacheKey}", revisionsToCopy.FirstOrDefault().NodeName);
                             cache.Set(cacheKey, $"Syncing item {i} of {allItemsToCopy.Count}");
+
+                            if (cache.Get<bool?>($"cancel{cacheKey}") ?? false) {
+                                cache.Set(cacheKey, $"Cancelled on item {i} of {allItemsToCopy.Count}");
+                                cancelled=true;
+                                return;
+                            }
                             model.Path = "";
                             var destinationRevision = destinationContentService.repo.CurrentRevision(model.Id, model.Variant);
                             if (onlyOverwriteIfNewer && destinationRevision != null && destinationRevision.Updated > model.Updated)
@@ -1735,6 +1743,7 @@ namespace puck.core.Services
                         await SaveCopies(group.Key, items);
                     }
                 }
+                PuckCache.SyncKeys.Add(cacheKey);
                 await SaveCopies(parentId, allItemsToCopy);
                 if (parentId == Guid.Empty)
                 {
@@ -1751,10 +1760,15 @@ namespace puck.core.Services
                     destinationContentService.repo.SaveChanges();
                 }
                 //AddAuditEntry(id, "", AuditActions.Copy, notes, userName);
-                cache.Set(cacheKey, $"Sync complete.");
+                if(!cancelled)
+                    cache.Set(cacheKey, $"Sync complete.");
             }
-            catch (Exception ex) {
+            catch (Exception ex)
+            {
                 cache.Set(cacheKey, $"Error. {ex.Message}");
+            }
+            finally {
+                PuckCache.SyncKeys.RemoveAll(x=>x.Equals(cacheKey));
             }
         }
         public async Task Copy(Guid id, Guid parentId, bool includeDescendants, string userName = null)

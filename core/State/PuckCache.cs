@@ -38,6 +38,7 @@ namespace puck.core.State
             ContentRootPath = env.ContentRootPath;
             Configuration = config;
         }
+        public static List<string> SyncKeys { get; set; } = new List<string>();
         public static bool UseAzureDirectory { get; set; }
         public static bool UseSyncDirectory { get; set; }
         public static int MaxRevisions { get; set; }

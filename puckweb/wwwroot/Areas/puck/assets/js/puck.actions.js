@@ -21,6 +21,7 @@ var startPath;
 var startId;
 var emptyGuid = '00000000-0000-0000-0000-000000000000';
 var logHelper = new LogHelper();
+var currentCacheKey = "";
 var newTemplateFolder = function (p) {
     getTemplateFolderCreateDialog(function (d) {
         var overlayEl = overlay(d, 500, 300, undefined, "New Template Folder");
@@ -1260,15 +1261,16 @@ var publishedVariants = function (id) {
 }
 
 var pollSyncStatus = function (cacheKey) {
-    getCacheItem(cacheKey, function (data) {
+    var key = cacheKey || currentCacheKey;
+    getCacheItem(key, function (data) {
         if (data.item) {
-            if (data.item.indexOf("Error") == 0) {
+            if (data.item.indexOf("Error") == 0 || data.item.indexOf("Cancelled") == 0) {
                 msg(false,data.item,true,undefined,20000);
             } else if (data.item.indexOf("complete") > -1) {
                 msg(true,data.item);
             } else {
                 msg(undefined, data.item);
-                setTimeout(function () { pollSyncStatus(cacheKey); },1000);
+                setTimeout(function () { pollSyncStatus(cacheKey ? cacheKey : undefined); }, 1000);
             }
         }
     });
@@ -1277,9 +1279,19 @@ var pollSyncStatus = function (cacheKey) {
 var sync = function (id) {
     getSyncDialog(id, function (data) {
         var overlayEl = overlay(data, 400, 250, undefined, "Sync");
+        overlayEl.find("button.cancel").click(function (e) {
+            var el = $(this);
+            var key = el.attr("data-key");
+            cancelSync(key, function (res) {
+                el.attr("disabled", "disabled");
+                el.html("cancelled");
+                el.removeClass("btn-link");
+            });
+        });
         var form = overlayEl.find('form');
         wireForm(form, function (data) {
-            pollSyncStatus(data.cacheKey);
+            currentCacheKey = data.cacheKey;
+            pollSyncStatus();
             overlayClose();
         }, function (data) {
             msg(false, data.message);

@@ -331,10 +331,31 @@ namespace puck.core.Controllers
             }
             return Json(new {message=message,success=success,cacheKey=cacheKey });
         }
+        [HttpPost]
+        [Authorize(Roles = PuckRoles.Sync, AuthenticationSchemes = Mvc.AuthenticationScheme)]
+        public async Task<ActionResult> CancelSync(string key) {
+            cache.Set<bool?>($"cancel{key}",true);
+            return Json(new { success=true,message="sync cancelled."});
+        }
         [Authorize(Roles = PuckRoles.Sync, AuthenticationSchemes = Mvc.AuthenticationScheme)]
         public async Task<ActionResult> SyncDialog(Guid id) {
             var model = new SyncModel();
             var revision = repo.GetPuckRevision().FirstOrDefault(x=>x.Id==id&&x.Current);
+            
+            model.PendingSyncs = new List<KeyValuePair<string, string>>();
+            var syncKeysToRemove = new List<string>();
+            foreach (var syncKey in PuckCache.SyncKeys) {
+                var name = cache.Get<string>($"name{syncKey}");
+                var status = cache.Get<string>(syncKey);
+                if (string.IsNullOrEmpty(name) || string.IsNullOrEmpty(status)) {
+                    syncKeysToRemove.Add(syncKey);
+                    continue;
+                }
+                var kvp = new KeyValuePair<string, string>($"Content: {name}. {status}",syncKey);
+                model.PendingSyncs.Add(kvp);
+            }
+            syncKeysToRemove.ForEach(x=>PuckCache.SyncKeys.RemoveAll(xx=>xx.Equals(x)));
+
             model.Model = revision.ToBaseModel();
             model.Id = revision.Id;
             model.Configs = apiHelper.GetConfigs();

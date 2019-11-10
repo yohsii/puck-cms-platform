@@ -3,38 +3,49 @@
     Layout = null;
     
 }
-    <div class="create_dialog settings">
-        @using (Html.BeginForm("Sync", "Api", new {}, FormMethod.Post)) { 
-            <div class="">
-                @if (Model.Configs.Count == 0)
+    <div class="sync_dialog settings">
+        @using (Html.BeginForm("Sync", "Api", new {}, FormMethod.Post)) {
+        <div class="">
+            @if (Model.Configs.Count == 0)
+            {
+                <p>there are no alternative connections to sync to</p>
+            }
+            else
+            {
+                if (Model.PendingSyncs.Count > 0)
                 {
-                    <p>there are no alternative connections to sync to</p>
+                    <p>There are @Model.PendingSyncs.Count pending Syncs</p>
+                    foreach (var kvp in Model.PendingSyncs)
+                    {
+                        <div class="fieldwrapper">
+                            <span class="cancel">@kvp.Key</span> <button type="button" class="btn btn-link cancel d-inline p-0" data-key="@kvp.Value">Cancel</button>
+                        </div>
+                    }
+                    <br/><br/><br/>
                 }
-                else
-                {
-                    <p>Sync <b>@Model.Model.NodeName</b></p>
-                    <div class="fieldwrapper">
-                        <label>Select environment to sync to</label>
-                        <select name="@(nameof(Model.SelectedConfig))">
-                            @foreach (var c in Model.Configs)
-                            {
-                                <option value="@c.Name">@c.EnvironmentName</option>
-                            }
-                        </select>
-                    </div>
-                    <div class="fieldwrapper">
-                        @Html.LabelFor(x => x.IncludeDescendants)
-                        @Html.CheckBoxFor(x => x.IncludeDescendants)
-                    </div>
-                    <div class="fieldwrapper">
-                        @Html.LabelFor(x => x.OnlyOverwriteIfNewer)
-                        @Html.CheckBoxFor(x => x.OnlyOverwriteIfNewer)
-                    </div>
-                    @Html.HiddenFor(x=>x.Id)
-                }
-            </div>
+                <p>Sync <b>@Model.Model.NodeName</b></p>
+                <div class="fieldwrapper">
+                    <label>Select environment to sync to</label>
+                    <select name="@(nameof(Model.SelectedConfig))">
+                        @foreach (var c in Model.Configs)
+                        {
+                            <option value="@c.Name">@c.EnvironmentName</option>
+                        }
+                    </select>
+                </div>
+                <div class="fieldwrapper">
+                    @Html.LabelFor(x => x.IncludeDescendants)
+                    @Html.CheckBoxFor(x => x.IncludeDescendants)
+                </div>
+                <div class="fieldwrapper">
+                    @Html.LabelFor(x => x.OnlyOverwriteIfNewer)
+                    @Html.CheckBoxFor(x => x.OnlyOverwriteIfNewer)
+                </div>
+                @Html.HiddenFor(x => x.Id)
+            }
+        </div>
         <div>
-            <button class='btn-link btn' style="@(Model.Configs.Count==0?"display:none;":"")">Submit</button>
+            <button class='btn-link btn submit' style="@(Model.Configs.Count==0?"display:none;":"")">Submit</button>
         </div>
         }
     </div>

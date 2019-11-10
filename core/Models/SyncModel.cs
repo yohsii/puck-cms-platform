@@ -27,5 +27,7 @@ namespace puck.core.Models
         public string SelectedConfig { get; set; }
 
         public Guid Id { get; set; }
+        
+        public List<KeyValuePair<string,string>> PendingSyncs { get; set; }
     }
 }
