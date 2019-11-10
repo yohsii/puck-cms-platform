@@ -735,8 +735,9 @@ namespace puck.core.Concrete
         }
         public int DocumentCount() {
             EnsureSearcher();
-            var docs = Searcher?.Search(new MatchAllDocsQuery(),1);
-            return docs?.TotalHits??0;
+            var totalHitsCollector = new TotalHitCountCollector();
+            Searcher?.Search(new MatchAllDocsQuery(),totalHitsCollector);
+            return totalHitsCollector.TotalHits;
         }
         public IList<T> Query<T>(string qstr,Filter filter,Sort sort,out int total,int limit=500,int skip=0) where T:BaseModel {
             EnsureSearcher();
