@@ -162,9 +162,11 @@
                 }
                 else
                     variant = clicked.attr("data-variant");
+                //check if node is already selected
                 if (selected_content().filter("[data-id='" + node.attr("data-id") + "'][data-variant='"+variant+"']").length > 0 && !allowDuplicates) {
+                    //remove it from selected list
                     selected_content().filter("[data-id='" + node.attr("data-id") + "'][data-variant='" + variant + "']").remove();
-                    if(selected_content().filter("[data-id='" + node.attr("data-id") + "']").length==0)
+                    if (selected_content().filter("[data-id='" + node.attr("data-id") + "']").length == 0)
                         node.removeClass("selected");
                     return;
                 }

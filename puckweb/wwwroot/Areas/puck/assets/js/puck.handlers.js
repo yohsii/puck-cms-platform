@@ -800,3 +800,44 @@ function initTouch(el) {
     el.addEventListener("touchend", touchHandler, true);
     el.addEventListener("touchcancel", touchHandler, true);
 }
+
+getUserLanguage(function (d) { defaultLanguage = d; });
+getUserRoles(function (d) {
+    userRoles = d; hideTopNav();
+    $(document).ready(function () {
+        handleHash(location.hash);
+        //var index = location.href.indexOf("?");
+        //var qs = location.href.substring(index);
+        //if (index != -1 && qs != "") {
+        //    //console.log("qs %o",qs);
+        //    var rp = /\?action=([a-zA-Z0-1]+)&/;
+        //    var action = rp.exec(qs)[1];
+        //    var hash = "#" + action + "?" + qs.replace(rp, "");
+        //    //console.log("hash %o",hash);
+        //    handleHash(hash);
+        //}
+        if (!userRoles.contains("_republish")) $(".republish_entire_site").hide();
+    });
+});
+getVariants(function (data) {
+    languages = data;
+    for (var i = 0; i < languages.length; i++) {
+        languageSortDictionary[languages[i].Key] = i + 1;
+    }
+    if (languages.length == 0) {
+        onAfterDom(function () {
+            msg(0, "take a moment to setup puck. at the very least, choose your languages!");
+        });
+        location.hash = "settings?path=/puck/settings/languages";
+    }
+});
+getStartId(function (id) {
+    startId = id;
+    cleft.find("ul.content li:first").attr("data-id", id);
+    getStartPath(function (d) {
+        startPath = d;
+        cleft.find(".startpath").html(d);
+        $(".interfaces .tree_container ul.content .node").attr("data-children_path", startPath);
+    });
+    getDrawContent(id, undefined, true, undefined, true);
+});

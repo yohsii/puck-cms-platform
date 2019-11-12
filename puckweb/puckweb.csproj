@@ -634,6 +634,7 @@
     <Content Remove="wwwroot\Areas\puck\assets\js\logHelper.js" />
     <Content Remove="wwwroot\Areas\puck\assets\js\modernizr-2.5.3.js" />
     <Content Remove="wwwroot\Areas\puck\assets\js\puck.actions.js" />
+    <Content Remove="wwwroot\Areas\puck\assets\js\puck.components.js" />
     <Content Remove="wwwroot\Areas\puck\assets\js\puck.get_set.js" />
     <Content Remove="wwwroot\Areas\puck\assets\js\puck.handlers.js" />
     <Content Remove="wwwroot\Areas\puck\assets\js\select2.js" />
@@ -1330,6 +1331,7 @@
     <None Include="wwwroot\Areas\puck\assets\js\jquery.validate.min.js" />
     <None Include="wwwroot\Areas\puck\assets\js\modernizr-2.5.3.js" />
     <None Include="wwwroot\Areas\puck\assets\js\LogHelper.js" />
+    <None Include="wwwroot\Areas\puck\assets\js\puck.components.js" />
     <None Include="wwwroot\Areas\puck\assets\js\puck.actions.js" />
     <None Include="wwwroot\Areas\puck\assets\js\puck.get_set.js" />
     <None Include="wwwroot\Areas\puck\assets\js\puck.handlers.js" />

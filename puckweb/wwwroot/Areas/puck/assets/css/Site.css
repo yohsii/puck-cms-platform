@@ -835,7 +835,9 @@ div.settings {
     .content_btns[disabled=disabled] {
         opacity: 0.1;
     }
-
+.overlay_screen .content_edit_page {
+    margin-top:20px;
+}
     .content_edit_page img.submitLoader {
         position: absolute;
         top: 1px;
@@ -1040,6 +1042,11 @@ div.settings {
         display: block !important;
     }
 }
+
+.overlay_screen.contentPicker .node > .inner:hover {
+    background-color: #eeffee;
+}
+
 .tree_container.sort .node i{
     display:none;
 }

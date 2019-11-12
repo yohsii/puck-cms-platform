@@ -7,10 +7,9 @@
 </div>
 <script>
     onAfterDom(function () {
-        //debugger;
         var guid = '@Html.Raw(guid.ToString())';
-        //var selector = ".mce_@ViewData.ModelMetadata.PropertyName textarea";
         var selector = "#"+guid;
+
         tinymce.init({
             selector: selector,
             height:200,
@@ -19,7 +18,36 @@
                 "searchreplace visualblocks code fullscreen",
                 "insertdatetime media table contextmenu paste"
             ],
-            toolbar: "insertfile undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image"
+            toolbar: "insertfile undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image | internal_link"
+            , setup: function (editor) {
+                editor.ui.registry.addButton("internal_link", {
+                    icon:"link",
+                    text: "internal link",
+                    onAction: function (evt) {
+                        var isSelected = editor.selection.getContent().length > 0;
+                        if (!isSelected) {
+                            msg(0, "you must highlight some text to make a link");
+                            return;
+                        }
+                        contentPicker(emptyGuid, "Link to internal page", function (node, id, variant, overlayEl) {
+                            var isSelected = editor.selection.getContent().length > 0;
+                            
+                            var url = node.attr("data-path");
+                            url = url.substring(1);
+                            if (url == "") url = "/";
+                            else if (url.indexOf("/") > -1)
+                                url = url.substring(url.indexOf("/"));
+                            else url = "/";
+
+                            if (isSelected) {
+                                var link = "<a href=\"" + url + "\" title=\"" + node.attr("data-nodename") + "\">" + editor.selection.getContent() + "</a>";
+                                editor.execCommand('insertHTML', false, link);
+                            }
+                            overlayEl.remove();
+                        });
+                    }
+                });
+            }
         });
     });
 </script>
