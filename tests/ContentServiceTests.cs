@@ -173,7 +173,7 @@ namespace puck.tests
             await s.ContentService.SaveContent(londonPageEn, triggerEvents: false, userName: uname);
 
             var qh = new QueryHelper<BaseModel>();
-            qh.Must().Field(x=>x.References[0].Id,newsPageEn.Id);
+            qh.Must().Field(x=>x.References,newsPageEn.Id.ToString()+"_"+newsPageEn.Variant.ToLower());
             var results = qh.GetAllNoCast();
             Assert.That(results.Count>0 && results.FirstOrDefault().References.Count==0);
 

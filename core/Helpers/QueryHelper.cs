@@ -886,28 +886,25 @@ namespace puck.core.Helpers
             return this;
         }
 
-        public QueryHelper<TModel> Variant(string value)
+        public QueryHelper<TModel> Variant(string value,bool must=true)
         {
             TrimAnd();
             string key = FieldKeys.Variant;
-            query += string.Concat("+",key, ":", value.ToLower(), " ");
+            query += string.Concat(must?"+":"",key, ":", value.ToLower(), " ");
             return this;
         }
 
-        public QueryHelper<TModel> ID(string value)
+        public QueryHelper<TModel> ID(string value,bool must=true)
         {
             TrimAnd();
             string key = FieldKeys.ID;
-            query += string.Concat("+",key, ":", value, " ");
+            query += string.Concat(must?"+":"",key, ":", value, " ");
             return this;
         }
 
-        public QueryHelper<TModel> ID(Guid value)
+        public QueryHelper<TModel> ID(Guid value,bool must=true)
         {
-            TrimAnd();
-            string key = FieldKeys.ID;
-            query += string.Concat("+",key, ":", value.ToString(), " ");
-            return this;
+            return this.ID(value.ToString(),must);
         }
 
         public QueryHelper<TModel> Directory(string value) {

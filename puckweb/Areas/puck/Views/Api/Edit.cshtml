@@ -3,6 +3,7 @@
 @{
     Layout=null;
     ViewBag.Level0Type = Model.GetType();
+    ViewBag.Model = Model;
 }
 @if(ViewBag.TypeMissing){
     <p class="text-center mt-3">Type "@ViewBag.MissingType" is missing, cannot load the edit page.</p>

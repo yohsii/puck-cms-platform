@@ -17,7 +17,7 @@ namespace puck.core.Attributes.Transformers
             if (references == null) return references;
             
             if (m.References == null)
-                m.References = new List<PuckPicker>();
+                m.References = new List<string>();
 
             if (dict == null)
                 dict = new Dictionary<string, object>();
@@ -26,7 +26,7 @@ namespace puck.core.Attributes.Transformers
                 var key = $"{reference.Id}{reference.Variant ?? ""}";
                 if (!dict.ContainsKey(key))
                 {
-                    m.References.Add(reference);
+                    m.References.Add($"{reference.Id}_{reference.Variant.ToLower()}");
                     dict.Add(key,true);
                 }
             }

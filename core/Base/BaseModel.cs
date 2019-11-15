@@ -25,7 +25,7 @@ namespace puck.core.Base
             Id = Guid.NewGuid();
             Revision = 0;
             SortOrder = -1;
-            References = new List<PuckPicker>();
+            References = new List<string>();
         }
         private dynamic _model;
         public dynamic Get() {
@@ -101,6 +101,7 @@ namespace puck.core.Base
         public string Type { get; set; }
         
         [UIHint("PuckReferences")]
-        public List<PuckPicker> References { get; set; }
+        [IndexSettings(FieldIndexSetting = Lucene.Net.Documents.Field.Index.NOT_ANALYZED, Analyzer = typeof(KeywordAnalyzer))]
+        public List<string> References { get; set; }
     }
 }

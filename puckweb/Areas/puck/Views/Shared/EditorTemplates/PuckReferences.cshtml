@@ -1,5 +1,52 @@
-﻿@model List<puck.core.Models.PuckPicker>
-
+﻿@model List<string>
 @{
-    
+    var guid = "G" + Guid.NewGuid().ToString();
 }
+<div class="puck_references" id="@guid">
+    <p> <button type="button" class="d-none btn btn-link">show</button></p>
+    <ul class="p-0 d-none">
+
+    </ul>
+</div>
+<script>
+    onAfterDom(function () {
+        var id = '@Html.Raw(ViewBag.Model.Id.ToString())';
+        var variant = '@Html.Raw(ViewBag.Model.Variant)';
+        var guid = '@Html.Raw(guid)';
+        var container = $("#" + guid);
+        if (!variant) return;
+        getReferencedContent(id, variant, function (res) {
+            if (res.length == 0) {
+                container.find("p").prepend("This page is not referenced by other pages.");
+            } else {
+                container.find("p").prepend("This page is referenced by " + res.length + " page(s)");
+                container.find("button").removeClass("d-none").click(function (e) {
+                    var el = $(this);
+                    el.hide();
+                    container.find("ul").removeClass("d-none");
+                });
+            }
+            for (var i = 0; i < res.length; i++) {
+                var item = res[i];
+                container.find("ul").append(
+                    '<li>'+item.NodeName+' - <a data-nodename="'+item.NodeName+'" data-id="'+item.Id+'" data-variant="'+item.Variant+'" href="#content?id='+item.Id+'&variant='+item.Variant+'">view</a></li>'
+                );
+            }
+            container.on("click", "li a", function (e) {
+                e.preventDefault();
+                var el = $(this);
+                var id = el.attr("data-id");
+                var variant = el.attr("data-variant");
+                var nodename = el.attr("data-nodename");
+
+                var container = $("<div />");
+                var inner = $("<div data-tabPrefix='overlayContent_' class='cont_inner'></div>").css({width:"100%",height:"100%"});
+                var msgContainer = $("<div class='msgTop'></div>");
+                container.append(msgContainer).append(inner);
+
+                var overlayEl = overlay(container, "90%", undefined, undefined, nodename);
+                displayMarkup(null, undefined, variant, undefined, id, inner,msgContainer);
+            });
+        });
+    });
+</script>

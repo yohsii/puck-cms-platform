@@ -7,7 +7,7 @@
 </div>
 <script>
     onAfterDom(function () {
-        var guid = '@Html.Raw(guid.ToString())';
+        var guid = '@Html.Raw(guid)';
         var selector = "#"+guid;
 
         tinymce.init({

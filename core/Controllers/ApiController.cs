@@ -331,6 +331,17 @@ namespace puck.core.Controllers
             }
             return Json(new {message=message,success=success,cacheKey=cacheKey });
         }
+        [Authorize(Roles = PuckRoles.Puck, AuthenticationSchemes = Mvc.AuthenticationScheme)]
+        public ActionResult GetReferencedContent(Guid id,string variant) {
+            var qh = new QueryHelper<BaseModel>(publishedContentOnly: false)
+                .Must().Field(x => x.References, $"{id.ToString()}_{variant.ToLower()}");    
+            var results = qh
+                .GetAllNoCast()
+                .Where(x=>!(x.Id==id && x.Variant.ToLower().Equals(variant.ToLower())))
+                .ToList();
+                
+            return Json(results);
+        }
         [HttpPost]
         [Authorize(Roles = PuckRoles.Sync, AuthenticationSchemes = Mvc.AuthenticationScheme)]
         public async Task<ActionResult> CancelSync(string key) {

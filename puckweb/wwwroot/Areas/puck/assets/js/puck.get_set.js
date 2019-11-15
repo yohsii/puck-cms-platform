@@ -1,4 +1,7 @@
-﻿var cancelSync = function (key, f) {
+﻿var getReferencedContent = function (id,variant, f) {
+    $.post("/puck/api/GetReferencedContent?id=" + id+"&variant="+variant, f);
+}
+var cancelSync = function (key, f) {
     $.post("/puck/api/CancelSync?key=" + key, f);
 }
 var getCacheItem = function (key, f) {
