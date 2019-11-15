@@ -9,6 +9,6 @@ namespace puck.core.Abstract
 {
     public interface I_Property_Transformer<TIn,TOut>
     {
-        Task<TOut> Transform(BaseModel m,string propertyName,string uniquePropertyName,TIn p);
+        Task<TOut> Transform(BaseModel m,string propertyName,string uniquePropertyName,TIn p,Dictionary<string,object> dict);
     }
 }

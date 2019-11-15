@@ -6,11 +6,13 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel;
 using puck.core.Abstract;
 using puck.core.Attributes;
+using puck.core.Attributes.Transformers;
 using Lucene.Net.Analysis;
 using Lucene.Net.Analysis.Standard;
 using Newtonsoft.Json;
 using System.ComponentModel.DataAnnotations.Schema;
 using Lucene.Net.Analysis.Core;
+using puck.core.Models;
 
 namespace puck.core.Base
 {
@@ -23,6 +25,7 @@ namespace puck.core.Base
             Id = Guid.NewGuid();
             Revision = 0;
             SortOrder = -1;
+            References = new List<PuckPicker>();
         }
         private dynamic _model;
         public dynamic Get() {
@@ -96,5 +99,8 @@ namespace puck.core.Base
         [UIHint("SettingsReadOnly")]
         [IndexSettings(FieldIndexSetting = Lucene.Net.Documents.Field.Index.NOT_ANALYZED,Analyzer = typeof(KeywordAnalyzer), FieldStoreSetting = Lucene.Net.Documents.Field.Store.YES)]
         public string Type { get; set; }
+        
+        [UIHint("PuckReferences")]
+        public List<PuckPicker> References { get; set; }
     }
 }

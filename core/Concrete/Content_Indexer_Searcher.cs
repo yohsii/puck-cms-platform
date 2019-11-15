@@ -415,6 +415,7 @@ namespace puck.core.Concrete
                         {
                             GetFieldSettings(props, doc, null);
                         }//add cms properties
+                        m.References = new List<Models.PuckPicker>();
                         string jsonDoc = JsonConvert.SerializeObject(m);
                         //doc in json form for deserialization later
                         doc.Add(new StringField(FieldKeys.PuckValue, jsonDoc, Field.Store.YES));

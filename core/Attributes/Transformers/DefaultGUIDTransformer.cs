@@ -6,12 +6,12 @@ using System.Threading.Tasks;
 using puck.core.Abstract;
 using puck.core.Base;
 
-namespace puck.core.Attributes
+namespace puck.core.Attributes.Transformers
 {
     [AttributeUsage(AttributeTargets.Property)]
     public class DefaultGUIDTransformer:Attribute,I_Property_Transformer<Guid,string>
     {
-        public async Task<string> Transform(BaseModel m,string propertyName,string ukey,Guid p) {
+        public async Task<string> Transform(BaseModel m,string propertyName,string ukey,Guid p,Dictionary<string,object> dict) {
             return p.ToString();
             //if (p == default(Guid))
             //    return Guid.NewGuid().ToString();

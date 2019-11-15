@@ -20,6 +20,7 @@ using puck.tests.Models;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
+using puck.core.Models;
 
 namespace puck.tests
 {
@@ -42,6 +43,9 @@ namespace puck.tests
         }
         [OneTimeTearDown]
         public void Cleanup() {
+            if (ServiceDictionary.Count > 0) {
+                ServiceDictionary.FirstOrDefault().Value.Indexer.DeleteAll();
+            }
             foreach(var item in ServiceDictionary) {
                 item.Value.Repo.Context.Database.EnsureDeleted();
             }
@@ -106,7 +110,6 @@ namespace puck.tests
             PuckCache.MaxRevisions = 20;
             TestsHelper.SetAQNMappings();
             TestsHelper.SetAnalyzerMappings();
-            services.Indexer.DeleteAll();
             ServiceDictionary[type] = services;
             return services;
         }
@@ -128,6 +131,52 @@ namespace puck.tests
             var level3_1_idPath = s.ContentService.GetIdPath(level3_1);
             var idPath = $"{level1.Id},{level2_1.Id},{level3_1.Id}";
             Assert.That(level3_1_idPath == idPath);
+        }
+
+        [Test]
+        [TestCase(DbConstants.SQLite)]
+        [TestCase(DbConstants.MySql)]
+        [TestCase(DbConstants.SQLServer)]
+        [TestCase(DbConstants.PostgreSQL)]
+        public async Task References(string type)
+        {
+            var s = GetServices(type);
+            // home
+            var homePage = await s.ContentService.Create<Folder>(Guid.Empty, "en-gb", "homeReferences", template: "~/views/home/homepage.cshtml", published: true, userName: "darkezmo@hotmail.com");
+            await s.ContentService.SaveContent(homePage, triggerEvents: false, userName: uname);
+
+            // home/news
+            var newsPageEn = await s.ContentService.Create<Folder>(homePage.Id, "en-gb", "news", template: "~/views/home/homepage.cshtml", published: true, userName: uname);
+            await s.ContentService.SaveContent(newsPageEn, triggerEvents: false, userName: uname);
+            
+            // home/news/images
+            var imagesPageEn = await s.ContentService.Create<Folder>(newsPageEn.Id, "en-gb", "images", template: "~/views/home/homepage.cshtml", published: true, userName: uname);
+            await s.ContentService.SaveContent(imagesPageEn, triggerEvents: false, userName: uname);
+            
+            // home/news/images/tokyo
+            var tokyoPageEn = await s.ContentService.Create<ModelWithReferences>(imagesPageEn.Id, "en-gb", "tokyo", template: "~/views/home/homepage.cshtml", published: true, userName: uname);
+            tokyoPageEn.NewsItems = new List<core.Models.PuckPicker> {
+                new PuckPicker {Id=newsPageEn.Id,Variant=newsPageEn.Variant }
+                , new PuckPicker { Id = imagesPageEn.Id, Variant = imagesPageEn.Variant }
+            };
+            tokyoPageEn.Images = new List<core.Models.PuckPicker> {
+                new PuckPicker {Id=newsPageEn.Id,Variant=newsPageEn.Variant }
+                , new PuckPicker { Id = imagesPageEn.Id, Variant = imagesPageEn.Variant }
+            };
+            await s.ContentService.SaveContent(tokyoPageEn, triggerEvents: false, userName: uname);
+
+            // home/news/images/london
+            var londonPageEn = await s.ContentService.Create<ModelWithReferences>(imagesPageEn.Id, "en-gb", "london", template: "~/views/home/homepage.cshtml", published: true, userName: uname);
+            londonPageEn.Images = new List<PuckPicker> { 
+                new PuckPicker{Id=tokyoPageEn.Id,Variant=tokyoPageEn.Variant }
+            };
+            await s.ContentService.SaveContent(londonPageEn, triggerEvents: false, userName: uname);
+
+            var qh = new QueryHelper<BaseModel>();
+            qh.Must().Field(x=>x.References[0].Id,newsPageEn.Id);
+            var results = qh.GetAllNoCast();
+            Assert.That(results.Count>0 && results.FirstOrDefault().References.Count==0);
+
         }
 
         [Test]

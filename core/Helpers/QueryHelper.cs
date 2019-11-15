@@ -727,6 +727,11 @@ namespace puck.core.Helpers
             return this;
         }
 
+        public QueryHelper<TModel> Field(Expression<Func<TModel, object>> exp, Guid value)
+        {
+            return this.Field(exp, value.ToString());
+        }
+
         public QueryHelper<TModel> Field(Expression<Func<TModel, object>> exp, int ivalue)
         {
             return this.Field(exp,ivalue.ToString());

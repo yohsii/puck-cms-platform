@@ -15,7 +15,7 @@ namespace puck.Transformers
     [AttributeUsage(AttributeTargets.Property | AttributeTargets.Class)]
     public class PuckImageTransformer : Attribute, I_Property_Transformer<PuckImage, PuckImage>
     {
-        public async Task<PuckImage> Transform(BaseModel m,string propertyName,string ukey,PuckImage p)
+        public async Task<PuckImage> Transform(BaseModel m,string propertyName,string ukey,PuckImage p,Dictionary<string,object> dict)
         {
             try
             {

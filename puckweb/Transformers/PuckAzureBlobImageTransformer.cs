@@ -28,7 +28,7 @@ namespace puck.Transformers
             this.accessKey = config.GetValue<string>("AzureImageTransformer_AccessKey");
             this.containerName = config.GetValue<string>("AzureImageTransformer_ContainerName");
         }
-        public async Task<PuckImage> Transform(BaseModel m,string propertyName,string ukey,PuckImage p)
+        public async Task<PuckImage> Transform(BaseModel m,string propertyName,string ukey,PuckImage p,Dictionary<string,object> dict)
         {
             try
             {

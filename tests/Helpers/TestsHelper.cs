@@ -31,7 +31,7 @@ namespace puck.tests.Helpers
                 .Returns(GetConfig().GetValue<string>("ContentRootPath"));
             return mock.Object;
         }
-        public static List<Type> testModelTypes = new List<Type> {typeof(BaseModel), typeof(Folder) };
+        public static List<Type> testModelTypes = new List<Type> {typeof(BaseModel), typeof(Folder),typeof(ModelWithReferences) };
         public static void SetAQNMappings()
         {
             PuckCache.ModelNameToAQN = new Dictionary<string, string>();

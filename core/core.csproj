@@ -18,6 +18,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Migrations\SQLServer\20191114191644_references.cs" />
+    <Compile Remove="Migrations\SQLServer\20191114191644_references.Designer.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Lucene.Net" Version="4.8.0-beta00006" />
     <PackageReference Include="Lucene.Net.Analysis.Common" Version="4.8.0-beta00006" />
     <PackageReference Include="Lucene.Net.Highlighter" Version="4.8.0-beta00006" />

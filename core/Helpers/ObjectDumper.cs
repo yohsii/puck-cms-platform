@@ -35,7 +35,9 @@ namespace puck.core.Helpers
         public String UniqueKey { get; set; }
         public bool KeepValueCasing { get; set; }
         public bool Spatial { get; set; }
-        public void Transform() {
+        public void Transform(Dictionary<string,object> dictionary=null,List<Type> allowedTransformers=null) {
+            if (dictionary == null)
+                dictionary = new Dictionary<string, object>();
             if (Attributes == null)
                 Attributes = new object[] { };
             if (ParentListAttributes == null)
@@ -88,7 +90,7 @@ namespace puck.core.Helpers
                     .Any(y => y.IsGenericType && y.GetGenericTypeDefinition() == typeof(I_Property_Transformer<,>))
                 ).ToList();
             OriginalValue = Value;
-            var task = ObjectDumper.DoTransform(tattr,Type,Model,Key,UniqueKey,Value);
+            var task = ObjectDumper.DoTransform(tattr,Type,Model,Key,UniqueKey,Value,dictionary,allowedTransformers:allowedTransformers);
             task.GetAwaiter().GetResult();
             Value = task.Result;
         }
@@ -103,26 +105,27 @@ namespace puck.core.Helpers
             }
             return result;
         }
-        public static List<FlattenedObject> Write(object element, int depth)
+        public static List<FlattenedObject> Write(object element, int depth,List<Type> allowedTransformers=null)
         {
             ObjectDumper dumper = new ObjectDumper(depth);
             dumper.topElement = element as BaseModel;
             dumper.WriteObject_("","", element,elementParent:element);
+            dumper.dict = new Dictionary<string, object>();
             dumper.result.ForEach(x => {
                 if (x.Ignore)
                     dumper.result.Remove(x);
                 else
-                    x.Transform(); 
+                    x.Transform(dictionary:dumper.dict,allowedTransformers:allowedTransformers); 
             });
             return dumper.result;
         }
-        public static async Task<object> DoTransform(List<object> attributes,Type valueType, object element, string propertyName, string uniqueKey, object value) {
+        public static async Task<object> DoTransform(List<object> attributes,Type valueType, object element, string propertyName, string uniqueKey, object value,Dictionary<string,object> dictionary,List<Type> allowedTransformers=null) {
             object result = value;
             object attr = null;
             var tattr = attributes
                 .Where(x => x.GetType().GetInterfaces()
                     .Any(y => y.IsGenericType && y.GetGenericTypeDefinition() == typeof(I_Property_Transformer<,>))
-                );
+                ).Where(x=>allowedTransformers==null||allowedTransformers.Contains(x.GetType()));
             if (tattr.Any())//check for custom transform attribute
             {
                 attr = tattr.First();
@@ -131,7 +134,8 @@ namespace puck.core.Helpers
             { //check for default transform for type
                 if (FieldSettings.DefaultPropertyTransformers.ContainsKey(valueType))
                 {
-                    attr = Activator.CreateInstance(FieldSettings.DefaultPropertyTransformers[valueType]);
+                    if(allowedTransformers==null || allowedTransformers.Contains(FieldSettings.DefaultPropertyTransformers[valueType]))
+                        attr = Activator.CreateInstance(FieldSettings.DefaultPropertyTransformers[valueType]);
                 }
             }
             //transform if possible
@@ -151,7 +155,7 @@ namespace puck.core.Helpers
                         }
                         configureMethod.Invoke(attr, parameters.ToArray());
                     }
-                    var task = (Task) attr.GetType().GetMethod("Transform").Invoke(attr, new[] { element, propertyName, uniqueKey, value });
+                    var task = (Task) attr.GetType().GetMethod("Transform").Invoke(attr, new[] { element, propertyName, uniqueKey, value, dictionary});
                     await task.ConfigureAwait(false);
                     var resultProperty = task.GetType().GetProperty("Result");
                     var newValue = resultProperty.GetValue(task);
@@ -160,13 +164,14 @@ namespace puck.core.Helpers
             }
             return result;
         }
-        public static async Task Transform(object element, int depth)
+        public static async Task Transform(object element, int depth,List<Type> allowedTransformers=null)
         {
             ObjectDumper dumper = new ObjectDumper(depth);
             dumper.topElement = element as BaseModel;
-
+            dumper.dict = new Dictionary<string, object>();
+            dumper.allowedTransformers = allowedTransformers;
             var attributes = element.GetType().GetCustomAttributes(false).ToList();
-            element = await DoTransform(attributes,element.GetType(),element,"","",element);
+            element = await DoTransform(attributes,element.GetType(),element,"","",element,dumper.dict,dumper.allowedTransformers);
             //transform the rest of the model
             await dumper.Transform("","", element);
         }
@@ -180,6 +185,9 @@ namespace puck.core.Helpers
         int level;
         int depth;
         BaseModel topElement;
+        Dictionary<string, object> dict;
+        List<Type> allowedTransformers = null;
+        List<string> fieldsToIgnore = new List<string> {"References"};
         public List<FlattenedObject> result = new List<FlattenedObject>();
         IFormFileCollection files;
         private ObjectDumper(int depth)
@@ -281,6 +289,7 @@ namespace puck.core.Helpers
                     var i = 0;
                     if (ukey.EndsWith("."))
                         ukey=ukey.Remove(ukey.Length-1);
+                    
                     foreach (object item in enumerableElement)
                     {
                         if (item is IEnumerable && !(item is string))
@@ -325,13 +334,13 @@ namespace puck.core.Helpers
                                 if (level < depth && !(t.IsValueType || t == typeof(string)))
                                 {
                                     object value = p.GetValue(element, null);
-                                    if (value != null)
+                                    string propertyName = prefix + p.Name;
+                                    if (value != null && !fieldsToIgnore.Contains(propertyName.TrimEnd('.')))
                                     {
                                         //transform
                                         var attributes = p.GetCustomAttributes(false).ToList();
                                         attributes.AddRange(p.PropertyType.GetCustomAttributes(false));
-                                        string propertyName = prefix + p.Name;
-                                        value = await DoTransform(attributes,t,topElement,propertyName,ukey+p.Name,value);
+                                        value = await DoTransform(attributes,t,topElement,propertyName,ukey+p.Name,value,dict,allowedTransformers:allowedTransformers);
                                         level++;
                                         await Transform(propertyName + ".",ukey+p.Name+".", value);
                                         level--;

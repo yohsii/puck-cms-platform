@@ -32,6 +32,7 @@ using System.Data;
 using Microsoft.EntityFrameworkCore;
 using System.Data.Common;
 using Microsoft.Extensions.Caching.Memory;
+using puck.core.Attributes.Transformers;
 
 namespace puck.core.Services
 {
@@ -1637,6 +1638,13 @@ namespace puck.core.Services
                                 model.ParentId = reader.GetGuid(5);
                                 model.TemplatePath = reader.GetString(6);
                                 model.Variant = reader.GetString(7);
+                                try
+                                {
+                                    await ObjectDumper.Transform(model, int.MaxValue,new List<Type> { typeof(PuckPickerReferencesTransformer)});
+                                }
+                                catch (Exception ex) {
+                                    logger.Log($"transorm failed during republish entire site. id:{model.Id}, variant:{model.Variant}, type:{model.Type}. error:{ex.Message}",ex.StackTrace,level:"error",exceptionType:ex.GetType());
+                                }
                                 models.Add(model);
                                 //typeAndValues.Add(new KeyValuePair<string, string>(aqn, value));
                                 //values.Add(reader.GetString(2));

@@ -8,6 +8,7 @@ using puck.core.Helpers;
 using puck.core.Abstract;
 using Lucene.Net.Documents;
 using puck.core.Attributes;
+using puck.core.Attributes.Transformers;
 using System.Configuration;
 
 namespace puck.core.Constants
@@ -135,7 +136,7 @@ namespace puck.core.Constants
     {
         public static Dictionary<Type, Type> DefaultPropertyTransformers = new Dictionary<Type, Type>
         {
-            {typeof(DateTime),typeof(DateTransformer)}
+            {typeof(DateTime),typeof(DateTransformer)},{typeof(List<PuckPicker>),typeof(PuckPickerReferencesTransformer) }
         };
         public static Field.Index FieldIndexSetting = Field.Index.ANALYZED;
         public static Field.Store FieldStoreSetting = Field.Store.NO;
