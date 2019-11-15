@@ -55,6 +55,7 @@ namespace puck.tests
             if (ServiceDictionary.ContainsKey(type))
             {
                 PuckCache.ServiceProvider = MockHelpers.MockServiceProvider(ServiceDictionary[type].Repo).Object;
+                PuckCache._puckSearcher = ServiceDictionary[type].Searcher;
                 return ServiceDictionary[type];
             }
 
@@ -98,7 +99,14 @@ namespace puck.tests
                 var dbDeleted = services.Repo.Context.Database.EnsureDeleted();
             }
             var dbCreated = services.Repo.Context.Database.EnsureCreated();
-            var indexerSearcher = new Content_Indexer_Searcher(services.Logger, config, env);
+            Content_Indexer_Searcher indexerSearcher = null;
+            if (ServiceDictionary.Any(x => x.Value.Indexer != null)) {
+                indexerSearcher = ServiceDictionary.Where(x => x.Value.Indexer != null).FirstOrDefault().Value.Indexer as Content_Indexer_Searcher;
+            }
+            else
+            {
+                indexerSearcher = new Content_Indexer_Searcher(services.Logger, config, env);
+            }
             services.Indexer = indexerSearcher;
             services.Searcher = indexerSearcher;
             services.RoleManager = MockHelpers.MockRoleManager<PuckRole>().Object;
