@@ -13,6 +13,7 @@ using Newtonsoft.Json;
 using System.ComponentModel.DataAnnotations.Schema;
 using Lucene.Net.Analysis.Core;
 using puck.core.Models;
+using Microsoft.AspNetCore.Mvc;
 
 namespace puck.core.Base
 {
@@ -92,11 +93,12 @@ namespace puck.core.Base
         public string TemplatePath { get; set; }
 
         [Display(Name = "Type Chain")]
-        [UIHint("SettingsReadOnly")]
+        //[UIHint("SettingsReadOnly")]
+        [HiddenInput(DisplayValue = false)]
         [IndexSettings(FieldIndexSetting=Lucene.Net.Documents.Field.Index.ANALYZED,Analyzer=typeof(StandardAnalyzer),FieldStoreSetting=Lucene.Net.Documents.Field.Store.NO)]
         public string TypeChain { get; set; }
 
-        [UIHint("SettingsReadOnly")]
+        [UIHint("SettingsType")]
         [IndexSettings(FieldIndexSetting = Lucene.Net.Documents.Field.Index.NOT_ANALYZED,Analyzer = typeof(KeywordAnalyzer), FieldStoreSetting = Lucene.Net.Documents.Field.Store.YES)]
         public string Type { get; set; }
         

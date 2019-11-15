@@ -1,0 +1,9 @@
+﻿@model string
+
+<div class="noedit">
+    @if(Model !=null){
+        @(Model) <span>(chain: @(ApiHelper.TypeChain(ApiHelper.GetTypeFromName(Model))))</span>
+    }    
+</div>
+
+@Html.Hidden("",Model)
