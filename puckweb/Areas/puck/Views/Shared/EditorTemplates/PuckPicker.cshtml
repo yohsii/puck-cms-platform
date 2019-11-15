@@ -46,7 +46,7 @@
                 {
                     <div class="selected_node" data-nodename="" data-variant="@m.Variant" data-id="@m.Id">
                         <span class="nname"></span> - <span class="v">@m.Variant</span>
-                        <span class="view">View</span>
+                        <a href="#content?id=@(m.Id)&variant=@(m.Variant)" class="view">View</a>
                         &nbsp;<i class='fas fa-minus-circle'></i>
                     </div>
                     
@@ -181,7 +181,7 @@
                     selected_container.append(
                         "<div class='selected_node' data-nodename='"+node.attr("data-nodename")+"' data-variant='" + variant + "' data-id='" + node.attr("data-id") + "'>"
                         + "<span>"+ node.attr("data-nodename") + "</span> - <span class='v'>" + variant + "</span>"
-                        + "&nbsp;<span class='view'>View</span> &nbsp;<i class='fas fa-minus-circle remove'></i></div>"
+                        + "&nbsp;<a href='#content?id="+node.attr("data-id")+"&variant="+variant+"' class='view'>View</a> &nbsp;<i class='fas fa-minus-circle remove'></i></div>"
                     );
                 } else if (!isVariantSelection && (selectionType == "node" || selectionType == "both")) {
                     selected_container.append(
@@ -218,6 +218,7 @@
         });
         
         selected_container.on("click", ".selected_node .view", function (e) {
+            e.preventDefault();
             var el = $(this);
             var selectedNode = el.parent();
             var id = selectedNode.attr("data-id");

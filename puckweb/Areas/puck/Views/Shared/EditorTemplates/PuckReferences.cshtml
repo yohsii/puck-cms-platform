@@ -29,7 +29,7 @@
             for (var i = 0; i < res.length; i++) {
                 var item = res[i];
                 container.find("ul").append(
-                    '<li>'+item.NodeName+' - <a data-nodename="'+item.NodeName+'" data-id="'+item.Id+'" data-variant="'+item.Variant+'" href="#content?id='+item.Id+'&variant='+item.Variant+'">view</a></li>'
+                    '<li>'+item.NodeName+' - <a data-nodename="'+item.NodeName+'" data-id="'+item.Id+'" data-variant="'+item.Variant+'" href="#content?id='+item.Id+'&variant='+item.Variant+'">View</a></li>'
                 );
             }
             container.on("click", "li a", function (e) {
