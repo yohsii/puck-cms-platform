@@ -23,17 +23,19 @@ namespace puck.Transformers
         string accountName; 
         string accessKey;
         string containerName;
-        public void Configure(IConfiguration config) {
+        I_Log logger;
+        public void Configure(IConfiguration config,I_Log logger) {
             this.accountName = config.GetValue<string>("AzureImageTransformer_AccountName");
             this.accessKey = config.GetValue<string>("AzureImageTransformer_AccessKey");
             this.containerName = config.GetValue<string>("AzureImageTransformer_ContainerName");
+            this.logger = logger;
         }
         public async Task<PuckImage> Transform(BaseModel m,string propertyName,string ukey,PuckImage p,Dictionary<string,object> dict)
         {
             try
             {
                 if (p.File == null || string.IsNullOrEmpty(p.File.FileName))
-                    return null;
+                    return p;
 
                 
                 StorageCredentials creden = new StorageCredentials(accountName, accessKey);
@@ -68,7 +70,7 @@ namespace puck.Transformers
                 }
                 
             }catch(Exception ex){
-                puck.core.State.PuckCache.PuckLog.Log(ex);
+                logger.Log(ex);
             }finally {
                 p.File = null;
             }

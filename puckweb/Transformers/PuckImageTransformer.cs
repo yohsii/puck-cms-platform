@@ -15,12 +15,17 @@ namespace puck.Transformers
     [AttributeUsage(AttributeTargets.Property | AttributeTargets.Class)]
     public class PuckImageTransformer : Attribute, I_Property_Transformer<PuckImage, PuckImage>
     {
+        I_Log logger;
+        public void Configure(I_Log logger)
+        {
+            this.logger = logger;
+        }
         public async Task<PuckImage> Transform(BaseModel m,string propertyName,string ukey,PuckImage p,Dictionary<string,object> dict)
         {
             try
             {
                 if (p.File == null || string.IsNullOrEmpty(p.File.FileName))
-                    return null;
+                    return p;
             
                 string filepath = string.Concat("~/wwwroot/Media/", m.Id, "/", m.Variant, "/", ukey, "_", p.File.FileName);
                 string absfilepath =ApiHelper.MapPath(filepath);
@@ -35,8 +40,9 @@ namespace puck.Transformers
                 p.Width = img.Width;
                 p.Height = img.Height;
             }catch(Exception ex){
-                
-            }finally {
+                logger.Log(ex);
+            }
+            finally {
                 p.File = null;
             }
             return p;

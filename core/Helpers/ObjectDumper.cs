@@ -341,9 +341,13 @@ namespace puck.core.Helpers
                                         var attributes = p.GetCustomAttributes(false).ToList();
                                         attributes.AddRange(p.PropertyType.GetCustomAttributes(false));
                                         value = await DoTransform(attributes,t,topElement,propertyName,ukey+p.Name,value,dict,allowedTransformers:allowedTransformers);
-                                        level++;
-                                        await Transform(propertyName + ".",ukey+p.Name+".", value);
-                                        level--;
+                                        p.SetValue(element, value, null);
+                                        if (value != null)
+                                        {
+                                            level++;
+                                            await Transform(propertyName + ".", ukey + p.Name + ".", value);
+                                            level--;
+                                        }
                                     }
                                 }
                             }
@@ -356,11 +360,13 @@ namespace puck.core.Helpers
 
         private void WriteObject_(string prefix,string ukey, object element,PropertyInfo listProperty=null,object elementParent=null)
         {
-            if (element == null || element is ValueType || element is string)
+            if (element == null) { 
+            
+            }else if (element is ValueType || element is string)
             {
                 var fo = new FlattenedObject
                 {
-                    UniqueKey=ukey,
+                    UniqueKey = ukey,
                     Model = topElement,
                     Key = prefix.TrimEnd('.'),
                     Value = element,
@@ -376,11 +382,11 @@ namespace puck.core.Helpers
                 {
                     var i = 0;
                     if (ukey.EndsWith("."))
-                        ukey=ukey.Remove(ukey.Length - 1);
+                        ukey = ukey.Remove(ukey.Length - 1);
                     var propName = prefix.TrimEnd('.');
                     if (propName.IndexOf(".") > -1)
                         propName = propName.Substring(propName.LastIndexOf(".") + 1);
-                    var listProp = elementParent.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance).FirstOrDefault(x=>x.Name.Equals(propName));
+                    var listProp = elementParent.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance).FirstOrDefault(x => x.Name.Equals(propName));
                     foreach (object item in enumerableElement)
                     {
                         if (item is IEnumerable && !(item is string))
@@ -388,13 +394,13 @@ namespace puck.core.Helpers
                             if (level < depth)
                             {
                                 level++;
-                                WriteObject_(prefix, ukey+"["+i+"]." ,item,listProperty:listProp,elementParent:element);
+                                WriteObject_(prefix, ukey + "[" + i + "].", item, listProperty: listProp, elementParent: element);
                                 level--;
                             }
                         }
                         else
                         {
-                            WriteObject_(prefix, ukey + "[" + i + "].", item,listProperty:listProp, elementParent: element);
+                            WriteObject_(prefix, ukey + "[" + i + "].", item, listProperty: listProp, elementParent: element);
                         }
                         i++;
                     }
@@ -418,15 +424,19 @@ namespace puck.core.Helpers
                             Type t = p.PropertyType;
                             if (t.IsValueType || t == typeof(string))
                             {
-                                result.Add(new FlattenedObject
+                                var value = p.GetValue(element, null);
+                                if (value != null)
                                 {
-                                    UniqueKey=ukey+p.Name,
-                                    Model = topElement,
-                                    Key = prefix + p.Name,
-                                    Value = p.GetValue(element, null),
-                                    Type = ApiHelper.GetType(p.PropertyType.AssemblyQualifiedName),
-                                    Attributes = p.GetCustomAttributes(false)
-                                });
+                                    result.Add(new FlattenedObject
+                                    {
+                                        UniqueKey = ukey + p.Name,
+                                        Model = topElement,
+                                        Key = prefix + p.Name,
+                                        Value = value,
+                                        Type = ApiHelper.GetType(p.PropertyType.AssemblyQualifiedName),
+                                        Attributes = p.GetCustomAttributes(false)
+                                    });
+                                }
                             }
                             else
                             {
@@ -436,7 +446,7 @@ namespace puck.core.Helpers
                                     if (value != null)
                                     {
                                         level++;
-                                        WriteObject_(prefix + p.Name + ".",ukey + p.Name + ".", value, elementParent: element);
+                                        WriteObject_(prefix + p.Name + ".", ukey + p.Name + ".", value, elementParent: element);
                                         level--;
                                     }
                                 }
