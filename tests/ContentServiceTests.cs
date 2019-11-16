@@ -142,15 +142,14 @@ namespace puck.tests
         }
 
         [Test]
-        [TestCase(DbConstants.SQLite)]
-        [TestCase(DbConstants.MySql)]
-        [TestCase(DbConstants.SQLServer)]
-        [TestCase(DbConstants.PostgreSQL)]
-        public async Task References(string type)
+        [TestCase(DbConstants.SQLite,false)]
+        [TestCase(DbConstants.SQLite, true)]
+        public async Task References(string type,bool storeReferences)
         {
+            PuckCache.StoreReferences = storeReferences;
             var s = GetServices(type);
             // home
-            var homePage = await s.ContentService.Create<Folder>(Guid.Empty, "en-gb", "homeReferences", template: "~/views/home/homepage.cshtml", published: true, userName: "darkezmo@hotmail.com");
+            var homePage = await s.ContentService.Create<Folder>(Guid.Empty, "en-gb", $"homeReferences{(storeReferences?"Store":"NoStore")}", template: "~/views/home/homepage.cshtml", published: true, userName: "darkezmo@hotmail.com");
             await s.ContentService.SaveContent(homePage, triggerEvents: false, userName: uname);
 
             // home/news
@@ -180,10 +179,15 @@ namespace puck.tests
             };
             await s.ContentService.SaveContent(londonPageEn, triggerEvents: false, userName: uname);
 
-            var qh = new QueryHelper<BaseModel>();
-            qh.Must().Field(x=>x.References,newsPageEn.Id.ToString()+"_"+newsPageEn.Variant.ToLower());
+            var qh = new QueryHelper<BaseModel>()
+                .Descendants(homePage.Path)
+                .Must().Field(x=>x.References,newsPageEn.Id.ToString()+"_"+newsPageEn.Variant.ToLower());
             var results = qh.GetAllNoCast();
-            Assert.That(results.Count>0 && results.FirstOrDefault().References.Count==0);
+            Assert.That(results.Count>0);
+            if (PuckCache.StoreReferences)
+                Assert.That(results.FirstOrDefault().References.Count > 0);
+            else
+                Assert.That(results.FirstOrDefault().References.Count == 0);
 
         }
 
