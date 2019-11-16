@@ -65,6 +65,7 @@ namespace puck.core.State
         public static int DefaultOutputCacheMinutes = 0;
         public static int DisplayModesCacheMinutes = 10;
         public static int MaxSyncInstructions = 100;
+        public static bool StoreReferences = false;
         public static string SystemVariant = "en-GB";
         public static Uri FirstRequestUrl = null;
         public static bool IsRepublishingEntireSite { get; set; }

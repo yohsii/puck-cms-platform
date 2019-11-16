@@ -340,12 +340,13 @@ namespace puck.core.Helpers
                                         //transform
                                         var attributes = p.GetCustomAttributes(false).ToList();
                                         attributes.AddRange(p.PropertyType.GetCustomAttributes(false));
-                                        value = await DoTransform(attributes,t,topElement,propertyName,ukey+p.Name,value,dict,allowedTransformers:allowedTransformers);
-                                        p.SetValue(element, value, null);
-                                        if (value != null)
+                                        var newValue = await DoTransform(attributes,t,topElement,propertyName,ukey+p.Name,value,dict,allowedTransformers:allowedTransformers);
+                                        if(newValue!=value)
+                                            p.SetValue(element, newValue, null);
+                                        if (newValue != null)
                                         {
                                             level++;
-                                            await Transform(propertyName + ".", ukey + p.Name + ".", value);
+                                            await Transform(propertyName + ".", ukey + p.Name + ".", newValue);
                                             level--;
                                         }
                                     }
