@@ -7,6 +7,7 @@ using Lucene.Net.Analysis.Core;
 using Lucene.Net.Analysis.Snowball;
 using Lucene.Net.Documents;
 using puck.core.Attributes;
+using puck.core.Attributes.Transformers;
 using puck.core.Base;
 using puck.core.Constants;
 using puck.core.Models;
@@ -26,6 +27,7 @@ namespace puckweb.ViewModels
         public List<PuckPicker> ImageGallery { get; set; }
 
         [Display(GroupName = "Images")]
+        [PuckImageTransformer()]
         public PuckImage Image { get; set; }
         
         [Display(GroupName ="Content")]

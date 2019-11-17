@@ -1,4 +1,4 @@
-﻿@model puck.Models.PuckImage
+﻿@model puck.core.Models.PuckImage
 @using puck.core.Models.EditorSettings
 @{
     var settings = this.PuckEditorSettings<PuckCropsEditorSettings>()
@@ -81,7 +81,7 @@
                 @Html.EditorFor(x => x.Crops)
             </div>
 
-            @foreach (var Crops in Model?.Crops ?? new List<puck.Models.CropModel> { })
+            @foreach (var Crops in Model?.Crops ?? new List<puck.core.Models.CropModel> { })
             {
                 <div style="display:none;" class="cropInfo" data-alias="@Crops.Alias" data-width="@Crops.Width" data-height="@Crops.Height"
                      data-left="@Crops.Left" data-top="@Crops.Top" data-right="@Crops.Right" data-bottom="@Crops.Bottom"></div>

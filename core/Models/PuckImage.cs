@@ -4,14 +4,12 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Web;
 using puck.core.Constants;
-using puck.Transformers;
+
 using puck.core.State;
 using Microsoft.AspNetCore.Http;
 
-namespace puck.Models
+namespace puck.core.Models
 {
-    //[PuckAzureBlobImageTransformer()]
-    [PuckImageTransformer()]
     public class PuckImage
     {
         [UIHint("SettingsDisplayImage")]

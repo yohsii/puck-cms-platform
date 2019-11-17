@@ -4,8 +4,9 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Web;
 using puck.core.Attributes;
+using puck.core.Attributes.Transformers;
 using puck.core.Base;
-using puck.Models;
+using puck.core.Models;
 namespace puckweb.ViewModels
 {
     [Display(Name="Image")]
@@ -13,6 +14,7 @@ namespace puckweb.ViewModels
     public class ImageVM:BaseModel
     {
         [Display(GroupName ="Content")]
+        [PuckImageTransformer()]
         public PuckImage Image { get; set; }
     }
 }

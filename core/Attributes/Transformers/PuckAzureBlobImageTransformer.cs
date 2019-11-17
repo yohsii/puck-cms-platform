@@ -5,17 +5,17 @@ using System.Web;
 using puck.core.Abstract;
 using puck.core.Base;
 using System.IO;
-using Microsoft.WindowsAzure.Storage.Auth;
-using Microsoft.WindowsAzure.Storage;
-using Microsoft.WindowsAzure.Storage.Blob;
-using puck.Models;
 using System.Configuration;
 using System.Threading.Tasks;
 using SixLabors.ImageSharp;
 using puck.core.State;
 using Microsoft.Extensions.Configuration;
+using puck.core.Models;
+using Microsoft.Azure.Storage.Auth;
+using Microsoft.Azure.Storage;
+using Microsoft.Azure.Storage.Blob;
 
-namespace puck.Transformers
+namespace puck.core.Attributes.Transformers
 {
     [AttributeUsage(AttributeTargets.Property | AttributeTargets.Class)]
     public class PuckAzureBlobImageTransformer : Attribute, I_Property_Transformer<PuckImage, PuckImage>

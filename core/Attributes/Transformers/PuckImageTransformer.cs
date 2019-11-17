@@ -5,12 +5,12 @@ using System.Web;
 using puck.core.Abstract;
 using puck.core.Base;
 using System.IO;
-using puck.Models;
 using puck.core.Helpers;
 using SixLabors.ImageSharp;
 using System.Threading.Tasks;
+using puck.core.Models;
 
-namespace puck.Transformers
+namespace puck.core.Attributes.Transformers
 {
     [AttributeUsage(AttributeTargets.Property | AttributeTargets.Class)]
     public class PuckImageTransformer : Attribute, I_Property_Transformer<PuckImage, PuckImage>
