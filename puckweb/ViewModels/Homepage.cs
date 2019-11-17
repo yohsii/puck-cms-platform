@@ -6,7 +6,6 @@ using System.Web;
 using puck.core.Constants;
 using puck.core.Models;
 using puck.core.Models.EditorSettings.Attributes;
-//using puck.ViewModels;
 
 namespace puckweb.ViewModels
 {

@@ -13,7 +13,6 @@ using puck.core.Constants;
 using puck.core.Models;
 using puck.core.Models.EditorSettings;
 using puck.core.Models.EditorSettings.Attributes;
-using puck.Models;
 
 namespace puckweb.ViewModels
 {
