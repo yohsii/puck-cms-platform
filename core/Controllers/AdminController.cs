@@ -240,13 +240,25 @@ namespace puck.core.Controllers
                     puser.Surname = user.Surname;
                     await userManager.UpdateAsync(puser);
 
+                    startNodeId = puser.StartNodeId;
+
                     if (!string.IsNullOrEmpty(user.Password))
                     {
                         var token = await userManager.GeneratePasswordResetTokenAsync(puser);
                         var result = await userManager.ResetPasswordAsync(puser, token, user.Password);
+
+                        if (result.Succeeded)
+                            success = true;
+                        else
+                        {
+                            success = false;
+                            message = string.Join(" ", result.Errors.Select(x => x.Description));
+                        }
                     }
-                    startNodeId = puser.StartNodeId;
-                    success = true;
+                    else
+                    {
+                        success = true;
+                    }
                 }
 
                 
