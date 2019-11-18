@@ -165,7 +165,7 @@ namespace puck.core.Controllers
                     };
                     var result = await userManager.CreateAsync(puser, user.Password);
                     if (!result.Succeeded) {
-                        message = string.Join(" ",result.Errors);
+                        message = string.Join(" ", result.Errors.Select(x => x.Description));
                         throw new Exception(message);
                     }
                     if (user.Roles != null && user.Roles.Count > 0)
