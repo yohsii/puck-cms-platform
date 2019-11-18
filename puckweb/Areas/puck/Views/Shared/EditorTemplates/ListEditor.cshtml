@@ -60,6 +60,7 @@
         var nameQuery = "@Html.Raw(displayAttribute?.ShortName??"")";
         var propname = "@Html.Raw(ViewData.TemplateInfo.HtmlFieldPrefix)";
         var shouldBindListEditor = '@ViewBag.ShouldBindListEditor' == 'True';
+        var maxTitleLength = 50;
         //debugger;
         var jqueryEscape = function (str) {
             return str.replace("[","\\\\[").replace("]","\\\\]");
@@ -234,8 +235,10 @@
                     else
                         title = elTitle.text();
                 }
-                if (title.replace(/\s/g,"") == "")
-                    title = "item " + (index+1);
+                if (title.replace(/\s/g, "") == "")
+                    title = "item " + (index + 1);
+                else if (title.length > maxTitleLength)
+                    title = title.substring(0,maxTitleLength)+"...";
                 itemContainer.find(".titleContainer:first span").html(title);
             }
 
