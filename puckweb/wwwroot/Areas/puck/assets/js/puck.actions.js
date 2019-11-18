@@ -224,7 +224,7 @@ var showUsers = function () {
             var name = el.attr("data-username");
             setDeleteUser(name, function (d) {
                 if (d.success) {
-                    el.parents(".card").remove();
+                    el.parents(".usercard").remove();
                 } else {
                     msg(false, d.message);
                 }
