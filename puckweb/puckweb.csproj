@@ -20,8 +20,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Remove="wwwroot\**" />
-    <Content Include="wwwroot\**" />
+    <Content Remove="wwwroot\*" />
+    <Content Include="wwwroot\*" />
   </ItemGroup>
 
 
