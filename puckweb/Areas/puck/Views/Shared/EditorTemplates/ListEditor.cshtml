@@ -147,6 +147,14 @@
                     form.removeData("validator");
                     form.removeData("unobtrusiveValidation");
                     $.validator.unobtrusive.parse(form);
+
+                    //re-initialize
+                    copy.find(".editor_container[data-editor]").each(function () {
+                        var editorContainer = $(this);
+                        var editor = editorContainer.attr("data-editor");
+                        if (listEditorInitializers[editor])
+                            listEditorInitializers[editor](editorContainer);
+                    });
                 });
 
             });
@@ -191,6 +199,14 @@
                 var el = ui.item;
                 var _selected_container = el.parents(".selected_content:first");
                 setIndexesForInputs(_selected_container);
+
+                //re-initialize
+                _selected_container.find(".editor_container[data-editor]").each(function () {
+                    var editorContainer = $(this);
+                    var editor = editorContainer.attr("data-editor");
+                    if (listEditorInitializers[editor])
+                        listEditorInitializers[editor](editorContainer);
+                });
             }
             var setIndexesForInputs = function (_selected_container) {
                 var _propName = _selected_container.parents(".listeditor:first").find("div:hidden.propName:first").attr("data-propName");
@@ -219,7 +235,19 @@
                 });
             }
             var bindSortable = function (_selected_container) {
-                _selected_container.disableSelection().sortable({axis:"y", /*handle: ">.itemContainer>.titleContainer .sortHandle",*/ items: ">.itemContainer", stop: function (event, ui) { sortStop(event, ui); } });
+                _selected_container.disableSelection().sortable({
+                    axis: "y",
+                    /*handle: ">.itemContainer>.titleContainer .sortHandle",*/
+                    items: ">.itemContainer",
+                    start: function (event, ui) {
+                        if (tinyMCE != undefined) {
+                            tinyMCE.triggerSave();
+                        }
+                    },
+                    stop: function (event, ui) {
+                        sortStop(event, ui);
+                    }
+                });
             }
             if (shouldBindListEditor)
                 bindSortable(selected_container);

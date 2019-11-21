@@ -2,52 +2,63 @@
 @{ 
     var guid ="G"+ Guid.NewGuid().ToString();
 }
-<div class="puck_mce mce_@ViewData.ModelMetadata.PropertyName">
+<div data-editor="rte" class="editor_container puck_mce mce_@ViewData.ModelMetadata.PropertyName">
     @Html.TextAreaFor(x => x,new {id=guid.ToString() })
 </div>
 <script>
     onAfterDom(function () {
         var guid = '@Html.Raw(guid)';
-        var selector = "#"+guid;
-
-        tinymce.init({
-            selector: selector,
-            min_height:200,
-            plugins: [
-                "advlist autolink lists link image charmap print preview anchor",
-                "searchreplace visualblocks code fullscreen",
-                "insertdatetime media table contextmenu paste"
-            ],
-            toolbar: "insertfile undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image | internal_link"
-            , setup: function (editor) {
-                editor.ui.registry.addButton("internal_link", {
-                    icon:"link",
-                    text: "internal link",
-                    onAction: function (evt) {
-                        var isSelected = editor.selection.getContent().length > 0;
-                        if (!isSelected) {
-                            msg(0, "you must highlight some text to make a link");
-                            return;
-                        }
-                        contentPicker(emptyGuid, "Link to internal page", function (node, id, variant, overlayEl) {
+        var selector = "#" + guid;
+        var getSetupObject = function (selector) {
+            return {
+                selector: selector,
+                min_height: 200,
+                plugins: [
+                    "advlist autolink lists link image charmap print preview anchor",
+                    "searchreplace visualblocks code fullscreen",
+                    "insertdatetime media table contextmenu paste"
+                ],
+                toolbar: "insertfile undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image | internal_link"
+                , setup: function (editor) {
+                    editor.ui.registry.addButton("internal_link", {
+                        icon: "link",
+                        text: "internal link",
+                        onAction: function (evt) {
                             var isSelected = editor.selection.getContent().length > 0;
-                            
-                            var url = node.attr("data-path");
-                            url = url.substring(1);
-                            if (url == "") url = "/";
-                            else if (url.indexOf("/") > -1)
-                                url = url.substring(url.indexOf("/"));
-                            else url = "/";
-
-                            if (isSelected) {
-                                var link = "<a href=\"" + url + "\" title=\"" + node.attr("data-nodename") + "\">" + editor.selection.getContent() + "</a>";
-                                editor.execCommand('insertHTML', false, link);
+                            if (!isSelected) {
+                                msg(0, "you must highlight some text to make a link");
+                                return;
                             }
-                            overlayEl.remove();
-                        });
-                    }
-                });
+                            contentPicker(emptyGuid, "Link to internal page", function (node, id, variant, overlayEl) {
+                                var isSelected = editor.selection.getContent().length > 0;
+
+                                var url = node.attr("data-path");
+                                url = url.substring(1);
+                                if (url == "") url = "/";
+                                else if (url.indexOf("/") > -1)
+                                    url = url.substring(url.indexOf("/"));
+                                else url = "/";
+
+                                if (isSelected) {
+                                    var link = "<a href=\"" + url + "\" title=\"" + node.attr("data-nodename") + "\">" + editor.selection.getContent() + "</a>";
+                                    editor.execCommand('insertHTML', false, link);
+                                }
+                                overlayEl.remove();
+                            });
+                        }
+                    });
+                }
             }
-        });
+        }
+        setupObj = getSetupObject(selector);
+        tinymce.init(setupObj);
+        window.listEditorInitializers["rte"] = function (container) {
+            var textArea = container.find("textarea");
+            textArea.attr("id", "cid" + cidCounter + 1);
+            cidCounter++;
+            container.find("[role='application']").remove();
+            tinymce.init(getSetupObject("#" + textArea.attr("id")));
+            container.find("[role='application']").css({display:"flex",visibility:"visible"});
+        }
     });
 </script>
