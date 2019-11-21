@@ -594,7 +594,7 @@ namespace puck.core.Helpers
                                 listItem = Activator.CreateInstance(itemType);
                             subObject.GetType().GetMethod("Add").Invoke(subObject, new[] { listItem });
                             if(depth<SetPropertyValuesMaxDepth)
-                                SetPropertyValues(listItem);
+                                SetPropertyValues(listItem,onlyPopulateListEditorLists:onlyPopulateListEditorLists,depth:depth+1);
                         }
                         property.SetValue(obj, subObject, null);
                     }
@@ -609,7 +609,7 @@ namespace puck.core.Helpers
                     {
                         var subObject = Activator.CreateInstance(propType);
                         if(depth<SetPropertyValuesMaxDepth)
-                            SetPropertyValues(subObject);
+                            SetPropertyValues(subObject,onlyPopulateListEditorLists:onlyPopulateListEditorLists,depth:depth+1);
                         property.SetValue(obj, subObject, null);
                     }
                     catch (Exception ex) { }

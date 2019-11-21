@@ -25,7 +25,7 @@
     }
     var tagList = tagsDictionary[settings.Category];
 }
-<div data-guid="@guid.ToString()" class="pucktags pucktags_@ViewData.ModelMetadata.PropertyName pucktags_@ViewData.TemplateInfo.HtmlFieldPrefix.Replace("[","_").Replace("]","_").Replace(".","_")">
+<div data-guid="@guid.ToString()" class="editor_container pucktags pucktags_@ViewData.ModelMetadata.PropertyName pucktags_@ViewData.TemplateInfo.HtmlFieldPrefix.Replace("[","_").Replace("]","_").Replace(".","_")">
     <div style="display:none;" class="propName" data-propName="@ViewData.TemplateInfo.HtmlFieldPrefix"></div>
     <div class="selected_content">
         @if (Model != null)
@@ -75,7 +75,7 @@
         
         var setValue = function () {
             container.find("input:hidden:not(.tag_entry)").remove();
-            selected_content().each(function (i) {
+            selected_container.find(".selected_node").each(function (i) {
                 var node = $(this);
                 container.append(
                     "<input type='hidden' name='" + getPropName() + "[" + i + "]' value='" + node.attr("data-tag") + "'/>"
@@ -154,6 +154,10 @@
         });
         
         tagInput.on("keyup", function (e) {
+            container = $(this).parents(".editor_container:first");
+            tagInput = container.find(".tag_entry");
+            selected_container = container.find(".selected_content");
+            
             var val = tagInput.val();
             if (e.keyCode === 13) {
                 if (val.replace(/\s/g) == "")

@@ -29,7 +29,7 @@
     }
     var guid = Guid.NewGuid();
 }
-<div data-guid="@guid.ToString()" class="puckpicker puckpicker_@ViewData.ModelMetadata.PropertyName puckpicker_@ViewData.TemplateInfo.HtmlFieldPrefix.Replace("[","_").Replace("]","_").Replace(".","_")">
+<div data-guid="@guid.ToString()" class="editor_container puckpicker puckpicker_@ViewData.ModelMetadata.PropertyName puckpicker_@ViewData.TemplateInfo.HtmlFieldPrefix.Replace("[","_").Replace("]","_").Replace(".","_")">
     <div style="display:none;" class="propName" data-propName="@ViewData.TemplateInfo.HtmlFieldPrefix"></div>
     <div>
         <button type="button" class="btn btn-light addItem"><i class="fas fa-plus"></i></button>
@@ -64,6 +64,7 @@
     </div>
 </div>
 <script type="text/javascript">
+    var script = document.currentScript;
     onAfterDom(function () {
         var guid = "@guid.ToString()";
         var modelType = "@Html.Raw(ViewBag.Level0Type.Name)";
@@ -79,7 +80,6 @@
         //    container = cright.find(".puckpicker_" + escapePropname(propname));
         //else
         //    container = cinterfaces.find("div[data-type='" + modelType + "'] .puckpicker_" + escapePropname(propname))
-
         var getPropName = function () {
             return container.find("div:hidden.propName:first").attr("data-propName");
         }
@@ -94,8 +94,9 @@
         var allowUnpublished = "@settings.AllowUnpublished";
         var allowDuplicates = false;@*"@settings.AllowDuplicates"=='True';*@
         var setValue = function () {
+            //console.log("container",container);
             container.find("input:hidden").remove();
-            selected_content().each(function (i) {
+            selected_container.find(".selected_node").each(function (i) {
                 var node = $(this);
                 container.append(
                     "<input type='hidden' name='" + getPropName() + "[" + i + "].Id' value='" + node.attr("data-id") + "'/>"
@@ -130,6 +131,10 @@
         });
         var overlayEl = undefined; 
         container.find(".addItem").click(function (e) {
+            container = $(this).parents(".editor_container:first");
+            selected_container = container.find(".selected_content");
+            console.log("new container",container);
+            
             if (selected_container.find(".selected_node").length >= maxPick) {
                 msg(undefined, "you cannot select any more, max selection is set to " + maxPick, undefined, undefined);
                 return false;
@@ -163,15 +168,15 @@
                 else
                     variant = clicked.attr("data-variant");
                 //check if node is already selected
-                if (selected_content().filter("[data-id='" + node.attr("data-id") + "'][data-variant='"+variant+"']").length > 0 && !allowDuplicates) {
+                if (selected_container.find(".selected_node").filter("[data-id='" + node.attr("data-id") + "'][data-variant='"+variant+"']").length > 0 && !allowDuplicates) {
                     //remove it from selected list
-                    selected_content().filter("[data-id='" + node.attr("data-id") + "'][data-variant='" + variant + "']").remove();
-                    if (selected_content().filter("[data-id='" + node.attr("data-id") + "']").length == 0)
+                    selected_container.find(".selected_node").filter("[data-id='" + node.attr("data-id") + "'][data-variant='" + variant + "']").remove();
+                    if (selected_container.find(".selected_node").filter("[data-id='" + node.attr("data-id") + "']").length == 0)
                         node.removeClass("selected");
                     return;
                 }
 
-                if (selected_content().length >= maxPick) {
+                if (selected_container.find(".selected_node").length >= maxPick) {
                     msg(undefined, "you cannot select any more, max selection is set to " + maxPick, undefined, undefined);
                     return false;
                 }
