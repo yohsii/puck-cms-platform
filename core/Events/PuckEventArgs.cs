@@ -32,6 +32,9 @@ namespace puck.core.Events
     }
     public class AfterEditorSettingsSaveEventArgs {
         public I_Puck_Editor_Settings Setting { get; set; }
+        public string SettingsTypeFullName { get; set; }
+        public string ModelTypeName { get; set; }
+        public string PropertyName { get; set; }
     }
     public class AfterSyncEventArgs {
         public List<PuckInstruction> Instructions { get; set; } 

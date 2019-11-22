@@ -13,6 +13,7 @@ using puck.core.Services;
 using puck.core.Events;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace puck.core.Helpers
 {
@@ -59,6 +60,7 @@ namespace puck.core.Helpers
                 var searcher = scope.ServiceProvider.GetService<I_Content_Searcher>();
                 var repo = scope.ServiceProvider.GetService<I_Puck_Repository>();
                 var config = scope.ServiceProvider.GetService<IConfiguration>();
+                var cache = scope.ServiceProvider.GetService<IMemoryCache>();
                 try
                 {
                     Monitor.TryEnter(lck, lock_wait, ref taken);
@@ -96,11 +98,18 @@ namespace puck.core.Helpers
                     {
                         foreach (var instruction in instructions)
                         {
-                            if (instruction.InstructionKey == InstructionKeys.SetSearcher)
+                            if (instruction.InstructionKey == InstructionKeys.RemoveFromCache)
+                            {
+                                var keys = instruction.InstructionDetail.Split(new char[] { ','},StringSplitOptions.RemoveEmptyEntries);
+                                foreach (var key in keys) {
+                                    cache.Remove(key);
+                                }
+                            }
+                            else if (instruction.InstructionKey == InstructionKeys.SetSearcher)
                             {
                                 searcher.SetSearcher();
                             }
-                            if (instruction.InstructionKey == InstructionKeys.Delete)
+                            else if (instruction.InstructionKey == InstructionKeys.Delete)
                             {
                                 hasPublishInstruction = true;
                                 if (Indexer.CanWrite)
@@ -114,7 +123,7 @@ namespace puck.core.Helpers
                                     searcher.SetSearcher();
                                 }
                             }
-                            if (instruction.InstructionKey == InstructionKeys.RepublishSite)
+                            else if (instruction.InstructionKey == InstructionKeys.RepublishSite)
                             {
                                 if (Indexer.CanWrite)
                                 {

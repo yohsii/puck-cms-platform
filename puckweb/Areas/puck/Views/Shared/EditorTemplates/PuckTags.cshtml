@@ -1,5 +1,5 @@
 ﻿@using puck.core.Models.EditorSettings
-@inject I_Puck_Repository repo;
+@*@inject I_Puck_Repository repo;*@
 @model List<string>
 @{
 
@@ -11,19 +11,19 @@
 
     var guid = Guid.NewGuid();
 
-    var tagsDictionary = ViewBag.Tags as Dictionary<string,List<string>>;
-    if (tagsDictionary == null)
-    {
-        tagsDictionary = new Dictionary<string, List<string>>();
-        var tags = repo.GetPuckTag().Where(x => x.Category.ToLower().Equals(settings.Category.ToLower()) && x.Count > 0).ToList();
-        tagsDictionary.Add(settings.Category, tags.Select(x => x.Tag).ToList());
-        ViewBag.Tags = tagsDictionary;
-    }
-    else if (!tagsDictionary.ContainsKey(settings.Category)) { 
-        var tags = repo.GetPuckTag().Where(x => x.Category.ToLower().Equals(settings.Category.ToLower()) && x.Count > 0).ToList();
-        tagsDictionary[settings.Category] = tags.Select(x => x.Tag).ToList();
-    }
-    var tagList = tagsDictionary[settings.Category];
+    //var tagsDictionary = ViewBag.Tags as Dictionary<string,List<string>>;
+    //if (tagsDictionary == null)
+    //{
+    //    tagsDictionary = new Dictionary<string, List<string>>();
+    //    var tags = repo.GetPuckTag().Where(x => x.Category.ToLower().Equals(settings.Category.ToLower()) && x.Count > 0).ToList();
+    //    tagsDictionary.Add(settings.Category, tags.Select(x => x.Tag).ToList());
+    //    ViewBag.Tags = tagsDictionary;
+    //}
+    //else if (!tagsDictionary.ContainsKey(settings.Category)) { 
+    //    var tags = repo.GetPuckTag().Where(x => x.Category.ToLower().Equals(settings.Category.ToLower()) && x.Count > 0).ToList();
+    //    tagsDictionary[settings.Category] = tags.Select(x => x.Tag).ToList();
+    //}
+    var tagList = new List<string>(); //tagsDictionary[settings.Category];
 }
 <div data-guid="@guid.ToString()" class="editor_container pucktags pucktags_@ViewData.ModelMetadata.PropertyName pucktags_@ViewData.TemplateInfo.HtmlFieldPrefix.Replace("[","_").Replace("]","_").Replace(".","_")">
     <div style="display:none;" class="propName" data-propName="@ViewData.TemplateInfo.HtmlFieldPrefix"></div>
@@ -112,6 +112,15 @@
         });
 
         setValue();
+
+        var getTags = function (category, f) {
+            $.get("/puck/api/getTags?category="+category,f);
+        }
+        getTags(category, function (res) {
+            for (var i = 0; i < res.tags.length; i++) {
+                tags.push(res.tags[i]);
+            }
+        });
         var saveTag = function (tag, category, f) {
             var tagVal = "tag=" + tag + "&category=" + category;
             $.ajax({

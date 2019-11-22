@@ -120,6 +120,7 @@ namespace puck.core.Constants
         public const string UpdateDomainMappings = "updatedomainmappings";
         public const string UpdateRedirects = "updateredirects";
         public const string UpdateTaskMappings = "updatetaskmappings";
+        public const string RemoveFromCache = "cacheremove";
     }
     public static class CacheKeys {
         public const string PrefixTemplateExist = "fexist:";

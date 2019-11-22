@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace puck.core.Controllers
 {
@@ -27,13 +28,15 @@ namespace puck.core.Controllers
         I_Puck_Repository repo;
         I_Content_Service contentService;
         I_Api_Helper apiHelper;
-        public SettingsController(I_Api_Helper ah,I_Content_Service cs,I_Content_Indexer i, I_Content_Searcher s, I_Log l, I_Puck_Repository r) {
+        IMemoryCache cache;
+        public SettingsController(I_Api_Helper ah,I_Content_Service cs,I_Content_Indexer i, I_Content_Searcher s, I_Log l, I_Puck_Repository r,IMemoryCache cache) {
             this.apiHelper = ah;
             this.contentService = cs;
             this.indexer = i;
             this.searcher = s;
             this.log = l;
             this.repo = r;
+            this.cache = cache;
         }
 
         public JsonResult DeleteParameters(string key) {
@@ -104,8 +107,29 @@ namespace puck.core.Controllers
                         settingsMeta.Value = JsonConvert.SerializeObject(model);
                         repo.AddMeta(settingsMeta);
                     }
+                    
+                    //clear cached values
+                    var cachePrefix = "editor_settings_";
+                    var cacheKey = cachePrefix + key;
+                    cache.Remove(cacheKey);
+                    cache.Remove("null_"+cacheKey);
+
+                    var instruction = new PuckInstruction() {
+                        Count = 2,
+                        ServerName = ApiHelper.ServerName(),
+                        InstructionDetail = $"{cacheKey},{"null_"+cacheKey}",
+                        InstructionKey = InstructionKeys.RemoveFromCache
+                    };
+                    repo.AddPuckInstruction(instruction);
+
                     repo.SaveChanges();
-                    ApiHelper.OnAfterSettingsSave(this, new puck.core.Events.AfterEditorSettingsSaveEventArgs { Setting = (I_Puck_Editor_Settings)model });
+
+                    ApiHelper.OnAfterSettingsSave(this, new puck.core.Events.AfterEditorSettingsSaveEventArgs { 
+                        Setting = (I_Puck_Editor_Settings)model
+                        ,SettingsTypeFullName = puck_settingsType
+                        ,ModelTypeName = puck_modelType
+                        ,PropertyName = puck_propertyName
+                    });
                     success = true;
                 }
                 else {

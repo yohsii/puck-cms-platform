@@ -39,7 +39,7 @@ using Microsoft.Extensions.Caching.Memory;
 namespace puck.core.Controllers
 {
     [Area("puck")]
-    [SetPuckCulture]
+    //[SetPuckCulture]
     public class ApiController : BaseController
     {
         private static readonly object _savelck = new object();
@@ -418,6 +418,31 @@ namespace puck.core.Controllers
                 message = ex.Message;
             }
             return Json(new { message = message, success = success });
+        }
+        [Authorize(Roles = PuckRoles.Puck, AuthenticationSchemes = Mvc.AuthenticationScheme)]
+        public ActionResult GetTags(string category)
+        {
+            bool success = true;
+            string message = "";
+            List<PuckTag> tags = null;
+            try
+            {
+                tags = cache.Get<List<PuckTag>>("tags_"+category);
+                if (tags == null) {
+                    if (string.IsNullOrEmpty(category))
+                        tags = repo.GetPuckTag().Where(x => string.IsNullOrEmpty(x.Category)).ToList();
+                    else
+                        tags = repo.GetPuckTag().Where(x => x.Category.ToLower().Equals(category.ToLower())).ToList();
+                    cache.Set("tags_"+category,tags,TimeSpan.FromMinutes(1));
+                }
+            }
+            catch (Exception ex)
+            {
+                success = false;
+                log.Log(ex);
+                message = ex.Message;
+            }
+            return Json(new {tags=tags.Select(x=>x.Tag), success = success, message = message });
         }
         [Authorize(Roles = PuckRoles.Puck, AuthenticationSchemes = Mvc.AuthenticationScheme)]
         [HttpPost]
