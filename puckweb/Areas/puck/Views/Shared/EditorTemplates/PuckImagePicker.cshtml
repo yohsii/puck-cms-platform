@@ -27,6 +27,8 @@
 }
 <div data-guid="@guid.ToString()" class="editor_container puckimagepicker puckimagepicker_@ViewData.ModelMetadata.PropertyName puckimagepicker_@ViewData.TemplateInfo.HtmlFieldPrefix.Replace("[","_").Replace("]","_").Replace(".","_")">
     <div style="display:none;" class="propName" data-propName="@ViewData.TemplateInfo.HtmlFieldPrefix"></div>
+    <div style="display:none;" class="containerTrigger"></div>
+
     <div class="col-md-12 puckImagePickerMsgContainer"></div>
     <div class="row selected_content">
         <div class="col-md-2">
@@ -97,6 +99,12 @@
         var getPropName = function () {
             return container.find("div:hidden.propName:first").attr("data-propName");
         }
+        container.find(".containerTrigger").click(function (e) {
+            container = $(this).parents(".editor_container:first");
+            msgContainer = container.find(".puckImagePickerMsgContainer");
+            selected_container = container.find(".selected_content");
+            //console.log("new container puckimagepicker",container);
+        });
         var msgContainer = container.find(".puckImagePickerMsgContainer");
         var selected_container = container.find(".selected_content");
         var selected_content = function () { return selected_container.find(".item"); }
@@ -133,10 +141,6 @@
         loadData();
         var overlayEl = null;
         container.find(".addImage").click(function (e) {
-            container = $(this).parents(".editor_container:first");
-            msgContainer = container.find(".puckImagePickerMsgContainer");
-            selected_container = container.find(".selected_content");
-                    
             if (selected_container.find(".item").length >= maxPick) {
                 msg(undefined, "you cannot select any more, max selection is set to " + maxPick, undefined, undefined);
                 return false;

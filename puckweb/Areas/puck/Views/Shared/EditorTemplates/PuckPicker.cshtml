@@ -31,6 +31,7 @@
 }
 <div data-guid="@guid.ToString()" class="editor_container puckpicker puckpicker_@ViewData.ModelMetadata.PropertyName puckpicker_@ViewData.TemplateInfo.HtmlFieldPrefix.Replace("[","_").Replace("]","_").Replace(".","_")">
     <div style="display:none;" class="propName" data-propName="@ViewData.TemplateInfo.HtmlFieldPrefix"></div>
+    <div style="display:none;" class="containerTrigger"></div>
     <div>
         <button type="button" class="btn btn-light addItem"><i class="fas fa-plus"></i></button>
     </div>
@@ -83,7 +84,11 @@
         var getPropName = function () {
             return container.find("div:hidden.propName:first").attr("data-propName");
         }
-
+        container.find(".containerTrigger").click(function (e) {
+            container = $(this).parents(".editor_container:first");
+            selected_container = container.find(".selected_content");
+            //console.log("new container",container);
+        });
         var selected_container = container.find(".selected_content");
         var selected_content = function () { return selected_container.find(".selected_node"); }
         var _startPath = "@startPath" == ""?startPath:"@startPath";
@@ -131,10 +136,6 @@
         });
         var overlayEl = undefined; 
         container.find(".addItem").click(function (e) {
-            container = $(this).parents(".editor_container:first");
-            selected_container = container.find(".selected_content");
-            console.log("new container",container);
-            
             if (selected_container.find(".selected_node").length >= maxPick) {
                 msg(undefined, "you cannot select any more, max selection is set to " + maxPick, undefined, undefined);
                 return false;
