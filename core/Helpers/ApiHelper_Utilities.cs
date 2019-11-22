@@ -36,10 +36,11 @@ namespace puck.core.Helpers
             string result = s.Substring(0, s.LastIndexOf("/") + 1);
             return result;
         }
+        static Regex contentRootPathRegex = null;
         public static string ToVirtualPath(string p)
         {
-            Regex r = new Regex(Regex.Escape(ApiHelper.MapPath("~/")), RegexOptions.Compiled);
-            p = r.Replace(p, "~/", 1).Replace("\\", "/");
+            if(contentRootPathRegex==null) contentRootPathRegex = new Regex(Regex.Escape(ApiHelper.MapPath("~/")), RegexOptions.Compiled);
+            p = contentRootPathRegex.Replace(p, "~/", 1).Replace("\\", "/");
             return p;
         }
         public static Type GetTypeFromName(string name,bool defaultToBaseModel=false) {
