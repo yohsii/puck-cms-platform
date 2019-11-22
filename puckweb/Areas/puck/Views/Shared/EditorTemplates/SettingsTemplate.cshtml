@@ -1,8 +1,10 @@
-﻿@inject I_Api_Helper apiHelper;
-@using System.IO
+﻿@using System.IO
+@using Microsoft.Extensions.Caching.Memory;
+@inject I_Api_Helper apiHelper;
+@inject IMemoryCache cache;
 @model String
 @{
-    
+
     var views = new List<FileInfo>();
     string typeString = ViewContext.HttpContext.Request.Query["type"];
     if (string.IsNullOrEmpty(typeString))
@@ -18,7 +20,13 @@
     }
     if (!string.IsNullOrEmpty(typeString))
     {
-        views = apiHelper.AllowedViews(typeString, new string[] { "~/views/shared/", "~/views/_ViewStart.cshtml" });
+        string cacheKey = "allowedViews_" + typeString;
+        views = cache.Get<List<FileInfo>>(cacheKey);
+        if (views == null)
+        {
+            views = apiHelper.AllowedViews(typeString, new string[] { "~/views/shared/", "~/views/_ViewStart.cshtml" });
+            cache.Set(cacheKey,views,TimeSpan.FromMinutes(30));
+        }
         if (views.Count == 0)
         {
             views = apiHelper.Views(new string[] { "~/views/shared/", "~/views/_ViewStart.cshtml" });

@@ -332,6 +332,25 @@ namespace puck.core.Controllers
                         repo.AddMeta(newMeta);
                     });
                 }
+                
+                var modelTypes = apiHelper.Models();
+                string cacheKeys = "";
+                foreach (var modelType in modelTypes) {
+                    string cacheKey = "allowedViews_"+modelType.Name;
+                    cacheKeys += cacheKey+",";
+                    cache.Remove(cacheKey);
+                }
+                cacheKeys = cacheKeys.TrimEnd(',');
+                
+                var instruction = new PuckInstruction()
+                {
+                    Count = modelTypes.Count,
+                    ServerName = ApiHelper.ServerName(),
+                    InstructionDetail = cacheKeys,
+                    InstructionKey = InstructionKeys.RemoveFromCache
+                };
+                repo.AddPuckInstruction(instruction);
+
                 repo.SaveChanges();
                 success = true;
             }
