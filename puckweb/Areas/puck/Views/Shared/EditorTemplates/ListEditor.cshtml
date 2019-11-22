@@ -101,7 +101,7 @@
                     var el = $(this);
                     var _selected_container = el.parents(".listeditor:first").find(".selected_content:first");
                     var elToCopy = template.find(".listeditor_" + escapePropname(toZeroIndex(getPropName())) + " .itemContainer:first");
-                    console.log("el to copy", elToCopy);
+                    //console.log("el to copy", elToCopy);
                     var index = _selected_container.find(">.itemContainer").length;
                     var copy = elToCopy.clone(true, true);
                     copy.find("input[type=text][value=' ']").val("");
