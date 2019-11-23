@@ -7,7 +7,6 @@ var cright = $(".rightarea .content");
 var cinterfaces = $("body>.main>.interfaces");
 var cmsg = $(".top .message");
 var cidCounter = 0;
-var listEditorInitializers = listEditorInitializers || [];
 var searchType = '';
 var searchRoot = '';
 var searchTerm = '';

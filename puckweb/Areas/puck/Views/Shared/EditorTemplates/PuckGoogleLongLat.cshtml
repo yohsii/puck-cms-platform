@@ -48,44 +48,45 @@
             var map;
             var lat = @(Model==null?51.5072:Model.Latitude??51.5072);
             var long = @(Model==null?0.1275:Model.Longitude??0.1275);
-            container.data("lat", lat);
-            container.data("long", long);
+            var marker;
             function initialize(_container) {
                 _container = _container || container;
                 geocoder = new google.maps.Geocoder();
-                var latlng = new google.maps.LatLng(_container.data("lat"), _container.data("long"));
+                var latlng = new google.maps.LatLng(lat, long);
                 var mapOptions = {
                     zoom: 8,
                     center: latlng
                 }
-
                 var width = _container.parents(".fieldwrapper").width() - 200;
                 _container.find('.map-canvas').css({ width: width, height: 500 });
                 map = new google.maps.Map(_container.find('.map-canvas').get(0), mapOptions);
                 _container.data("map", map);
 
                 clearMarker(_container);
-                var marker = new google.maps.Marker({
+                marker = new google.maps.Marker({
                     map: _container.data("map"),
                     position: latlng
                 });
-                _container.data("marker",marker);
+                //_container.data("marker",marker);
             }
             var clearMarker = function (container) {
-                var marker = container.data("marker");
+                //var marker = container.data("marker");
                 if (marker) {
                     marker.setMap(null);
                 }
             }
-            window.listEditorInitializers["puckgooglelonglat"] = function (container) {
-                initialize(container);
-            }
+            //window.listEditorInitializers["puckgooglelonglat"] = function (container) {
+            //    initialize(container);
+            //}
 
             container.find(".containerTrigger").click(function (e) {
                 container = $(this).parents(".editor_container:first");
-                container.data("lat", lat);
-                container.data("long", long);
                 //console.log("new container puckgooglelatlong",container);
+            });
+
+            container.on("puckListEditorUpdate", function (e,cont) {
+                //debugger;
+                initialize(container);
             });
 
             function codeAddress() {
@@ -93,17 +94,17 @@
                 geocoder.geocode( { 'address': address}, function(results, status) {
                     if (status == google.maps.GeocoderStatus.OK) {
                         container.data("map").setCenter(results[0].geometry.location);
-                        var marker = new google.maps.Marker({
+                        clearMarker(container);
+                        marker = new google.maps.Marker({
                             map: container.data("map"),
                             position: results[0].geometry.location
                         });
-                        clearMarker(container);
-                        container.data("marker",marker);
+                        
                         //console.log("location",results[0].geometry.location);
                         container.find(".lat input").attr("name", getPropName() + ".Latitude").val(results[0].geometry.location.lat());
                         container.find(".long input").attr("name", getPropName() + ".Longitude").val(results[0].geometry.location.lng());
-                        container.data("lat", results[0].geometry.location.lat());
-                        container.data("long", results[0].geometry.location.lng());
+                        lat = results[0].geometry.location.lat();
+                        long = results[0].geometry.location.lng();
                     } else {
                         msg(false,'Geocode was not successful for the following reason: ' + status);
                     }

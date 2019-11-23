@@ -1,13 +1,17 @@
 ﻿@model string
 @{ 
+    var containerGuid = Guid.NewGuid().ToString();
     var guid ="G"+ Guid.NewGuid().ToString();
 }
-<div data-editor="rte" class="editor_container puck_mce mce_@ViewData.ModelMetadata.PropertyName">
-    @Html.TextAreaFor(x => x,new {id=guid.ToString() })
+<div data-guid="@containerGuid" data-editor="rte" class="editor_container puck_mce mce_@ViewData.ModelMetadata.PropertyName">
+    <div style="display:none;" class="containerTrigger"></div>
+    @Html.TextAreaFor(x => x, new { id = guid.ToString() })
 </div>
 <script>
     onAfterDom(function () {
+        var cGuid = '@Html.Raw(containerGuid)';
         var guid = '@Html.Raw(guid)';
+        var container = $("[data-guid='" + cGuid + "']");
         var selector = "#" + guid;
         var getSetupObject = function (selector) {
             return {
@@ -52,13 +56,19 @@
         }
         setupObj = getSetupObject(selector);
         tinymce.init(setupObj);
-        window.listEditorInitializers["rte"] = function (container) {
+        container.find(".containerTrigger").click(function (e) {
+            container = $(this).parents(".editor_container:first");
+            //console.log("new container rte",container);
+        });
+
+        container.on("puckListEditorUpdate", function (e, container) {
+            //console.log("rte:puckListEditorUpdate",container);
             var textArea = container.find("textarea");
             textArea.attr("id", "cid" + cidCounter + 1);
             cidCounter++;
             container.find("[role='application']").remove();
             tinymce.init(getSetupObject("#" + textArea.attr("id")));
             container.find("[role='application']").css({display:"flex",visibility:"visible"});
-        }
+        });
     });
 </script>
