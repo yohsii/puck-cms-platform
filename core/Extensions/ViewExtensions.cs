@@ -43,7 +43,7 @@ namespace puck.core.Extensions
             return (T)result;
         }
         public static T PuckEditorSettings<T>(this RazorPageBase page,string propertyName="",bool inherit=true,Type modelTypeOverride=null) {
-            int cacheMinutes = 10;
+            int cacheMinutes = 30;
             if (page.ViewContext.ViewData.ModelMetadata!= null) {
                 var settingsAttribute = page.ViewContext.ViewData.ModelMetadata.GetPropertyAttribute<T>();
                 if (settingsAttribute != null)
