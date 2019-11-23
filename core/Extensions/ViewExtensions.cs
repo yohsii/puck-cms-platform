@@ -42,7 +42,7 @@ namespace puck.core.Extensions
             if (result == null) return default(T);
             return (T)result;
         }
-        public static T PuckEditorSettings<T>(this RazorPageBase page,string propertyName="") {
+        public static T PuckEditorSettings<T>(this RazorPageBase page,string propertyName="",bool inherit=true,Type modelTypeOverride=null) {
             int cacheMinutes = 10;
             if (page.ViewContext.ViewData.ModelMetadata!= null) {
                 var settingsAttribute = page.ViewContext.ViewData.ModelMetadata.GetPropertyAttribute<T>();
@@ -56,7 +56,9 @@ namespace puck.core.Extensions
                 var repo = scope.ServiceProvider.GetService<I_Puck_Repository>();
                 var cache = scope.ServiceProvider.GetService<IMemoryCache>();
                 
-                var modelType = page.ViewBag.Level0Type as Type;
+                var modelType = modelTypeOverride==null? 
+                    page.ViewBag.Level0Type as Type
+                    :modelTypeOverride;
                 if (modelType == null)
                     return default(T);
                 var settingsType = typeof(T);
@@ -109,7 +111,8 @@ namespace puck.core.Extensions
                         var data = JsonConvert.DeserializeObject(meta.Value, settingsType);
                         return data == null ? default(T) : (T)data;
                     }
-                    type = type.BaseType;
+                    if (inherit) type = type.BaseType;
+                    else type = typeof(object);
                 }
                 return default(T);
             }

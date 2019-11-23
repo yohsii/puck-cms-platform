@@ -152,7 +152,13 @@ namespace puck.core.Controllers
         [Authorize(Roles = PuckRoles.Puck, AuthenticationSchemes = Mvc.AuthenticationScheme)]
         public JsonResult FieldGroups(string type)
         {
-            var model = apiHelper.FieldGroups(type);
+            var cacheKey = "fieldGroups_" + type;
+            var model = cache.Get<List<string>>(cacheKey);
+            if (model == null)
+            {
+                model = apiHelper.FieldGroups(type);
+                cache.Set(cacheKey,model,TimeSpan.FromMinutes(30));
+            }
             return Json(model);
         }
         [Authorize(Roles = PuckRoles.Puck, AuthenticationSchemes = Mvc.AuthenticationScheme)]

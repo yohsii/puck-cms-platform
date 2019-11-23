@@ -1,7 +1,7 @@
 ﻿@model puck.core.Models.PuckImage
 @using puck.core.Models.EditorSettings
 @{
-    var settings = this.PuckEditorSettings<PuckCropsEditorSettings>()
+    var settings = this.PuckEditorSettings<PuckCropsEditorSettings>(inherit:false,modelTypeOverride:typeof(puck.core.Base.BaseModel))
         ?? new PuckCropsEditorSettings()
         {
             Crops=new List<puck.core.Models.CropInfo>()
