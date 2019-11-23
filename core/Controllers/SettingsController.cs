@@ -18,7 +18,7 @@ using Microsoft.Extensions.Caching.Memory;
 namespace puck.core.Controllers
 {
     [Area("puck")]
-    [SetPuckCulture]
+    //[SetPuckCulture]
     [Authorize(Roles=PuckRoles.Settings,AuthenticationSchemes =Mvc.AuthenticationScheme)]
     public class SettingsController : BaseController
     {
