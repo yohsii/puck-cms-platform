@@ -98,14 +98,8 @@
         var escapePropname = function (str) {
             return str.replace(/\[/g, "_").replace(/\]/g,"_").replace(/\./g,"_");
         }
-        var container = null;
-        container = $("[data-guid='"+guid+"']");
-        //if (!isPrePopulated)
-        //    container = cright.find(".puckimage_" + escapePropname(propname));
-        //else
-        //    container = cinterfaces.find("div[data-type='" + modelType + "'] .puckimage_" + escapePropname(propname))
-        
-        //var container = cright.find(".puckimage_" + propname);
+        var container = $("[data-guid='"+guid+"']");
+
         var selected_container = container.find(".selected_content:first");
         var getPropName = function () {
             return container.find("div:hidden.propName:first").attr("data-propName");
@@ -199,8 +193,6 @@
             if (imgWidth < viewportWidth)
                 viewport.css({ width: imgWidth });
             viewport.css({ height: imgHeight });
-            
-            
         }
         var setPositions = function (cropAlias,posLeft,posTop,imgWidth,imgHeight,cropperWidth,cropperHeight) {
             var leftF = posLeft / imgWidth;
