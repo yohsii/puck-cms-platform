@@ -151,7 +151,7 @@ namespace puckweb
 
             services.AddMiniProfiler(options =>{
                 // (Optional) Path to use for profiler URLs, default is /mini-profiler-resources
-                //options.RouteBasePath = "/profiler";
+                options.RouteBasePath = "/profiler";
 
                 // (Optional) Control storage
                 // (default is 30 minutes in MemoryCacheStorage)
@@ -159,7 +159,12 @@ namespace puckweb
 
                 // (Optional) Control which SQL formatter to use, InlineFormatter is the default
                 options.SqlFormatter = new StackExchange.Profiling.SqlFormatters.InlineFormatter();
+                
+                options.EnableServerTimingHeader = true;
 
+                options.IgnoredPaths.Add("/lib");
+                options.IgnoredPaths.Add("/css");
+                options.IgnoredPaths.Add("/js");
             });
 
         }
@@ -190,7 +195,9 @@ namespace puckweb
             app.UseImageSharp();
             app.UseStaticFiles();
             app.UseSession();
-            app.UseResponseCaching();
+            if (!env.IsDevelopment()) {
+                app.UseResponseCaching();
+            }
             app.UseRouting();
             
             app.UseAuthentication();
@@ -211,7 +218,8 @@ namespace puckweb
                     ,defaults: new { controller = "Home", action = "Index"}
                     );
                 endpoints.MapRazorPages();
-            });
+            }); 
+            
         }
     }
 }
