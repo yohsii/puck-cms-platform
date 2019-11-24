@@ -45,6 +45,22 @@ namespace puck.core.Controllers
             try
             {
                 repo.GetPuckMeta().Where(x => x.Name == DBNames.EditorSettings && x.Key == key).ToList().ForEach(x=>repo.DeleteMeta(x));
+
+                //clear cached values
+                var cachePrefix = "editor_settings_";
+                var cacheKey = cachePrefix + key;
+                cache.Remove(cacheKey);
+                cache.Remove("null_" + cacheKey);
+
+                var instruction = new PuckInstruction()
+                {
+                    Count = 2,
+                    ServerName = ApiHelper.ServerName(),
+                    InstructionDetail = $"{cacheKey},{"null_" + cacheKey}",
+                    InstructionKey = InstructionKeys.RemoveFromCache
+                };
+                repo.AddPuckInstruction(instruction);
+
                 repo.SaveChanges();
                 success = true;
             }
