@@ -65,7 +65,6 @@
     </div>
 </div>
 <script type="text/javascript">
-    var script = document.currentScript;
     onAfterDom(function () {
         var guid = "@guid.ToString()";
         var modelType = "@Html.Raw(ViewBag.Level0Type.Name)";
@@ -74,171 +73,175 @@
         var escapePropname = function (str) {
             return str.replace(/\[/g, "_").replace(/\]/g,"_").replace(/\./g,"_");
         }
-        //var container = $(".puckpicker_" + propname);
-        var container = null;
-        container = $("[data-guid='"+guid+"']");
-        //if (!isPrePopulated)
-        //    container = cright.find(".puckpicker_" + escapePropname(propname));
-        //else
-        //    container = cinterfaces.find("div[data-type='" + modelType + "'] .puckpicker_" + escapePropname(propname))
-        var getPropName = function () {
-            return container.find("div:hidden.propName:first").attr("data-propName");
-        }
-        container.find(".containerTrigger").click(function (e) {
-            container = $(this).parents(".editor_container:first");
-            selected_container = container.find(".selected_content");
-            //console.log("new container",container);
-        });
-        var selected_container = container.find(".selected_content");
-        var selected_content = function () { return selected_container.find(".selected_node"); }
-        var _startPath = "@startPath" == ""?startPath:"@startPath";
-        var _startId = "@startId.ToString()";
-        container.find("ul.content li:first").attr("data-children_path", _startPath);
-        var maxPick = "@settings.MaxPick";
-        var selectionType = "both"; @*"@settings.SelectionType";*@ //both|variant|node
-        var allowUnpublished = "@settings.AllowUnpublished";
-        var allowDuplicates = false;@*"@settings.AllowDuplicates"=='True';*@
-        var setValue = function () {
-            //console.log("container",container);
-            container.find("input:hidden").remove();
-            selected_container.find(".selected_node").each(function (i) {
-                var node = $(this);
-                container.append(
-                    "<input type='hidden' name='" + getPropName() + "[" + i + "].Id' value='" + node.attr("data-id") + "'/>"
-                    + "<input type='hidden' name='" + getPropName() + "[" + i + "].Variant' value='" + node.attr("data-variant") + "'/>"
-                );
-            });
-        }
-        setValue();
-        var loadData = function () {
-            var ids = "";
-            selected_container.find(".selected_node").each(function () {
-                ids += $(this).attr("data-id")+",";
-            });
-            if (!ids)
-                return;
-            getContentModels(ids, function (res) {
-                for (var i = 0; i < res.length; i++) {
-                    var el = selected_container.find(".selected_node[data-id='" + res[i].Id + "']");
-                    el.attr("data-nodenamme", res[i].NodeName);
-                    el.find(".nname").html(res[i].NodeName);
-                }
-            });
-        }
-        loadData();
-        selected_container.on("click", "i", function (e) {
-            var el = $(this).parent();
-            if (overlayEl) {
-                overlayEl.find(".node[data-id='" + el.attr("data-id") + "']").removeClass("selected");
+
+        var container = $("[data-guid='"+guid+"']");
+
+        var init = function (container) {
+            var getPropName = function () {
+                return container.find("div:hidden.propName:first").attr("data-propName");
             }
-            el.remove();
-            setValue();
-        });
-        var overlayEl = undefined; 
-        container.find(".addItem").click(function (e) {
-            if (selected_container.find(".selected_node").length >= maxPick) {
-                msg(undefined, "you cannot select any more, max selection is set to " + maxPick, undefined, undefined);
-                return false;
-            }
-            var tree = container.find("ul.contentTree").clone().removeClass("nodisplay");
-            overlayEl = overlay(tree, 400, undefined, undefined, "Content Picker", true);
-            el = overlayEl.find(".node:first");
-            getDrawContent(_startId, el, false, function () {
-                selected_container.find(".selected_node").each(function () {
-                    var selected = $(this);
-                    overlayEl.find(".node[data-id='" + selected.attr("data-id") + "']").addClass("selected");
+
+            container.on("puckListEditorUpdate", function (e, container) {
+                init(container);
+            });
+
+            container.find(".containerTrigger").unbind().click(function (e) {
+                container = $(this).parents(".editor_container:first");
+                selected_container = container.find(".selected_content");
+                //console.log("new container",container);
+            });
+            var selected_container = container.find(".selected_content");
+            var selected_content = function () { return selected_container.find(".selected_node"); }
+            var _startPath = "@startPath" == "" ? startPath : "@startPath";
+            var _startId = "@startId.ToString()";
+            container.find("ul.content li:first").attr("data-children_path", _startPath);
+            var maxPick = "@settings.MaxPick";
+            var selectionType = "both"; @*"@settings.SelectionType";*@ //both|variant|node
+            var allowUnpublished = "@settings.AllowUnpublished";
+            var allowDuplicates = false;@*"@settings.AllowDuplicates"=='True';*@
+            var setValue = function () {
+                //console.log("container",container);
+                container.find("input:hidden").remove();
+                selected_container.find(".selected_node").each(function (i) {
+                    var node = $(this);
+                    container.append(
+                        "<input type='hidden' name='" + getPropName() + "[" + i + "].Id' value='" + node.attr("data-id") + "'/>"
+                        + "<input type='hidden' name='" + getPropName() + "[" + i + "].Variant' value='" + node.attr("data-variant") + "'/>"
+                    );
                 });
-                if (overlayEl.find(".node").length == 1) {
-                    overlayEl.find("ul.contentTree").before($("<p/>").html("there is no content to select."));
-                }
-            }, false);
-            overlayEl.on("click", ".node span", function (e) {
-                var clicked = $(this);
-                var node = clicked.parents(".node:first");
-                var isVariantSelection = clicked.hasClass("variant");
-
-                if (node.attr("data-published") == "false" && !allowUnpublished) {
-                    return false;
-                }
-                var variant;
-                if (!isVariantSelection) {
-                    //changed to only allow variant selection
-                    variant = clicked.parents(".node:first").find(".variant:first").attr("data-variant");
-                    isVariantSelection = true;
-                }
-                else
-                    variant = clicked.attr("data-variant");
-                //check if node is already selected
-                if (selected_container.find(".selected_node").filter("[data-id='" + node.attr("data-id") + "'][data-variant='"+variant+"']").length > 0 && !allowDuplicates) {
-                    //remove it from selected list
-                    selected_container.find(".selected_node").filter("[data-id='" + node.attr("data-id") + "'][data-variant='" + variant + "']").remove();
-                    if (selected_container.find(".selected_node").filter("[data-id='" + node.attr("data-id") + "']").length == 0)
-                        node.removeClass("selected");
+            }
+            setValue();
+            var loadData = function () {
+                var ids = "";
+                selected_container.find(".selected_node").each(function () {
+                    ids += $(this).attr("data-id") + ",";
+                });
+                if (!ids)
                     return;
+                getContentModels(ids, function (res) {
+                    for (var i = 0; i < res.length; i++) {
+                        var el = selected_container.find(".selected_node[data-id='" + res[i].Id + "']");
+                        el.attr("data-nodenamme", res[i].NodeName);
+                        el.find(".nname").html(res[i].NodeName);
+                    }
+                });
+            }
+            loadData();
+            selected_container.off("click.remove").on("click.remove", "i", function (e) {
+                var el = $(this).parent();
+                if (overlayEl) {
+                    overlayEl.find(".node[data-id='" + el.attr("data-id") + "']").removeClass("selected");
                 }
-
+                el.remove();
+                setValue();
+            });
+            var overlayEl = undefined;
+            container.find(".addItem").unbind().click(function (e) {
                 if (selected_container.find(".selected_node").length >= maxPick) {
                     msg(undefined, "you cannot select any more, max selection is set to " + maxPick, undefined, undefined);
                     return false;
                 }
-                node.addClass("selected");
-                
-                if (isVariantSelection && (selectionType == "variant" || selectionType == "both")) {
-                    selected_container.append(
-                        "<div class='selected_node' data-nodename='"+node.attr("data-nodename")+"' data-variant='" + variant + "' data-id='" + node.attr("data-id") + "'>"
-                        + "<span>"+ node.attr("data-nodename") + "</span> - <span class='v'>" + variant + "</span>"
-                        + "&nbsp;<a href='#content?id="+node.attr("data-id")+"&variant="+variant+"' class='view'>View</a> &nbsp;<i class='fas fa-minus-circle remove'></i></div>"
-                    );
-                } else if (!isVariantSelection && (selectionType == "node" || selectionType == "both")) {
-                    selected_container.append(
-                        "<div class='selected_node' data-variant='' data-id='" + node.attr("data-id") + "'><span>" + node.attr("data-nodename") + "</span>&nbsp;<i class='fas fa-minus-circle remove'></i></div>"
-                    );
-                }
-                setValue();
-            });
-            overlayEl.on("click", "ul.contentTree li.node i.expand", function () {
-                //get children content
-                var node = $(this).parents(".node:first");
-                var descendants = node.find("ul:first");
-                if (descendants.length > 0) {//show
-                    if (descendants.first().is(":hidden")) {
-                        node.find("i.expand:first").removeClass("fa-chevron-right").addClass("fa-chevron-down");
-                        descendants.show();
-                    } else {//hide
-                        node.find("i.expand:first").removeClass("fa-chevron-down").addClass("fa-chevron-right");
-                        descendants.hide();
+                var tree = container.find("ul.contentTree").clone().removeClass("nodisplay");
+                overlayEl = overlay(tree, 400, undefined, undefined, "Content Picker", true);
+                el = overlayEl.find(".node:first");
+                getDrawContent(_startId, el, false, function () {
+                    selected_container.find(".selected_node").each(function () {
+                        var selected = $(this);
+                        overlayEl.find(".node[data-id='" + selected.attr("data-id") + "']").addClass("selected");
+                    });
+                    if (overlayEl.find(".node").length == 1) {
+                        overlayEl.find("ul.contentTree").before($("<p/>").html("there is no content to select."));
                     }
-                } else {
-                    getDrawContent(node.attr("data-id"), node, false, function () {
-                        node.find(".loader").hide();
-                        node.find("i.expand:first").show();
-                        selected_container.find(".selected_node").each(function () {
-                            var selected = $(this);
-                            overlayEl.find(".node[data-id='" + selected.attr("data-id") + "']").addClass("selected");
-                        });
-                    },false);
-                    node.find(".loader").show();
-                    node.find("i.expand:first").removeClass("fa-chevron-right").addClass("fa-chevron-down").hide();
-                }
+                }, false);
+                overlayEl.on("click", ".node span", function (e) {
+                    var clicked = $(this);
+                    var node = clicked.parents(".node:first");
+                    var isVariantSelection = clicked.hasClass("variant");
+
+                    if (node.attr("data-published") == "false" && !allowUnpublished) {
+                        return false;
+                    }
+                    var variant;
+                    if (!isVariantSelection) {
+                        //changed to only allow variant selection
+                        variant = clicked.parents(".node:first").find(".variant:first").attr("data-variant");
+                        isVariantSelection = true;
+                    }
+                    else
+                        variant = clicked.attr("data-variant");
+                    //check if node is already selected
+                    if (selected_container.find(".selected_node").filter("[data-id='" + node.attr("data-id") + "'][data-variant='" + variant + "']").length > 0 && !allowDuplicates) {
+                        //remove it from selected list
+                        selected_container.find(".selected_node").filter("[data-id='" + node.attr("data-id") + "'][data-variant='" + variant + "']").remove();
+                        if (selected_container.find(".selected_node").filter("[data-id='" + node.attr("data-id") + "']").length == 0)
+                            node.removeClass("selected");
+                        return;
+                    }
+
+                    if (selected_container.find(".selected_node").length >= maxPick) {
+                        msg(undefined, "you cannot select any more, max selection is set to " + maxPick, undefined, undefined);
+                        return false;
+                    }
+                    node.addClass("selected");
+
+                    if (isVariantSelection && (selectionType == "variant" || selectionType == "both")) {
+                        selected_container.append(
+                            "<div class='selected_node' data-nodename='" + node.attr("data-nodename") + "' data-variant='" + variant + "' data-id='" + node.attr("data-id") + "'>"
+                            + "<span>" + node.attr("data-nodename") + "</span> - <span class='v'>" + variant + "</span>"
+                            + "&nbsp;<a href='#content?id=" + node.attr("data-id") + "&variant=" + variant + "' class='view'>View</a> &nbsp;<i class='fas fa-minus-circle remove'></i></div>"
+                        );
+                    } else if (!isVariantSelection && (selectionType == "node" || selectionType == "both")) {
+                        selected_container.append(
+                            "<div class='selected_node' data-variant='' data-id='" + node.attr("data-id") + "'><span>" + node.attr("data-nodename") + "</span>&nbsp;<i class='fas fa-minus-circle remove'></i></div>"
+                        );
+                    }
+                    setValue();
+                });
+                overlayEl.on("click", "ul.contentTree li.node i.expand", function () {
+                    //get children content
+                    var node = $(this).parents(".node:first");
+                    var descendants = node.find("ul:first");
+                    if (descendants.length > 0) {//show
+                        if (descendants.first().is(":hidden")) {
+                            node.find("i.expand:first").removeClass("fa-chevron-right").addClass("fa-chevron-down");
+                            descendants.show();
+                        } else {//hide
+                            node.find("i.expand:first").removeClass("fa-chevron-down").addClass("fa-chevron-right");
+                            descendants.hide();
+                        }
+                    } else {
+                        getDrawContent(node.attr("data-id"), node, false, function () {
+                            node.find(".loader").hide();
+                            node.find("i.expand:first").show();
+                            selected_container.find(".selected_node").each(function () {
+                                var selected = $(this);
+                                overlayEl.find(".node[data-id='" + selected.attr("data-id") + "']").addClass("selected");
+                            });
+                        }, false);
+                        node.find(".loader").show();
+                        node.find("i.expand:first").removeClass("fa-chevron-right").addClass("fa-chevron-down").hide();
+                    }
+                });
             });
-        });
-        
-        selected_container.on("click", ".selected_node .view", function (e) {
-            e.preventDefault();
-            var el = $(this);
-            var selectedNode = el.parent();
-            var id = selectedNode.attr("data-id");
-            var variant = selectedNode.attr("data-variant");
-            var nodename = selectedNode.attr("data-nodename");
 
-            var container = $("<div />");
-            var inner = $("<div data-tabPrefix='overlayContent_' class='cont_inner'></div>").css({width:"100%",height:"100%"});
-            var msgContainer = $("<div class='msgTop'></div>");
-            container.append(msgContainer).append(inner);
+            selected_container.off("click.view").on("click.view", ".selected_node .view", function (e) {
+                e.preventDefault();
+                var el = $(this);
+                var selectedNode = el.parent();
+                var id = selectedNode.attr("data-id");
+                var variant = selectedNode.attr("data-variant");
+                var nodename = selectedNode.attr("data-nodename");
 
-            var overlayEl = overlay(container, "90%", undefined, top, nodename);
-            displayMarkup(null, undefined, variant, undefined, id, inner,msgContainer);
-        });
+                var container = $("<div />");
+                var inner = $("<div data-tabPrefix='overlayContent_' class='cont_inner'></div>").css({ width: "100%", height: "100%" });
+                var msgContainer = $("<div class='msgTop'></div>");
+                container.append(msgContainer).append(inner);
 
+                var overlayEl = overlay(container, "90%", undefined, top, nodename);
+                displayMarkup(null, undefined, variant, undefined, id, inner, msgContainer);
+            });
+        }
+
+        init(container);
     });
 </script>

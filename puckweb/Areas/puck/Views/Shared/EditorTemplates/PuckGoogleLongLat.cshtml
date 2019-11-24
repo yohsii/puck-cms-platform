@@ -3,26 +3,42 @@
     Layout = null;
     var guid = Guid.NewGuid();
 }
-<div data-guid="@guid.ToString()" data-editor="puckgooglelonglat" class="editor_container puck_google_long_lat puck_google_long_lat_@ViewData.ModelMetadata.PropertyName puck_google_long_lat_@ViewData.TemplateInfo.HtmlFieldPrefix.Replace("[","_").Replace("]","_").Replace(".","_")">
-    <div style="display:none;" class="propName" data-propName="@ViewData.TemplateInfo.HtmlFieldPrefix"></div>
-    <div style="display:none;" class="containerTrigger"></div>
-    <style>
-        .puck_google_long_lat {
-            position: relative;
-        }
-
-            .puck_google_long_lat .panel {
-                position: absolute;
-                top: 5px;
-                left: 50%;
-                margin-left: -180px;
-                z-index: 5;
-                background-color: #fff;
-                padding: 5px;
-                border: 1px solid #999;
+    <div data-guid="@guid.ToString()" data-editor="puckgooglelonglat" class="editor_container puck_google_long_lat puck_google_long_lat_@ViewData.ModelMetadata.PropertyName puck_google_long_lat_@ViewData.TemplateInfo.HtmlFieldPrefix.Replace("[","_").Replace("]","_").Replace(".","_")">
+        <div style="display:none;" class="propName" data-propName="@ViewData.TemplateInfo.HtmlFieldPrefix"></div>
+        <div style="display:none;" class="containerTrigger"></div>
+        <style>
+            .puck_google_long_lat {
+                position: relative;
             }
-    </style>
-    <script>
+
+                .puck_google_long_lat .panel {
+                    position: absolute;
+                    top: 5px;
+                    left: 50%;
+                    margin-left: -180px;
+                    z-index: 5;
+                    background-color: #fff;
+                    padding: 5px;
+                    border: 1px solid #999;
+                }
+        </style>
+
+        <div class="panel">
+            <input class="address" type="textbox" value="london">
+            <input type="button" value="Geocode">
+        </div>
+        <div class="map-canvas"></div>
+        <div class="fieldwrapper lat">
+            @Html.LabelFor(x => x.Latitude)
+            @Html.EditorFor(x => x.Latitude)
+        </div>
+        <div class="fieldwrapper long">
+            @Html.LabelFor(x => x.Longitude)
+            @Html.EditorFor(x => x.Longitude)
+        </div>
+        @Html.HiddenFor(x => x.LatLong)
+
+        <script>
         onAfterDom(function () {
             var guid = "@guid.ToString()";
             var modelType = "@Html.Raw(ViewBag.Level0Type.Name)";
@@ -31,110 +47,94 @@
             var escapePropname = function (str) {
                 return str.replace(/\[/g, "_").replace(/\]/g, "_").replace(/\./g, "_");
             }
-            //var container = $(".puck_google_long_lat_@ViewData.ModelMetadata.PropertyName");
 
-            var container = null;
-            container = $("[data-guid='" + guid + "']");
-            //if (!isPrePopulated)
-            //    container = cright.find(".puck_google_long_lat_" + escapePropname(propname));
-            //else
-            //    container = cinterfaces.find("div[data-type='" + modelType + "'] .puck_google_long_lat_" + escapePropname(propname))
+            var container = $("[data-guid='" + guid + "']");
 
-            var getPropName = function () {
-                return container.find("div:hidden.propName:first").attr("data-propName");
-            }
+            var init = function (container) {
 
-            var geocoder;
-            var map;
-            var lat = @(Model==null?51.5072:Model.Latitude??51.5072);
-            var long = @(Model==null?0.1275:Model.Longitude??0.1275);
-            var marker;
-            function initialize(_container) {
-                _container = _container || container;
-                geocoder = new google.maps.Geocoder();
-                var latlng = new google.maps.LatLng(lat, long);
-                var mapOptions = {
-                    zoom: 8,
-                    center: latlng
+                var getPropName = function () {
+                    return container.find("div:hidden.propName:first").attr("data-propName");
                 }
-                var width = _container.parents(".fieldwrapper").width() - 200;
-                _container.find('.map-canvas').css({ width: width, height: 500 });
-                map = new google.maps.Map(_container.find('.map-canvas').get(0), mapOptions);
-                _container.data("map", map);
 
-                clearMarker(_container);
-                marker = new google.maps.Marker({
-                    map: _container.data("map"),
-                    position: latlng
+                container.find(".containerTrigger").unbind().click(function (e) {
+                    container = $(this).parents(".editor_container:first");
+                    //console.log("new container puckgooglelatlong",container);
                 });
-                //_container.data("marker",marker);
-            }
-            var clearMarker = function (container) {
-                //var marker = container.data("marker");
-                if (marker) {
-                    marker.setMap(null);
-                }
-            }
-            //window.listEditorInitializers["puckgooglelonglat"] = function (container) {
-            //    initialize(container);
-            //}
 
-            container.find(".containerTrigger").click(function (e) {
-                container = $(this).parents(".editor_container:first");
-                //console.log("new container puckgooglelatlong",container);
-            });
+                container.off().on("puckListEditorUpdate", function (e, cont) {
+                    //debugger;
+                    init(container);
+                });
 
-            container.on("puckListEditorUpdate", function (e,cont) {
-                //debugger;
-                initialize(container);
-            });
-
-            function codeAddress() {
-                var address = container.find('.address').val();
-                geocoder.geocode( { 'address': address}, function(results, status) {
-                    if (status == google.maps.GeocoderStatus.OK) {
-                        container.data("map").setCenter(results[0].geometry.location);
-                        clearMarker(container);
-                        marker = new google.maps.Marker({
-                            map: container.data("map"),
-                            position: results[0].geometry.location
-                        });
-                        
-                        //console.log("location",results[0].geometry.location);
-                        container.find(".lat input").attr("name", getPropName() + ".Latitude").val(results[0].geometry.location.lat());
-                        container.find(".long input").attr("name", getPropName() + ".Longitude").val(results[0].geometry.location.lng());
-                        lat = results[0].geometry.location.lat();
-                        long = results[0].geometry.location.lng();
-                    } else {
-                        msg(false,'Geocode was not successful for the following reason: ' + status);
+                var geocoder;
+                var map;
+                var lat = container.find(".lat input").val() || 51.5072;
+                var long = container.find(".long input").val() || 0.1275;
+                var marker;
+                function initialize(_container) {
+                    _container = _container || container;
+                    geocoder = new google.maps.Geocoder();
+                    var latlng = new google.maps.LatLng(lat, long);
+                    var mapOptions = {
+                        zoom: 8,
+                        center: latlng
                     }
+                    var width = _container.parents(".fieldwrapper").width() - 200;
+                    _container.find('.map-canvas').css({ width: width, height: 500 });
+                    map = new google.maps.Map(_container.find('.map-canvas').get(0), mapOptions);
+                    _container.data("map", map);
+
+                    clearMarker(_container);
+                    marker = new google.maps.Marker({
+                        map: _container.data("map"),
+                        position: latlng
+                    });
+                    //_container.data("marker",marker);
+                }
+                var clearMarker = function (container) {
+                    //var marker = container.data("marker");
+                    if (marker) {
+                        marker.setMap(null);
+                    }
+                }
+
+                function codeAddress() {
+                    var address = container.find('.address').val();
+                    geocoder.geocode({ 'address': address }, function (results, status) {
+                        if (status == google.maps.GeocoderStatus.OK) {
+                            container.data("map").setCenter(results[0].geometry.location);
+                            clearMarker(container);
+                            marker = new google.maps.Marker({
+                                map: container.data("map"),
+                                position: results[0].geometry.location
+                            });
+
+                            //console.log("location",results[0].geometry.location);
+                            container.find(".lat input").attr("name", getPropName() + ".Latitude").val(results[0].geometry.location.lat());
+                            container.find(".long input").attr("name", getPropName() + ".Longitude").val(results[0].geometry.location.lng());
+                            lat = results[0].geometry.location.lat();
+                            long = results[0].geometry.location.lng();
+                        } else {
+                            msg(false, 'Geocode was not successful for the following reason: ' + status);
+                        }
+                    });
+                }
+                container.find("[type=button]").unbind().click(function () {
+                    codeAddress();
                 });
+                var whenViz = function () {
+                    if (container.parents(".tab-content").is(":visible"))
+                        initialize();
+                    else
+                        setTimeout(whenViz, 100);
+                }
+                whenViz();
             }
-            container.find("[type=button]").click(function () {
-                codeAddress();
-            });
-            var whenViz = function () {
-                if (container.parents(".tab-content").is(":visible"))
-                    initialize();
-                else
-                    setTimeout(whenViz,100);
-            }
-            whenViz();
-    });
-    </script>
-    <div class="panel">
-        <input class="address" type="textbox" value="london">
-        <input type="button" value="Geocode">
+
+            init(container);
+
+         });
+        </script>
+
     </div>
-    <div class="map-canvas"></div>
-    <div class="fieldwrapper lat">
-        @Html.LabelFor(x => x.Latitude)
-        @Html.EditorFor(x => x.Latitude)
-    </div>
-    <div class="fieldwrapper long">
-        @Html.LabelFor(x => x.Longitude)
-        @Html.EditorFor(x => x.Longitude)
-    </div>
-    @Html.HiddenFor(x => x.LatLong)
-</div>
 

@@ -94,191 +94,201 @@
         var escapePropname = function (str) {
             return str.replace(/\[/g, "_").replace(/\]/g,"_").replace(/\./g,"_");
         }
-        var container = null;
-        container = $("[data-guid='"+guid+"']");
-        var getPropName = function () {
-            return container.find("div:hidden.propName:first").attr("data-propName");
-        }
-        container.find(".containerTrigger").click(function (e) {
-            container = $(this).parents(".editor_container:first");
-            msgContainer = container.find(".puckImagePickerMsgContainer");
-            selected_container = container.find(".selected_content");
-            //console.log("new container puckimagepicker",container);
-        });
-        var msgContainer = container.find(".puckImagePickerMsgContainer");
-        var selected_container = container.find(".selected_content");
-        var selected_content = function () { return selected_container.find(".item"); }
-        var _startPath = "@startPath" == ""?startPath:"@startPath";
-        var _startId = "@startId.ToString()";
-        var maxPick = "@settings.MaxPick";
-        var setValue = function () {
-            //console.log("container",container);
-            container.find("input:hidden:not(.searchBox)").remove();
-            selected_container.find(".item").each(function (i) {
-                var node = $(this);
-                container.append(
-                    "<input type='hidden' name='" + getPropName() + "[" + i + "].Id' value='" + node.attr("data-id") + "'/>"
-                    + "<input type='hidden' name='" + getPropName() + "[" + i + "].Variant' value='" + node.attr("data-variant") + "'/>"
-                );
-            });
-        }
-        setValue();
-        var loadData = function () {
-            var ids = "";
-            selected_container.find(".item").each(function () {
-                ids += $(this).attr("data-id")+",";
-            });
-            if (!ids) return;
-            getContentModels(ids, function (res) {
-                for (var i = 0; i < res.length; i++) {
-                    var el = selected_container.find(".item[data-id='" + res[i].Id + "']");
-                    el.attr("data-nodenamme", res[i].NodeName);
-                    el.find(".nodename").html(res[i].NodeName);
-                    el.find("img").attr("src",res[i].Image.Path);
-                }
-            });
-        }
-        loadData();
-        var overlayEl = null;
-        container.find(".addImage").click(function (e) {
-            if (selected_container.find(".item").length >= maxPick) {
-                msg(undefined, "you cannot select any more, max selection is set to " + maxPick, undefined, undefined);
-                return false;
+        var container = $("[data-guid='"+guid+"']");
+
+        var init = function (container) {
+            var getPropName = function () {
+                return container.find("div:hidden.propName:first").attr("data-propName");
             }
-            var el = container.find(".interfaces .imagePickerOverlayContainer").clone();
-            overlayEl=overlay(el, 400, undefined, undefined, "Image Picker", true);
-            showFolderContent(_startId, "/", function () {
-                if (overlayEl.find(".item").length == 0) {
-                    overlayEl.find("div.path").after($("<p/>").css({"margin-top":"20px"}).html("there is no content to select."));
+
+            container.on("puckListEditorUpdate", function (e, container) {
+                init(container);
+            });
+
+            container.find(".containerTrigger").unbind().click(function (e) {
+                container = $(this).parents(".editor_container:first");
+                msgContainer = container.find(".puckImagePickerMsgContainer");
+                selected_container = container.find(".selected_content");
+                //console.log("new container puckimagepicker",container);
+            });
+            var msgContainer = container.find(".puckImagePickerMsgContainer");
+            var selected_container = container.find(".selected_content");
+            var selected_content = function () { return selected_container.find(".item"); }
+            var _startPath = "@startPath" == "" ? startPath : "@startPath";
+            var _startId = "@startId.ToString()";
+            var maxPick = "@settings.MaxPick";
+            var setValue = function () {
+                //console.log("container",container);
+                container.find("input:hidden:not(.searchBox)").remove();
+                selected_container.find(".item").each(function (i) {
+                    var node = $(this);
+                    container.append(
+                        "<input type='hidden' name='" + getPropName() + "[" + i + "].Id' value='" + node.attr("data-id") + "'/>"
+                        + "<input type='hidden' name='" + getPropName() + "[" + i + "].Variant' value='" + node.attr("data-variant") + "'/>"
+                    );
+                });
+            }
+            setValue();
+            var loadData = function () {
+                var ids = "";
+                selected_container.find(".item").each(function () {
+                    ids += $(this).attr("data-id") + ",";
+                });
+                if (!ids) return;
+                getContentModels(ids, function (res) {
+                    for (var i = 0; i < res.length; i++) {
+                        var el = selected_container.find(".item[data-id='" + res[i].Id + "']");
+                        el.attr("data-nodenamme", res[i].NodeName);
+                        el.find(".nodename").html(res[i].NodeName);
+                        el.find("img").attr("src", res[i].Image.Path);
+                    }
+                });
+            }
+            loadData();
+            var overlayEl = null;
+            container.find(".addImage").unbind().click(function (e) {
+                if (selected_container.find(".item").length >= maxPick) {
+                    msg(undefined, "you cannot select any more, max selection is set to " + maxPick, undefined, undefined);
+                    return false;
                 }
-            });
-            overlayEl.off("click.imgPickerMeta").on("click.imgPickerMeta", ".metaContainer.folder", function (e) {
-                var el = $(this);
-                var item = el.parents(".item");
-                showFolderContent(item.attr("data-id"),item.attr("data-nodename"));
-            });
-            overlayEl.off("click.imgPickerPath").on("click.imgPickerPath", ".imagePickerOverlayContainer .path span", function (e) {
-                var el = $(this);
-                el.nextAll("span").remove();
-                var id = el.attr("data-id");
-                showFolderContent(id,undefined);
-            });
-            overlayEl.off("click.searchButton").on("click.searchButton", ".imagePickerOverlayContainer .searchContainer button", function (e) {
-                var input = overlayEl.find(".searchContainer input");
-                var searchTerm = input.val();
-                getSearch(searchTerm, function (res) {
-                    var cont = overlayEl;
-                    var itemContainer =overlayEl.find(".itemContainer");
-                    itemContainer.html("");
-                    //console.log(res);
-                    var pathEl = $("<span class='searchTerm'/>").html("search:\"" + searchTerm + "\" ");
-                    var clear = $("<button class='btn btn-link'>clear</button>").click(function () {
-                        cont.find(".path").html("");
-                        showFolderContent(_startId, "/");
-                    }).appendTo(pathEl);
-                    cont.find(".path").html(pathEl);
-                    if (res.length == 0) {
-                        itemContainer.html($("<div class='col-12 zeroResults'/>").html("0 results"));
+                var el = container.find(".interfaces .imagePickerOverlayContainer").clone();
+                overlayEl = overlay(el, 400, undefined, undefined, "Image Picker", true);
+                showFolderContent(_startId, "/", function () {
+                    if (overlayEl.find(".item").length == 0) {
+                        overlayEl.find("div.path").after($("<p/>").css({ "margin-top": "20px" }).html("there is no content to select."));
+                    }
+                });
+                overlayEl.off("click.imgPickerMeta").on("click.imgPickerMeta", ".metaContainer.folder", function (e) {
+                    var el = $(this);
+                    var item = el.parents(".item");
+                    showFolderContent(item.attr("data-id"), item.attr("data-nodename"));
+                });
+                overlayEl.off("click.imgPickerPath").on("click.imgPickerPath", ".imagePickerOverlayContainer .path span", function (e) {
+                    var el = $(this);
+                    el.nextAll("span").remove();
+                    var id = el.attr("data-id");
+                    showFolderContent(id, undefined);
+                });
+                overlayEl.off("click.searchButton").on("click.searchButton", ".imagePickerOverlayContainer .searchContainer button", function (e) {
+                    var input = overlayEl.find(".searchContainer input");
+                    var searchTerm = input.val();
+                    getSearch(searchTerm, function (res) {
+                        var cont = overlayEl;
+                        var itemContainer = overlayEl.find(".itemContainer");
+                        itemContainer.html("");
+                        //console.log(res);
+                        var pathEl = $("<span class='searchTerm'/>").html("search:\"" + searchTerm + "\" ");
+                        var clear = $("<button class='btn btn-link'>clear</button>").click(function () {
+                            cont.find(".path").html("");
+                            showFolderContent(_startId, "/");
+                        }).appendTo(pathEl);
+                        cont.find(".path").html(pathEl);
+                        if (res.length == 0) {
+                            itemContainer.html($("<div class='col-12 zeroResults'/>").html("0 results"));
+                        } else {
+                            for (var i = 0; i < res.length; i++) {
+                                draw(res[i], [], itemContainer);
+                            }
+                        }
+                    }, "ImageVM", "");
+                });
+                overlayEl.on("click", "img", function (e) {
+                    var el = $(this).parents(".item");
+                    if (selected_container.find("[data-id='" + el.attr("data-id") + "'][data-variant='" + el.attr("data-variant") + "']").length == 0) {
+                        if (selected_container.find(".item").length < maxPick) {
+                            el.addClass("selected");
+                            var copy = el.clone().removeClass("col-4").addClass("col-md-4 col-lg-3");
+                            copy.find("img").css({ width: "auto" });
+                            selected_container.append(copy);
+                            setValue();
+                        } else msg(undefined, "you cannot select any more, max selection is set to " + maxPick, undefined, undefined);
+
                     } else {
-                        for (var i = 0; i < res.length; i++) {
-                            draw(res[i], [], itemContainer);
+                        selected_container.find("[data-id='" + el.attr("data-id") + "'][data-variant='" + el.attr("data-variant") + "']").remove();
+                        el.removeClass("selected");
+                    }
+                });
+            });
+            var showFolderContent = function (id, name, f) {
+                var cont = overlayEl;
+                var itemContainer = overlayEl.find(".itemContainer");
+                if (cont.length == 0) return;
+                itemContainer.html("");
+                if (name != undefined) {
+                    var pathEl = $("<span data-id='" + id + "'/>").html(name + (name == "/" ? "" : "/"));
+                    cont.find(".path").append(pathEl);
+                }
+                getContentByParentId(id, function (res) {
+                    //console.log(res);
+                    for (guid in res.current) {
+                        var itemGroup = res.current[guid];
+                        var vCount = 0;
+                        for (variant in itemGroup) {
+                            var item = itemGroup[variant];
+                            if (vCount > 0 && item.Type != "ImageVM")
+                                break;
+                            draw(item, res.children, itemContainer);
+                            vCount++;
                         }
                     }
-                }, "ImageVM", "");
-            });
-            overlayEl.on("click","img", function (e) {
-                var el = $(this).parents(".item");
-                if (selected_container.find("[data-id='" + el.attr("data-id") + "'][data-variant='" + el.attr("data-variant") + "']").length == 0) {
-                    if (selected_container.find(".item").length < maxPick) {
-                        el.addClass("selected");
-                        var copy = el.clone().removeClass("col-4").addClass("col-md-4 col-lg-3");
-                        copy.find("img").css({width:"auto"});
-                        selected_container.append(copy);
-                        setValue();
-                    } else msg(undefined, "you cannot select any more, max selection is set to " + maxPick, undefined, undefined);
+                    if (f) f();
+                }, false);
+            }
 
+            var draw = function (model, children, itemContainer) {
+                //if (!children.includes(model.Id) && model.Type != 'ImageVM')
+                //    return;
+                var el = container.find(".interfaces .item").clone();
+                if (selected_container.find("[data-id='" + model.Id + "'][data-variant='" + model.Variant + "']").length > 0) {
+                    el.addClass("selected");
+                }
+                el.attr({ "data-id": model.Id, "data-variant": model.Variant, "data-nodename": model.NodeName });
+                el.find(".variant").html(model.Variant);
+                el.find(".nodename").html(model.NodeName);
+                if (model.Type == "ImageVM") {
+                    el.find(".iconContainer").hide();
+                    el.find("img").attr({ src: model.Image.Path }).css({ width: "100%" });
                 } else {
-                    selected_container.find("[data-id='" + el.attr("data-id") + "'][data-variant='" + el.attr("data-variant") + "']").remove();
-                    el.removeClass("selected");
+                    el.find(".imageContainer").hide();
+                    el.find(".variant").hide();
+                    el.find(".separator").hide();
                 }
+                if (children.includes(model.Id)) {
+                    el.find(".metaContainer").addClass("folder");
+                    el.find(".iconContainer i").removeClass("fa-file-alt").addClass("fa-folder");
+                }
+
+                itemContainer.append(el);
+                //console.log(model);
+            }
+            selected_container.off("click.remove").on("click.remove", "i.remove", function (e) {
+                var item = $(this).parents(".item");
+                if (overlayEl)
+                    overlayEl.find(".item[data-id='" + item.attr("data-id") + "'][data-variant='" + item.attr("data-variant") + "']")
+                        .removeClass("selected");
+                item.remove();
+                setValue();
             });
-        });
-        var showFolderContent = function(id,name,f) {
-            var cont = overlayEl;
-            var itemContainer = overlayEl.find(".itemContainer");
-            if (cont.length == 0) return;
-            itemContainer.html("");
-            if (name != undefined) {
-                var pathEl = $("<span data-id='" + id + "'/>").html(name + (name == "/" ? "" : "/"));
-                cont.find(".path").append(pathEl);
-            }
-            getContentByParentId(id, function (res) {
-                //console.log(res);
-                for (guid in res.current) {
-                    var itemGroup = res.current[guid];
-                    var vCount = 0;
-                    for (variant in itemGroup) {
-                        var item = itemGroup[variant];
-                        if (vCount > 0 && item.Type != "ImageVM")
-                            break;
-                        draw(item, res.children, itemContainer);
-                        vCount++;
-                    }
-                }
-                if (f) f();
-            },false);
+
+            selected_container.off("click.view").on("click.view", ".view", function (e) {
+                var el = $(this);
+                var selectedNode = el.parents(".item");
+                var id = selectedNode.attr("data-id");
+                var variant = selectedNode.attr("data-variant");
+                var nodename = selectedNode.attr("data-nodename");
+
+                var container = $("<div />");
+                var inner = $("<div data-tabPrefix='overlayContent_' class='cont_inner'></div>").css({ width: "100%", height: "100%" });
+                var msgContainer = $("<div class='msgTop'></div>");
+                container.append(msgContainer).append(inner);
+
+                overlay(container, "90%", undefined, top, nodename);
+                displayMarkup(null, undefined, variant, undefined, id, inner, msgContainer);
+            });
         }
 
-        var draw = function (model, children, itemContainer) {
-            //if (!children.includes(model.Id) && model.Type != 'ImageVM')
-            //    return;
-            var el = container.find(".interfaces .item").clone();
-            if (selected_container.find("[data-id='" + model.Id + "'][data-variant='" + model.Variant + "']").length > 0) {
-                el.addClass("selected");
-            }
-            el.attr({ "data-id": model.Id, "data-variant": model.Variant, "data-nodename": model.NodeName });
-            el.find(".variant").html(model.Variant);
-            el.find(".nodename").html(model.NodeName);
-            if (model.Type == "ImageVM") {
-                el.find(".iconContainer").hide();
-                el.find("img").attr({ src: model.Image.Path }).css({width:"100%"});
-            } else {
-                el.find(".imageContainer").hide();
-                el.find(".variant").hide();
-                el.find(".separator").hide();
-            }
-            if (children.includes(model.Id)) {
-                el.find(".metaContainer").addClass("folder");
-                el.find(".iconContainer i").removeClass("fa-file-alt").addClass("fa-folder");
-            }
+        init(container);
 
-            itemContainer.append(el);
-            //console.log(model);
-        }
-        selected_container.on("click", "i.remove", function (e) {
-            var item = $(this).parents(".item");
-            if(overlayEl)
-                overlayEl.find(".item[data-id='" + item.attr("data-id") + "'][data-variant='" + item.attr("data-variant") + "']")
-                    .removeClass("selected");
-            item.remove();
-            setValue();
-        });
-
-        selected_container.on("click", ".view", function (e) {
-            var el = $(this);
-            var selectedNode = el.parents(".item");
-            var id = selectedNode.attr("data-id");
-            var variant = selectedNode.attr("data-variant");
-            var nodename = selectedNode.attr("data-nodename");
-
-            var container = $("<div />");
-            var inner = $("<div data-tabPrefix='overlayContent_' class='cont_inner'></div>").css({width:"100%",height:"100%"});
-            var msgContainer = $("<div class='msgTop'></div>");
-            container.append(msgContainer).append(inner);
-
-            overlay(container, "90%", undefined, top, nodename);
-            displayMarkup(null, undefined, variant, undefined, id, inner,msgContainer);
-        });
     });
 </script>
 <style>
