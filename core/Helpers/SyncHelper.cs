@@ -71,15 +71,12 @@ namespace puck.core.Helpers
                     if (meta == null)
                         return;
                     var syncId = int.Parse(meta.Value);
-                    var instructions = repo.GetPuckInstruction().Where(x => x.Id > syncId && x.ServerName != serverName).ToList();
-                    if (instructions.Count == 0)
+                    var instructionsQuery = repo.GetPuckInstruction().Where(x => x.Id > syncId && x.ServerName != serverName);
+                    var instructionsCount = instructionsQuery.Count();
+                    if (instructionsCount == 0)
                         return;
-                    //dosync
-                    var hasPublishInstruction = false;
-                    var instructionTotal = 0;
-                    instructions.ForEach(x => instructionTotal += x.Count);
-                    if (instructionTotal > PuckCache.MaxSyncInstructions)
-                    {
+                    
+                    void handleMaxInstructions() {
                         //todo, update settings and republish entire site
                         if (!PuckCache.IsRepublishingEntireSite)
                         {
@@ -94,120 +91,154 @@ namespace puck.core.Helpers
                         StateHelper.UpdateCacheMappings();
                         StateHelper.UpdateCrops();
                     }
+                    void updateMaxInstructionId(List<PuckInstruction> instructions) {
+                        //update syncId
+                        //var maxInstructionId = instructions.Max(x => x.Id);
+                        var maxInstructionIdOrDefault = repo.GetPuckInstruction().Max(x => (int?)x.Id);
+                        var maxInstructionId = maxInstructionIdOrDefault.HasValue ? maxInstructionIdOrDefault.Value : 0;
+                        meta.Value = maxInstructionId.ToString();
+                        repo.SaveChanges();
+                        OnAfterSync(null, new AfterSyncEventArgs { Instructions = instructions });
+                    }
+                    //dosync
+                    var hasPublishInstruction = false;
+                    if (instructionsCount > PuckCache.MaxSyncInstructions)
+                    {
+                        handleMaxInstructions();
+                        updateMaxInstructionId(new List<PuckInstruction>());
+                    }
                     else
                     {
-                        foreach (var instruction in instructions)
+                        var instructions = instructionsQuery.ToList();
+                        var instructionTotal = 0;
+                        instructions.ForEach(x => instructionTotal += x.Count);
+                        if (instructionTotal > PuckCache.MaxSyncInstructions)
                         {
-                            if (instruction.InstructionKey == InstructionKeys.RemoveFromCache)
+                            handleMaxInstructions();
+                        }
+                        else
+                        {
+                            foreach (var instruction in instructions)
                             {
-                                var keys = instruction.InstructionDetail.Split(new char[] { ','},StringSplitOptions.RemoveEmptyEntries);
-                                foreach (var key in keys) {
-                                    cache.Remove(key);
-                                }
-                            }
-                            else if (instruction.InstructionKey == InstructionKeys.SetSearcher)
-                            {
-                                searcher.SetSearcher();
-                            }
-                            else if (instruction.InstructionKey == InstructionKeys.Delete)
-                            {
-                                hasPublishInstruction = true;
-                                if (Indexer.CanWrite)
+                                try
                                 {
-                                    var qh = new QueryHelper<BaseModel>(prependTypeTerm: false);
-                                    qh.SetQuery(instruction.InstructionDetail);
-                                    var models = qh.GetAllNoCast(limit: int.MaxValue,fallBackToBaseModel:true);
-                                    Indexer.Delete(models);
-                                }
-                                else {
-                                    searcher.SetSearcher();
-                                }
-                            }
-                            else if (instruction.InstructionKey == InstructionKeys.RepublishSite)
-                            {
-                                if (Indexer.CanWrite)
-                                {
-                                    if (!PuckCache.IsRepublishingEntireSite)
+                                    if (instruction.InstructionKey == InstructionKeys.RemoveFromCache)
                                     {
-                                        PuckCache.IsRepublishingEntireSite = true;
-                                        var republishTask = contentService.RePublishEntireSite2();
-                                        republishTask.GetAwaiter().GetResult();
-                                    }
-                                }
-                                else searcher.SetSearcher();
-                            }
-                            else if (instruction.InstructionKey == InstructionKeys.Publish)
-                            {
-                                hasPublishInstruction = true;
-                                var toIndex = new List<BaseModel>();
-                                //instruction detail holds comma separated list of ids and variants in format id:variant,id:variant
-                                var idList = instruction.InstructionDetail.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-                                if (Indexer.CanWrite) {
-                                    foreach (var idAndVariant in idList)
-                                    {
-                                        var idAndVariantArr = idAndVariant.Split(new char[] { ':' }, StringSplitOptions.RemoveEmptyEntries);
-                                        var id = Guid.Parse(idAndVariantArr[0]);
-                                        var variant = idAndVariantArr[1];
-                                        var publishedOrCurrentRevision = repo.PublishedOrCurrentRevision(id, variant);
-                                        if (publishedOrCurrentRevision != null)
+                                        var keys = instruction.InstructionDetail.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                                        foreach (var key in keys)
                                         {
-                                            var model = publishedOrCurrentRevision.ToBaseModel();
-                                            toIndex.Add(model);
+                                            cache.Remove(key);
                                         }
                                     }
-                                    Indexer.Index(toIndex);
+                                    else if (instruction.InstructionKey == InstructionKeys.SetSearcher)
+                                    {
+                                        searcher.SetSearcher();
+                                    }
+                                    else if (instruction.InstructionKey == InstructionKeys.Delete)
+                                    {
+                                        hasPublishInstruction = true;
+                                        if (Indexer.CanWrite)
+                                        {
+                                            var qh = new QueryHelper<BaseModel>(prependTypeTerm: false);
+                                            qh.SetQuery(instruction.InstructionDetail);
+                                            var models = qh.GetAllNoCast(limit: int.MaxValue, fallBackToBaseModel: true);
+                                            Indexer.Delete(models);
+                                        }
+                                        else
+                                        {
+                                            searcher.SetSearcher();
+                                        }
+                                    }
+                                    else if (instruction.InstructionKey == InstructionKeys.RepublishSite)
+                                    {
+                                        if (Indexer.CanWrite)
+                                        {
+                                            if (!PuckCache.IsRepublishingEntireSite)
+                                            {
+                                                PuckCache.IsRepublishingEntireSite = true;
+                                                var republishTask = contentService.RePublishEntireSite2();
+                                                republishTask.GetAwaiter().GetResult();
+                                            }
+                                        }
+                                        else searcher.SetSearcher();
+                                    }
+                                    else if (instruction.InstructionKey == InstructionKeys.Publish)
+                                    {
+                                        hasPublishInstruction = true;
+                                        var toIndex = new List<BaseModel>();
+                                        //instruction detail holds comma separated list of ids and variants in format id:variant,id:variant
+                                        var idList = instruction.InstructionDetail.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                                        if (Indexer.CanWrite)
+                                        {
+                                            foreach (var idAndVariant in idList)
+                                            {
+                                                var idAndVariantArr = idAndVariant.Split(new char[] { ':' }, StringSplitOptions.RemoveEmptyEntries);
+                                                var id = Guid.Parse(idAndVariantArr[0]);
+                                                var variant = idAndVariantArr[1];
+                                                var publishedOrCurrentRevision = repo.PublishedOrCurrentRevision(id, variant);
+                                                if (publishedOrCurrentRevision != null)
+                                                {
+                                                    var model = publishedOrCurrentRevision.ToBaseModel();
+                                                    toIndex.Add(model);
+                                                }
+                                            }
+                                            Indexer.Index(toIndex);
+                                        }
+                                        else
+                                        {
+                                            searcher.SetSearcher();
+                                        }
+                                    }
+                                    else if (instruction.InstructionKey == InstructionKeys.UpdateCrops)
+                                    {
+                                        StateHelper.UpdateCrops();
+                                    }
+                                    else if (instruction.InstructionKey == InstructionKeys.UpdateCacheMappings)
+                                    {
+                                        StateHelper.UpdateCacheMappings();
+                                    }
+                                    else if (instruction.InstructionKey == InstructionKeys.UpdateDomainMappings)
+                                    {
+                                        StateHelper.UpdateDomainMappings();
+                                    }
+                                    else if (instruction.InstructionKey == InstructionKeys.UpdatePathLocales)
+                                    {
+                                        StateHelper.UpdatePathLocaleMappings();
+                                    }
+                                    else if (instruction.InstructionKey == InstructionKeys.UpdateRedirects)
+                                    {
+                                        StateHelper.UpdateRedirectMappings();
+                                    }
+                                    else if (instruction.InstructionKey == InstructionKeys.UpdateTaskMappings)
+                                    {
+                                        StateHelper.UpdateTaskMappings();
+                                    }
                                 }
-                                else
+                                catch (Exception ex) {
+                                    PuckCache.PuckLog.Log(
+                                        $"error processing sync instruction (id:{instruction.Id}), skipping. error message:{ex.Message}"
+                                        ,ex.StackTrace
+                                        ,level:"error"
+                                        ,exceptionType:ex.GetType()
+                                    );
+                                }
+                            }
+                            if (hasPublishInstruction)
+                            {
+                                if (((config.GetValue<bool?>("UseAzureDirectory") ?? false) || (config.GetValue<bool?>("UseSyncDirectory") ?? false))
+                                    && config.GetValue<bool>("IsEditServer"))
                                 {
-                                    searcher.SetSearcher();
+                                    var newInstruction = new PuckInstruction();
+                                    newInstruction.InstructionKey = InstructionKeys.SetSearcher;
+                                    newInstruction.Count = 1;
+                                    newInstruction.ServerName = ApiHelper.ServerName();
+                                    repo.AddPuckInstruction(newInstruction);
+                                    repo.SaveChanges();
                                 }
                             }
-                            else if (instruction.InstructionKey == InstructionKeys.UpdateCrops)
-                            {
-                                StateHelper.UpdateCrops();
-                            }
-                            else if (instruction.InstructionKey == InstructionKeys.UpdateCacheMappings)
-                            {
-                                StateHelper.UpdateCacheMappings();
-                            }
-                            else if (instruction.InstructionKey == InstructionKeys.UpdateDomainMappings)
-                            {
-                                StateHelper.UpdateDomainMappings();
-                            }
-                            else if (instruction.InstructionKey == InstructionKeys.UpdatePathLocales)
-                            {
-                                StateHelper.UpdatePathLocaleMappings();
-                            }
-                            else if (instruction.InstructionKey == InstructionKeys.UpdateRedirects)
-                            {
-                                StateHelper.UpdateRedirectMappings();
-                            }
-                            else if (instruction.InstructionKey == InstructionKeys.UpdateTaskMappings)
-                            {
-                                StateHelper.UpdateTaskMappings();
-                            }
-
                         }
-                        if (hasPublishInstruction) {
-                            if (((config.GetValue<bool?>("UseAzureDirectory") ?? false) || (config.GetValue<bool?>("UseSyncDirectory") ?? false)) 
-                                && config.GetValue<bool>("IsEditServer"))
-                            {
-                                var newInstruction = new PuckInstruction();
-                                newInstruction.InstructionKey = InstructionKeys.SetSearcher;
-                                newInstruction.Count = 1;
-                                newInstruction.ServerName = ApiHelper.ServerName();
-                                repo.AddPuckInstruction(newInstruction);
-                                repo.SaveChanges();
-                            }
-                        }
+                        updateMaxInstructionId(instructions);
                     }
-                    //update syncId
-                    //var maxInstructionId = instructions.Max(x => x.Id);
-                    var maxInstructionIdOrDefault = repo.GetPuckInstruction().Max(x => (int?)x.Id);
-                    var maxInstructionId = maxInstructionIdOrDefault.HasValue ? maxInstructionIdOrDefault.Value : 0;
-                    meta.Value = maxInstructionId.ToString();
-                    repo.SaveChanges();
-                    OnAfterSync(null, new AfterSyncEventArgs { Instructions = instructions });
                 }
                 catch (Exception ex)
                 {
