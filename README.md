@@ -1,4 +1,4 @@
-NOTE: this is an asp.net core migration of the mvc 5 project which you can find [here](https://github.com/yohsii/puck). you can add the commits to the mvc5 project to the commits of this one for a more accurate view of commits.
+NOTE: this is an asp.net core migration of the mvc 5 project which you can find [here](https://github.com/yohsii/puck).
 
 # puck cms
 Fast, scalable, code-first, unobtrusive and extensible with powerful querying and Lucene integration.
