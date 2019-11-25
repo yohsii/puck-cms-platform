@@ -5,6 +5,8 @@
     var count = 0;
     var guid = Guid.NewGuid();
     var displayAttribute = ViewData.ModelMetadata.GetPropertyAttribute<System.ComponentModel.DataAnnotations.DisplayAttribute>();
+    var settings = this.PuckEditorSettings<puck.core.Models.EditorSettings.Attributes.ListEditorSettingsAttribute>(attributeOnly: true) 
+        ?? new puck.core.Models.EditorSettings.Attributes.ListEditorSettingsAttribute();
 }
 <div data-guid="@guid.ToString()" class="listeditor listeditor_@ViewData.TemplateInfo.HtmlFieldPrefix listeditor_@ViewData.TemplateInfo.HtmlFieldPrefix.Replace("[","_").Replace("]","_").Replace(".","_")">
     <div style="display:none;" class="propName" data-propName="@ViewData.TemplateInfo.HtmlFieldPrefix"></div>
@@ -19,7 +21,12 @@
             {
                 string templateName = null;
                 if (m.GetType().Equals(typeof(string))) {
-                    templateName = "String";
+                    if(!string.IsNullOrEmpty(settings.StringEditorTemplate)){
+                        templateName = settings.StringEditorTemplate;
+                    }else
+                    {
+                        templateName = "String";
+                    }
                 }
                 if (m.GetType().Equals(typeof(Single))) {
                     templateName = "Single";
@@ -258,8 +265,10 @@
                 var _nameQuery = itemContainer.parents(".listeditor:first").find("div:hidden.nameQuery").attr("data-query");
                 var elTitle = itemContainer.find(_nameQuery);
                 if (elTitle.length > 0) {
-                    if (elTitle.first().is(":input"))
+                    if (elTitle.first().is(":input")) {
                         title = elTitle.val();
+                        title = $("<div/>").html(title).text();
+                    }
                     else
                         title = elTitle.text();
                 }

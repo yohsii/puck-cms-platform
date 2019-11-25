@@ -33,6 +33,7 @@ namespace puck.core.Constants
         public const string RichTextEditor = "rte";
         public const string Tags = "PuckTags";
         public const string ListEditor = "ListEditor";
+        public const string TextArea = "TextArea";
 
     }
     public static class Mvc {

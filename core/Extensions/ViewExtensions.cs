@@ -42,13 +42,16 @@ namespace puck.core.Extensions
             if (result == null) return default(T);
             return (T)result;
         }
-        public static T PuckEditorSettings<T>(this RazorPageBase page,string propertyName="",bool inherit=true,Type modelTypeOverride=null) {
+        public static T PuckEditorSettings<T>(this RazorPageBase page,string propertyName="",bool inherit=true,Type modelTypeOverride=null,bool attributeOnly=false) {
             int cacheMinutes = 30;
             if (page.ViewContext.ViewData.ModelMetadata!= null) {
                 var settingsAttribute = page.ViewContext.ViewData.ModelMetadata.GetPropertyAttribute<T>();
                 if (settingsAttribute != null)
                     return (T)settingsAttribute;
             }
+            if (attributeOnly)
+                return default(T);
+
             if (string.IsNullOrEmpty(propertyName))
                 propertyName = page.ViewContext.ViewData.TemplateInfo.HtmlFieldPrefix;
             using (var scope = PuckCache.ServiceProvider.CreateScope())
