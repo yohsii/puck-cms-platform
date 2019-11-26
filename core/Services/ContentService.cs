@@ -1866,11 +1866,14 @@ namespace puck.core.Services
             parentId = startRevisions.FirstOrDefault()?.ParentId;
             var destinationRevisions = repo.GetPuckRevision().Where(x => x.Id == destinationId && x.Current).ToList();
             if (startRevisions.Count == 0) throw new Exception("cannot find start node");
-            if (destinationRevisions.Count == 0) throw new Exception("cannot find destination node");
-            if (destinationRevisions.FirstOrDefault().IdPath.ToLower().StartsWith(startRevisions.FirstOrDefault().IdPath.ToLower()))
-                throw new Exception("cannot move parent node to child");
-            if (startRevisions.FirstOrDefault().ParentId == Guid.Empty)
-                throw new Exception("cannot move root node");
+            if (destinationId != Guid.Empty)
+            {
+                if (destinationRevisions.Count == 0) throw new Exception("cannot find destination node");
+                if (destinationRevisions.FirstOrDefault().IdPath.ToLower().StartsWith(startRevisions.FirstOrDefault().IdPath.ToLower()))
+                    throw new Exception("cannot move parent node to child");
+            }
+            //if (startRevisions.FirstOrDefault().ParentId == Guid.Empty)
+            //    throw new Exception("cannot move root node");
             var startNodes = startRevisions.Select(x => x.ToBaseModel()).ToList();
             var destinationNodes = destinationRevisions.Select(x => x.ToBaseModel()).ToList();
             BaseModel startNode = null;

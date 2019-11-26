@@ -157,10 +157,10 @@ $(document).on("click", "ul.content li.node i.menu", function (e) {
         dropdown.find("a[data-action='domain']").parents("li").hide();
     }
     //filter move - disallow root move
-    if (isRootItem(node.attr("data-parent_id")))
-        dropdown.find("a[data-action='move']").parents("li").hide();
-    else
-        dropdown.find("a[data-action='move']").parents("li").show();
+    //if (isRootItem(node.attr("data-parent_id")))
+    //    dropdown.find("a[data-action='move']").parents("li").hide();
+    //else
+    //    dropdown.find("a[data-action='move']").parents("li").show();
     //filter copy - disallow root copy
     if (isRootItem(node.attr("data-parent_id")))
         dropdown.find("a[data-action='copy']").parents("li").hide();
@@ -363,10 +363,17 @@ $(document).on("click",".node-dropdown a,.template-dropdown a",function () {
         case "move":
             var markup = $(".interfaces .tree_container.move").clone();
             var el = markup.find(".node:first");
-            var overlayEl = overlay(markup,undefined,undefined,undefined,"Move Content");
+
+            el.attr({ "data-path": "/", "data-nodename": "root", "data-id": emptyGuid }).append(
+                '<div class="inner"><span class="nodename">- root -&nbsp;</span></div>'
+            );
+
+            var overlayEl = overlay(markup, undefined, undefined, undefined, "Move Content");
             overlayEl.find(".msg").html("select new parent node for content <b>" + node.attr("data-nodename") + "</b>");
             getDrawContent(startId, el);
+            var moving = false;
             markup.on("click", ".node span", function (e) {
+                if (moving) return;
                 var dest_node = $(this).parents(".node:first");
                 var from = node.attr("data-path");
                 var to = dest_node.attr("data-path");
@@ -375,14 +382,25 @@ $(document).on("click",".node-dropdown a,.template-dropdown a",function () {
                 if (!confirm("move " + from + " to " + to + " ?")) {
                     return;
                 }
+
+                moving = true;
+                var img = $("<img src='/areas/puck/assets/img/tree-loader.gif'/>")
+                    .css({ position: "absolute", top: "17px", right: "60px" })
+                    .addClass("submitLoader");
+                overlayEl.find(".overlay_close").before(img);
+
                 setMove(fromId, toId, function (d) {
                     if (d.success) {
+                        moving = false;
+                        img.remove();
                         cleft.find(".node[data-id='" + fromId + "']").remove();
                         var tonode = cleft.find(".node[data-id='" + toId + "']");
                         console.log({ el: tonode });
                         tonode.find(".expand:first").removeClass("fa-chevron-right").addClass("fa-chevron-down").css({ visibility: "visible" });
                         getDrawContent(toId, undefined, true, function () { },true);
                     } else {
+                        moving = false;
+                        img.remove();
                         msg(false, d.message);
                     }
                     overlayClose();
@@ -392,6 +410,11 @@ $(document).on("click",".node-dropdown a,.template-dropdown a",function () {
         case "copy":
             var markup = $(".interfaces .tree_container.copy").clone();
             var el = markup.find(".node:first");
+
+            el.attr({ "data-path": "/", "data-nodename": "root", "data-id": emptyGuid }).append(
+                '<div class="inner"><span class="nodename">- root -&nbsp;</span></div>'
+            );
+
             var overlayEl = overlay(markup, undefined, undefined, undefined, "Copy Content");
             overlayEl.find(".msg").html("select new parent node for copied content <b>" + node.attr("data-nodename") + "</b>");
             getDrawContent(startId, el);
