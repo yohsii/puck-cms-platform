@@ -1827,6 +1827,8 @@ namespace puck.core.Services
 
             itemsToCopy.ForEach(x => x.ParentId = parentId);
 
+            var toIndex = new List<BaseModel>();
+
             async Task SaveCopies(Guid pId, List<BaseModel> items)
             {
                 var children = items.Where(x => x.ParentId == pId).ToList();
@@ -1836,13 +1838,16 @@ namespace puck.core.Services
                     foreach (var model in group)
                     {
                         model.Path = "";
-                        await SaveContent(model, userName: userName);
+                        toIndex.AddRange(await SaveContent(model, userName: userName,shouldIndex:false));
                     }
                     await SaveCopies(group.Key, items);
                 }
             }
 
             await SaveCopies(parentId, allItemsToCopy);
+            
+            Index(toIndex);
+            
             AddAuditEntry(id, "", AuditActions.Copy, notes, userName);
         }
         public async Task Move(Guid nodeId, Guid destinationId, string userName = null)
