@@ -395,7 +395,9 @@ $(document).on("click",".node-dropdown a,.template-dropdown a",function () {
             var overlayEl = overlay(markup, undefined, undefined, undefined, "Copy Content");
             overlayEl.find(".msg").html("select new parent node for copied content <b>" + node.attr("data-nodename") + "</b>");
             getDrawContent(startId, el);
+            var copying = false;
             markup.on("click", ".node span", function (e) {
+                if (copying) return;
                 var dest_node = $(this).parents(".node:first");
                 var from = node.attr("data-path");
                 var to = dest_node.attr("data-path");
@@ -407,14 +409,24 @@ $(document).on("click",".node-dropdown a,.template-dropdown a",function () {
                 if (!confirm("copy " + nodeTitle + " to " + to + " ?")) {
                     return;
                 }
+                copying = true;
+                var img = $("<img src='/areas/puck/assets/img/tree-loader.gif'/>")
+                    .css({position:"absolute",top:"17px",right:"60px"})
+                    .addClass("submitLoader");
+                overlayEl.find(".overlay_close").before(img);
                 setCopy(fromId, toId, includeDescendants, function (d) {
                     if (d.success) {
+                        copying = false;
+                        img.remove();
                         var tonode = cleft.find(".node[data-id='" + toId + "']");
                         console.log({ el: tonode });
                         if (tonode.length == 0) return;
                         tonode.find(".expand:first").removeClass("fa-chevron-right").addClass("fa-chevron-down").css({ visibility: "visible" });
-                        getDrawContent(toId, undefined, true, function () { },true);
+                        getDrawContent(toId, undefined, true, function () { }, true);
+                        msg(true,"content copied");
                     } else {
+                        copying = false;
+                        img.remove();
                         msg(false, d.message);
                     }
                     overlayClose();
