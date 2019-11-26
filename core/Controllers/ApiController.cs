@@ -314,7 +314,7 @@ namespace puck.core.Controllers
                                 break;
                         }
                         var destinationRepo = new Puck_Repository(context);
-                        var destinationContentService = new ContentService(config, cService.roleManager, cService.userManager, destinationRepo, tDispatcher, indexer, logger, apiHelper);
+                        var destinationContentService = new ContentService(config, cService.roleManager, cService.userManager, destinationRepo, tDispatcher, indexer, logger, apiHelper,new MemoryCache(new MemoryCacheOptions() {SizeLimit=null}));
                         if (revision.ParentId != Guid.Empty && !destinationRepo.GetPuckRevision().Any(x => x.Id == revision.ParentId && x.Current))
                         {
                             PuckCache.Cache.Set(cacheKey,$"Error. Cannot sync, the destination database doesn't contain the parent element \"{parent.NodeName}\" with id {parent.Id}");

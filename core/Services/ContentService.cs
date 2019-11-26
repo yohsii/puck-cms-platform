@@ -47,6 +47,7 @@ namespace puck.core.Services
         public I_Log logger { get; set; }
         public I_Api_Helper apiHelper { get; set; }
         public IConfiguration config { get; set; }
+        public IMemoryCache cache { get; set; }
         private static SemaphoreSlim slock1 = new SemaphoreSlim(1);
         private static void DelegateBeforeEvent(Dictionary<string, Tuple<Type, Action<object, BeforeIndexingEventArgs>, bool>> list, object n, BeforeIndexingEventArgs e)
         {
@@ -248,7 +249,7 @@ namespace puck.core.Services
             BeforeMove += new EventHandler<BeforeMoveEventArgs>(DelegateBeforeMove);
             AfterMove += new EventHandler<MoveEventArgs>(DelegateAfterMove);
         }
-        public ContentService(IConfiguration config, RoleManager<PuckRole> RoleManager, UserManager<PuckUser> UserManager, I_Puck_Repository Repo, I_Task_Dispatcher TaskDispatcher, I_Content_Indexer Indexer, I_Log Logger, I_Api_Helper apiHelper)
+        public ContentService(IConfiguration config, RoleManager<PuckRole> RoleManager, UserManager<PuckUser> UserManager, I_Puck_Repository Repo, I_Task_Dispatcher TaskDispatcher, I_Content_Indexer Indexer, I_Log Logger, I_Api_Helper apiHelper,IMemoryCache cache)
         {
             this.roleManager = RoleManager;
             this.userManager = UserManager;
@@ -258,6 +259,7 @@ namespace puck.core.Services
             this.logger = Logger;
             this.config = config;
             this.apiHelper = apiHelper;
+            this.cache = cache;
         }
 
         public void Sort(Guid parentId, List<Guid> ids)
@@ -964,9 +966,17 @@ namespace puck.core.Services
                 PuckUser user = null;
                 if (!string.IsNullOrEmpty(userName))
                 {
-                    user = await userManager.FindByNameAsync(userName);
+                    var cacheKey = $"puckuser_{userName}";
+                    var cacheMiss = false;
+                    user = cache.Get<PuckUser>(cacheKey);
+                    if (user == null)
+                    {
+                        cacheMiss = true;
+                        user = await userManager.FindByNameAsync(userName);
+                    }
                     if (user == null)
                         throw new UserNotFoundException("there is no user for provided username");
+                    else if(cacheMiss) cache.Set(cacheKey,user,TimeSpan.FromMinutes(1)); 
                 }
                 if (mod.Id == Guid.Empty) throw new ArgumentException("model id cannot be empty");
                 if (string.IsNullOrEmpty(mod.Variant)) throw new ArgumentException("model variant must be set");
