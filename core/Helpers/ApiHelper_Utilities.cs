@@ -133,6 +133,7 @@ namespace puck.core.Helpers
         }
         public static Type ConcreteType(Type t)
         {
+            if (t == null) return null;
             Type result = null;
             if (t.IsInterface)
                 result = PuckCache.IGeneratedToModel[t.AssemblyQualifiedName];

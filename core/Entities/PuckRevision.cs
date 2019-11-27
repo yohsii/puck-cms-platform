@@ -28,6 +28,7 @@ namespace puck.core.Entities
             try
             {
                 var _t = cast ? typeof(BaseModel) : ApiHelper.ConcreteType(ApiHelper.GetTypeFromName(this.Type));
+                if (_t == null) return null;
                 var model = JsonConvert.DeserializeObject(this.Value, _t);
                 var mod = model as BaseModel;
                 mod.Id = this.Id;

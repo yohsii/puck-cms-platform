@@ -717,6 +717,7 @@ namespace puck.core.Concrete
                     type = ApiHelper.GetTypeFromName(doc.GetValues(FieldKeys.PuckType).FirstOrDefault());
                     if (type == null && fallBackToBaseModel)
                         type = typeof(BaseModel);
+                    else if (type == null) continue;
                 }
                 else type = typeOverride;
                 T result = (T)JsonConvert.DeserializeObject(doc.GetValues(FieldKeys.PuckValue)[0],type);

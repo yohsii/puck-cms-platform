@@ -179,7 +179,8 @@ namespace puck.core.Helpers
                                                 if (publishedOrCurrentRevision != null)
                                                 {
                                                     var model = publishedOrCurrentRevision.ToBaseModel();
-                                                    toIndex.Add(model);
+                                                    if(model!=null)
+                                                        toIndex.Add(model);
                                                 }
                                             }
                                             Indexer.Index(toIndex);
