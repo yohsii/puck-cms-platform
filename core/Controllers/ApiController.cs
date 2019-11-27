@@ -439,7 +439,7 @@ namespace puck.core.Controllers
                         tags = repo.GetPuckTag().Where(x => string.IsNullOrEmpty(x.Category)).ToList();
                     else
                         tags = repo.GetPuckTag().Where(x => x.Category.ToLower().Equals(category.ToLower())).ToList();
-                    cache.Set("tags_"+category,tags,TimeSpan.FromMinutes(1));
+                    cache.Set("tags_"+category,tags,TimeSpan.FromSeconds(10));
                 }
             }
             catch (Exception ex)
