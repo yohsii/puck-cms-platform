@@ -1383,6 +1383,14 @@ var getVariantOrder = function (variant, path) {
     var order = variantIsPathLocaleSetting ? 0 : (languageSortDictionary[variant] || 100);
     return order;
 }
+
+var spinningLoaderImg = function (classes) {
+    var el = $("<img src='/areas/puck/assets/img/tree-loader.gif'/>");
+    if (classes)
+        el.addClass(classes);
+    return el;
+}
+
 //getContentByParentId("", function (res) {
 //    var ids = "";
 //    for (id in res.current) {

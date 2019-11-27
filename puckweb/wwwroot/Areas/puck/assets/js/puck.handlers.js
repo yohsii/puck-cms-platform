@@ -268,14 +268,18 @@ $(document).on("click",".node-dropdown a,.template-dropdown a",function () {
             }
             break;
         case "publish":
-            var doPublish = function (id, variant, descendants) {
+            var doPublish = function (id, variant, descendants,overlayEl) {
                 setPublish(id, variant, descendants, function (data) {
                     if (data.success === true) {
+                        overlayEl.find("button").removeAttr("disabled");
+                        overlayEl.find(".submitLoader").remove();
                         msg(true,"content published");
                         getDrawContent(node.attr("data-parent_id"), undefined, true,undefined,true);
                         node.find(">.inner>.variant[data-variant='"+variant+"']").addClass("published");
                         overlayClose();
                     } else {
+                        overlayEl.find("button").removeAttr("disabled");
+                        overlayEl.find(".submitLoader").remove();
                         msg(false, data.message);
                         overlayClose();
                     }
@@ -285,30 +289,37 @@ $(document).on("click",".node-dropdown a,.template-dropdown a",function () {
             if (variants.length > 1||true ) {
                 var dialog = dialogForVariants(variants);
                 dialog.find(".descendantscontainer label").html("Publish descendants?");
-                overlay(dialog, 400, 250,undefined,"Publish");
+                var overlayEl = overlay(dialog, 400, 250, undefined, "Publish");
                 dialog.find("button").click(function () {
+                    var button = $(this);
                     var descendantVariants = (dialog.find("select[name=descendants]").val() || []).join(',');
                     if (descendantVariants) {
                         dialog.find("select[name=descendants] option[value='']").removeAttr("selected");
                         descendantVariants = (dialog.find("select[name=descendants]").val() || []).join(',');
                     }
                     //console.log(descendantVariants);
-                    doPublish(node.attr("data-id"), dialog.find("select[name=variant]").val(), descendantVariants);
+                    button.after(spinningLoaderImg("submitLoader").css({"float":"right", "margin-top":"10px"}));
+                    button.attr("disabled","disabled");
+                    doPublish(node.attr("data-id"), dialog.find("select[name=variant]").val(), descendantVariants, overlayEl);
                 });
             } else {
                 doPublish(node.attr("data-id"), variants[0]);
             }
             break;
         case "unpublish":
-            var doUnpublish = function (id, variant, descendants) {
+            var doUnpublish = function (id, variant, descendants,overlayEl) {
                 setUnpublish(id, variant, descendants, function (data) {
                     if (data.success === true) {
+                        overlayEl.find("button").removeAttr("disabled");
+                        overlayEl.find(".submitLoader").remove();
                         msg(true, "content unpublished");
                         getDrawContent(node.attr("data-parent_id"), undefined, true,undefined,true);
                         node.find(">.inner>.variant[data-variant='" + variant + "']").removeClass("published");
                         publishedContent[id][variant] = undefined;
                         overlayClose();
                     } else {
+                        overlayEl.find("button").removeAttr("disabled");
+                        overlayEl.find(".submitLoader").remove();
                         msg(false, data.message);
                         overlayClose();
                     }
@@ -320,8 +331,10 @@ $(document).on("click",".node-dropdown a,.template-dropdown a",function () {
                 var dCon = dialog.find(".descendantscontainer");
                 dCon.find("label").html("Unpublish descendants?");
                 dCon.find("label").after("<p/>");
-                overlay(dialog, 400, 250, undefined, "Unpublish");
+                var overlayEl = overlay(dialog, 400, 250, undefined, "Unpublish");
+                
                 dialog.find("button").click(function () {
+                    var button = $(this);
                     var variant = dialog.find("select[name='variant']").val();
                     var descendantVariants = variant;
                     var selectedDescendants = (dialog.find("select[name='descendants']").val() || []).join(',');
@@ -329,7 +342,11 @@ $(document).on("click",".node-dropdown a,.template-dropdown a",function () {
                         descendantVariants += "," + selectedDescendants;
                     descendantVariants = descendantVariants.replace(",,",",");
                     //console.log("variant:", variant, "descendantVariants:", descendantVariants);
-                    doUnpublish(node.attr("data-id"), variant, descendantVariants);
+                    button.attr("disabled", "disabled");
+
+                    button.after(spinningLoaderImg("submitLoader").css({"float":"right","margin-top":"10px"}));
+
+                    doUnpublish(node.attr("data-id"), variant, descendantVariants, overlayEl);
                 });
                 var updateVariant = function () {
                     var variant = dialog.find("select[name='variant']").val();
@@ -384,9 +401,9 @@ $(document).on("click",".node-dropdown a,.template-dropdown a",function () {
                 }
 
                 moving = true;
-                var img = $("<img src='/areas/puck/assets/img/tree-loader.gif'/>")
-                    .css({ position: "absolute", top: "17px", right: "60px" })
-                    .addClass("submitLoader");
+                var img = spinningLoaderImg("submitLoader")
+                    .css({ position: "absolute", top: "17px", right: "60px" });
+                    
                 overlayEl.find(".overlay_close").before(img);
 
                 setMove(fromId, toId, function (d) {
@@ -433,9 +450,9 @@ $(document).on("click",".node-dropdown a,.template-dropdown a",function () {
                     return;
                 }
                 copying = true;
-                var img = $("<img src='/areas/puck/assets/img/tree-loader.gif'/>")
-                    .css({position:"absolute",top:"17px",right:"60px"})
-                    .addClass("submitLoader");
+                var img = spinningLoaderImg("submitLoader")
+                    .css({ position: "absolute", top: "17px", right: "60px" });
+                    
                 overlayEl.find(".overlay_close").before(img);
                 setCopy(fromId, toId, includeDescendants, function (d) {
                     if (d.success) {
