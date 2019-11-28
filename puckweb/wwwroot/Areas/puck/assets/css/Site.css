@@ -671,7 +671,7 @@ div.settings {
 
     .puck_mce textarea {
         width: 665px;
-        height: 500px;
+        min-height: 400px;
     }
 
     .settings .editor_parameters {
