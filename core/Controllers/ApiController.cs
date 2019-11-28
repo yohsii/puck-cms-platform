@@ -8,14 +8,8 @@ using System.IO;
 using Newtonsoft.Json;
 using puck.core.Abstract;
 using puck.core.Constants;
-using Lucene.Net.Analysis;
-using Lucene.Net.Analysis.Standard;
-using Lucene.Net.Analysis.Snowball;
-using System.Threading;
 using puck.core.Base;
-using System.Text.RegularExpressions;
 using puck.core.Entities;
-using puck.core.Filters;
 using puck.core.Models;
 using StackExchange.Profiling;
 using System.Threading.Tasks;
@@ -26,10 +20,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Authentication.Cookies;
 using puck.core.Events;
-using System.Net;
-using System.Globalization;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -73,6 +64,9 @@ namespace puck.core.Controllers
         }
         public ActionResult KeepAlive() {
             return base.Content("success");
+        }
+        public ActionResult GetCropSizes() {
+            return Json(PuckCache.CropSizes);
         }
         public ActionResult Redirects() {
             bool success = true;
@@ -912,7 +906,13 @@ namespace puck.core.Controllers
             return Json(new { current = results, published = publishedContent, children = haveChildren });
         }
         [Authorize(Roles = PuckRoles.Puck, AuthenticationSchemes = Mvc.AuthenticationScheme)]
-        public BaseModel GetCurrentModel(Guid id,string variant=null)
+        public ActionResult GetCurrentModel(Guid id, string variant = null) {
+            var jsonStr = JsonConvert.SerializeObject(_GetCurrentModel(id,variant));
+            return Content(jsonStr,"application/json");
+        }
+        //shouldn't be publically accessable as an action since it's protected but just incase
+        [Authorize(Roles = PuckRoles.Puck, AuthenticationSchemes = Mvc.AuthenticationScheme)]
+        protected BaseModel _GetCurrentModel(Guid id,string variant=null)
         {
             BaseModel model;
             if (string.IsNullOrEmpty(variant))
@@ -927,7 +927,7 @@ namespace puck.core.Controllers
             var guids = ids.Split(new char[] { ','},StringSplitOptions.RemoveEmptyEntries).Select(x=>Guid.Parse(x));
             var models = new List<BaseModel>();
             foreach (var guid in guids) {
-                var model = GetCurrentModel(guid);
+                var model = _GetCurrentModel(guid);
                 if (model != null)
                     models.Add(model);
             }

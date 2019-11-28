@@ -1,4 +1,10 @@
-﻿var getReferencedContent = function (id,variant, f) {
+﻿var getCropSizes = function (f) {
+    $.get("/puck/api/GetCropSizes", f);
+}
+var getCurrentModel = function (id, variant, f) {
+    $.get("/puck/api/GetCurrentModel?id="+id+(variant?"&variant="+variant:""), f);
+}
+var getReferencedContent = function (id, variant, f) {
     $.post("/puck/api/GetReferencedContent?id=" + id+"&variant="+variant, f);
 }
 var cancelSync = function (key, f) {

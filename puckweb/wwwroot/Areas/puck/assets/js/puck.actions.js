@@ -1391,6 +1391,42 @@ var spinningLoaderImg = function (classes) {
     return el;
 }
 
+var getCropUrl = function (imageVM, cropSizes, cropAlias, anchor) {
+    anchor = anchor || "center";
+    var url = imageVM.Image.Path;
+    if (!cropAlias)
+        return url;
+    if (cropSizes[cropAlias]) {
+        var cropInfo = cropSizes[cropAlias];
+
+        if (url.toLowerCase().indexOf("http")==0) {
+            var path = "";
+            if (url.toLowerCase().indexOf("https") == 0)
+                path = url.replace("https://", "");
+            else path = url.replace("http://", "");
+            if (path.indexOf("/") == -1)
+                url = "/";
+            else url = path.substring(path.indexOf("/"));
+        }
+        var cropModel = null;
+        var crops = imageVM.Image.Crops || [];
+        for (var i = 0; i < crops.length; i++) {
+            if (crops[i].Alias == cropAlias)
+                cropModel = crops[i];
+        }
+        /*check that left,top,right,bottom have values and that the cropmodel width and height match the cropinfo width and height.
+         if they don't match, it means that the crop settings have been changed since the crop was saved which should invalidate the crop.*/
+        if (cropModel && cropModel.Left && cropModel.Top && cropModel.Right && cropModel.Bottom
+            && cropInfo.Width == cropModel.Width && cropInfo.Height == cropModel.Height) {
+            url += "?crop="+cropModel.Left+","+cropModel.Top+","+cropModel.Right+","+cropModel.Bottom;
+        }
+        else {
+            url += "?mode=crop&width="+cropInfo.Width+"&height="+cropInfo.Height+"&anchor="+anchor;
+        }
+    }
+    return url;
+}
+
 //getContentByParentId("", function (res) {
 //    var ids = "";
 //    for (id in res.current) {

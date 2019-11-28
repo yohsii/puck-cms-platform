@@ -5,6 +5,27 @@
 }
 <div data-guid="@containerGuid" data-editor="rte" class="editor_container puck_mce mce_@ViewData.ModelMetadata.PropertyName">
     <div style="display:none;" class="containerTrigger"></div>
+    <div class="interfaces" style="display:none;">
+        <div class="imageOptions">
+            <button class="back btn btn-link">back</button>
+            <div class="imgContainer">
+                <img/>
+            </div>
+            <div class="fieldwrapper">
+                <label>Select crop</label>
+                <select class="cropSizes">
+                    <option value="">None</option>
+                </select>
+            </div>
+            <div class="fieldwrapper dimensions">
+                <label>Dimensions</label>
+                <div><input class="width" placeholder="width..." /></div>
+                <div><input class="height" placeholder="height..." /></div>
+            </div>
+            <br/>
+            <button class="insert btn btn-link" style="float:right;">insert</button>
+        </div>
+    </div>
     @Html.TextAreaFor(x => x, new { id = guid.ToString() })
 </div>
 <script>
@@ -22,8 +43,63 @@
                     "searchreplace visualblocks code fullscreen",
                     "insertdatetime media table contextmenu paste"
                 ],
-                toolbar: "insertfile undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image | internal_link"
+                toolbar: "insertfile undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image | internal_link image_picker"
                 , setup: function (editor) {
+                    editor.ui.registry.addButton("image_picker", {
+                        icon: "image",
+                        text: "image picker",
+                        onAction: function (evt) {
+                            var isSelected = editor.selection.getContent().length > 0;
+
+                            imagePicker(emptyGuid, "Select an image", function (node, id, variant, overlayEl) {
+                                //console.log(node);
+                                overlayEl.find(".imagePickerOverlayContainer").hide();
+                                showLoader(overlayEl.find(".inner"));
+                                getCropSizes(function (cropSizes) {
+                                    getCurrentModel(id, variant, function (model) {
+                                        overlayEl.find(".loaderContainer").remove();
+                                        container.find(".interfaces .imageOptions").clone().appendTo(overlayEl.find(".inner"));
+                                        overlayEl.find(".back").click(function () {
+                                            overlayEl.find(".imageOptions").remove();
+                                            overlayEl.find(".imagePickerOverlayContainer").show();
+                                        });
+                                        for (alias in cropSizes) {
+                                            overlayEl.find("select.cropSizes").append("<option value=\"" + alias + "\">" + alias + "(" + cropSizes[alias].Width + "x" + cropSizes[alias].Height + ")</option>");
+                                        }
+                                        var setPreviewImg = function (alias) {
+                                            overlayEl.find(".imgContainer img").css({"max-width":"100%"}).attr("src",getCropUrl(model,cropSizes,alias));
+                                        }
+                                        overlayEl.find("select.cropSizes").change(function () {
+                                            var alias = $(this).val();
+                                            setPreviewImg(alias);
+                                            if (alias)
+                                                overlayEl.find(".dimensions").hide();
+                                            else overlayEl.find(".dimensions").show();
+                                        });
+                                        setPreviewImg();
+                                        //console.log(cropSizes, model);
+                                        overlayEl.find(".insert").click(function () {
+                                            var cropAlias = overlayEl.find("select.cropSizes").val();
+                                            var url = getCropUrl(model, cropSizes, cropAlias);
+                                            var width = "";
+                                            var height = "";
+                                            if (!cropAlias) {
+                                                width = overlayEl.find(".width").val() || "";
+                                                if (width && width.indexOf("px") == -1 && width.indexOf("%") == -1)
+                                                    width = width + "px";
+                                                height = overlayEl.find(".height").val();
+                                                if (height && height.indexOf("px") == -1 && height.indexOf("%") == -1)
+                                                    height = height + "px";
+                                            }
+                                            var image = "<img src=\"" + url + "\" alt=\"" + node.find("img").attr("alt") + "\" style=\""+(width?"width:"+width+";":"")+(height?"height:"+height+";":"")+"\" />";
+                                            editor.execCommand('insertHTML', false, image);
+                                            overlayEl.remove();
+                                        });
+                                    });
+                                });
+                            });
+                        }
+                    });
                     editor.ui.registry.addButton("internal_link", {
                         icon: "link",
                         text: "internal link",
