@@ -102,7 +102,7 @@
             var pathEl = $("<span class='searchTerm'/>").html("search:\"" + searchTerm + "\" ");
             var clear = $("<button class='btn btn-link'>clear</button>").click(function () {
                 cont.find(".path").html("");
-                showFolderContent(_startId, "/",overlayEl);
+                showFolderContent(startId, "/", overlayEl);
             }).appendTo(pathEl);
             cont.find(".path").html(pathEl);
             if (res.length == 0) {
