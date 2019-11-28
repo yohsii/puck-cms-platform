@@ -114,7 +114,7 @@
             }
         }, "ImageVM", "");
     });
-    overlayEl.on("click", "img", function (e) {
+    overlayEl.on("click", ".imageContainer img", function (e) {
         var el = $(this).parents(".item");
         if (f)
             f(el,el.attr("data-id"),el.attr("data-variant"),overlayEl);
