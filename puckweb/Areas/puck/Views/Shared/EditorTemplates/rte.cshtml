@@ -91,7 +91,7 @@
                                                 if (height && height.indexOf("px") == -1 && height.indexOf("%") == -1)
                                                     height = height + "px";
                                             }
-                                            var image = "<img src=\"" + url + "\" alt=\"" + node.find("img").attr("alt") + "\" style=\""+(width?"width:"+width+";":"")+(height?"height:"+height+";":"")+"\" />";
+                                            var image = "<img src=\"" + url + "\" alt=\"" + (node.find("img").attr("alt")||"") + "\" style=\""+(width?"width:"+width+";":"")+(height?"height:"+height+";":"")+"\" />";
                                             editor.execCommand('insertHTML', false, image);
                                             overlayEl.remove();
                                         });

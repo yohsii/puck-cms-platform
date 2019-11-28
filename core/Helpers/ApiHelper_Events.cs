@@ -22,11 +22,17 @@ namespace puck.core.Helpers
     public partial class ApiHelper
     {
         public static event EventHandler<AfterEditorSettingsSaveEventArgs> AfterEditorSettingsSave;
-
+        public static event EventHandler<AfterEditorSettingsDeleteEventArgs> AfterEditorSettingsDelete;
         public static void OnAfterSettingsSave(object s, AfterEditorSettingsSaveEventArgs args)
         {
             if (AfterEditorSettingsSave != null)
                 AfterEditorSettingsSave(s, args);
+        }
+
+        public static void OnAfterSettingsDelete(object s, AfterEditorSettingsDeleteEventArgs args)
+        {
+            if (AfterEditorSettingsDelete != null)
+                AfterEditorSettingsDelete(s, args);
         }
     }
 }

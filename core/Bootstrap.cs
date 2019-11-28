@@ -93,6 +93,12 @@ namespace puck.core
                     StateHelper.UpdateCrops(addInstruction:true);
                 }
             };
+            ApiHelper.AfterEditorSettingsDelete += (object o, puck.core.Events.AfterEditorSettingsDeleteEventArgs args) => {
+                if (args.Setting is PuckCropsEditorSettings)
+                {
+                    StateHelper.UpdateCrops(addInstruction: true);
+                }
+            };
             if (PuckCache.RegisterIndexHandler)
             {
                 //PuckCache.PuckIndexer.RegisterAfterIndexHandler<puck.core.Base.BaseModel>("puck_publish_notification", async (object o, puck.core.Events.IndexingEventArgs args) =>

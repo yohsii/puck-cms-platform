@@ -44,7 +44,9 @@ namespace puck.core.Controllers
             string message = "";
             try
             {
-                repo.GetPuckMeta().Where(x => x.Name == DBNames.EditorSettings && x.Key == key).ToList().ForEach(x=>repo.DeleteMeta(x));
+                var metas = repo.GetPuckMeta().Where(x => x.Name == DBNames.EditorSettings && x.Key == key).ToList();
+                var meta = metas.FirstOrDefault();
+                metas.ForEach(x=>repo.DeleteMeta(x));
 
                 //clear cached values
                 var cachePrefix = "editor_settings_";
@@ -62,6 +64,20 @@ namespace puck.core.Controllers
                 repo.AddPuckInstruction(instruction);
 
                 repo.SaveChanges();
+                if (meta != null)
+                {
+                    var keyParts = key.Split(new char[] { ':' });
+                    var typeSettings = ApiHelper.EditorSettingTypes().FirstOrDefault(x => x.FullName == keyParts[0]);
+                    object model = JsonConvert.DeserializeObject(meta.Value, typeSettings);
+                    ApiHelper.OnAfterSettingsDelete(this, new puck.core.Events.AfterEditorSettingsDeleteEventArgs
+                    {
+                        Setting = (I_Puck_Editor_Settings)model
+                        ,SettingsTypeFullName = keyParts[0]
+                        ,ModelTypeName = keyParts[1]
+                        ,PropertyName = keyParts[2]
+                    });
+                    
+                }
                 success = true;
             }
             catch (Exception ex)

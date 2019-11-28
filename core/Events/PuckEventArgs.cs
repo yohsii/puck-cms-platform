@@ -36,6 +36,7 @@ namespace puck.core.Events
         public string ModelTypeName { get; set; }
         public string PropertyName { get; set; }
     }
+    public class AfterEditorSettingsDeleteEventArgs : AfterEditorSettingsSaveEventArgs { }
     public class AfterSyncEventArgs {
         public List<PuckInstruction> Instructions { get; set; } 
     }
