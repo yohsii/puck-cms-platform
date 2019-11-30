@@ -1,7 +1,9 @@
 ﻿@using System.IO
 @using Microsoft.Extensions.Caching.Memory;
+@using Microsoft.Extensions.Hosting;
 @inject I_Api_Helper apiHelper;
 @inject IMemoryCache cache;
+@inject Microsoft.Extensions.Hosting.IHostEnvironment env;
 @model String
 @{
 
@@ -29,12 +31,26 @@
         }
         if (views.Count == 0)
         {
-            views = apiHelper.Views(new string[] { "~/views/shared/", "~/views/_ViewStart.cshtml" });
+            views = cache.Get<List<FileInfo>>("puckviews");
+            if (views == null)
+            {
+                views = apiHelper.Views(new string[] { "~/views/shared/", "~/views/_ViewStart.cshtml" });
+                if (views.Count > 0 && env.IsProduction()) {
+                    cache.Set("puckviews", views,TimeSpan.FromMinutes(30));
+                }
+            }
         }
     }
     else
     {
-        views = apiHelper.Views(new string[] { "~/views/shared/", "~/views/_ViewStart.cshtml" });
+        views = cache.Get<List<FileInfo>>("puckviews");
+        if (views == null)
+        {
+            views = apiHelper.Views(new string[] { "~/views/shared/", "~/views/_ViewStart.cshtml" });
+            if (views.Count > 0 && env.IsProduction()) {
+                cache.Set("puckviews", views,TimeSpan.FromMinutes(30));
+            }
+        }
     }
     <select name="@ViewData.ModelMetadata.PropertyName">
         @foreach (var f in views.OrderBy(x => x.Name).ToList())
