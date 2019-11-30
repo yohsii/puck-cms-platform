@@ -1650,6 +1650,8 @@ namespace puck.core.Services
                                 model.Variant = reader.GetString(7);
                                 try
                                 {
+                                    if(PuckCache.StoreReferences)
+                                        model.References = new List<string>();
                                     await ObjectDumper.Transform(model, int.MaxValue,new List<Type> { typeof(PuckPickerReferencesTransformer)});
                                 }
                                 catch (Exception ex) {
