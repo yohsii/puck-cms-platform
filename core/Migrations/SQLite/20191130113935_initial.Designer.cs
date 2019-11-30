@@ -9,7 +9,7 @@ using puck.core.Concrete;
 namespace puck.core.Migrations.SQLite
 {
     [DbContext(typeof(PuckContextSQLite))]
-    [Migration("20191030213905_initial")]
+    [Migration("20191130113935_initial")]
     partial class initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -358,12 +358,6 @@ namespace puck.core.Migrations.SQLite
                     b.Property<bool>("EmailConfirmed")
                         .HasColumnType("INTEGER");
 
-                    b.Property<string>("FirstName")
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime?>("LastLoginDate")
-                        .HasColumnType("TEXT");
-
                     b.Property<bool>("LockoutEnabled")
                         .HasColumnType("INTEGER");
 
@@ -387,13 +381,22 @@ namespace puck.core.Migrations.SQLite
                     b.Property<bool>("PhoneNumberConfirmed")
                         .HasColumnType("INTEGER");
 
+                    b.Property<string>("PuckFirstName")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("PuckLastLoginDate")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("PuckStartNodeId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("PuckSurname")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("PuckUserVariant")
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("SecurityStamp")
-                        .HasColumnType("TEXT");
-
-                    b.Property<Guid>("StartNodeId")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Surname")
                         .HasColumnType("TEXT");
 
                     b.Property<bool>("TwoFactorEnabled")
@@ -402,9 +405,6 @@ namespace puck.core.Migrations.SQLite
                     b.Property<string>("UserName")
                         .HasColumnType("TEXT")
                         .HasMaxLength(256);
-
-                    b.Property<string>("UserVariant")
-                        .HasColumnType("TEXT");
 
                     b.HasKey("Id");
 

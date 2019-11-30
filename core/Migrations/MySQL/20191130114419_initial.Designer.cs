@@ -9,7 +9,7 @@ using puck.core.Concrete;
 namespace puck.core.Migrations.MySQL
 {
     [DbContext(typeof(PuckContextMySQL))]
-    [Migration("20191030212851_initial")]
+    [Migration("20191130114419_initial")]
     partial class initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -359,12 +359,6 @@ namespace puck.core.Migrations.MySQL
                     b.Property<bool>("EmailConfirmed")
                         .HasColumnType("bit");
 
-                    b.Property<string>("FirstName")
-                        .HasColumnType("longtext");
-
-                    b.Property<DateTime?>("LastLoginDate")
-                        .HasColumnType("datetime(6)");
-
                     b.Property<bool>("LockoutEnabled")
                         .HasColumnType("bit");
 
@@ -388,13 +382,22 @@ namespace puck.core.Migrations.MySQL
                     b.Property<bool>("PhoneNumberConfirmed")
                         .HasColumnType("bit");
 
-                    b.Property<string>("SecurityStamp")
+                    b.Property<string>("PuckFirstName")
                         .HasColumnType("longtext");
 
-                    b.Property<Guid>("StartNodeId")
+                    b.Property<DateTime?>("PuckLastLoginDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<Guid?>("PuckStartNodeId")
                         .HasColumnType("char(36)");
 
-                    b.Property<string>("Surname")
+                    b.Property<string>("PuckSurname")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("PuckUserVariant")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("SecurityStamp")
                         .HasColumnType("longtext");
 
                     b.Property<bool>("TwoFactorEnabled")
@@ -403,9 +406,6 @@ namespace puck.core.Migrations.MySQL
                     b.Property<string>("UserName")
                         .HasColumnType("varchar(256)")
                         .HasMaxLength(256);
-
-                    b.Property<string>("UserVariant")
-                        .HasColumnType("longtext");
 
                     b.HasKey("Id");
 

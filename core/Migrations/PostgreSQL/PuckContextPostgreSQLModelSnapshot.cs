@@ -367,12 +367,6 @@ namespace puck.core.Migrations.PostgreSQL
                     b.Property<bool>("EmailConfirmed")
                         .HasColumnType("boolean");
 
-                    b.Property<string>("FirstName")
-                        .HasColumnType("text");
-
-                    b.Property<DateTime?>("LastLoginDate")
-                        .HasColumnType("timestamp without time zone");
-
                     b.Property<bool>("LockoutEnabled")
                         .HasColumnType("boolean");
 
@@ -396,13 +390,22 @@ namespace puck.core.Migrations.PostgreSQL
                     b.Property<bool>("PhoneNumberConfirmed")
                         .HasColumnType("boolean");
 
-                    b.Property<string>("SecurityStamp")
+                    b.Property<string>("PuckFirstName")
                         .HasColumnType("text");
 
-                    b.Property<Guid>("StartNodeId")
+                    b.Property<DateTime?>("PuckLastLoginDate")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<Guid?>("PuckStartNodeId")
                         .HasColumnType("uuid");
 
-                    b.Property<string>("Surname")
+                    b.Property<string>("PuckSurname")
+                        .HasColumnType("text");
+
+                    b.Property<string>("PuckUserVariant")
+                        .HasColumnType("text");
+
+                    b.Property<string>("SecurityStamp")
                         .HasColumnType("text");
 
                     b.Property<bool>("TwoFactorEnabled")
@@ -411,9 +414,6 @@ namespace puck.core.Migrations.PostgreSQL
                     b.Property<string>("UserName")
                         .HasColumnType("character varying(256)")
                         .HasMaxLength(256);
-
-                    b.Property<string>("UserVariant")
-                        .HasColumnType("text");
 
                     b.HasKey("Id");
 

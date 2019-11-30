@@ -12,15 +12,15 @@ namespace puck.core.Entities
     public class PuckUser : IdentityUser
     {
         public PuckUser() {
-            StartNodeId = Guid.Empty;
+            PuckStartNodeId = Guid.Empty;
         }
-        public DateTime? LastLoginDate { get; set; }
-        public string FirstName { get; set; }
-        public string Surname { get; set; }
+        public DateTime? PuckLastLoginDate { get; set; }
+        public string PuckFirstName { get; set; }
+        public string PuckSurname { get; set; }
         [UIHint("SettingsUserVariant")]
         [Display(Name="User Language")]
-        public string UserVariant { get; set;}
-        public Guid StartNodeId { get; set; }
+        public string PuckUserVariant { get; set;}
+        public Guid? PuckStartNodeId { get; set; }
 
         public virtual ICollection<PuckUserRole> Roles { get; } = new List<PuckUserRole>();
         public virtual ICollection<IdentityUserClaim<string>> Claims { get; } = new List<IdentityUserClaim<string>>();

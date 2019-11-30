@@ -124,7 +124,8 @@ namespace puck.core.Concrete
 
         public void Dispose()
         {
-            tmr.Dispose();
+            if(tmr!=null)
+                tmr.Dispose();
         }
     }
 }

@@ -130,10 +130,10 @@ namespace puck.core.Controllers
         {
             string variant = PuckCache.SystemVariant;
             var user = await userManager.FindByNameAsync(User.Identity.Name);
-            if (!string.IsNullOrEmpty(user.UserVariant))
+            if (!string.IsNullOrEmpty(user.PuckUserVariant))
                 //var meta = repo.GetPuckMeta().Where(x => x.Name == DBNames.UserVariant && x.Key == User.Identity.Name).FirstOrDefault();
                 //if (meta != null)
-                variant = user.UserVariant;
+                variant = user.PuckUserVariant;
             return Json(variant);
         }
         [Authorize(Roles = PuckRoles.Puck, AuthenticationSchemes = Mvc.AuthenticationScheme)]
@@ -765,14 +765,14 @@ namespace puck.core.Controllers
         public async Task<JsonResult> StartId()
         {
             var user = await userManager.FindByNameAsync(User.Identity.Name);
-            return Json(user.StartNodeId);
+            return Json(user.PuckStartNodeId??Guid.Empty);
         }
         [Authorize(Roles = PuckRoles.Puck, AuthenticationSchemes = Mvc.AuthenticationScheme)]
         public async Task<JsonResult> StartPath()
         {
             var user = await userManager.FindByNameAsync(User.Identity.Name);
-            if (user.StartNodeId != Guid.Empty) {
-                var node = repo.GetPuckRevision().Where(x => x.Id == user.StartNodeId && x.Current).FirstOrDefault();
+            if (user.PuckStartNodeId.HasValue && user.PuckStartNodeId != Guid.Empty) {
+                var node = repo.GetPuckRevision().Where(x => x.Id == user.PuckStartNodeId && x.Current).FirstOrDefault();
                 if (node != null)
                 {
                     return Json(node.Path + "/");

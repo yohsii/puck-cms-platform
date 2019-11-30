@@ -4,12 +4,12 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using puck.core.Concrete;
+using puckweb.Data.Contexts;
 
-namespace puck.core.Migrations.SQLServer
+namespace puckweb.Data.Migrations.PostgreSQL
 {
-    [DbContext(typeof(PuckContextSQLServer))]
-    partial class PuckContextSQLServerModelSnapshot : ModelSnapshot
+    [DbContext(typeof(DbContextPostgreSQL))]
+    partial class DbContextPostgreSQLModelSnapshot : ModelSnapshot
     {
         protected override void BuildModel(ModelBuilder modelBuilder)
         {
@@ -108,200 +108,7 @@ namespace puck.core.Migrations.SQLServer
                     b.ToTable("AspNetUserTokens");
                 });
 
-            modelBuilder.Entity("puck.core.Entities.PuckAudit", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<string>("Action")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<Guid>("ContentId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Notes")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("Timestamp")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Username")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Variant")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("PuckAudit");
-                });
-
-            modelBuilder.Entity("puck.core.Entities.PuckInstruction", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<int>("Count")
-                        .HasColumnType("int");
-
-                    b.Property<string>("InstructionDetail")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("InstructionKey")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ServerName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("PuckInstruction");
-                });
-
-            modelBuilder.Entity("puck.core.Entities.PuckMeta", b =>
-                {
-                    b.Property<int>("ID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<DateTime?>("Dt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Key")
-                        .HasColumnType("nvarchar(2048)")
-                        .HasMaxLength(2048);
-
-                    b.Property<string>("Name")
-                        .HasColumnType("nvarchar(2048)")
-                        .HasMaxLength(2048);
-
-                    b.Property<string>("Username")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Value")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("ID");
-
-                    b.ToTable("PuckMeta");
-                });
-
-            modelBuilder.Entity("puck.core.Entities.PuckRedirect", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<string>("From")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("To")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Type")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("PuckRedirect");
-                });
-
-            modelBuilder.Entity("puck.core.Entities.PuckRevision", b =>
-                {
-                    b.Property<int>("RevisionID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<DateTime>("Created")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("CreatedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("Current")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("HasChildren")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("HasNoPublishedRevision")
-                        .HasColumnType("bit");
-
-                    b.Property<Guid>("Id")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("IdPath")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("IsPublishedRevision")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("LastEditedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("NodeName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<Guid>("ParentId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Path")
-                        .HasColumnType("nvarchar(2048)")
-                        .HasMaxLength(2048);
-
-                    b.Property<bool>("Published")
-                        .HasColumnType("bit");
-
-                    b.Property<int>("Revision")
-                        .HasColumnType("int");
-
-                    b.Property<int>("SortOrder")
-                        .HasColumnType("int");
-
-                    b.Property<string>("TemplatePath")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Type")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("TypeChain")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("Updated")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Value")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Variant")
-                        .HasColumnType("nvarchar(10)")
-                        .HasMaxLength(10);
-
-                    b.HasKey("RevisionID");
-
-                    b.HasIndex("Current");
-
-                    b.HasIndex("HasNoPublishedRevision");
-
-                    b.HasIndex("Id");
-
-                    b.HasIndex("ParentId");
-
-                    b.HasIndex("Variant");
-
-                    b.ToTable("PuckRevision");
-                });
-
-            modelBuilder.Entity("puck.core.Entities.PuckRole", b =>
+            modelBuilder.Entity("puckweb.Data.Entities.Role", b =>
                 {
                     b.Property<string>("Id")
                         .HasColumnType("nvarchar(450)");
@@ -328,28 +135,7 @@ namespace puck.core.Migrations.SQLServer
                     b.ToTable("AspNetRoles");
                 });
 
-            modelBuilder.Entity("puck.core.Entities.PuckTag", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<string>("Category")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("Count")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Tag")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("PuckTag");
-                });
-
-            modelBuilder.Entity("puck.core.Entities.PuckUser", b =>
+            modelBuilder.Entity("puckweb.Data.Entities.User", b =>
                 {
                     b.Property<string>("Id")
                         .HasColumnType("nvarchar(450)");
@@ -391,21 +177,6 @@ namespace puck.core.Migrations.SQLServer
                     b.Property<bool>("PhoneNumberConfirmed")
                         .HasColumnType("bit");
 
-                    b.Property<string>("PuckFirstName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("PuckLastLoginDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid?>("PuckStartNodeId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("PuckSurname")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("PuckUserVariant")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("nvarchar(max)");
 
@@ -429,7 +200,7 @@ namespace puck.core.Migrations.SQLServer
                     b.ToTable("AspNetUsers");
                 });
 
-            modelBuilder.Entity("puck.core.Entities.PuckUserRole", b =>
+            modelBuilder.Entity("puckweb.Data.Entities.UserRole", b =>
                 {
                     b.Property<string>("UserId")
                         .HasColumnType("nvarchar(450)");
@@ -446,7 +217,7 @@ namespace puck.core.Migrations.SQLServer
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
-                    b.HasOne("puck.core.Entities.PuckRole", null)
+                    b.HasOne("puckweb.Data.Entities.Role", null)
                         .WithMany()
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -455,7 +226,7 @@ namespace puck.core.Migrations.SQLServer
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
                 {
-                    b.HasOne("puck.core.Entities.PuckUser", null)
+                    b.HasOne("puckweb.Data.Entities.User", null)
                         .WithMany("Claims")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -464,7 +235,7 @@ namespace puck.core.Migrations.SQLServer
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
                 {
-                    b.HasOne("puck.core.Entities.PuckUser", null)
+                    b.HasOne("puckweb.Data.Entities.User", null)
                         .WithMany("Logins")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -473,22 +244,22 @@ namespace puck.core.Migrations.SQLServer
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
                 {
-                    b.HasOne("puck.core.Entities.PuckUser", null)
+                    b.HasOne("puckweb.Data.Entities.User", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("puck.core.Entities.PuckUserRole", b =>
+            modelBuilder.Entity("puckweb.Data.Entities.UserRole", b =>
                 {
-                    b.HasOne("puck.core.Entities.PuckRole", "Role")
+                    b.HasOne("puckweb.Data.Entities.Role", "Role")
                         .WithMany("UserRoles")
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("puck.core.Entities.PuckUser", "User")
+                    b.HasOne("puckweb.Data.Entities.User", "User")
                         .WithMany("Roles")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)

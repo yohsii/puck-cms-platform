@@ -47,7 +47,7 @@ namespace puck.core.Controllers
             if (result.Succeeded)
             {
                 var puckUser = await userManager.FindByNameAsync(user.Username);
-                puckUser.LastLoginDate = DateTime.Now;
+                puckUser.PuckLastLoginDate = DateTime.Now;
                 await userManager.UpdateAsync(puckUser);
                 if (!string.IsNullOrEmpty(returnUrl))
                     return Redirect(returnUrl);
@@ -80,22 +80,22 @@ namespace puck.core.Controllers
             foreach (PuckUser pu in userCollection)
             {
                 var puvm = new PuckUserViewModel();
-                puvm.LastLoginDate = pu.LastLoginDate;
+                puvm.LastLoginDate = pu.PuckLastLoginDate;
                 puvm.LastLoginDateString = "user has never logged in";
                 if (puvm.LastLoginDate.HasValue)
                     puvm.LastLoginDateString = puvm.LastLoginDate.Value.ToString("dd/MM/yyyy hh:mm");
                 puvm.UserName = pu.UserName;
                 puvm.Email = pu.Email;
-                puvm.FirstName = pu.FirstName;
-                puvm.Surname = pu.Surname;
+                puvm.FirstName = pu.PuckFirstName;
+                puvm.Surname = pu.PuckSurname;
                 puvm.User = pu;
                 puvm.Roles = (await userManager.GetRolesAsync(pu)).ToList();
-                if (pu.StartNodeId != Guid.Empty)
-                    puvm.StartNode = new List<PuckPicker> { new PuckPicker { Id = pu.StartNodeId } };
-                puvm.UserVariant = pu.UserVariant;
+                if (pu.PuckStartNodeId != Guid.Empty)
+                    puvm.StartNode = new List<PuckPicker> { new PuckPicker { Id = pu.PuckStartNodeId.Value } };
+                puvm.UserVariant = pu.PuckUserVariant;
                 puvm.StartPath = "/";
-                if (pu.StartNodeId != Guid.Empty) {
-                    var node = repo.GetPuckRevision().FirstOrDefault(x=>x.Id==pu.StartNodeId&&x.Current);
+                if (pu.PuckStartNodeId != Guid.Empty) {
+                    var node = repo.GetPuckRevision().FirstOrDefault(x=>x.Id==pu.PuckStartNodeId&&x.Current);
                     if (node != null)
                         puvm.StartPath = node.Path;
                 }
@@ -122,17 +122,17 @@ namespace puck.core.Controllers
             ViewBag.Level0Type = typeof(PuckUserViewModel);
             if (!string.IsNullOrEmpty(userName)) {
                 var usr = await userManager.FindByNameAsync(userName);
-                model.FirstName = usr.FirstName;
-                model.Surname = usr.Surname;
+                model.FirstName = usr.PuckFirstName;
+                model.Surname = usr.PuckSurname;
                 model.UserName = userName;
                 model.Email = usr.Email;
                 model.CurrentEmail = usr.Email;
                 //model.Password = usr.GetPassword();
                 //model.PasswordConfirm = model.Password;
                 model.Roles = (await userManager.GetRolesAsync(usr)).ToList();
-                if(usr.StartNodeId!=Guid.Empty)
-                    model.StartNode = new List<PuckPicker>{ new PuckPicker { Id=usr.StartNodeId} };
-                model.UserVariant = usr.UserVariant;
+                if(usr.PuckStartNodeId!=Guid.Empty)
+                    model.StartNode = new List<PuckPicker>{ new PuckPicker { Id=usr.PuckStartNodeId.Value} };
+                model.UserVariant = usr.PuckUserVariant;
             }
             return View(model);
         }
@@ -156,12 +156,12 @@ namespace puck.core.Controllers
 
                     var puser = new PuckUser
                     {
-                        FirstName = user.FirstName,
-                        Surname = user.Surname,
+                        PuckFirstName = user.FirstName,
+                        PuckSurname = user.Surname,
                         Email = user.Email,
                         UserName = user.UserName,
-                        UserVariant = user.UserVariant,
-                        StartNodeId = user.StartNode?.FirstOrDefault()?.Id ?? Guid.Empty
+                        PuckUserVariant = user.UserVariant,
+                        PuckStartNodeId = user.StartNode?.FirstOrDefault()?.Id ?? Guid.Empty
                     };
                     var result = await userManager.CreateAsync(puser, user.Password);
                     if (!result.Succeeded) {
@@ -222,7 +222,7 @@ namespace puck.core.Controllers
                     
                     if (user.StartNode == null || user.StartNode.Count == 0)
                     {
-                        puser.StartNodeId = Guid.Empty;
+                        puser.PuckStartNodeId = Guid.Empty;
                     }
                     else
                     {
@@ -230,17 +230,17 @@ namespace puck.core.Controllers
                         var revision = repo.GetPuckRevision().Where(x => x.Id == picked_id && x.Current).FirstOrDefault();
                         if (revision != null)
                             startPath = revision.Path + "/";
-                        puser.StartNodeId = picked_id;
+                        puser.PuckStartNodeId = picked_id;
                     }
                     if (!string.IsNullOrEmpty(user.UserVariant))
                     {
-                        puser.UserVariant = user.UserVariant;
+                        puser.PuckUserVariant = user.UserVariant;
                     }
-                    puser.FirstName = user.FirstName;
-                    puser.Surname = user.Surname;
+                    puser.PuckFirstName = user.FirstName;
+                    puser.PuckSurname = user.Surname;
                     await userManager.UpdateAsync(puser);
 
-                    startNodeId = puser.StartNodeId;
+                    startNodeId = puser.PuckStartNodeId.Value;
 
                     if (!string.IsNullOrEmpty(user.Password))
                     {

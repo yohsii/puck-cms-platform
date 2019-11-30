@@ -27,6 +27,8 @@ using Microsoft.Extensions.FileProviders;
 using puck.core.ImageSharp.WebProcessors;
 using puck.core.Concrete;
 using puck.core.Abstract;
+using puckweb.Data.Contexts;
+using puckweb.Data.Entities;
 
 namespace puckweb
 {
@@ -51,13 +53,27 @@ namespace puckweb
                 .AddRoles<PuckRole>()
                 .AddEntityFrameworkStores<PuckContextSQLServer>();
                 services.AddTransient<I_Puck_Context>(x=>x.GetService<PuckContextSQLServer>());
-            }else if (Configuration.GetValue<bool?>("UsePostgreSQL") ?? false)
+                
+                //add front end db context and identity
+                services.AddDbContext<DbContextSQLServer>(x => x.UseSqlServer(Configuration.GetConnectionString("SQLServer")), optionsLifetime: ServiceLifetime.Transient);
+                services.AddIdentityCore<User>(options => { options.SignIn.RequireConfirmedAccount = false; })
+                .AddRoles<Role>()
+                .AddEntityFrameworkStores<DbContextSQLServer>();
+                services.AddScoped<SignInManager<User>>();
+            }
+            else if (Configuration.GetValue<bool?>("UsePostgreSQL") ?? false)
             {
                 services.AddEntityFrameworkNpgsql().AddDbContext<PuckContextPostgreSQL>(optionsLifetime: ServiceLifetime.Transient);
                 services.AddDefaultIdentity<PuckUser>(options => { options.SignIn.RequireConfirmedAccount = false; })
                 .AddRoles<PuckRole>()
                 .AddEntityFrameworkStores<PuckContextPostgreSQL>();
                 services.AddTransient<I_Puck_Context>(x => x.GetService<PuckContextPostgreSQL>());
+                //add front end db context and identity
+                services.AddDbContext<DbContextPostgreSQL>(x => x.UseNpgsql(Configuration.GetConnectionString("PostgreSQL")), optionsLifetime: ServiceLifetime.Transient);
+                services.AddIdentityCore<User>(options => { options.SignIn.RequireConfirmedAccount = false; })
+                .AddRoles<Role>()
+                .AddEntityFrameworkStores<DbContextPostgreSQL>();
+                services.AddScoped<SignInManager<User>>();
             }
             else if (Configuration.GetValue<bool?>("UseMySQL") ?? false)
             {
@@ -66,6 +82,12 @@ namespace puckweb
                 .AddRoles<PuckRole>()
                 .AddEntityFrameworkStores<PuckContextMySQL>();
                 services.AddTransient<I_Puck_Context>(x => x.GetService<PuckContextMySQL>());
+                //add front end db context and identity
+                services.AddDbContext<DbContextMySQL>(x => x.UseMySql(Configuration.GetConnectionString("MySQL")), optionsLifetime: ServiceLifetime.Transient);
+                services.AddIdentityCore<User>(options => { options.SignIn.RequireConfirmedAccount = false; })
+                .AddRoles<Role>()
+                .AddEntityFrameworkStores<DbContextMySQL>();
+                services.AddScoped<SignInManager<User>>();
             }
             else if (Configuration.GetValue<bool?>("UseSQLite") ?? false)
             {
@@ -74,6 +96,12 @@ namespace puckweb
                 .AddRoles<PuckRole>()
                 .AddEntityFrameworkStores<PuckContextSQLite>();
                 services.AddTransient<I_Puck_Context>(x => x.GetService<PuckContextSQLite>());
+                //add front end db context and identity
+                services.AddDbContext<DbContextSQLite>(x => x.UseSqlite(Configuration.GetConnectionString("SQLite")), optionsLifetime: ServiceLifetime.Transient);
+                services.AddIdentityCore<User>(options => { options.SignIn.RequireConfirmedAccount = false; })
+                .AddRoles<Role>()
+                .AddEntityFrameworkStores<DbContextSQLite>();
+                services.AddScoped<SignInManager<User>>();
             }
             
             services.AddResponseCaching();
