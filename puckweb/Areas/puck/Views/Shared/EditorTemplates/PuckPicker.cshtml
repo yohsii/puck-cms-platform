@@ -113,8 +113,9 @@
             }
             setValue();
 
-            if (selected_container.hasClass("ui-sortable")) {
+            if (selected_container.hasClass("ui-sortable") && selected_container.data("uiSortable")) {
                 selected_container.sortable("destroy");
+                selected_container.data("uiSortable",undefined)
             }
             selected_container.sortable({axis:"y", handle: ".puckPickerSortHandle", stop: function (event, ui) { setValue(); }});
 
@@ -182,6 +183,7 @@
                         selected_container.find(".selected_node").filter("[data-id='" + node.attr("data-id") + "'][data-variant='" + variant + "']").remove();
                         if (selected_container.find(".selected_node").filter("[data-id='" + node.attr("data-id") + "']").length == 0)
                             node.removeClass("selected");
+                        setValue();
                         return;
                     }
 
@@ -204,6 +206,12 @@
                         );
                     }
                     setValue();
+                    //reinitialize sortable since refresh doesn't seem to work
+                    if (selected_container.hasClass("ui-sortable") && selected_container.data("uiSortable")) {
+                        selected_container.sortable("destroy");
+                        selected_container.data("uiSortable",undefined);
+                        selected_container.sortable({axis:"y", handle: ".puckPickerSortHandle", stop: function (event, ui) { setValue(); }});
+                    }
                 });
                 overlayEl.on("click", "ul.contentTree li.node i.expand", function () {
                     //get children content

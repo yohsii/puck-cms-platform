@@ -136,8 +136,9 @@
             }
             setValue();
 
-            if (selected_container.hasClass("ui-sortable")) {
+            if (selected_container.hasClass("ui-sortable") && selected_container.data("uiSortable")) {
                 selected_container.sortable("destroy");
+                selected_container.data("uiSortable",undefined)
             }
             selected_container.sortable({ handle: "i.imagePickerSortHandle", stop: function (event, ui) { setValue(); } });
 
@@ -213,11 +214,18 @@
                             copy.find("img").css({ width: "auto" });
                             selected_container.append(copy);
                             setValue();
+                            //reinitialize sortable since refresh doesn't seem to work
+                            if (selected_container.hasClass("ui-sortable") && selected_container.data("uiSortable")) {
+                                selected_container.sortable("destroy");
+                                selected_container.data("uiSortable",undefined);
+                                selected_container.sortable({ handle: "i.imagePickerSortHandle", stop: function (event, ui) { setValue(); } });
+                            }
                         } else msg(undefined, "you cannot select any more, max selection is set to " + maxPick, undefined, undefined);
 
                     } else {
                         selected_container.find("[data-id='" + el.attr("data-id") + "'][data-variant='" + el.attr("data-variant") + "']").remove();
                         el.removeClass("selected");
+                        setValue();
                     }
                 });
             });
