@@ -34,5 +34,3 @@ it's fast, with queries avoiding the database and instead using Lucene. it's als
 - can be used headless or decoupled
 - supports sql server, sqlite, mysql, postgresql
 
-
-[Puck CMS - ASP.Net core Content Management System](https://puckcms.com/)
