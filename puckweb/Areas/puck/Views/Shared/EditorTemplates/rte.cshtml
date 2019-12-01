@@ -137,8 +137,9 @@
             //console.log("new container rte",container);
         });
 
-        container.on("puckListEditorUpdate", function (e, container) {
-            //debugger;
+        container.off("puckListEditorUpdate").on("puckListEditorUpdate", function (e, container) {
+            if(window.debug)
+                debugger;
             //console.log("rte:puckListEditorUpdate",container);
             var textArea = container.find("textarea");
             textArea.attr("id", "cid" + cidCounter + 1);

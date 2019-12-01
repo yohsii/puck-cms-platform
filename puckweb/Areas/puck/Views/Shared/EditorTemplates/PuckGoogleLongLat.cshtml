@@ -61,9 +61,10 @@
                     //console.log("new container puckgooglelatlong",container);
                 });
 
-                container.off().on("puckListEditorUpdate", function (e, cont) {
-                    //debugger;
-                    init(container);
+                container.off("puckListEditorUpdate").on("puckListEditorUpdate", function (e, cont) {
+                    if(window.debug)
+                        debugger;
+                    init(cont);
                 });
 
                 var geocoder;

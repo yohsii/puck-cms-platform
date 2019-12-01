@@ -102,9 +102,11 @@
 
         if (shouldBindListEditor || true) {
             whenTemplateReady(function (template) {
+                afterDom();
                 //console.log("templateReady:" + getPropName());
                 container.find(".addContainer:first button").click(function () {
-                    //debugger;
+                    if(window.debug)
+                        debugger;
                     var el = $(this);
                     var _selected_container = el.parents(".listeditor:first").find(".selected_content:first");
                     var elToCopy = template.find(".listeditor_" + escapePropname(toZeroIndex(getPropName())) + " .itemContainer:first");
