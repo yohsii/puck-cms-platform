@@ -115,7 +115,7 @@
 
             if (selected_container.hasClass("ui-sortable") && selected_container.data("uiSortable")) {
                 selected_container.sortable("destroy");
-                selected_container.data("uiSortable",undefined)
+                selected_container.data("uiSortable", "");
             }
             selected_container.sortable({axis:"y", handle: ".puckPickerSortHandle", stop: function (event, ui) { setValue(); }});
 
@@ -209,7 +209,7 @@
                     //reinitialize sortable since refresh doesn't seem to work
                     if (selected_container.hasClass("ui-sortable") && selected_container.data("uiSortable")) {
                         selected_container.sortable("destroy");
-                        selected_container.data("uiSortable",undefined);
+                        selected_container.data("uiSortable","");
                         selected_container.sortable({axis:"y", handle: ".puckPickerSortHandle", stop: function (event, ui) { setValue(); }});
                     }
                 });
