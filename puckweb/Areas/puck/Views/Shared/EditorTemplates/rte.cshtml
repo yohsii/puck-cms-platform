@@ -138,6 +138,7 @@
         });
 
         container.on("puckListEditorUpdate", function (e, container) {
+            //debugger;
             //console.log("rte:puckListEditorUpdate",container);
             var textArea = container.find("textarea");
             textArea.attr("id", "cid" + cidCounter + 1);

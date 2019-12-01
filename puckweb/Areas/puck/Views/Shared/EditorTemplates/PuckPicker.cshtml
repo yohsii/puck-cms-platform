@@ -46,7 +46,7 @@
                 if (!string.IsNullOrEmpty(m.Variant))
                 {
                     <div class="selected_node" data-nodename="" data-variant="@m.Variant" data-id="@m.Id">
-                        <span class="nname"></span> - <span class="v">@m.Variant</span>
+                        <i class="fas fa-sort puckPickerSortHandle mr-3"/><span class="nname"></span> - <span class="v">@m.Variant</span>
                         <a href="#content?id=@(m.Id)&variant=@(m.Variant)" class="view">View</a>
                         &nbsp;<i class='fas fa-minus-circle'></i>
                     </div>
@@ -55,6 +55,7 @@
                 else
                 {
                     <div class="selected_node" data-variant="null" data-id="@m.Id">
+                        <i class="fas fa-sort puckPickerSortHandle mr-3"/>
                         <span class="nname"></span>&nbsp;
                         <i class='fas fa-minus-circle'></i>
                     </div>
@@ -111,6 +112,12 @@
                 });
             }
             setValue();
+
+            if (selected_container.hasClass("ui-sortable")) {
+                selected_container.sortable("destroy");
+            }
+            selected_container.sortable({axis:"y", handle: ".puckPickerSortHandle", stop: function (event, ui) { setValue(); }});
+
             var loadData = function () {
                 var ids = "";
                 selected_container.find(".selected_node").each(function () {
@@ -187,12 +194,13 @@
                     if (isVariantSelection && (selectionType == "variant" || selectionType == "both")) {
                         selected_container.append(
                             "<div class='selected_node' data-nodename='" + node.attr("data-nodename") + "' data-variant='" + variant + "' data-id='" + node.attr("data-id") + "'>"
+                            +"<i class=\"fas fa-sort puckPickerSortHandle mr-3\"/>"
                             + "<span>" + node.attr("data-nodename") + "</span> - <span class='v'>" + variant + "</span>"
                             + "&nbsp;<a href='#content?id=" + node.attr("data-id") + "&variant=" + variant + "' class='view'>View</a> &nbsp;<i class='fas fa-minus-circle remove'></i></div>"
                         );
                     } else if (!isVariantSelection && (selectionType == "node" || selectionType == "both")) {
                         selected_container.append(
-                            "<div class='selected_node' data-variant='' data-id='" + node.attr("data-id") + "'><span>" + node.attr("data-nodename") + "</span>&nbsp;<i class='fas fa-minus-circle remove'></i></div>"
+                            "<div class='selected_node' data-variant='' data-id='" + node.attr("data-id") + "'><i class=\"fas fa-sort puckPickerSortHandle mr-3\"/><span>" + node.attr("data-nodename") + "</span>&nbsp;<i class='fas fa-minus-circle remove'></i></div>"
                         );
                     }
                     setValue();

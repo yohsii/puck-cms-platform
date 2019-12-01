@@ -30,10 +30,13 @@
     <div style="display:none;" class="containerTrigger"></div>
 
     <div class="col-md-12 puckImagePickerMsgContainer"></div>
-    <div class="row selected_content">
+    <div class="row mb-1">
         <div class="col-md-2">
             <button type="button" class="btn btn-light addImage"><i class="fas fa-plus"></i></button>
         </div>
+    </div>
+    <div class="row selected_content">
+        
         @if (Model != null)
         {
             foreach (var m in Model)
@@ -44,6 +47,7 @@
                         <div class="actionContainer">
                             <i class="fas fa-pen view"></i>
                             <i class="fas fa-trash remove"></i>
+                            <i class="fas fa-sort imagePickerSortHandle"></i>
                         </div>
                         <div class="imageContainer">
                             <img src="" />
@@ -73,6 +77,7 @@
             <div class="actionContainer">
                 <i class="fas fa-pen view"></i>
                 <i class="fas fa-trash remove"></i>
+                <i class="fas fa-sort imagePickerSortHandle"></i>
             </div>
             <div class="iconContainer">
                 <i class="fas fa-file-alt"></i>
@@ -113,6 +118,7 @@
             });
             var msgContainer = container.find(".puckImagePickerMsgContainer");
             var selected_container = container.find(".selected_content");
+
             var selected_content = function () { return selected_container.find(".item"); }
             var _startPath = "@startPath" == "" ? startPath : "@startPath";
             var _startId = "@startId.ToString()";
@@ -129,6 +135,12 @@
                 });
             }
             setValue();
+
+            if (selected_container.hasClass("ui-sortable")) {
+                selected_container.sortable("destroy");
+            }
+            selected_container.sortable({ handle: "i.imagePickerSortHandle", stop: function (event, ui) { setValue(); } });
+
             var loadData = function () {
                 var ids = "";
                 selected_container.find(".item").each(function () {
@@ -308,11 +320,11 @@
         text-align: center;
     }
 
-        .imagePickerOverlayContainer .iconContainer i {
-            font-size: 3em;
-            width: 100%;
-            padding: 12px;
-        }
+    .imagePickerOverlayContainer .iconContainer i {
+        font-size: 3em;
+        width: 100%;
+        padding: 12px;
+    }
 
     .imagePickerOverlayContainer .item {
         background: #f8f8f8;
@@ -370,10 +382,14 @@
         border-top: 1px solid #f2f2f2;
     }
 
-        .puckimagepicker .actionContainer i {
-            cursor: pointer;
-            margin:0px 3px;
-        }
+    .puckimagepicker .actionContainer i {
+        cursor: pointer;
+        margin:0px 3px;
+    }
+
+    .puckimagepicker .actionContainer i.imagePickerSortHandle {
+        float:right;
+    }
 
     .puckimagepicker .item {
     }

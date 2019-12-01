@@ -81,7 +81,7 @@
         //    cright.find(".listeditor_" + escapePropname(propname));
         //else
         //    container = cinterfaces.find("div[data-type='" + modelType + "'] .listeditor_" + escapePropname(propname))
-        var selected_container = container.find(".selected_content");
+        var selected_container = container.find(".selected_content:first");
         var getPropName = function () {
             return container.find("div:hidden.propName:first").attr("data-propName");
         }
@@ -131,6 +131,7 @@
                         //debugger;
                         var input = $(this);
                         var name = input.attr("name") || "";
+                        if (!name) return;
                         var newName = _propName + "["+index+"]";
                         var oldPropName = name.substring(0, name.lastIndexOf(".")); //name.replace(/\[0\]$/,"");
                         var regex = new RegExp("^" + escapeRegExp(oldPropName /*+ "[0]"*/));
@@ -232,6 +233,7 @@
                         //debugger;
                         var input = $(this);
                         var name = input.attr("name") || "";
+                        if (!name) return;
                         var regexStr = "^" + escapeRegExp(_propName) + "\\[\\d+\\]";
                         var regex = new RegExp("^" + escapeRegExp(_propName) + "\\[\\d+\\]");
                         var newName = name.replace(regex, _propName + "[" + index + "]");
@@ -243,6 +245,7 @@
             }
             var bindSortable = function (_selected_container) {
                 _selected_container.disableSelection().sortable({
+                    handle:".sortHandle",
                     axis: "y",
                     /*handle: ">.itemContainer>.titleContainer .sortHandle",*/
                     items: ">.itemContainer",
