@@ -33,3 +33,4 @@ it's fast, with queries avoiding the database and instead using Lucene. it's als
 - sync content between databases (e.g. staging to production)
 - can be used headless or decoupled
 - supports sql server, sqlite, mysql, postgresql
+
