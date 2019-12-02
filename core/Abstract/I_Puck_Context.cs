@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using puck.core.Entities;
 using System;
@@ -11,6 +12,7 @@ namespace puck.core.Abstract
     public interface I_Puck_Context
     {
         int SaveChanges();
+        ChangeTracker ChangeTracker { get; }
         DatabaseFacade Database { get; }
         public DbSet<PuckMeta> PuckMeta { get; set; }
         public DbSet<PuckRevision> PuckRevision { get; set; }

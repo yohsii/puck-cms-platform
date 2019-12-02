@@ -280,6 +280,65 @@ namespace puck.tests
         [TestCase(DbConstants.MySql)]
         [TestCase(DbConstants.SQLServer)]
         [TestCase(DbConstants.PostgreSQL)]
+        public async Task UnpublishPublish(string type)
+        {
+            var s = GetServices(type);
+            // home
+            s.Repo.Context.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
+            var homePage = await s.ContentService.Create<Folder>(Guid.Empty, "en-gb", "homePublishUnpublish", template: "~/views/home/homepage.cshtml", published: true, userName: "darkezmo@hotmail.com");
+            await s.ContentService.SaveContent(homePage, triggerEvents: false, userName: uname);
+
+            // home/news
+            var newsPageEn = await s.ContentService.Create<Folder>(homePage.Id, "en-gb", "news", template: "~/views/home/homepage.cshtml", published: true, userName: uname);
+            await s.ContentService.SaveContent(newsPageEn, triggerEvents: false, userName: uname);
+            var newsPageJp = await s.ContentService.Create<Folder>(homePage.Id, "ja-jp", "news", template: "~/views/home/homepage.cshtml", published: false, userName: uname);
+            newsPageJp.Id = newsPageEn.Id;
+            await s.ContentService.SaveContent(newsPageJp, triggerEvents: false, userName: uname);
+
+            // home/news/images
+            var imagesPageEn = await s.ContentService.Create<Folder>(newsPageEn.Id, "en-gb", "images", template: "~/views/home/homepage.cshtml", published: true, userName: uname);
+            await s.ContentService.SaveContent(imagesPageEn, triggerEvents: false, userName: uname);
+            var imagesPageJp = await s.ContentService.Create<Folder>(newsPageEn.Id, "ja-jp", "images", template: "~/views/home/homepage.cshtml", published: false, userName: uname);
+            imagesPageJp.Id = imagesPageEn.Id;
+            await s.ContentService.SaveContent(imagesPageJp, triggerEvents: false, userName: uname);
+
+            // home/news/images/tokyo
+            var tokyoPageEn = await s.ContentService.Create<Folder>(imagesPageEn.Id, "en-gb", "tokyo", template: "~/views/home/homepage.cshtml", published: true, userName: uname);
+            await s.ContentService.SaveContent(tokyoPageEn, triggerEvents: false, userName: uname);
+
+            // home/news/images/london
+            var londonPageEn = await s.ContentService.Create<Folder>(imagesPageEn.Id, "en-gb", "london", template: "~/views/home/homepage.cshtml", published: true, userName: uname);
+            await s.ContentService.SaveContent(londonPageEn, triggerEvents: false, userName: uname);
+
+            var repo2 = NewRepo(type);
+
+            var londonRevision = repo2.CurrentRevision(londonPageEn.Id, londonPageEn.Variant);
+
+            Folder getContentFromIndex(Guid id, string variant) {
+                var qh = new QueryHelper<Folder>(prependTypeTerm:false);
+                var result = qh.ID(id).Variant(variant).GetAllNoCast().FirstOrDefault();
+                return result;
+            }
+            
+            var tokyoModel = getContentFromIndex(tokyoPageEn.Id,tokyoPageEn.Variant);
+            Assert.That(tokyoModel.Published);
+
+            await s.ContentService.UnPublish(homePage.Id, homePage.Variant, new string[] { "en-gb", "ru-ru", "ja-jp" }.ToList(), userName: uname);
+
+            tokyoModel = getContentFromIndex(tokyoPageEn.Id, tokyoPageEn.Variant);
+            Assert.That(tokyoModel.Published==false);
+
+            await s.ContentService.Publish(homePage.Id, homePage.Variant, new string[] { "en-gb", "ru-ru", "ja-jp" }.ToList(), userName: uname);
+
+            tokyoModel = getContentFromIndex(tokyoPageEn.Id, tokyoPageEn.Variant);
+            Assert.That(tokyoModel.Published);
+        }
+
+        [Test]
+        [TestCase(DbConstants.SQLite)]
+        [TestCase(DbConstants.MySql)]
+        [TestCase(DbConstants.SQLServer)]
+        [TestCase(DbConstants.PostgreSQL)]
         public async Task RepublishEntireSite2(string type)
         {
             var s = GetServices(type);
