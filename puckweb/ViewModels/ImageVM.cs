@@ -10,7 +10,7 @@ using puck.core.Models;
 namespace puckweb.ViewModels
 {
     [Display(Name="Image")]
-    /*Image View Model*/
+    /*Image View Model, you might want to keep this as there's a handy image picker that by default can select content using this viewmodel*/
     public class ImageVM:BaseModel
     {
         [Display(GroupName ="Content")]

@@ -9,6 +9,7 @@ using puck.core.Models.EditorSettings.Attributes;
 
 namespace puckweb.ViewModels
 {
+    /*You don't need this viewmodel (or any of them, although i recommend keeping ImageVM), feel free to modify/delete and make your own*/
     public class Homepage:Page
     {
         [Display(Name="Carousel Items",GroupName ="Content")]
