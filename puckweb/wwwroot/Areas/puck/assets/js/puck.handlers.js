@@ -271,15 +271,19 @@ $(document).on("click",".node-dropdown a,.template-dropdown a",function () {
             var doPublish = function (id, variant, descendants,overlayEl) {
                 setPublish(id, variant, descendants, function (data) {
                     if (data.success === true) {
-                        overlayEl.find("button").removeAttr("disabled");
-                        overlayEl.find(".submitLoader").remove();
+                        if (overlayEl) {
+                            overlayEl.find("button").removeAttr("disabled");
+                            overlayEl.find(".submitLoader").remove();
+                        }
                         msg(true,"content published");
                         getDrawContent(node.attr("data-parent_id"), undefined, true,undefined,true);
                         node.find(">.inner>.variant[data-variant='"+variant+"']").addClass("published");
                         overlayClose();
                     } else {
-                        overlayEl.find("button").removeAttr("disabled");
-                        overlayEl.find(".submitLoader").remove();
+                        if (overlayEl) {
+                            overlayEl.find("button").removeAttr("disabled");
+                            overlayEl.find(".submitLoader").remove();
+                        }
                         msg(false, data.message);
                         overlayClose();
                     }
@@ -310,16 +314,20 @@ $(document).on("click",".node-dropdown a,.template-dropdown a",function () {
             var doUnpublish = function (id, variant, descendants,overlayEl) {
                 setUnpublish(id, variant, descendants, function (data) {
                     if (data.success === true) {
-                        overlayEl.find("button").removeAttr("disabled");
-                        overlayEl.find(".submitLoader").remove();
+                        if (overlayEl) {
+                            overlayEl.find("button").removeAttr("disabled");
+                            overlayEl.find(".submitLoader").remove();
+                        }
                         msg(true, "content unpublished");
                         getDrawContent(node.attr("data-parent_id"), undefined, true,undefined,true);
                         node.find(">.inner>.variant[data-variant='" + variant + "']").removeClass("published");
                         publishedContent[id][variant] = undefined;
                         overlayClose();
                     } else {
-                        overlayEl.find("button").removeAttr("disabled");
-                        overlayEl.find(".submitLoader").remove();
+                        if (overlayEl) {
+                            overlayEl.find("button").removeAttr("disabled");
+                            overlayEl.find(".submitLoader").remove();
+                        }
                         msg(false, data.message);
                         overlayClose();
                     }
