@@ -32,23 +32,27 @@ namespace puck.core.Tasks
                 var contentService = scope.ServiceProvider.GetService<I_Content_Service>();
                 var publishMeta = repo.GetPuckMeta().Where(x => x.Name == DBNames.TimedPublish && x.Dt.HasValue && x.Dt.Value <= DateTime.Now).ToList();
                 var unpublishMeta = repo.GetPuckMeta().Where(x => x.Name == DBNames.TimedUnpublish && x.Dt.HasValue && x.Dt.Value <= DateTime.Now).ToList();
-
-                foreach (var meta in publishMeta)
+                try
                 {
-                    var id = Guid.Parse(meta.Key.Split(':')[0]);
-                    var variant = meta.Key.Split(':')[1];
-                    var descendantVariants = (meta.Value ?? "").Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries).ToList();
-                    await contentService.Publish(id, variant, descendantVariants, userName: meta.Username);
-                }
+                    foreach (var meta in publishMeta)
+                    {
+                        var id = Guid.Parse(meta.Key.Split(':')[0]);
+                        var variant = meta.Key.Split(':')[1];
+                        var descendantVariants = (meta.Value ?? "").Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries).ToList();
+                        await contentService.Publish(id, variant, descendantVariants, userName: meta.Username);
+                    }
 
-                foreach (var meta in unpublishMeta)
-                {
-                    var id = Guid.Parse(meta.Key.Split(':')[0]);
-                    var variant = meta.Key.Split(':')[1];
-                    var descendantVariants = new List<string>() { variant };
-                    await contentService.UnPublish(id, variant, descendantVariants, userName: meta.Username);
+                    foreach (var meta in unpublishMeta)
+                    {
+                        var id = Guid.Parse(meta.Key.Split(':')[0]);
+                        var variant = meta.Key.Split(':')[1];
+                        var descendantVariants = new List<string>() { variant };
+                        await contentService.UnPublish(id, variant, descendantVariants, userName: meta.Username);
+                    }
                 }
-
+                catch (Exception ex) {
+                    PuckCache.PuckLog.Log($"timed publish failed. {ex.Message}",ex.StackTrace,level:"error",exceptionType:ex.GetType());
+                }
                 publishMeta.ForEach(x => repo.DeleteMeta(x));
                 unpublishMeta.ForEach(x => repo.DeleteMeta(x));
                 repo.SaveChanges();
