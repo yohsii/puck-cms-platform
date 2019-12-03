@@ -153,30 +153,50 @@ namespace puckweb
 
                 return p;
             }
-
-            services.AddImageSharpCore()
-                .SetRequestParser<QueryCollectionRequestParser>()
-                .SetCache(provider =>
-                {
-                    return new PhysicalFileSystemCache(
-                        provider.GetRequiredService<IOptions<PhysicalFileSystemCacheOptions>>(),
-                        provider.GetRequiredService<Microsoft.AspNetCore.Hosting.IHostingEnvironment>(),
-                        provider.GetRequiredService<IOptions<ImageSharpMiddlewareOptions>>(),
-                        provider.GetRequiredService<FormatUtilities>());
-                })
-                .SetCacheHash<CacheHash>()
-                .AddProvider(AzureProviderFactory)
-                .Configure<AzureBlobStorageImageProviderOptions>(options =>
-                {
-                    options.ConnectionString = Configuration.GetValue<string>("AzureBlobStorageConnectionString");
-                    options.ContainerName = Configuration.GetValue<string>("AzureImageTransformer_ContainerName");
-                })
-                .AddProvider(PhysicalProviderFactory)
-                .AddProcessor<CropWebProcessor>()
-                .AddProcessor<ResizeWebProcessor>()
-                .AddProcessor<FormatWebProcessor>()
-                .AddProcessor<BackgroundColorWebProcessor>();
-
+            if (!string.IsNullOrEmpty(Configuration.GetValue<string>("AzureBlobStorageConnectionString"))
+                && !string.IsNullOrEmpty(Configuration.GetValue<string>("AzureImageTransformer_ContainerName")))
+            {
+                services.AddImageSharpCore()
+                    .SetRequestParser<QueryCollectionRequestParser>()
+                    .SetCache(provider =>
+                    {
+                        return new PhysicalFileSystemCache(
+                            provider.GetRequiredService<IOptions<PhysicalFileSystemCacheOptions>>(),
+                            provider.GetRequiredService<Microsoft.AspNetCore.Hosting.IHostingEnvironment>(),
+                            provider.GetRequiredService<IOptions<ImageSharpMiddlewareOptions>>(),
+                            provider.GetRequiredService<FormatUtilities>());
+                    })
+                    .SetCacheHash<CacheHash>()
+                    .AddProvider(AzureProviderFactory)
+                    .Configure<AzureBlobStorageImageProviderOptions>(options =>
+                    {
+                        options.ConnectionString = Configuration.GetValue<string>("AzureBlobStorageConnectionString");
+                        options.ContainerName = Configuration.GetValue<string>("AzureImageTransformer_ContainerName");
+                    })
+                    .AddProvider(PhysicalProviderFactory)
+                    .AddProcessor<CropWebProcessor>()
+                    .AddProcessor<ResizeWebProcessor>()
+                    .AddProcessor<FormatWebProcessor>()
+                    .AddProcessor<BackgroundColorWebProcessor>();
+            }
+            else {
+                services.AddImageSharpCore()
+                    .SetRequestParser<QueryCollectionRequestParser>()
+                    .SetCache(provider =>
+                    {
+                        return new PhysicalFileSystemCache(
+                            provider.GetRequiredService<IOptions<PhysicalFileSystemCacheOptions>>(),
+                            provider.GetRequiredService<Microsoft.AspNetCore.Hosting.IHostingEnvironment>(),
+                            provider.GetRequiredService<IOptions<ImageSharpMiddlewareOptions>>(),
+                            provider.GetRequiredService<FormatUtilities>());
+                    })
+                    .SetCacheHash<CacheHash>()
+                    .AddProvider(PhysicalProviderFactory)
+                    .AddProcessor<CropWebProcessor>()
+                    .AddProcessor<ResizeWebProcessor>()
+                    .AddProcessor<FormatWebProcessor>()
+                    .AddProcessor<BackgroundColorWebProcessor>();
+            }
             services.AddMiniProfiler(options =>{
                 // (Optional) Path to use for profiler URLs, default is /mini-profiler-resources
                 options.RouteBasePath = "/profiler";
