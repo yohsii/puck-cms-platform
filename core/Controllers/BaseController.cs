@@ -152,7 +152,7 @@ namespace puck.core.Controllers
             }
         }
 
-        protected string GetVariant(string searchPath)
+        public string GetVariant(string searchPath)
         {
             string variant = null;
             if (!PuckCache.PathToLocale.TryGetValue(searchPath, out variant))
@@ -171,7 +171,7 @@ namespace puck.core.Controllers
             return variant;
         }
 
-        protected string GetDisplayModeId() {
+        public string GetDisplayModeId() {
             var dmode = "";
             if (PuckCache.DisplayModes != null)
             {

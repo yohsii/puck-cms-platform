@@ -25,6 +25,7 @@ using Lucene.Net.Queries.Function;
 using Lucene.Net.Spatial.Prefix.Tree;
 using Lucene.Net.Spatial.Prefix;
 using Microsoft.AspNetCore.Localization;
+using puck.core.Controllers;
 
 namespace puck.core.Helpers
 {
@@ -403,9 +404,21 @@ namespace puck.core.Helpers
             //var requestCultureFeature = HttpContext.Current.Features.Get<IRequestCultureFeature>();
             //var variant = requestCultureFeature.RequestCulture.Culture.Name.ToLower();
             //var variant = CultureInfo.CurrentCulture.Name.ToLower();
-            var variant = HttpContext.Current.Items["variant"] as string;
             string absPath = HttpContext.Current.Request.GetUri().AbsolutePath.ToLower();
             string path = PathPrefix() + (absPath == "/" ? "" : absPath);
+
+            var currentVariantFromHttpContext = HttpContext.Current?.Items["variant"];
+            string v = null;
+            if (currentVariantFromHttpContext == null && HttpContext.Current != null)
+            {
+                v = new BaseController().GetVariant(path);
+                HttpContext.Current.Items["variant"] = v;
+            }
+            else if (currentVariantFromHttpContext != null)
+                v = currentVariantFromHttpContext as string;
+
+            var variant = v ?? PuckCache.SystemVariant;
+            
             var qh = new QueryHelper<TModel>();
             //qh.And().Field(x => x.Path, path).Variant(variant);
             qh.And().Path(path).Variant(variant);
@@ -854,7 +867,19 @@ namespace puck.core.Helpers
         {
             TrimAnd();
             var key = FieldKeys.Variant;
-            var variant = (HttpContext.Current.Items["variant"] as string)??PuckCache.SystemVariant;
+            var currentVariantFromHttpContext = HttpContext.Current?.Items["variant"];
+            string v=null;
+            if (currentVariantFromHttpContext == null && HttpContext.Current != null)
+            {
+                string absPath = HttpContext.Current.Request.GetUri().AbsolutePath.ToLower();
+                string path = PathPrefix() + (absPath == "/" ? "" : absPath);
+                v = new BaseController().GetVariant(path);
+                HttpContext.Current.Items["variant"] = v;
+            }
+            else if (currentVariantFromHttpContext != null)
+                v = currentVariantFromHttpContext as string;
+                
+            var variant = v??PuckCache.SystemVariant;
             query += string.Concat("+",key, ":", variant.ToLower(), " ");
             return this;
         }
