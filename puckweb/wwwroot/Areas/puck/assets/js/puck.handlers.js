@@ -2,7 +2,9 @@
 $(document).ajaxError(function (event, jqxhr, settings, thrownError) {
     //console.log("event:",event,"jqxhr:",jqxhr,"settings:",settings,"thrownError:",thrownError);
     if (jqxhr.status == 401) {
-        msg(false, "You are no longer logged in. <a style=\"background:#fff;\" target=\"_target\" href=\"/puck/admin/in\">Login</a> again to continue working",true,undefined,60000);
+        msg(false, "You are no longer logged in. <a style=\"background:#fff;\" target=\"_target\" href=\"/puck/admin/in\">Login</a> again to continue working", true, undefined, 60000);
+        $(".submitLoader").remove();
+        $(".content_btns").removeAttr("disabled");
     }
 });
 //tabs
