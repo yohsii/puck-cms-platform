@@ -469,7 +469,7 @@ namespace puck.core.Services
                     //set current descendants to have IsPublishedRevision set to true, since we're publishing Current descendants
                     affected = UpdateDescendantIsPublishedRevision(currentRevision.IdPath + ",", true, true, descendantVariants);
                     var descendantVariantsLowerCase = descendantVariants.Select(x => x.ToLower()).ToList();
-                    var descendantRevisions = repo.CurrentRevisionDescendants(currentRevision.IdPath).Where(x => descendantVariantsLowerCase.Contains(x.Variant.ToLower())).ToList();
+                    var descendantRevisions = repo.CurrentRevisionDescendants(currentRevision.IdPath).Where(x => descendantVariantsLowerCase.Contains(x.Variant)).ToList();
                     var descendantModels = descendantRevisions.Select(x => x.ToBaseModel()).ToList();
                     AddPublishInstruction(descendantModels);
                     indexer.Index(descendantModels);
@@ -524,7 +524,7 @@ namespace puck.core.Services
                     //set descendants to have IsPublishedRevision set to false
                     affected = UpdateDescendantIsPublishedRevision(currentRevision.IdPath + ",", false, false, descendantVariants);
                     var descendantVariantsLowerCase = descendantVariants.Select(x => x.ToLower()).ToList();
-                    var descendantRevisions = repo.CurrentRevisionDescendants(currentRevision.IdPath).Where(x => descendantVariantsLowerCase.Contains(x.Variant.ToLower())).ToList();
+                    var descendantRevisions = repo.CurrentRevisionDescendants(currentRevision.IdPath).Where(x => descendantVariantsLowerCase.Contains(x.Variant)).ToList();
                     var descendantModels = descendantRevisions.Select(x => x.ToBaseModel()).ToList();
                     toIndex.AddRange(descendantModels);
                     if (descendantModels.Any())
@@ -980,6 +980,8 @@ namespace puck.core.Services
                 }
                 if (mod.Id == Guid.Empty) throw new ArgumentException("model id cannot be empty");
                 if (string.IsNullOrEmpty(mod.Variant)) throw new ArgumentException("model variant must be set");
+
+                mod.Variant = mod.Variant.ToLower();
 
                 await ObjectDumper.Transform(mod, int.MaxValue);
 
