@@ -40,18 +40,21 @@ using Microsoft.Extensions.Hosting;
 
 namespace puck.core.Concrete
 {
-    public class Content_Indexer_Searcher : I_Content_Indexer,I_Content_Searcher
+    public class Content_Indexer_Searcher : I_Content_Indexer, I_Content_Searcher
     {
         private StandardAnalyzer StandardAnalyzer = new Lucene.Net.Analysis.Standard.StandardAnalyzer(LuceneVersion.LUCENE_48);
         private KeywordAnalyzer KeywordAnalyzer = new KeywordAnalyzer();
         public readonly SpatialContext ctx = SpatialContext.GEO;
-        private Lucene.Net.Store.Directory Directory=null;
-        private Regex regexIndexPathReplaceMachineName = new Regex(Regex.Escape("{MachineName}"),RegexOptions.IgnoreCase|RegexOptions.Compiled);
+        private Lucene.Net.Store.Directory Directory = null;
+        private Regex regexIndexPathReplaceMachineName = new Regex(Regex.Escape("{MachineName}"), RegexOptions.IgnoreCase | RegexOptions.Compiled);
         private Regex regexIndexPathReplaceContentRootPath = new Regex(Regex.Escape("{ContentRootPath}"), RegexOptions.IgnoreCase | RegexOptions.Compiled);
-        private string INDEXPATH {
-            get {
+        private string INDEXPATH
+        {
+            get
+            {
                 string path = null;
-                if (PuckCache.UseAzureLucenePath) {
+                if (PuckCache.UseAzureLucenePath)
+                {
                     path = ReplacePathTokens(config.GetValue<string>("LuceneAzureIndexPath"));
                 }
                 else
@@ -70,7 +73,8 @@ namespace puck.core.Concrete
         public bool CanWrite { get; set; } = true;
         public bool UseAzureDirectory { get; set; } = false;
         public IHostEnvironment env { get; set; }
-        public Content_Indexer_Searcher(I_Log Logger,IConfiguration configuration,IHostEnvironment env) {
+        public Content_Indexer_Searcher(I_Log Logger, IConfiguration configuration, IHostEnvironment env)
+        {
             this.logger = Logger;
             this.config = configuration;
             this.env = env;
@@ -80,16 +84,17 @@ namespace puck.core.Concrete
 
             Ini();
 
-            BeforeIndex+=new EventHandler<BeforeIndexingEventArgs>(DelegateBeforeIndexing);
+            BeforeIndex += new EventHandler<BeforeIndexingEventArgs>(DelegateBeforeIndexing);
             AfterIndex += new EventHandler<IndexingEventArgs>(DelegateAfterIndexing);
             BeforeDelete += new EventHandler<BeforeIndexingEventArgs>(DelegateBeforeDelete);
             AfterDelete += new EventHandler<IndexingEventArgs>(DelegateAfterDelete);
         }
-        private string ReplacePathTokens(string path) {
+        private string ReplacePathTokens(string path)
+        {
             path = regexIndexPathReplaceMachineName
                 .Replace(path, ApiHelper.ServerName());
             path = regexIndexPathReplaceContentRootPath
-                .Replace(path,env.ContentRootPath);
+                .Replace(path, env.ContentRootPath);
             return path;
         }
         public void Ini()
@@ -193,7 +198,8 @@ namespace puck.core.Concrete
             }
             catch (Exception ex) { throw; }
         }
-        private static void DelegateBeforeEvent(Dictionary<string,Tuple<Type, Action<object, BeforeIndexingEventArgs>, bool>> list,object n,BeforeIndexingEventArgs e){
+        private static void DelegateBeforeEvent(Dictionary<string, Tuple<Type, Action<object, BeforeIndexingEventArgs>, bool>> list, object n, BeforeIndexingEventArgs e)
+        {
             var type = e.Node.GetType();
             //refactor:can probably use is operator to implement event propagation
             var types = ApiHelper.BaseTypes(type);
@@ -216,7 +222,8 @@ namespace puck.core.Concrete
                     x.Value.Item2(n, e);
                 });
         }
-        private static void DelegateBeforeIndexing(object n , BeforeIndexingEventArgs e){
+        private static void DelegateBeforeIndexing(object n, BeforeIndexingEventArgs e)
+        {
             DelegateBeforeEvent(BeforeIndexActionList, n, e);
         }
         private static void DelegateAfterIndexing(object n, IndexingEventArgs e)
@@ -232,25 +239,26 @@ namespace puck.core.Concrete
             DelegateAfterEvent(AfterIndexActionList, n, e);
         }
 
-        public static Dictionary<string,Tuple<Type, Action<object, BeforeIndexingEventArgs>, bool>> BeforeIndexActionList = 
-            new Dictionary<string,Tuple<Type, Action<object, BeforeIndexingEventArgs>, bool>>();
-        
-        public static Dictionary<string,Tuple<Type, Action<object, IndexingEventArgs>, bool>> AfterIndexActionList =
-            new Dictionary<string,Tuple<Type, Action<object, IndexingEventArgs>, bool>>();
-        
-        public static Dictionary<string,Tuple<Type, Action<object, BeforeIndexingEventArgs>, bool>> BeforeDeleteActionList =
-            new Dictionary<string,Tuple<Type, Action<object, BeforeIndexingEventArgs>, bool>>();
-        
-        public static Dictionary<string,Tuple<Type, Action<object, IndexingEventArgs>, bool>> AfterDeleteActionList =
-            new Dictionary<string,Tuple<Type, Action<object, IndexingEventArgs>, bool>>();
-        
+        public static Dictionary<string, Tuple<Type, Action<object, BeforeIndexingEventArgs>, bool>> BeforeIndexActionList =
+            new Dictionary<string, Tuple<Type, Action<object, BeforeIndexingEventArgs>, bool>>();
+
+        public static Dictionary<string, Tuple<Type, Action<object, IndexingEventArgs>, bool>> AfterIndexActionList =
+            new Dictionary<string, Tuple<Type, Action<object, IndexingEventArgs>, bool>>();
+
+        public static Dictionary<string, Tuple<Type, Action<object, BeforeIndexingEventArgs>, bool>> BeforeDeleteActionList =
+            new Dictionary<string, Tuple<Type, Action<object, BeforeIndexingEventArgs>, bool>>();
+
+        public static Dictionary<string, Tuple<Type, Action<object, IndexingEventArgs>, bool>> AfterDeleteActionList =
+            new Dictionary<string, Tuple<Type, Action<object, IndexingEventArgs>, bool>>();
+
         public event EventHandler<BeforeIndexingEventArgs> BeforeIndex;
         public event EventHandler<IndexingEventArgs> AfterIndex;
         public event EventHandler<BeforeIndexingEventArgs> BeforeDelete;
         public event EventHandler<IndexingEventArgs> AfterDelete;
-        
-        public void RegisterBeforeIndexHandler<T>(string Name,Action<object,BeforeIndexingEventArgs> Handler,bool Propagate=false) where T:BaseModel {
-            BeforeIndexActionList.Add(Name,new Tuple<Type,Action<object,BeforeIndexingEventArgs>,bool>(typeof(T),Handler,Propagate));
+
+        public void RegisterBeforeIndexHandler<T>(string Name, Action<object, BeforeIndexingEventArgs> Handler, bool Propagate = false) where T : BaseModel
+        {
+            BeforeIndexActionList.Add(Name, new Tuple<Type, Action<object, BeforeIndexingEventArgs>, bool>(typeof(T), Handler, Propagate));
         }
         public void RegisterAfterIndexHandler<T>(string Name, Action<object, IndexingEventArgs> Handler, bool Propagate = false) where T : BaseModel
         {
@@ -282,9 +290,10 @@ namespace puck.core.Concrete
             AfterDeleteActionList.Remove(Name);
         }
 
-        protected void OnBeforeIndex(object s,BeforeIndexingEventArgs args) {
+        protected void OnBeforeIndex(object s, BeforeIndexingEventArgs args)
+        {
             if (BeforeIndex != null)
-                BeforeIndex(s,args);
+                BeforeIndex(s, args);
         }
 
         protected void OnAfterIndex(object s, IndexingEventArgs args)
@@ -305,7 +314,8 @@ namespace puck.core.Concrete
                 AfterDelete(s, args);
         }
 
-        public void GetFieldSettings(List<FlattenedObject> props,Document doc,List<KeyValuePair<string,Analyzer>> analyzers) {
+        public void GetFieldSettings(List<FlattenedObject> props, Document doc, List<KeyValuePair<string, Analyzer>> analyzers)
+        {
             foreach (var p in props)
             {
                 if (analyzers != null)
@@ -337,29 +347,30 @@ namespace puck.core.Concrete
                         var nf = new DoubleField(p.Key, double.Parse(p.Value.ToString()), p.FieldStoreSetting);
                         doc.Add(nf);
                     }
-                    else if (p.Spatial) {
+                    else if (p.Spatial)
+                    {
                         if (p.Value == null || string.IsNullOrEmpty(p.Value.ToString()))
                             continue;
-                        var name =p.Key ;// p.Key.IndexOf('.')>-1?p.Key.Substring(0,p.Key.LastIndexOf('.')):p.Key;
+                        var name = p.Key;// p.Key.IndexOf('.')>-1?p.Key.Substring(0,p.Key.LastIndexOf('.')):p.Key;
                         int maxLevels = 11;
                         SpatialPrefixTree grid = new GeohashPrefixTree(ctx, maxLevels);
                         var strat = new RecursivePrefixTreeStrategy(grid, name);
 
                         //var strat = new PointVectorStrategy(ctx,name);
-                        var yx = p.Value.ToString().Split(new char[] { ','},StringSplitOptions.RemoveEmptyEntries).Select(x=>double.Parse(x)).ToList();
-                        var point = ctx.MakePoint(yx[1],yx[0]);
+                        var yx = p.Value.ToString().Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries).Select(x => double.Parse(x)).ToList();
+                        var point = ctx.MakePoint(yx[1], yx[0]);
                         //var point = ctx.ReadShape(p.Value.ToString());
                         var fields = strat.CreateIndexableFields(point);
                         fields.ToList().ForEach(x => doc.Add(x));
-                        
+
                         IPoint pt = (IPoint)point;
                         //doc.Add(new StoredField(strat.FieldName, pt.X.ToString(CultureInfo.InvariantCulture) + " " + pt.Y.ToString(CultureInfo.InvariantCulture)));
-                        
+
                     }
                     else
                     {
                         string value = p.Value == null ? null : (p.KeepValueCasing ? p.Value.ToString() : p.Value.ToString().ToLower());
-                        Field f=null;
+                        Field f = null;
                         if (p.FieldIndexSetting == Field.Index.ANALYZED || p.FieldIndexSetting == Field.Index.ANALYZED_NO_NORMS)
                             f = new TextField(p.Key, value ?? string.Empty, p.FieldStoreSetting);
                         else
@@ -369,8 +380,9 @@ namespace puck.core.Concrete
                 }
             }
         }
-        
-        public void Index<T>(List<T> models,bool triggerEvents=true) where T:BaseModel {
+
+        public void Index<T>(List<T> models, bool triggerEvents = true) where T : BaseModel
+        {
             if (models.Count == 0) return;
             lock (write_lock)
             {
@@ -381,12 +393,12 @@ namespace puck.core.Concrete
                     if (!CanWrite) return;
                     SetWriter(false);
                     //Writer.Flush(true, true, true);
-                    Parallel.ForEach(models, (m,state,index) => {
+                    Parallel.ForEach(models, (m, state, index) => {
                         PuckCache.IndexingStatus = $"indexing item {count} of {models.Count}";
                         //var type = ApiHelper.GetType(m.Type);
                         //if (type == null)
                         //    type = typeof(BaseModel);
-                        var type = ApiHelper.GetTypeFromName(m.Type,defaultToBaseModel:true);
+                        var type = ApiHelper.GetTypeFromName(m.Type, defaultToBaseModel: true);
                         var analyzer = PuckCache.AnalyzerForModel[type];
                         var parser = new PuckQueryParser<T>(Lucene.Net.Util.LuceneVersion.LUCENE_48, FieldKeys.PuckDefaultField, analyzer);
                         if (triggerEvents)
@@ -415,7 +427,7 @@ namespace puck.core.Concrete
                         {
                             GetFieldSettings(props, doc, null);
                         }//add cms properties
-                        if(!PuckCache.StoreReferences)
+                        if (!PuckCache.StoreReferences)
                             m.References = new List<string>();
                         string jsonDoc = JsonConvert.SerializeObject(m);
                         //doc in json form for deserialization later
@@ -426,14 +438,14 @@ namespace puck.core.Concrete
                         }
                         count++;
                     });
-                    
+
                     //Writer.Flush(true,true,true);
                     using (MiniProfiler.Current.CustomTiming("commit", ""))
                     {
                         Writer.Commit();
                     }
                     //Optimize();
-                    
+
                 }
                 catch (Exception ex)
                 {
@@ -454,7 +466,7 @@ namespace puck.core.Concrete
                 }
             }
         }
-        public void Delete<T>(List<T> toDelete) where T:BaseModel
+        public void Delete<T>(List<T> toDelete) where T : BaseModel
         {
             lock (write_lock)
             {
@@ -503,11 +515,12 @@ namespace puck.core.Concrete
             if (toDelete != null)
                 Delete<T>(new List<T> { toDelete });
         }
-        public void Index<T>(T model)where T:BaseModel {
+        public void Index<T>(T model) where T : BaseModel
+        {
             if (model != null)
-                Index(new List<T> {model });
+                Index(new List<T> { model });
         }
-        
+
         public void Index(List<Dictionary<string, string>> values)
         {
             foreach (var dict in values)
@@ -515,7 +528,7 @@ namespace puck.core.Concrete
                 this.Index(dict);
             }
         }
-        
+
         public void Index(Dictionary<string, string> values)
         {
             lock (write_lock)
@@ -532,9 +545,10 @@ namespace puck.core.Concrete
                         Field field;
                         if (NoToken.Contains(nv.Key.ToLower()))
                         {
-                            field = new StringField(nv.Key.ToLower(),nv.Value, Field.Store.YES);
+                            field = new StringField(nv.Key.ToLower(), nv.Value, Field.Store.YES);
                         }
-                        else {
+                        else
+                        {
                             field = new TextField(nv.Key.ToLower(), nv.Value, Field.Store.YES);
                         }
                         doc.Add(field);
@@ -548,7 +562,8 @@ namespace puck.core.Concrete
                     throw;
                     //logger.Log(ex);
                 }
-                finally {
+                finally
+                {
                     CloseWriter();
                     SetSearcher();
                 }
@@ -580,7 +595,7 @@ namespace puck.core.Concrete
                 }
             }
         }
-        public void Delete(string terms,bool reloadSearcher=true)
+        public void Delete(string terms, bool reloadSearcher = true)
         {
             lock (write_lock)
             {
@@ -603,13 +618,14 @@ namespace puck.core.Concrete
                 finally
                 {
                     CloseWriter();
-                    if(reloadSearcher)
+                    if (reloadSearcher)
                         SetSearcher();
                 }
             }
         }
         //optimize seems to be dropped in lucene 4.8
-        public void Optimize() {
+        public void Optimize()
+        {
             throw new NotImplementedException();
             lock (write_lock)
             {
@@ -618,7 +634,8 @@ namespace puck.core.Concrete
                     SetWriter(false);
                     //Writer.Optimize();
                 }
-                catch (OutOfMemoryException ex) {
+                catch (OutOfMemoryException ex)
+                {
                     CloseWriter();
                     throw;
                 }
@@ -633,10 +650,10 @@ namespace puck.core.Concrete
                 }
             }
         }
-        public IList<Dictionary<string, string>> Query(Query contentQuery,HashSet<string> fieldsToLoad=null,int limit=500)
+        public IList<Dictionary<string, string>> Query(Query contentQuery, HashSet<string> fieldsToLoad = null, int limit = 500)
         {
             EnsureSearcher();
-            var hits = Searcher.Search(contentQuery,limit).ScoreDocs;
+            var hits = Searcher.Search(contentQuery, limit).ScoreDocs;
 
             var result = new List<Dictionary<string, string>>();
             for (var i = 0; i < hits.Count(); i++)
@@ -654,22 +671,24 @@ namespace puck.core.Concrete
                     d.Add(FieldKeys.Score, hits[i].Score.ToString());
                     result.Add(d);
                 }
-                else {
-                    var doc = Searcher.Doc(hits[i].Doc,fieldsToLoad);
+                else
+                {
+                    var doc = Searcher.Doc(hits[i].Doc, fieldsToLoad);
                     var d = new Dictionary<string, string>();
-                    foreach(var key in fieldsToLoad) {
+                    foreach (var key in fieldsToLoad)
+                    {
                         d.Add(key, doc.GetValues(key).FirstOrDefault() ?? "");
                     }
                     result.Add(d);
                 }
             }
-            return result;            
+            return result;
         }
         public IList<Dictionary<string, string>> Query(string terms)
         {
             return Query(terms, null);
         }
-        public IList<Dictionary<string, string>> Query(string terms,string typeName,HashSet<string> fieldsToLoad=null,int limit=500)
+        public IList<Dictionary<string, string>> Query(string terms, string typeName, HashSet<string> fieldsToLoad = null, int limit = 500)
         {
             QueryParser parser;
             if (!string.IsNullOrEmpty(typeName))
@@ -679,19 +698,20 @@ namespace puck.core.Concrete
                 var analyzer = PuckCache.AnalyzerForModel[type];
                 parser = new QueryParser(Lucene.Net.Util.LuceneVersion.LUCENE_48, FieldKeys.PuckDefaultField, analyzer);
             }
-            else {
+            else
+            {
                 parser = new QueryParser(LuceneVersion.LUCENE_48, "text", KeywordAnalyzer);
             }
 
             var contentQuery = parser.Parse(terms);
-            return Query(contentQuery,fieldsToLoad:fieldsToLoad,limit:limit);
+            return Query(contentQuery, fieldsToLoad: fieldsToLoad, limit: limit);
         }
-        public IList<T> QueryNoCast<T>(string qstr) where T:BaseModel
+        public IList<T> QueryNoCast<T>(string qstr) where T : BaseModel
         {
             int total;
-            return QueryNoCast<T>(qstr,null,null,out total);
+            return QueryNoCast<T>(qstr, null, null, out total);
         }
-        public IList<T> QueryNoCast<T>(string qstr, Filter filter,Sort sort,out int total,int limit=500,int skip=0,Type typeOverride=null,bool fallBackToBaseModel=false) where T:BaseModel
+        public IList<T> QueryNoCast<T>(string qstr, Filter filter, Sort sort, out int total, int limit = 500, int skip = 0, Type typeOverride = null, bool fallBackToBaseModel = false) where T : BaseModel
         {
             EnsureSearcher();
             var analyzer = PuckCache.AnalyzerForModel[typeof(T)];
@@ -720,15 +740,15 @@ namespace puck.core.Concrete
                     else if (type == null) continue;
                 }
                 else type = typeOverride;
-                T result = (T)JsonConvert.DeserializeObject(doc.GetValues(FieldKeys.PuckValue)[0],type);
+                T result = (T)JsonConvert.DeserializeObject(doc.GetValues(FieldKeys.PuckValue)[0], type);
                 results.Add(result);
             }
             return results;
         }
-        public IList<T> Query<T>(string qstr) where T:BaseModel
+        public IList<T> Query<T>(string qstr) where T : BaseModel
         {
             int total;
-            return Query<T>(qstr,null,null,out total);
+            return Query<T>(qstr, null, null, out total);
         }
         public int Count<T>(string qstr) where T : BaseModel
         {
@@ -736,16 +756,18 @@ namespace puck.core.Concrete
             var result = Query<T>(qstr, null, null, out total, limit: 1);
             return total;
         }
-        public int DocumentCount() {
+        public int DocumentCount()
+        {
             EnsureSearcher();
             var totalHitsCollector = new TotalHitCountCollector();
-            Searcher?.Search(new MatchAllDocsQuery(),totalHitsCollector);
+            Searcher?.Search(new MatchAllDocsQuery(), totalHitsCollector);
             return totalHitsCollector.TotalHits;
         }
-        public IList<T> Query<T>(string qstr,Filter filter,Sort sort,out int total,int limit=500,int skip=0) where T:BaseModel {
+        public IList<T> Query<T>(string qstr, Filter filter, Sort sort, out int total, int limit = 500, int skip = 0) where T : BaseModel
+        {
             EnsureSearcher();
             var analyzer = PuckCache.AnalyzerForModel[typeof(T)];
-            var parser = new PuckQueryParser<T>(LuceneVersion.LUCENE_48,FieldKeys.PuckDefaultField,analyzer);
+            var parser = new PuckQueryParser<T>(LuceneVersion.LUCENE_48, FieldKeys.PuckDefaultField, analyzer);
             var q = parser.Parse(qstr);
             TopDocs docs;
             if (sort == null)
@@ -757,7 +779,8 @@ namespace puck.core.Concrete
             }
             total = docs.TotalHits;
             var results = new List<T>();
-            for (var i = skip; i < docs.ScoreDocs.Count(); i++) {
+            for (var i = skip; i < docs.ScoreDocs.Count(); i++)
+            {
                 var doc = Searcher.Doc(docs.ScoreDocs[i].Doc);
                 T result = JsonConvert.DeserializeObject<T>(doc.GetValues(FieldKeys.PuckValue)[0]);
                 results.Add(result);
@@ -771,9 +794,9 @@ namespace puck.core.Concrete
         public IList<T> Get<T>(int limit)
         {
             EnsureSearcher();
-            var t = new Term(FieldKeys.PuckTypeChain,typeof(T).FullName);
+            var t = new Term(FieldKeys.PuckTypeChain, typeof(T).FullName);
             var q = new TermQuery(t);
-            var hits=Searcher.Search(q,limit).ScoreDocs;
+            var hits = Searcher.Search(q, limit).ScoreDocs;
             var results = new List<T>();
             for (var i = 0; i < hits.Count(); i++)
             {
@@ -783,6 +806,6 @@ namespace puck.core.Concrete
             }
             return results;
         }
-        
+
     }
 }

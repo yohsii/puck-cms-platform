@@ -249,7 +249,7 @@ namespace puck.core.Services
             BeforeMove += new EventHandler<BeforeMoveEventArgs>(DelegateBeforeMove);
             AfterMove += new EventHandler<MoveEventArgs>(DelegateAfterMove);
         }
-        public ContentService(IConfiguration config, RoleManager<PuckRole> RoleManager, UserManager<PuckUser> UserManager, I_Puck_Repository Repo, I_Task_Dispatcher TaskDispatcher, I_Content_Indexer Indexer, I_Log Logger, I_Api_Helper apiHelper,IMemoryCache cache)
+        public ContentService(IConfiguration config, RoleManager<PuckRole> RoleManager, UserManager<PuckUser> UserManager, I_Puck_Repository Repo, I_Task_Dispatcher TaskDispatcher, I_Content_Indexer Indexer, I_Log Logger, I_Api_Helper apiHelper, IMemoryCache cache)
         {
             this.roleManager = RoleManager;
             this.userManager = UserManager;
@@ -552,7 +552,7 @@ namespace puck.core.Services
                 repo.SaveChanges();
             }
         }
-        
+
         public int DeleteRevisions(List<Guid> ids, int step = 100)
         {
             int affected = 0;
@@ -565,7 +565,7 @@ namespace puck.core.Services
             while (toDelete.Count() > 0)
             {
                 var sql = "delete from [PuckRevision] where [Id] in(";
-                if(repo.Context.Database.IsNpgsql())
+                if (repo.Context.Database.IsNpgsql())
                     sql = "delete from \"PuckRevision\" where \"Id\" in(";
                 else if (repo.Context.Database.IsMySql())
                     sql = "delete from `PuckRevision` where `Id` in(";
@@ -657,7 +657,7 @@ namespace puck.core.Services
                     toDelete.Clear();
                     repoItems.ForEach(x =>
                     {
-                        var args = new BeforeIndexingEventArgs() { Node = ApiHelper.GetTypeFromName(x.Type)==null? x.ToBaseModel(cast:true):x.ToBaseModel(), Cancel = false };
+                        var args = new BeforeIndexingEventArgs() { Node = ApiHelper.GetTypeFromName(x.Type) == null ? x.ToBaseModel(cast: true) : x.ToBaseModel(), Cancel = false };
                         OnBeforeDelete(this, args);
                         if (args.Cancel)
                         {
@@ -766,8 +766,9 @@ namespace puck.core.Services
                     {
                         transaction.Rollback();
                     }
-                    catch (Exception ex2) {
-                        logger.Log("error rolling back transaction in ContentService.Delete. "+ex.Message,ex.StackTrace,exceptionType:ex2.GetType());
+                    catch (Exception ex2)
+                    {
+                        logger.Log("error rolling back transaction in ContentService.Delete. " + ex.Message, ex.StackTrace, exceptionType: ex2.GetType());
                         throw ex;
                     }
                     logger.Log($"failed to delete id:{id} variant:{variant ?? ""}. " + ex.Message, ex.StackTrace, exceptionType: ex.GetType());
@@ -976,7 +977,7 @@ namespace puck.core.Services
                     }
                     if (user == null)
                         throw new UserNotFoundException("there is no user for provided username");
-                    else if(cacheMiss) cache.Set(cacheKey,user,TimeSpan.FromMinutes(1)); 
+                    else if (cacheMiss) cache.Set(cacheKey, user, TimeSpan.FromMinutes(1));
                 }
                 if (mod.Id == Guid.Empty) throw new ArgumentException("model id cannot be empty");
                 if (string.IsNullOrEmpty(mod.Variant)) throw new ArgumentException("model variant must be set");
@@ -1380,10 +1381,10 @@ namespace puck.core.Services
                                 indexer.Index(toIndex, triggerEvents: triggerIndexEvents);
                         }
                         else if (mod.Published /*|| currentMod == null*/)//add to lucene index if published or no such node exists in index
-                                                                     /*note that you can only have one node with particular id/variant in index at any one time
-                                                                     * the reason that you want to add node to index when it's not published but there is no such node currently in index
-                                                                     * is to make sure there is always at least one version of the node in the index for back office search operations
-                                                                     */
+                                                                         /*note that you can only have one node with particular id/variant in index at any one time
+                                                                         * the reason that you want to add node to index when it's not published but there is no such node currently in index
+                                                                         * is to make sure there is always at least one version of the node in the index for back office search operations
+                                                                         */
                         {
                             toIndex.Add(mod);
                             var changed = false;
@@ -1447,7 +1448,8 @@ namespace puck.core.Services
                             if (shouldIndex)
                                 indexer.Index(toIndex, triggerEvents: triggerIndexEvents);
                         }
-                        else if (publishedRevision == null) {
+                        else if (publishedRevision == null)
+                        {
                             toIndex.Add(mod);
                             if (shouldIndex)
                                 indexer.Index(toIndex, triggerEvents: triggerIndexEvents);
@@ -1610,7 +1612,7 @@ namespace puck.core.Services
             param.Value = value;
             return param;
         }
-        public async Task RePublishEntireSite2()
+        public async Task RePublishEntireSite2(bool addInstruction = false)
         {
             var errored = false;
             var errorMsg = string.Empty;
@@ -1652,12 +1654,13 @@ namespace puck.core.Services
                                 model.Variant = reader.GetString(7);
                                 try
                                 {
-                                    if(PuckCache.StoreReferences)
+                                    if (PuckCache.StoreReferences)
                                         model.References = new List<string>();
-                                    await ObjectDumper.Transform(model, int.MaxValue,new List<Type> { typeof(PuckPickerReferencesTransformer)});
+                                    await ObjectDumper.Transform(model, int.MaxValue, new List<Type> { typeof(PuckPickerReferencesTransformer) });
                                 }
-                                catch (Exception ex) {
-                                    logger.Log($"transorm failed during republish entire site. id:{model.Id}, variant:{model.Variant}, type:{model.Type}. error:{ex.Message}",ex.StackTrace,level:"error",exceptionType:ex.GetType());
+                                catch (Exception ex)
+                                {
+                                    logger.Log($"transorm failed during republish entire site. id:{model.Id}, variant:{model.Variant}, type:{model.Type}. error:{ex.Message}", ex.StackTrace, level: "error", exceptionType: ex.GetType());
                                 }
                                 models.Add(model);
                                 //typeAndValues.Add(new KeyValuePair<string, string>(aqn, value));
@@ -1675,8 +1678,11 @@ namespace puck.core.Services
                 {
                     indexer.Index(models, triggerEvents: false);
                 }
-                var instruction = new PuckInstruction() { Count = 1, InstructionKey = InstructionKeys.RepublishSite, ServerName = ApiHelper.ServerName() };
-                repo.AddPuckInstruction(instruction);
+                if (addInstruction)
+                {
+                    var instruction = new PuckInstruction() { Count = 1, InstructionKey = InstructionKeys.RepublishSite, ServerName = ApiHelper.ServerName() };
+                    repo.AddPuckInstruction(instruction);
+                }
                 repo.SaveChanges();
             }
             catch (Exception ex)
@@ -1702,7 +1708,7 @@ namespace puck.core.Services
                 }
             }
         }
-        public async Task Sync(Guid id, Guid parentId, bool includeDescendants,bool onlyOverwriteIfNewer,I_Content_Service destinationContentService,IMemoryCache cache,string cacheKey, string userName = null)
+        public async Task Sync(Guid id, Guid parentId, bool includeDescendants, bool onlyOverwriteIfNewer, I_Content_Service destinationContentService, IMemoryCache cache, string cacheKey, string userName = null)
         {
             try
             {
@@ -1747,9 +1753,10 @@ namespace puck.core.Services
                             cache.Set($"name{cacheKey}", revisionsToCopy.FirstOrDefault().NodeName);
                             cache.Set(cacheKey, $"Syncing item {i} of {allItemsToCopy.Count}");
 
-                            if (cache.Get<bool?>($"cancel{cacheKey}") ?? false) {
+                            if (cache.Get<bool?>($"cancel{cacheKey}") ?? false)
+                            {
                                 cache.Set(cacheKey, $"Cancelled on item {i} of {allItemsToCopy.Count}");
-                                cancelled=true;
+                                cancelled = true;
                                 return;
                             }
                             model.Path = "";
@@ -1782,15 +1789,16 @@ namespace puck.core.Services
                     destinationContentService.repo.SaveChanges();
                 }
                 //AddAuditEntry(id, "", AuditActions.Copy, notes, userName);
-                if(!cancelled)
+                if (!cancelled)
                     cache.Set(cacheKey, $"Sync complete.");
             }
             catch (Exception ex)
             {
                 cache.Set(cacheKey, $"Error. {ex.Message}");
             }
-            finally {
-                PuckCache.SyncKeys.RemoveAll(x=>x.Equals(cacheKey));
+            finally
+            {
+                PuckCache.SyncKeys.RemoveAll(x => x.Equals(cacheKey));
             }
         }
         public async Task Copy(Guid id, Guid parentId, bool includeDescendants, string userName = null)
@@ -1852,16 +1860,16 @@ namespace puck.core.Services
                     foreach (var model in group)
                     {
                         model.Path = "";
-                        toIndex.AddRange(await SaveContent(model, userName: userName,shouldIndex:false));
+                        toIndex.AddRange(await SaveContent(model, userName: userName, shouldIndex: false));
                     }
                     await SaveCopies(group.Key, items);
                 }
             }
 
             await SaveCopies(parentId, allItemsToCopy);
-            
+
             Index(toIndex);
-            
+
             AddAuditEntry(id, "", AuditActions.Copy, notes, userName);
         }
         public async Task Move(Guid nodeId, Guid destinationId, string userName = null)

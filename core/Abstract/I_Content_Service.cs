@@ -22,7 +22,7 @@ namespace puck.core.Abstract
 
         void AddAuditEntry(Guid id, string variant, string action, string notes, string username);
         void AddPublishInstruction(List<BaseModel> toIndex);
-        Task Sync(Guid id, Guid parentId, bool includeDescendants, bool onlyOverwriteIfNewer, I_Content_Service destinationContentService, IMemoryCache cache,string cacheKey, string userName = null);
+        Task Sync(Guid id, Guid parentId, bool includeDescendants, bool onlyOverwriteIfNewer, I_Content_Service destinationContentService, IMemoryCache cache, string cacheKey, string userName = null);
         Task Copy(Guid id, Guid parentId, bool includeDescendants, string userName = null);
         Task<T> Create<T>(Guid parentId, string variant, string name, string template = null, bool published = true, string userName = null) where T : BaseModel;
         Task Delete(Guid id, string variant = null, string userName = null);
@@ -35,8 +35,8 @@ namespace puck.core.Abstract
         void RenameOrphaned(string orphanTypeName, string newTypeName);
         int RenameOrphaned2(string orphanTypeName, string newTypeName);
         Task RePublishEntireSite();
-        Task RePublishEntireSite2();
-        Task<List<BaseModel>> SaveContent<T>(T mod, bool makeRevision = true, string userName = null, bool handleNodeNameExists = true, int nodeNameExistsCounter = 0,bool triggerEvents=true, bool triggerIndexEvents = true, bool shouldIndex=true) where T : BaseModel;
+        Task RePublishEntireSite2(bool addInstruction = false);
+        Task<List<BaseModel>> SaveContent<T>(T mod, bool makeRevision = true, string userName = null, bool handleNodeNameExists = true, int nodeNameExistsCounter = 0, bool triggerEvents = true, bool triggerIndexEvents = true, bool shouldIndex = true) where T : BaseModel;
         void Sort(Guid parentId, List<Guid> ids);
         Task UnPublish(Guid id, string variant, List<string> descendantVariants, string userName = null);
         int UpdateDescendantHasNoPublishedRevision(string path, bool value, List<string> descendantVariants);
