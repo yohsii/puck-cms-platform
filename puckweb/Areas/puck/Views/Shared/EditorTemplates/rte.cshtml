@@ -2,6 +2,19 @@
 @{ 
     var containerGuid = Guid.NewGuid().ToString();
     var guid ="G"+ Guid.NewGuid().ToString();
+
+    var settings = this.PuckEditorSettings<puck.core.Models.EditorSettings.Attributes.TinyMCEEditorSettings>(attributeOnly:true);
+    var width = "";
+    var height = "";
+    if (settings != null) {
+        if (!string.IsNullOrEmpty(settings.Width)) {
+            width = settings.Width;
+        }
+        if (!string.IsNullOrEmpty(settings.Height)) {
+            height = settings.Height;
+        }
+    }
+
 }
 <div data-guid="@containerGuid" data-editor="rte" class="editor_container puck_mce mce_@ViewData.ModelMetadata.PropertyName">
     <div style="display:none;" class="containerTrigger"></div>
@@ -38,6 +51,8 @@
             return {
                 selector: selector,
                 min_height: 300,
+                @Html.Raw(string.IsNullOrEmpty(width)?"":$"width:\"{width}\",")
+                @Html.Raw(string.IsNullOrEmpty(height)?"":$"height:\"{height}\",")
                 plugins: [
                     "advlist autolink lists link image charmap print preview anchor",
                     "searchreplace visualblocks code fullscreen",

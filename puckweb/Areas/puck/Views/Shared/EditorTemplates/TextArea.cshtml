@@ -1,3 +1,14 @@
 ﻿@model String
-
-@Html.TextAreaFor(x=>x,new {data_editor="textarea"})
+@{ 
+    var settings = this.PuckEditorSettings<puck.core.Models.EditorSettings.Attributes.TextAreaEditorSettings>(attributeOnly:true);
+    var style = "";
+    if (settings != null) {
+        if (!string.IsNullOrEmpty(settings.Width)) {
+            style += $"width:{settings.Width};";
+        }
+        if (!string.IsNullOrEmpty(settings.Height)) {
+            style += $"height:{settings.Height};";
+        }
+    }
+}
+@Html.TextAreaFor(x=>x,new {data_editor="textarea",style=style})
