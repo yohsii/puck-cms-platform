@@ -1672,11 +1672,11 @@ namespace puck.core.Services
                 PuckCache.IndexingStatus = $"deleting all indexed items";
                 using (MiniProfiler.Current.Step("delete models"))
                 {
-                    indexer.DeleteAll();
+                    indexer.DeleteAll(reloadSearcher:false,commit:false);
                 }
                 using (MiniProfiler.Current.Step("index models"))
                 {
-                    indexer.Index(models, triggerEvents: false);
+                    indexer.Index(models, triggerEvents: false,delete:false);
                 }
                 if (addInstruction)
                 {

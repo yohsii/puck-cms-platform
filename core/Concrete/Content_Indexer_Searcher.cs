@@ -381,7 +381,7 @@ namespace puck.core.Concrete
             }
         }
 
-        public void Index<T>(List<T> models, bool triggerEvents = true) where T : BaseModel
+        public void Index<T>(List<T> models, bool triggerEvents = true,bool delete=true) where T : BaseModel
         {
             if (models.Count == 0) return;
             lock (write_lock)
@@ -411,11 +411,13 @@ namespace puck.core.Concrete
                                 return;
                             }
                         }
-                        //delete doc
-                        string removeQuery = "+" + FieldKeys.ID + ":" + m.Id.ToString() + " +" + FieldKeys.Variant + ":" + m.Variant.ToLower();
-                        var q = parser.Parse(removeQuery);
-                        Writer.DeleteDocuments(q);
-
+                        if (delete)
+                        {
+                            //delete doc
+                            string removeQuery = "+" + FieldKeys.ID + ":" + m.Id.ToString() + " +" + FieldKeys.Variant + ":" + m.Variant.ToLower();
+                            var q = parser.Parse(removeQuery);
+                            Writer.DeleteDocuments(q);
+                        }
                         Document doc = new Document();
                         //get fields to index
                         List<FlattenedObject> props = null;
@@ -569,7 +571,7 @@ namespace puck.core.Concrete
                 }
             }
         }
-        public void DeleteAll(bool reloadSearcher = true)
+        public void DeleteAll(bool reloadSearcher = true,bool commit = true)
         {
             lock (write_lock)
             {
@@ -579,7 +581,8 @@ namespace puck.core.Concrete
                     {
                         SetWriter(false);
                         Writer.DeleteAll();
-                        Writer.Commit();
+                        if(commit)
+                            Writer.Commit();
                     }
                 }
                 catch (Exception ex)
