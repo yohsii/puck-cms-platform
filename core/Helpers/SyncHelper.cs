@@ -102,6 +102,7 @@ namespace puck.core.Helpers
                     }
                     //dosync
                     var hasPublishInstruction = false;
+                    var haveRepublished = false;
                     if (instructionsCount > PuckCache.MaxSyncInstructions)
                     {
                         handleMaxInstructions();
@@ -149,7 +150,7 @@ namespace puck.core.Helpers
                                             searcher.SetSearcher();
                                         }
                                     }
-                                    else if (instruction.InstructionKey == InstructionKeys.RepublishSite)
+                                    else if (instruction.InstructionKey == InstructionKeys.RepublishSite && !haveRepublished)
                                     {
                                         if (Indexer.CanWrite)
                                         {
@@ -161,6 +162,7 @@ namespace puck.core.Helpers
                                             }
                                         }
                                         else searcher.SetSearcher();
+                                        haveRepublished = true;
                                     }
                                     else if (instruction.InstructionKey == InstructionKeys.Publish)
                                     {
