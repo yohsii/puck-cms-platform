@@ -257,8 +257,8 @@ namespace puck.core.Helpers
             string editUrl = "";
             try {
                 var hcontext = HttpContext.Current;
-                user = hcontext.User.Identity.Name;
-                var uri = hcontext.Request.GetUri();
+                user = hcontext?.User?.Identity?.Name??"";
+                var uri = hcontext?.Request?.GetUri() ?? PuckCache.FirstRequestUrl;
                 editUrl = uri.Scheme +"://" 
                     + uri.Host 
                     + (uri.Port!=80 ?(":" + uri.Port):"")
