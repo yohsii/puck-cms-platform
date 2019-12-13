@@ -329,12 +329,17 @@ namespace puck.core.Helpers
             using (var scope = PuckCache.ServiceProvider.CreateScope())
             {
                 var repo = scope.ServiceProvider.GetService<I_Puck_Repository>();
-                var meta = repo.GetPuckMeta().Where(x => x.Name == DBNames.PathToLocale).OrderByDescending(x => x.Key.Length).ToList();
+                var meta = repo.GetPuckMeta()
+                    .Where(x => x.Name == DBNames.PathToLocale)
+                    .ToList()
+                    .Where(x=>!string.IsNullOrEmpty(x.Key))
+                    .OrderByDescending(x => x.Key.Count(xx => xx == '/'))
+                    .ToList();
+                
                 var map = new Dictionary<string, string>();
                 meta.ForEach(x =>
                 {
-                //map.Add(x.Key.ToLower(), x.Value.ToLower());
-                map[x.Key.ToLower()] = x.Value.ToLower();
+                    map[x.Key.ToLower()] = x.Value.ToLower();
                 });
                 PuckCache.PathToLocale = map;
 

@@ -292,7 +292,7 @@ namespace puck.core.Helpers
 
         public String PathLocalisation(string path)
         {
-            var meta = repo.GetPuckMeta().Where(x => x.Name == DBNames.PathToLocale && path.StartsWith(x.Key)).OrderByDescending(x => x.Key.Length).FirstOrDefault();
+            var meta = repo.GetPuckMeta().Where(x => x.Name == DBNames.PathToLocale && (path+"/").StartsWith(x.Key+"/")).OrderByDescending(x => x.Key.Length).FirstOrDefault();
             return meta == null ? null : meta.Value;
         }
         public String DomainMapping(string path)
