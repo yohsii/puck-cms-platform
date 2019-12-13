@@ -520,6 +520,25 @@ namespace puck.core.Controllers
             var model = apiHelper.PathLocalisation(p_path);
             return Json(model);
         }
+        [Authorize(Roles = PuckRoles.Localisation, AuthenticationSchemes = Mvc.AuthenticationScheme)]
+        [HttpPost]
+        public JsonResult Localisation(string p_path, string variant)
+        {
+            string message = "";
+            bool success = false;
+            try
+            {
+                if (apiHelper.PathLocalisation(p_path) != variant)
+                    apiHelper.SetLocalisation(p_path, variant);
+                success = true;
+            }
+            catch (Exception ex)
+            {
+                log.Log(ex);
+                message = ex.Message;
+            }
+            return Json(new { message = message, success = success });
+        }
         [Authorize(Roles = PuckRoles.Puck, AuthenticationSchemes = Mvc.AuthenticationScheme)]
         public JsonResult RootsLocalisations(string ids)
         {
@@ -532,24 +551,6 @@ namespace puck.core.Controllers
                 result.Add(new { path = revision.Path.ToLower(), variant = variant });
             }
             return Json(result);
-        }
-        [Authorize(Roles = PuckRoles.Localisation, AuthenticationSchemes = Mvc.AuthenticationScheme)]
-        [HttpPost]
-        public JsonResult Localisation(string p_path, string variant)
-        {
-            string message = "";
-            bool success = false;
-            try
-            {
-                apiHelper.SetLocalisation(p_path, variant);
-                success = true;
-            }
-            catch (Exception ex)
-            {
-                log.Log(ex);
-                message = ex.Message;
-            }
-            return Json(new { message = message, success = success });
         }
         [Authorize(Roles = PuckRoles.ChangeType, AuthenticationSchemes = Mvc.AuthenticationScheme)]
         public ActionResult ChangeTypeDialog(Guid id)

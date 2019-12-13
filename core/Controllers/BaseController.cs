@@ -158,7 +158,7 @@ namespace puck.core.Controllers
             if (!PuckCache.PathToLocale.TryGetValue(searchPath, out variant))
             {
                 foreach (var entry in PuckCache.PathToLocale)
-                {
+                {//PathToLocale dictionary ordered by depth descending (based on number of forward slashes in path) so it's safe to break after first match
                     if ((searchPath+"/").StartsWith(entry.Key+"/"))
                     {
                         variant = entry.Value;
