@@ -794,7 +794,7 @@ var displayMarkup = function (parentId, type, variant, fromVariant,contentId,con
             scroll = container.parents(".scrollContainer:first").scrollTop();
     }
     container.html("");
-    console.log(cinterfaces.find(".type_templates>div").length+" type templates");
+    //console.log(cinterfaces.find(".type_templates>div").length+" type templates");
     cinterfaces.find(".type_templates>div").remove();
     showLoader(container);
     getMarkup(parentId, type, variant, function (data) {
