@@ -1045,9 +1045,11 @@ var highlightSelectedNodeByIdPath = function (idPath) {
     var doGet = function () {
         var id = ids.splice(0, 1)[0];
         var node = cleft.find(".node[data-id='" + id + "']");
+        node.find("i.expand:first").removeClass("fa-chevron-right").addClass("fa-chevron-down");
         getDrawContent(id, node, true, function () {
-            if (ids.length > 0)
+            if (ids.length > 0) {
                 doGet();
+            }
             else
                 highlightSelectedNodeById(lastId);
         },true);    
