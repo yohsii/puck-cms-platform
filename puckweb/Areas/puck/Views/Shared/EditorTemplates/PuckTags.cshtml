@@ -133,7 +133,11 @@
             }
 
             if (tagInput.data('customAutocompleteWithRemove')) {
-                tagInput.autocompleteWithRemove("destroy");
+                try {
+                    tagInput.autocompleteWithRemove("destroy");
+                } catch (error) {
+
+                }
                 tagInput.removeData('customAutocompleteWithRemove');
             }
 

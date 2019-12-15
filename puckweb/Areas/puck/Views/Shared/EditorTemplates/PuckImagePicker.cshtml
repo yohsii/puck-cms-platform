@@ -137,7 +137,11 @@
             setValue();
 
             if (selected_container.hasClass("ui-sortable") && selected_container.data("uiSortable")) {
-                selected_container.sortable("destroy");
+                try {
+                    selected_container.sortable("destroy");
+                } catch (error) {
+
+                }
                 selected_container.data("uiSortable", "");
             }
             selected_container.sortable({ handle: "i.imagePickerSortHandle", stop: function (event, ui) { setValue(); } });

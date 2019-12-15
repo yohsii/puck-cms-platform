@@ -36,5 +36,8 @@ namespace puck.core.Models.EditorSettings
         [HiddenInput(DisplayValue =false)]
         [Display(Name = "Start Path Id")]
         public string StartPathId { get; set; }
+
+        [Display(Name ="Allowed Types",Description ="Comma-separated")]
+        public string AllowedTypes { get; set; }
     }
 }

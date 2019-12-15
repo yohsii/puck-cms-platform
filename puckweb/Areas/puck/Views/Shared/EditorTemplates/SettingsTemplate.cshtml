@@ -52,7 +52,7 @@
             }
         }
     }
-    <select name="@ViewData.ModelMetadata.PropertyName">
+    <select name="@ViewData.TemplateInfo.HtmlFieldPrefix">
         @foreach (var f in views.OrderBy(x => x.Name).ToList())
         {
             var selected = string.IsNullOrEmpty(Model) ? false : Model.ToLower().Equals(ApiHelper.ToVirtualPath(f.FullName).ToLower());

@@ -36,7 +36,7 @@
             @Html.LabelFor(x => x.Longitude)
             @Html.EditorFor(x => x.Longitude)
         </div>
-        @Html.HiddenFor(x => x.LatLong)
+        @Html.HiddenFor(x => x.LatLong,new { id=""})
 
         <script>
         onAfterDom(function () {

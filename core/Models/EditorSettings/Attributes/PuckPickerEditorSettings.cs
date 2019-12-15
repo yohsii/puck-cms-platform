@@ -20,5 +20,6 @@ namespace puck.core.Models.EditorSettings.Attributes
         public bool AllowUnpublished { get; set; }
         //public bool AllowDuplicates { get; set; }
         public List<PuckPicker> StartPath { get; set; }
+        public string AllowedTypes { get; set; }
     }
 }

@@ -14,7 +14,8 @@
             AllowUnpublished = true,
             MaxPick = 5,
             /*SelectionType = "both",*/
-            StartPath = null
+            StartPath = null,
+            AllowedTypes=""
         };
     }
     var startPath = "";
@@ -74,7 +75,7 @@
         var escapePropname = function (str) {
             return str.replace(/\[/g, "_").replace(/\]/g,"_").replace(/\./g,"_");
         }
-
+        
         var container = $("[data-guid='"+guid+"']");
 
         var init = function (container) {
@@ -91,6 +92,14 @@
                 selected_container = container.find(".selected_content");
                 //console.log("new container",container);
             });
+            var allowedTypesCSV = "@Html.Raw(settings.AllowedTypes??"")";
+            var allowedTypes = [];
+            var tempAllowedTypes = allowedTypesCSV.split(",");
+            for (var i = 0; i < tempAllowedTypes.length; i++) {
+                var aType = tempAllowedTypes[i];
+                if (aType && aType.trim() && aType.trim() != ",")
+                    allowedTypes.push(aType.trim());
+            }
             var selected_container = container.find(".selected_content");
             var selected_content = function () { return selected_container.find(".selected_node"); }
             var _startPath = "@startPath" == "" ? startPath : "@startPath";
@@ -114,7 +123,11 @@
             setValue();
 
             if (selected_container.hasClass("ui-sortable") && selected_container.data("uiSortable")) {
-                selected_container.sortable("destroy");
+                try {
+                    selected_container.sortable("destroy");
+                } catch (error) {
+
+                }
                 selected_container.data("uiSortable", "");
             }
             selected_container.sortable({axis:"y", handle: ".puckPickerSortHandle", stop: function (event, ui) { setValue(); }});
@@ -160,10 +173,22 @@
                     if (overlayEl.find(".node").length == 1) {
                         overlayEl.find("ul.contentTree").before($("<p/>").html("there is no content to select."));
                     }
+                    el.find(".node").each(function () {
+                        var n = $(this);
+                        if (allowedTypes.length > 0 && !allowedTypes.includes(n.attr("data-type"))) {
+                            n.addClass("disallowed");
+                        }
+                    });
                 }, false);
                 overlayEl.on("click", ".node span", function (e) {
                     var clicked = $(this);
                     var node = clicked.parents(".node:first");
+
+                    if (node.hasClass("disallowed")) {
+                        msg(undefined,"this selection is disallowed. type is \"" + node.attr("data-type") + "\" and allowed types are \""+allowedTypes.join(",")+"\"");
+                        return;
+                    }
+
                     var isVariantSelection = clicked.hasClass("variant");
 
                     if (node.attr("data-published") == "false" && !allowUnpublished) {
@@ -232,6 +257,12 @@
                             selected_container.find(".selected_node").each(function () {
                                 var selected = $(this);
                                 overlayEl.find(".node[data-id='" + selected.attr("data-id") + "']").addClass("selected");
+                            });
+                            node.find(".node").each(function () {
+                                var n = $(this);
+                                if (allowedTypes.length > 0 && !allowedTypes.includes(n.attr("data-type"))) {
+                                    n.addClass("disallowed");
+                                }
                             });
                         }, false);
                         node.find(".loader").show();

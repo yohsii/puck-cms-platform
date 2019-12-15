@@ -105,7 +105,7 @@
                 afterDom();
                 //console.log("templateReady:" + getPropName());
                 container.find(".addContainer:first button").click(function () {
-                    if(window.debug)
+                    if (window.debug)
                         debugger;
                     var el = $(this);
                     var _selected_container = el.parents(".listeditor:first").find(".selected_content:first");
@@ -166,7 +166,6 @@
                         var editorContainer = $(this);
                         editorContainer.trigger("puckListEditorUpdate",[editorContainer]);
                     });
-                    
                 });
 
             });

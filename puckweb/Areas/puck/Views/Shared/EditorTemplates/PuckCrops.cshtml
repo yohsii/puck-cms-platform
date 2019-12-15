@@ -51,7 +51,7 @@
 </div>
 <script type="text/javascript">
     onAfterDom(function () {
-        var propname = "@ViewData.ModelMetadata.PropertyName";
+        var propname = "@ViewData.TemplateInfo.HtmlFieldPrefix";
         var container = $(".puckcrops_" + propname);
         var selected_container = container.find(".selected_content");
         var input_container = container.find(".cropModelInput");

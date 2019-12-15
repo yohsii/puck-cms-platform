@@ -207,6 +207,10 @@ ul.contentTree span.nodename {
 ul.contentTree ul {
     margin-left: 10px !important;
 }
+ul.contentTree .node.disallowed > .inner > span.nodename {
+    background: rgba(204, 204, 204, 0.9) !important;
+    cursor: not-allowed !important;
+}
 ul.contentTree .node.selected>.inner>span.nodename{
     background: #ccffcc;
 }
@@ -1824,11 +1828,13 @@ div.settings div.redirects span.delete, div.settings div.redirects span.edit {
             border: 1px solid #7ac0da;
         }
 
-    input[type="checkbox"] {
-        background: transparent;
-        border: inherit;
-        width: auto;
-    }
+input[type="checkbox"] {
+    background: transparent;
+    border: inherit;
+    /*width: auto;*/
+    width: 20px;
+    height: 20px;
+}
 
     input[type="submit"],
     input[type="button"],

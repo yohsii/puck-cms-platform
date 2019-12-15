@@ -3,4 +3,4 @@
     var value = Model == null ? "" : Model.FileName;    
 }
 @*<input name="@ViewData.TemplateInfo.GetFullHtmlFieldName("")" />*@
-@Html.TextBoxFor(x=>x,null,new {type="file" })
+@Html.TextBoxFor(x=>x,null,new {type="file" ,id=""})

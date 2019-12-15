@@ -2,17 +2,17 @@
 @{ 
     var guid = Guid.NewGuid();
 }
-<div class="datepicker_@ViewData.ModelMetadata.PropertyName">
+<div class="datepicker_@ViewData.TemplateInfo.HtmlFieldPrefix">
 @if(ViewData.ModelMetadata.HideSurroundingHtml){
-    <input type="hidden" data-guid="@guid.ToString()" name="@ViewData.ModelMetadata.PropertyName" value="@(Model.HasValue?Model.Value.ToString():"")" />
+    <input type="hidden" data-guid="@guid.ToString()" name="@ViewData.TemplateInfo.HtmlFieldPrefix" value="@(Model.HasValue?Model.Value.ToString():"")" />
 }
 else if (ViewData.ModelMetadata.IsReadOnly)
 {
-    <input type="text" data-guid="@guid.ToString()" readonly name="@ViewData.ModelMetadata.PropertyName" value="@(Model.HasValue?Model.Value.ToString():"")" />
+    <input type="text" data-guid="@guid.ToString()" readonly name="@ViewData.TemplateInfo.HtmlFieldPrefix" value="@(Model.HasValue?Model.Value.ToString():"")" />
 }
 else
 { 
-    <input type="text" autocomplete="off" data-guid="@guid.ToString()" name="@ViewData.ModelMetadata.PropertyName" value="@(Model.HasValue?Model.Value.ToString():"")" />
+    <input type="text" autocomplete="off" data-guid="@guid.ToString()" name="@ViewData.TemplateInfo.HtmlFieldPrefix" value="@(Model.HasValue?Model.Value.ToString():"")" />
     <script type="text/javascript">
         onAfterDom(function () {
             var guid = '@Html.Raw(guid.ToString())';
