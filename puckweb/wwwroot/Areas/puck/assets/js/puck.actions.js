@@ -795,7 +795,7 @@ var displayMarkup = function (parentId, type, variant, fromVariant,contentId,con
     }
     container.html("");
     //console.log(cinterfaces.find(".type_templates>div").length+" type templates");
-    cinterfaces.find(".type_templates>div").remove();
+    //cinterfaces.find(".type_templates>div").remove();
     showLoader(container);
     getMarkup(parentId, type, variant, function (data) {
         container./*hide().*/html(data);
@@ -803,6 +803,17 @@ var displayMarkup = function (parentId, type, variant, fromVariant,contentId,con
             type = container.find("input[name=Type]").val();
             if (!type) return;
         }
+
+        cinterfaces.find("div[data-type='" + type + "']").remove();
+        //get template for listeditor
+        getPrepopulatedMarkup(type, contentId, function (data) {
+            //var temp = $("<div/>").append(data);
+            //var type = temp.find("input[name='Type']").val();
+            cinterfaces.find("div[data-type='" + type + "']").remove();
+            cinterfaces.find(".type_templates").append($("<div/>").attr("data-type", type));
+            cinterfaces.find("div[data-type='" + type + "']").html(data);
+        });
+
         var path = container.find("input[name=Path]").val();
         var rootPath = path.indexOf("/", 1) > -1 ? path.substr(0, path.indexOf("/", 1)) : path;
         var translations = $("<ul/>").addClass("translations");
@@ -1030,13 +1041,6 @@ var displayMarkup = function (parentId, type, variant, fromVariant,contentId,con
         }
 
     }, fromVariant, contentId);
-    getPrepopulatedMarkup(type, contentId, function (data) {
-        var temp = $("<div/>").append(data);
-        var type = temp.find("input[name='Type']").val();
-        cinterfaces.find("div[data-type='" + type + "']").remove();
-        cinterfaces.find(".type_templates").append($("<div/>").attr("data-type", type));
-        cinterfaces.find("div[data-type='"+type+"']").html(data);
-    });
 }
 var highlightSelectedNodeByIdPath = function (idPath) {
     var ids = idPath.split(",");
