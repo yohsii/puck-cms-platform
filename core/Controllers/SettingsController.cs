@@ -384,7 +384,14 @@ namespace puck.core.Controllers
                         repo.AddMeta(newMeta);
                     });
                 }
-                
+                else {
+                    var typeAllowedTemplatesMeta = repo.GetPuckMeta().Where(x => x.Name == DBNames.TypeAllowedTemplates).ToList();
+                    typeAllowedTemplatesMeta.ForEach(x =>
+                    {
+                        repo.DeleteMeta(x);
+                    });
+                }
+
                 var modelTypes = apiHelper.Models();
                 string cacheKeys = "";
                 foreach (var modelType in modelTypes) {
@@ -433,10 +440,12 @@ namespace puck.core.Controllers
                 if (model.TypeAllowedTypes != null && model.TypeAllowedTypes.Count > 0)
                 {
                     var typeAllowedTypesMeta = repo.GetPuckMeta().Where(x => x.Name == DBNames.TypeAllowedTypes).ToList();
-                    typeAllowedTypesMeta.ForEach(x => {
+                    typeAllowedTypesMeta.ForEach(x =>
+                    {
                         repo.DeleteMeta(x);
                     });
-                    model.TypeAllowedTypes.ForEach(x => {
+                    model.TypeAllowedTypes.ForEach(x =>
+                    {
                         var values = x.Split(new char[] { ':' }, StringSplitOptions.RemoveEmptyEntries);
                         var newMeta = new PuckMeta();
                         newMeta.Name = DBNames.TypeAllowedTypes;
@@ -445,7 +454,13 @@ namespace puck.core.Controllers
                         repo.AddMeta(newMeta);
                     });
                 }
-                
+                else {
+                    var typeAllowedTypesMeta = repo.GetPuckMeta().Where(x => x.Name == DBNames.TypeAllowedTypes).ToList();
+                    typeAllowedTypesMeta.ForEach(x => {
+                        repo.DeleteMeta(x);
+                    });
+                }
+
                 repo.SaveChanges();
                 success = true;
             }
