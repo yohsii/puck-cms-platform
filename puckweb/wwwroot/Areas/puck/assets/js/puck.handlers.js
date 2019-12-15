@@ -842,6 +842,7 @@ $(window).load(function () {
     if (!hash) return;
     setTimeout(function () {
         location.hash = hash;
+        history.replaceState('','',"/puck"+hash);
     }, 500);
 });
 
