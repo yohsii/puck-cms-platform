@@ -1297,6 +1297,7 @@ namespace puck.core.Services
                         revision.Current = true;
                         revision.ParentId = mod.ParentId;
                         revision.Value = JsonConvert.SerializeObject(mod);
+                        var isUnpublished = false;
                         if (!makeRevision && !revision.Published)
                         {
                             if (revision.IsPublishedRevision)
@@ -1305,12 +1306,13 @@ namespace puck.core.Services
                                 revision.HasNoPublishedRevision = true;
                                 //revisions.ForEach(x => x.HasNoPublishedRevision = true);
                                 int _affected = UpdateHasNoPublishedRevisionAndIsPublishedRevision(mod.Id, mod.Variant, true, null);
-                                indexer.Delete(mod);
-                                var deleteQuery = new QueryHelper<BaseModel>(prependTypeTerm: false);
-                                deleteQuery.ID(mod.Id).Variant(mod.Variant);
-                                var instruction = new PuckInstruction() { InstructionKey = InstructionKeys.Delete, Count = 1, ServerName = ApiHelper.ServerName() };
-                                instruction.InstructionDetail = deleteQuery.ToString();
-                                repo.AddPuckInstruction(instruction);
+                                isUnpublished = true;
+                                //indexer.Delete(mod);
+                                //var deleteQuery = new QueryHelper<BaseModel>(prependTypeTerm: false);
+                                //deleteQuery.ID(mod.Id).Variant(mod.Variant);
+                                //var instruction = new PuckInstruction() { InstructionKey = InstructionKeys.Delete, Count = 1, ServerName = ApiHelper.ServerName() };
+                                //instruction.InstructionDetail = deleteQuery.ToString();
+                                //repo.AddPuckInstruction(instruction);
                             }
                         }
                         else if (mod.Published)
@@ -1448,7 +1450,7 @@ namespace puck.core.Services
                             if (shouldIndex)
                                 indexer.Index(toIndex, triggerEvents: triggerIndexEvents);
                         }
-                        else if (publishedRevision == null)
+                        else if (publishedRevision == null || isUnpublished)
                         {
                             toIndex.Add(mod);
                             if (shouldIndex)
