@@ -457,7 +457,10 @@ namespace puck.core.Services
                 }
                 var mod = currentRevision.ToBaseModel();
                 mod.Published = true;
-                await SaveContent(mod, makeRevision: false, userName: userName);
+                var toIndex = new List<BaseModel>();
+                toIndex.AddRange(
+                    await SaveContent(mod,shouldIndex:false, makeRevision: false, userName: userName)
+                );
                 var affected = 0;
                 string notes = "";
                 if (descendantVariants.Any())
@@ -471,11 +474,12 @@ namespace puck.core.Services
                     var descendantVariantsLowerCase = descendantVariants.Select(x => x.ToLower()).ToList();
                     var descendantRevisions = repo.CurrentRevisionDescendants(currentRevision.IdPath).Where(x => descendantVariantsLowerCase.Contains(x.Variant)).ToList();
                     var descendantModels = descendantRevisions.Select(x => x.ToBaseModel()).ToList();
-                    AddPublishInstruction(descendantModels);
-                    indexer.Index(descendantModels);
+                    toIndex.AddRange(descendantModels);
                     if (descendantModels.Any())
                         notes = $"{descendantModels.Count} descendant items also published";
                 }
+                AddPublishInstruction(toIndex);
+                indexer.Index(toIndex);
                 AddAuditEntry(mod.Id, mod.Variant, AuditActions.Publish, notes, userName);
             }
             finally
@@ -503,7 +507,7 @@ namespace puck.core.Services
                 var publishedRevision = repo.PublishedRevision(id, variant);
                 var mod = currentRevision.ToBaseModel();
                 mod.Published = false;
-                await SaveContent(mod, makeRevision: false, userName: userName);
+                await SaveContent(mod,shouldIndex:false, makeRevision: false, userName: userName);
                 toIndex.Add(mod);
                 var publishedVariants = repo.PublishedRevisionVariants(id, variant).ToList();
                 var affected = 0;
@@ -1120,6 +1124,11 @@ namespace puck.core.Services
                 else
                 {
                     idPath = original.IdPath;
+                }
+
+                if (!makeRevision && nameChanged && !mod.Published && original!=null && original.IsPublishedRevision) {
+                    //you shouldn't be using SaveContent to unpublish currently published content as this can cause issues when the NodeName is changed. use UnPublish instead.
+                    makeRevision = true;
                 }
 
                 var pAffected = 0;
