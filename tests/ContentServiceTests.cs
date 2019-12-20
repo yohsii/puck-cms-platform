@@ -322,16 +322,22 @@ namespace puck.tests
             
             var tokyoModel = getContentFromIndex(tokyoPageEn.Id,tokyoPageEn.Variant);
             Assert.That(tokyoModel.Published);
+            var homepageModel = getContentFromIndex(homePage.Id,homePage.Variant);
+            Assert.That(homepageModel.Published);
 
             await s.ContentService.UnPublish(homePage.Id, homePage.Variant, new string[] { "en-gb", "ru-ru", "ja-jp" }.ToList(), userName: uname);
 
             tokyoModel = getContentFromIndex(tokyoPageEn.Id, tokyoPageEn.Variant);
             Assert.That(tokyoModel.Published==false);
+            homepageModel = getContentFromIndex(homePage.Id, homePage.Variant);
+            Assert.That(homepageModel.Published==false);
 
             await s.ContentService.Publish(homePage.Id, homePage.Variant, new string[] { "en-gb", "ru-ru", "ja-jp" }.ToList(), userName: uname);
 
             tokyoModel = getContentFromIndex(tokyoPageEn.Id, tokyoPageEn.Variant);
             Assert.That(tokyoModel.Published);
+            homepageModel = getContentFromIndex(homePage.Id, homePage.Variant);
+            Assert.That(homepageModel.Published);
         }
 
         [Test]
