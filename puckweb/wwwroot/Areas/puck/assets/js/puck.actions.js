@@ -1130,6 +1130,7 @@ var overlay = function (el, width, height, top, title, isRightSided) {
     cright.append(outer);
     if (!isRightSided)
         outer.animate({ width: width + (width.toString().indexOf("%") > -1 ? "" : "px") }, 200, function () { if (f) f(); afterDom(); });
+    else afterDom();
     if ($(".overlay_screen.active").length == 1) {
         $(document).off("keyup.overlay").on("keyup.overlay", function (e) {
             if (e.keyCode == 27) { overlayClose(cleftIsVisible, overlayClass); }

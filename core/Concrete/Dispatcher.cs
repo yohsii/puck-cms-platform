@@ -14,16 +14,17 @@ using Newtonsoft.Json;
 using puck.core.State;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.DependencyInjection;
+using System.Collections.Concurrent;
 
 namespace puck.core.Concrete
 {
     public class Dispatcher:I_Task_Dispatcher,IHostedService,IDisposable
     {
         public Dispatcher() {
-            this.QueuedTasks = new HashSet<int>();
+            this.QueuedTasks = new ConcurrentDictionary<int, int>();
             CatchUp=PuckCache.TaskCatchUp;
         }
-        private HashSet<int> QueuedTasks { get; set; }
+        private ConcurrentDictionary<int,int> QueuedTasks { get; set; }
         System.Timers.Timer tmr;
         private static object lck= new object();
         int lock_wait = 100;
@@ -51,7 +52,8 @@ namespace puck.core.Concrete
             
         }
         public void HandleTaskEnd(object s, DispatchEventArgs e){
-            QueuedTasks.Remove(e.Task.ID);
+            int removedId=0;
+            QueuedTasks.Remove(e.Task.ID,out removedId);
             if (!e.Task.Recurring)
             {
                 Tasks.Remove(e.Task);
@@ -82,9 +84,9 @@ namespace puck.core.Concrete
                     return;
 
                 foreach (var t in Tasks) {
-                    if (ShouldRunNow(t)&&!QueuedTasks.Contains(t.ID))
+                    if (ShouldRunNow(t)&&!QueuedTasks.ContainsKey(t.ID))
                     {
-                        QueuedTasks.Add(t.ID);
+                        QueuedTasks.TryAdd(t.ID,t.ID);
                         System.Threading.Tasks.Task.Factory.StartNew(() => {
                             t.DoRun(this.cancellationToken);
                         }, cancellationToken);
