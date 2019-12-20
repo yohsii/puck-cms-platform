@@ -13,7 +13,7 @@ namespace puck.core.Models.Admin
         [Required]
         [DataType(DataType.Password)]
         public string Password { get; set; }
-        [Display(Name="Persistant Cookie")]
+        [Display(Name="Stay Logged In")]
         public bool PersistentCookie { get; set; }        
     }
 }
