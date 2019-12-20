@@ -47,7 +47,8 @@ namespace puck.core.Controllers
             if (ModelState.IsValid) {
                 var user = await userManager.FindByEmailAsync(model.Email);
                 if (user == null) {
-                    ModelState.AddModelError("", "Email doesn't exist");
+                    //ModelState.AddModelError("", "Email doesn't exist");
+                    ViewBag.SuccessMessage = $"An email will be sent to the specified address with instructions on how to reset your password, if the address matches our records";
                     return View(model);
                 }
                 
@@ -73,7 +74,7 @@ namespace puck.core.Controllers
                     ,$"click <a href=\"{resetUrl}\">here</a> to reset your password."
                 );
                 
-                ViewBag.SuccessMessage = $"An email has been sent to {model.Email} with instructions on how to reset your password.";
+                ViewBag.SuccessMessage = $"An email will be sent to the specified address with instructions on how to reset your password, if the address matches our records";
 
                 return View(model);
             }
