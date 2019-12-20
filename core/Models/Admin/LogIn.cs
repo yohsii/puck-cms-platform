@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 
-namespace puck.core.Models
+namespace puck.core.Models.Admin
 {
     public class LogIn
     {

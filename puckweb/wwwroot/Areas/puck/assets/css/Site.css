@@ -357,7 +357,9 @@ ul.contentTree .node.selected>.inner>span.nodename{
     html, body {
         height: 100%;
     }
-
+.login.container input[type=text], .login.container input[type=password], .login.container input[type=email] {
+    width: 100%;
+}
     .login button {
         float: right;
     }

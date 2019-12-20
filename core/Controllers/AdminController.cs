@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using puck.core.Models;
+using puck.core.Models.Admin;
 using puck.core.Abstract;
 using puck.core.Constants;
 using Newtonsoft.Json;
@@ -12,6 +13,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Authorization;
+using puck.core.State;
 
 namespace puck.core.Controllers
 {
@@ -37,12 +39,104 @@ namespace puck.core.Controllers
         }
 
         [HttpGet]
+        public ActionResult ForgotPassword() {
+            return View();
+        }
+        [HttpPost]
+        public async Task<ActionResult> ForgotPassword(ForgottenPassword model) {
+            if (ModelState.IsValid) {
+                var user = await userManager.FindByEmailAsync(model.Email);
+                if (user == null) {
+                    ModelState.AddModelError("", "Email doesn't exist");
+                    return View(model);
+                }
+                
+                var token = Guid.NewGuid().ToString();
+                
+                var meta = new PuckMeta {
+                    Name = DBNames.PasswordResetToken
+                    , Key = token
+                    , Value = model.Email
+                };
+                repo.AddMeta(meta);
+                repo.SaveChanges();
+
+                var uri = HttpContext.Request.GetUri() ?? PuckCache.FirstRequestUrl;
+                var resetUrl = uri.Scheme + "://"
+                    + uri.Host
+                    + (uri.Port != 80 ? (":" + uri.Port) : "")
+                    + $"/puck/admin/resetpassword?token={token}";
+               
+                puck.core.Helpers.ApiHelper.Email(
+                    model.Email
+                    ,"Reset your password - Puck CMS"
+                    ,$"click <a href=\"{resetUrl}\">here</a> to reset your password."
+                );
+                
+                ViewBag.SuccessMessage = $"An email has been sent to {model.Email} with instructions on how to reset your password.";
+
+                return View(model);
+            }
+            return View(model);
+        }
+
+        [HttpGet]
+        public ActionResult ResetPassword(string token) {
+            if (string.IsNullOrEmpty(token))
+                return RedirectToAction("in");
+
+            var model = new ResetPassword { 
+                ResetToken = token
+            };
+
+            return View(model);
+        }
+
+        [HttpPost]
+        public async Task<ActionResult> ResetPassword(ResetPassword model) {
+            if (ModelState.IsValid) {
+                var meta = repo.GetPuckMeta().Where(x => x.Name == DBNames.PasswordResetToken && x.Key == model.ResetToken).FirstOrDefault();
+
+                if (meta == null) {
+                    ModelState.AddModelError("","Password reset request not found.");
+                    return View(model);
+                }
+
+                var user = await userManager.FindByEmailAsync(meta.Value);
+
+                if (user == null)
+                {
+                    ModelState.AddModelError("", "User not found.");
+                    return View(model);
+                }
+
+                var token = await userManager.GeneratePasswordResetTokenAsync(user);
+                var result = await userManager.ResetPasswordAsync(user, token, model.Password);
+
+                if (!result.Succeeded)
+                {
+                    string message = string.Join(" ", result.Errors.Select(x => x.Description));
+                    ModelState.AddModelError("",message);
+                    return View(model);
+                }
+
+                repo.DeleteMeta(meta);
+                repo.SaveChanges();
+
+                ViewBag.SuccessMessage = "Password successfully changed.";
+
+                return View(model);
+            }
+            return View(model);
+        }
+
+        [HttpGet]
         public ActionResult In() {
             return View();
         }
 
         [HttpPost]
-        public async Task<ActionResult> In(puck.core.Models.LogIn user,string returnUrl) {
+        public async Task<ActionResult> In(LogIn user,string returnUrl) {
             var result = await this.signInManager.PasswordSignInAsync(user.Username, user.Password, user.PersistentCookie, false);
             if (result.Succeeded)
             {

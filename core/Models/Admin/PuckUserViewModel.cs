@@ -6,7 +6,7 @@ using System.ComponentModel.DataAnnotations;
 using puck.core.Entities;
 using puck.core.Models.EditorSettings.Attributes;
 
-namespace puck.core.Models
+namespace puck.core.Models.Admin
 {
     public class PuckUserViewModel
     {
