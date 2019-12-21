@@ -1654,7 +1654,8 @@ namespace puck.core.Services
                                 var value = reader.GetString(2);
                                 //var type = ApiHelper.GetType(aqn);
                                 var type = ApiHelper.GetTypeFromName(aqn);
-                                if (type == null) continue;
+                                if (type == null) 
+                                    continue;
                                 var model = JsonConvert.DeserializeObject(value, type) as BaseModel;
                                 model.Type = aqn;
                                 model.Path = reader.GetString(0);

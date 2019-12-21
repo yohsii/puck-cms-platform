@@ -1112,7 +1112,7 @@ namespace puck.core.Controllers
 #else
             resultsRev = repo.CurrentRevisionsByParentId(parentId).ToList();
 #endif
-            var results = resultsRev.Select(x => cast ? x.ToBaseModel(cast: true) : x.ToBaseModel()).ToList()
+            var results = resultsRev.Select(x => cast ? x.ToBaseModel(cast: true) : x.ToBaseModel()).Where(x=>x!=null).ToList()
                 .GroupById()
                 .OrderBy(x => x.Value.First().Value.SortOrder)
                 .ToDictionary(x => x.Key.ToString(), x => x.Value);
