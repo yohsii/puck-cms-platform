@@ -258,7 +258,7 @@ namespace puck.core.Concrete
                 .Where(x => x.IdPath.ToLower().StartsWith(idPath.ToLower()) && x.IsPublishedRevision);
             return results;
         }
-        public IQueryable<PuckRevision> CurrentOrPublishedDescendants(string idPath)
+        public IQueryable<PuckRevision> PublishedOrCurrentDescendants(string idPath)
         {
             idPath = idPath += ",";
             var results = repo.PuckRevision

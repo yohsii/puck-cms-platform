@@ -128,6 +128,7 @@ namespace puck.core.Constants
         public const string PrefixTemplateExist = "fexist:";
     }
     public static class AuditActions {
+        public const string RePublish = "republish";
         public const string Publish = "publish";
         public const string Save = "save";
         public const string Create = "create";

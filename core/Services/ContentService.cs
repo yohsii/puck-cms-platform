@@ -431,6 +431,51 @@ namespace puck.core.Services
             rowsAffected = repo.Context.Database.ExecuteSqlRaw(sql, parameters);
             return rowsAffected;
         }
+        public async Task RePublish(Guid id, string variant, List<string> descendantVariants, string userName = null)
+        {
+            //await slock1.WaitAsync();
+            try
+            {
+                PuckUser user = null;
+                if (!string.IsNullOrEmpty(userName))
+                {
+                    user = await userManager.FindByNameAsync(userName);
+                    if (user == null)
+                        throw new UserNotFoundException("there is no user for provided username");
+                }
+                else
+                    userName = HttpContext.Current.User.Identity.Name;
+
+                var currentRevision = repo.PublishedOrCurrentRevision(id, variant);
+
+                var mod = currentRevision.ToBaseModel();
+
+                var toIndex = new List<BaseModel>();
+                toIndex.Add(mod);
+
+                string notes = "";
+                if (descendantVariants.Any())
+                {
+                    var descendantVariantsLowerCase = descendantVariants.Select(x => x.ToLower()).ToList();
+                    var descendantRevisions = repo.PublishedOrCurrentDescendants(currentRevision.IdPath).Where(x => descendantVariantsLowerCase.Contains(x.Variant)).ToList();
+                    var descendantModels = descendantRevisions.Select(x => x.ToBaseModel()).ToList();
+                    toIndex.AddRange(descendantModels);
+                    if (descendantModels.Any())
+                        notes = $"{descendantModels.Count} descendant items also republished";
+                }
+                AddPublishInstruction(toIndex);
+                indexer.Index(toIndex);
+                AddAuditEntry(mod.Id, mod.Variant, AuditActions.RePublish, notes, userName);
+            }
+            catch (Exception ex) {
+                logger.Log(ex);
+                throw;
+            }
+            finally
+            {
+                //slock1.Release(); 
+            }
+        }
         public async Task Publish(Guid id, string variant, List<string> descendantVariants, string userName = null)
         {
             //await slock1.WaitAsync();
@@ -459,7 +504,7 @@ namespace puck.core.Services
                 mod.Published = true;
                 var toIndex = new List<BaseModel>();
                 toIndex.AddRange(
-                    await SaveContent(mod,shouldIndex:false, makeRevision: false, userName: userName)
+                    await SaveContent(mod, shouldIndex: false, makeRevision: false, userName: userName)
                 );
                 var affected = 0;
                 string notes = "";
@@ -481,6 +526,10 @@ namespace puck.core.Services
                 AddPublishInstruction(toIndex);
                 indexer.Index(toIndex);
                 AddAuditEntry(mod.Id, mod.Variant, AuditActions.Publish, notes, userName);
+            }
+            catch (Exception ex) {
+                logger.Log(ex);
+                throw;
             }
             finally
             {
@@ -507,7 +556,7 @@ namespace puck.core.Services
                 var publishedRevision = repo.PublishedRevision(id, variant);
                 var mod = currentRevision.ToBaseModel();
                 mod.Published = false;
-                await SaveContent(mod,shouldIndex:false, makeRevision: false, userName: userName);
+                await SaveContent(mod, shouldIndex: false, makeRevision: false, userName: userName);
                 toIndex.Add(mod);
                 var publishedVariants = repo.PublishedRevisionVariants(id, variant).ToList();
                 var affected = 0;
@@ -537,6 +586,10 @@ namespace puck.core.Services
                 AddPublishInstruction(toIndex);
                 indexer.Index(toIndex);
                 AddAuditEntry(mod.Id, mod.Variant, AuditActions.Unpublish, notes, userName);
+            }
+            catch (Exception ex) {
+                logger.Log(ex);
+                throw;
             }
             finally
             {
@@ -1209,7 +1262,7 @@ namespace puck.core.Services
                                 affected = UpdateDescendantPaths(currentRevisionPath + "/", mod.Path + "/");
                                 UpdatePathRelatedMeta(currentRevisionPath, mod.Path);
                             }
-                            var descendants = repo.CurrentOrPublishedDescendants(idPath).ToList().Select(x => x.ToBaseModel()).ToList();
+                            var descendants = repo.PublishedOrCurrentDescendants(idPath).ToList().Select(x => x.ToBaseModel()).ToList();
                             var variantsToIndex = new List<BaseModel>();
                             variantsToIndex.AddRange(currentVariantsDb.Select(x => x.ToBaseModel()).ToList());
                             variantsToIndex.AddRange(publishedVariantsDb.Select(x => x.ToBaseModel()).ToList());

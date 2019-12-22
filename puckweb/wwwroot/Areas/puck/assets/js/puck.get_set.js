@@ -138,13 +138,21 @@ var setDeleteTemplate = function (p, f) {
 var setDeleteTemplateFolder = function (p, f) {
     $.post("/puck/task/deletetemplatefolder?path=" + p, f);
 }
+var setRePublish = function (id, variant, descendants, f) {
+    var path = "/puck/api/republish?id=" + id;
+    if (variant)
+        path += "&variant=" + variant;
+    if (descendants)
+        path += "&descendants=" + descendants;
+    $.post(path, f);
+}
 var setPublish = function (id, variant, descendants, f) {
     var path = "/puck/api/publish?id=" + id;
     if (variant)
         path += "&variant=" + variant;
     if (descendants)
         path += "&descendants=" + descendants;
-    $.get(path, f);
+    $.post(path, f);
 }
 var setUnpublish = function (id, variant, descendants, f) {
     var path = "/puck/api/unpublish?id=" + id;
@@ -155,7 +163,7 @@ var setUnpublish = function (id, variant, descendants, f) {
     }
     if (descendants)
         path += "&descendants=" + descendants;
-    $.get(path, f);
+    $.post(path, f);
 }
 var setDelete = function (id, f, variant) {
     var path = "/puck/api/delete?id=" + id;

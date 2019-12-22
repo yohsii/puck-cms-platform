@@ -1269,7 +1269,13 @@ var publishedVariants = function (id) {
     });
     return variants.length == 0 ? false : variants;
 }
-
+var allVariants = function (id) {
+    var variants = [];
+    cleft.find(".node[data-id='" + id + "']>.inner .variant").each(function () {
+        variants.push($(this).attr("data-variant"));
+    });
+    return variants.length == 0 ? false : variants;
+}
 var pollSyncStatus = function (cacheKey) {
     var key = cacheKey || currentCacheKey;
     getCacheItem(key, function (data) {

@@ -32,6 +32,7 @@ namespace puck.core.Abstract
         Task Move(Guid nodeId, Guid destinationId, string userName = null);
         Task Move(string start, string destination);
         Task Publish(Guid id, string variant, List<string> descendantVariants, string userName = null);
+        Task RePublish(Guid id, string variant, List<string> descendantVariants, string userName = null);
         void RenameOrphaned(string orphanTypeName, string newTypeName);
         int RenameOrphaned2(string orphanTypeName, string newTypeName);
         Task RePublishEntireSite();

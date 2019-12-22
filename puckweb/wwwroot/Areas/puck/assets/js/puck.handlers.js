@@ -152,6 +152,13 @@ $(document).on("click", "ul.content li.node i.menu", function (e) {
         dropdown.find("a[data-action='publish']").parents("li").show();
     else
         dropdown.find("a[data-action='publish']").parents("li").hide();
+
+    if (publishedVariants(node.attr("data-id")) != false)
+        dropdown.find("a[data-action='republish']").parents("li").show();
+    else
+        dropdown.find("a[data-action='republish']").parents("li").hide();
+
+
     //filter domain
     if (isRootItem(node.attr("data-parent_id"))) {
         dropdown.find("a[data-action='domain']").parents("li").show();
@@ -267,6 +274,47 @@ $(document).on("click",".node-dropdown a,.template-dropdown a",function () {
                 });
             } else {
                 if (confirm("are you sure you want to delete this content?")) { doDelete(node.attr("data-id")); }
+            }
+            break;
+        case "republish":
+            var doRePublish = function (id, variant, descendants, overlayEl) {
+                setRePublish(id, variant, descendants, function (data) {
+                    if (data.success === true) {
+                        if (overlayEl) {
+                            overlayEl.find("button").removeAttr("disabled");
+                            overlayEl.find(".submitLoader").remove();
+                        }
+                        msg(true, "content re-published");
+                        overlayClose();
+                    } else {
+                        if (overlayEl) {
+                            overlayEl.find("button").removeAttr("disabled");
+                            overlayEl.find(".submitLoader").remove();
+                        }
+                        msg(false, data.message);
+                        overlayClose();
+                    }
+                });
+            }
+            var variants = allVariants(node.attr("data-id"));
+            if (variants.length > 1 || true) {
+                var dialog = dialogForVariants(variants);
+                dialog.find(".descendantscontainer label").html("Publish descendants?");
+                var overlayEl = overlay(dialog, 400, 250, undefined, "Re-Publish");
+                dialog.find("button").click(function () {
+                    var button = $(this);
+                    var descendantVariants = (dialog.find("select[name=descendants]").val() || []).join(',');
+                    if (descendantVariants) {
+                        dialog.find("select[name=descendants] option[value='']").removeAttr("selected");
+                        descendantVariants = (dialog.find("select[name=descendants]").val() || []).join(',');
+                    }
+                    //console.log(descendantVariants);
+                    button.after(spinningLoaderImg("submitLoader").css({ "float": "right", "margin-top": "10px" }));
+                    button.attr("disabled", "disabled");
+                    doRePublish(node.attr("data-id"), dialog.find("select[name=variant]").val(), descendantVariants, overlayEl);
+                });
+            } else {
+                doRePublish(node.attr("data-id"), variants[0]);
             }
             break;
         case "publish":

@@ -50,7 +50,7 @@ namespace puck.core.Abstract
 
         IQueryable<PuckRevision> CurrentRevisionDescendants(string idPath);
         IQueryable<PuckRevision> PublishedDescendants(string idPath);
-        IQueryable<PuckRevision> CurrentOrPublishedDescendants(string idPath);
+        IQueryable<PuckRevision> PublishedOrCurrentDescendants(string idPath);
         IQueryable<PuckRevision> CurrentRevisionChildren(string path);
         IQueryable<PuckRevision> CurrentRevisionChildren(Guid id);
         IQueryable<PuckRevision> CurrentRevisionVariants(Guid id, string variant);

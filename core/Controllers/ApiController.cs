@@ -1188,7 +1188,27 @@ namespace puck.core.Controllers
             }
             return Json(new { success = success, message = message });
         }
-
+        [HttpPost]
+        [Authorize(Roles = PuckRoles.Publish, AuthenticationSchemes = Mvc.AuthenticationScheme)]
+        public async Task<JsonResult> RePublish(Guid id, string variant, string descendants = "")
+        {
+            var message = string.Empty;
+            var success = false;
+            try
+            {
+                var arrDescendants = descendants.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries).ToList();
+                await contentService.RePublish(id, variant, arrDescendants);
+                success = true;
+            }
+            catch (Exception ex)
+            {
+                //log.Log(ex);
+                success = false;
+                message = ex.Message;
+            }
+            return Json(new { success = success, message = message });
+        }
+        [HttpPost]
         [Authorize(Roles = PuckRoles.Publish, AuthenticationSchemes = Mvc.AuthenticationScheme)]
         public async Task<JsonResult> Publish(Guid id, string variant, string descendants = "")
         {
@@ -1202,12 +1222,13 @@ namespace puck.core.Controllers
             }
             catch (Exception ex)
             {
-                log.Log(ex);
+                //log.Log(ex);
                 success = false;
                 message = ex.Message;
             }
             return Json(new { success = success, message = message });
         }
+        [HttpPost]
         [Authorize(Roles = PuckRoles.Unpublish, AuthenticationSchemes = Mvc.AuthenticationScheme)]
         public async Task<JsonResult> UnPublish(Guid id, string variant, string descendants = "")
         {
@@ -1221,7 +1242,7 @@ namespace puck.core.Controllers
             }
             catch (Exception ex)
             {
-                log.Log(ex);
+                //log.Log(ex);
                 success = false;
                 message = ex.Message;
             }
