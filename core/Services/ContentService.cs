@@ -565,66 +565,69 @@ namespace puck.core.Services
                 //slock1.Release(); 
             }
         }
-        public async Task UnPublish(Guid id, string variant, List<string> descendantVariants, string userName = null)
-        {
-            //await slock1.WaitAsync();
-            try
-            {
-                PuckUser user = null;
-                if (!string.IsNullOrEmpty(userName))
-                {
-                    user = await userManager.FindByNameAsync(userName);
-                    if (user == null)
-                        throw new UserNotFoundException("there is no user for provided username");
-                }
-                else
-                    userName = HttpContext.Current.User.Identity.Name;
+        //public async Task UnPublish(Guid id, string variant, List<string> descendantVariants, string userName = null)
+        //{
+        //    //await slock1.WaitAsync();
+        //    try
+        //    {
+        //        PuckUser user = null;
+        //        if (!string.IsNullOrEmpty(userName))
+        //        {
+        //            user = await userManager.FindByNameAsync(userName);
+        //            if (user == null)
+        //                throw new UserNotFoundException("there is no user for provided username");
+        //        }
+        //        else
+        //            userName = HttpContext.Current.User.Identity.Name;
 
-                var toIndex = new List<BaseModel>();
-                var currentRevision = repo.CurrentRevision(id, variant);
-                var publishedRevision = repo.PublishedRevision(id, variant);
-                var mod = currentRevision.ToBaseModel();
-                mod.Published = false;
-                await SaveContent(mod, shouldIndex: false, makeRevision: false, userName: userName);
-                toIndex.Add(mod);
-                var publishedVariants = repo.PublishedRevisionVariants(id, variant).ToList();
-                var affected = 0;
-                if (publishedVariants.Count() == 0)
-                {
-                    if (!currentRevision.IsPublishedRevision && publishedRevision != null && !currentRevision.Path.ToLower().Equals(publishedRevision.Path.ToLower()))
-                    {
-                        //since we're unpublishing the published revision (which descendant paths are based on), we should set descendant paths to be based off of the current revision
-                        affected = UpdateDescendantPaths(publishedRevision.Path + "/", currentRevision.Path + "/");
-                        UpdatePathRelatedMeta(publishedRevision.Path, currentRevision.Path);
-                    }
-                }
-                var notes = "";
-                if (descendantVariants.Any())
-                {
-                    //set descendants to have HasNoPublishedRevision set to true
-                    affected = UpdateDescendantHasNoPublishedRevision(currentRevision.IdPath + ",", true, descendantVariants);
-                    //set descendants to have IsPublishedRevision set to false
-                    affected = UpdateDescendantIsPublishedRevision(currentRevision.IdPath + ",", false, false, descendantVariants);
-                    var descendantVariantsLowerCase = descendantVariants.Select(x => x.ToLower()).ToList();
-                    var descendantRevisions = repo.CurrentRevisionDescendants(currentRevision.IdPath).Where(x => descendantVariantsLowerCase.Contains(x.Variant)).ToList();
-                    var descendantModels = descendantRevisions.Select(x => x.ToBaseModel()).ToList();
-                    toIndex.AddRange(descendantModels);
-                    if (descendantModels.Any())
-                        notes = $"{descendantModels.Count} descendant items also unpublished";
-                }
-                AddPublishInstruction(toIndex);
-                indexer.Index(toIndex);
-                AddAuditEntry(mod.Id, mod.Variant, AuditActions.Unpublish, notes, userName);
-            }
-            catch (Exception ex)
-            {
-                logger.Log(ex);
-                throw;
-            }
-            finally
-            {
-                //slock1.Release();
-            }
+        //        var toIndex = new List<BaseModel>();
+        //        var currentRevision = repo.CurrentRevision(id, variant);
+        //        var publishedRevision = repo.PublishedRevision(id, variant);
+        //        var mod = currentRevision.ToBaseModel();
+        //        mod.Published = false;
+        //        await SaveContent(mod, shouldIndex: false, makeRevision: false, userName: userName);
+        //        toIndex.Add(mod);
+        //        var publishedVariants = repo.PublishedRevisionVariants(id, variant).ToList();
+        //        var affected = 0;
+        //        if (publishedVariants.Count() == 0)
+        //        {
+        //            if (!currentRevision.IsPublishedRevision && publishedRevision != null && !currentRevision.Path.ToLower().Equals(publishedRevision.Path.ToLower()))
+        //            {
+        //                //since we're unpublishing the published revision (which descendant paths are based on), we should set descendant paths to be based off of the current revision
+        //                affected = UpdateDescendantPaths(publishedRevision.Path + "/", currentRevision.Path + "/");
+        //                UpdatePathRelatedMeta(publishedRevision.Path, currentRevision.Path);
+        //            }
+        //        }
+        //        var notes = "";
+        //        if (descendantVariants.Any())
+        //        {
+        //            //set descendants to have HasNoPublishedRevision set to true
+        //            affected = UpdateDescendantHasNoPublishedRevision(currentRevision.IdPath + ",", true, descendantVariants);
+        //            //set descendants to have IsPublishedRevision set to false
+        //            affected = UpdateDescendantIsPublishedRevision(currentRevision.IdPath + ",", false, false, descendantVariants);
+        //            var descendantVariantsLowerCase = descendantVariants.Select(x => x.ToLower()).ToList();
+        //            var descendantRevisions = repo.CurrentRevisionDescendants(currentRevision.IdPath).Where(x => descendantVariantsLowerCase.Contains(x.Variant)).ToList();
+        //            var descendantModels = descendantRevisions.Select(x => x.ToBaseModel()).ToList();
+        //            toIndex.AddRange(descendantModels);
+        //            if (descendantModels.Any())
+        //                notes = $"{descendantModels.Count} descendant items also unpublished";
+        //        }
+        //        AddPublishInstruction(toIndex);
+        //        indexer.Index(toIndex);
+        //        AddAuditEntry(mod.Id, mod.Variant, AuditActions.Unpublish, notes, userName);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        logger.Log(ex);
+        //        throw;
+        //    }
+        //    finally
+        //    {
+        //        //slock1.Release();
+        //    }
+        //}
+        public async Task UnPublish(Guid id, string variant, List<string> descendantVariants, string userName = null) {
+            await UnPublish(id,new List<string> { variant},descendantVariants,userName:userName);
         }
         public async Task UnPublish(Guid id, List<string> variants, List<string> descendantVariants, string userName = null)
         {
