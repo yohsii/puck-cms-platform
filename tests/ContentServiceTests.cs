@@ -325,13 +325,15 @@ namespace puck.tests
             var homepageModel = getContentFromIndex(homePage.Id,homePage.Variant);
             Assert.That(homepageModel.Published);
 
+            s.ContentService.repo = NewRepo(type);
             await s.ContentService.UnPublish(homePage.Id, homePage.Variant, new string[] { "en-gb", "ru-ru", "ja-jp" }.ToList(), userName: uname);
 
             tokyoModel = getContentFromIndex(tokyoPageEn.Id, tokyoPageEn.Variant);
             Assert.That(tokyoModel.Published==false);
             homepageModel = getContentFromIndex(homePage.Id, homePage.Variant);
             Assert.That(homepageModel.Published==false);
-
+            
+            s.ContentService.repo = NewRepo(type);
             await s.ContentService.Publish(homePage.Id, homePage.Variant, new string[] { "en-gb", "ru-ru", "ja-jp" }.ToList(), userName: uname);
 
             tokyoModel = getContentFromIndex(tokyoPageEn.Id, tokyoPageEn.Variant);
