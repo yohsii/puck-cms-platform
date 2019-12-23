@@ -1242,8 +1242,13 @@ var untranslated = function (variants) {
     return untranslated.length == 0 ? false : untranslated;
 }
 
-var dialogForVariants = function (variants) {
+var dialogForVariants = function (variants, multiSelect) {
+    multiSelect = multiSelect || false;
     var dialog = $(".interfaces .revision_for_dialog").clone();
+    if (multiSelect) {
+        dialog.find(".variantcontainer select").attr("multiple", "multiple");
+        dialog.find(".variantcontainer label").append("s");
+    }
     $.each(variants, function () {
         dialog.find(".variantcontainer select").append("<option value='" + this + "'>" + variantNames[this] + "</option>");
     });

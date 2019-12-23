@@ -20,7 +20,7 @@ namespace puck.core.Abstract
         I_Task_Dispatcher tdispatcher { get; set; }
         UserManager<PuckUser> userManager { get; set; }
 
-        void AddAuditEntry(Guid id, string variant, string action, string notes, string username);
+        void AddAuditEntry(Guid id, string variant, string action, string notes, string username,bool save=true);
         void AddPublishInstruction(List<BaseModel> toIndex);
         Task Sync(Guid id, Guid parentId, bool includeDescendants, bool onlyOverwriteIfNewer, I_Content_Service destinationContentService, IMemoryCache cache, string cacheKey, string userName = null);
         Task Copy(Guid id, Guid parentId, bool includeDescendants, string userName = null);
@@ -32,14 +32,17 @@ namespace puck.core.Abstract
         Task Move(Guid nodeId, Guid destinationId, string userName = null);
         Task Move(string start, string destination);
         Task Publish(Guid id, string variant, List<string> descendantVariants, string userName = null);
+        Task UnPublish(Guid id, string variant, List<string> descendantVariants, string userName = null);
         Task RePublish(Guid id, string variant, List<string> descendantVariants, string userName = null);
+        Task Publish(Guid id, List<string> variants, List<string> descendantVariants, string userName = null);
+        Task UnPublish(Guid id, List<string> variants, List<string> descendantVariants, string userName = null);
+        Task RePublish(Guid id, List<string> variants, List<string> descendantVariants, string userName = null);
         void RenameOrphaned(string orphanTypeName, string newTypeName);
         int RenameOrphaned2(string orphanTypeName, string newTypeName);
         Task RePublishEntireSite();
         Task RePublishEntireSite2(bool addInstruction = false);
         Task<List<BaseModel>> SaveContent<T>(T mod, bool makeRevision = true, string userName = null, bool handleNodeNameExists = true, int nodeNameExistsCounter = 0, bool triggerEvents = true, bool triggerIndexEvents = true, bool shouldIndex = true) where T : BaseModel;
         void Sort(Guid parentId, List<Guid> ids);
-        Task UnPublish(Guid id, string variant, List<string> descendantVariants, string userName = null);
         int UpdateDescendantHasNoPublishedRevision(string path, bool value, List<string> descendantVariants);
         int UpdateDescendantIdPaths(string oldPath, string newPath);
         int UpdateDescendantIsPublishedRevision(string path, bool value, bool addWhereIsCurrentClause, List<string> descendantVariants);

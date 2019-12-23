@@ -277,8 +277,8 @@ $(document).on("click",".node-dropdown a,.template-dropdown a",function () {
             }
             break;
         case "republish":
-            var doRePublish = function (id, variant, descendants, overlayEl) {
-                setRePublish(id, variant, descendants, function (data) {
+            var doRePublish = function (id, variants, descendants, overlayEl) {
+                setRePublish(id, variants, descendants, function (data) {
                     if (data.success === true) {
                         if (overlayEl) {
                             overlayEl.find("button").removeAttr("disabled");
@@ -298,11 +298,16 @@ $(document).on("click",".node-dropdown a,.template-dropdown a",function () {
             }
             var variants = allVariants(node.attr("data-id"));
             if (variants.length > 1 || true) {
-                var dialog = dialogForVariants(variants);
+                var dialog = dialogForVariants(variants,true);
                 dialog.find(".descendantscontainer label").html("Publish descendants?");
                 var overlayEl = overlay(dialog, 400, 250, undefined, "Re-Publish");
                 dialog.find("button").click(function () {
                     var button = $(this);
+                    var selectedVariants = (dialog.find("select[name=variant]").val() || []).join(',');
+                    if (!selectedVariants) {
+                        msg(undefined, "cannot re-publish without selecting at least one variant");
+                        return;
+                    }
                     var descendantVariants = (dialog.find("select[name=descendants]").val() || []).join(',');
                     if (descendantVariants) {
                         dialog.find("select[name=descendants] option[value='']").removeAttr("selected");
@@ -311,23 +316,27 @@ $(document).on("click",".node-dropdown a,.template-dropdown a",function () {
                     //console.log(descendantVariants);
                     button.after(spinningLoaderImg("submitLoader").css({ "float": "right", "margin-top": "10px" }));
                     button.attr("disabled", "disabled");
-                    doRePublish(node.attr("data-id"), dialog.find("select[name=variant]").val(), descendantVariants, overlayEl);
+                    doRePublish(node.attr("data-id"), selectedVariants, descendantVariants, overlayEl);
                 });
             } else {
                 doRePublish(node.attr("data-id"), variants[0]);
             }
             break;
         case "publish":
-            var doPublish = function (id, variant, descendants,overlayEl) {
-                setPublish(id, variant, descendants, function (data) {
+            var doPublish = function (id, variants, descendants,overlayEl) {
+                setPublish(id, variants, descendants, function (data) {
                     if (data.success === true) {
                         if (overlayEl) {
                             overlayEl.find("button").removeAttr("disabled");
                             overlayEl.find(".submitLoader").remove();
                         }
                         msg(true,"content published");
-                        getDrawContent(node.attr("data-parent_id"), undefined, true,undefined,true);
-                        node.find(">.inner>.variant[data-variant='"+variant+"']").addClass("published");
+                        getDrawContent(node.attr("data-parent_id"), undefined, true, undefined, true);
+                        var variantsArr = variants.split(",");
+                        for (var i = 0; i < variantsArr.length; i++) {
+                            var variant = variantsArr[i];
+                            node.find(">.inner .variant[data-variant='" + variant + "']").addClass("published");
+                        }
                         overlayClose();
                     } else {
                         if (overlayEl) {
@@ -341,11 +350,16 @@ $(document).on("click",".node-dropdown a,.template-dropdown a",function () {
             }
             var variants = unpublishedVariants(node.attr("data-id"));
             if (variants.length > 1||true ) {
-                var dialog = dialogForVariants(variants);
+                var dialog = dialogForVariants(variants,true);
                 dialog.find(".descendantscontainer label").html("Publish descendants?");
                 var overlayEl = overlay(dialog, 400, 250, undefined, "Publish");
                 dialog.find("button").click(function () {
                     var button = $(this);
+                    var selectedVariants = (dialog.find("select[name=variant]").val() || []).join(',');
+                    if (!selectedVariants) {
+                        msg(undefined,"cannot publish without selecting at least one variant");
+                        return;
+                    }
                     var descendantVariants = (dialog.find("select[name=descendants]").val() || []).join(',');
                     if (descendantVariants) {
                         dialog.find("select[name=descendants] option[value='']").removeAttr("selected");
@@ -354,15 +368,15 @@ $(document).on("click",".node-dropdown a,.template-dropdown a",function () {
                     //console.log(descendantVariants);
                     button.after(spinningLoaderImg("submitLoader").css({"float":"right", "margin-top":"10px"}));
                     button.attr("disabled","disabled");
-                    doPublish(node.attr("data-id"), dialog.find("select[name=variant]").val(), descendantVariants, overlayEl);
+                    doPublish(node.attr("data-id"), selectedVariants, descendantVariants, overlayEl);
                 });
             } else {
                 doPublish(node.attr("data-id"), variants[0]);
             }
             break;
         case "unpublish":
-            var doUnpublish = function (id, variant, descendants,overlayEl) {
-                setUnpublish(id, variant, descendants, function (data) {
+            var doUnpublish = function (id, variants, descendants,overlayEl) {
+                setUnpublish(id, variants, descendants, function (data) {
                     if (data.success === true) {
                         if (overlayEl) {
                             overlayEl.find("button").removeAttr("disabled");
@@ -370,8 +384,12 @@ $(document).on("click",".node-dropdown a,.template-dropdown a",function () {
                         }
                         msg(true, "content unpublished");
                         getDrawContent(node.attr("data-parent_id"), undefined, true,undefined,true);
-                        node.find(">.inner>.variant[data-variant='" + variant + "']").removeClass("published");
-                        publishedContent[id][variant] = undefined;
+                        var variantsArr = variants.split(",");
+                        for (var i = 0; i < variantsArr.length; i++) {
+                            var variant = variantsArr[i];
+                            node.find(">.inner .variant[data-variant='" + variant + "']").removeClass("published");
+                            publishedContent[id][variant] = undefined;
+                        }
                         overlayClose();
                     } else {
                         if (overlayEl) {
@@ -385,16 +403,20 @@ $(document).on("click",".node-dropdown a,.template-dropdown a",function () {
             }
             var variants = publishedVariants(node.attr("data-id"));
             if (variants.length > 1 ) {
-                var dialog = dialogForVariants(variants);
+                var dialog = dialogForVariants(variants,true);
                 var dCon = dialog.find(".descendantscontainer");
-                dCon.find("label").html("Unpublish descendants?");
+                dCon.find("label").html("Unpublish descendants");
                 dCon.find("label").after("<p/>");
                 var overlayEl = overlay(dialog, 400, 250, undefined, "Unpublish");
                 
                 dialog.find("button").click(function () {
                     var button = $(this);
-                    var variant = dialog.find("select[name='variant']").val();
-                    var descendantVariants = variant;
+                    var selectedVariants = (dialog.find("select[name='variant']").val() || []).join(',');
+                    if (!selectedVariants) {
+                        msg(undefined, "cannot unpublish without selecting at least one variant");
+                        return;
+                    }
+                    var descendantVariants = selectedVariants;
                     var selectedDescendants = (dialog.find("select[name='descendants']").val() || []).join(',');
                     if (selectedDescendants)
                         descendantVariants += "," + selectedDescendants;
@@ -404,13 +426,33 @@ $(document).on("click",".node-dropdown a,.template-dropdown a",function () {
 
                     button.after(spinningLoaderImg("submitLoader").css({"float":"right","margin-top":"10px"}));
 
-                    doUnpublish(node.attr("data-id"), variant, descendantVariants, overlayEl);
+                    doUnpublish(node.attr("data-id"), selectedVariants, descendantVariants, overlayEl);
                 });
                 var updateVariant = function () {
-                    var variant = dialog.find("select[name='variant']").val();
-                    dCon.find("p").html("Descendant content with language " + variantNames[variant] +" will be unpublished, select any additional languages to unpublish for descendant content");
+                    var selectedVariants = dialog.find("select[name='variant']").val() || [];
+                    if (selectedVariants.length == 0) {
+                        dCon.hide();
+                        dCon.find("p").html('');
+                    } else {
+                        dCon.show();
+                        var friendlyNames = [];
+                        for (var i = 0; i < selectedVariants.length; i++) {
+                            friendlyNames.push(variantNames[selectedVariants[i]]);
+                        }
+                        var hasUnselectedDescendants = languages.length != selectedVariants.length;
+                        if (hasUnselectedDescendants) {
+                            dCon.find("select").show();
+                            dCon.find("p").html("Descendant content with language(s) - " + friendlyNames.join(", ") + " - will be unpublished, select any additional languages to unpublish for descendant content");
+                        } else {
+                            dCon.find("select").hide();
+                            dCon.find("p").html("Descendant content with language(s) - " + friendlyNames.join(", ") + " - will be unpublished");
+                        }
+                    }
                     dCon.find("option").removeAttr("disabled");
-                    dCon.find("option[value='" + variant + "']").attr("disabled", "disabled").removeAttr("selected");
+                    for (var i = 0; i < selectedVariants.length; i++) {
+                        var v = selectedVariants[i];
+                        dCon.find("option[value='" + v + "']").attr("disabled", "disabled").removeAttr("selected");
+                    }
                 }
                 dialog.find("select[name='variant']").change(function () {
                     updateVariant();

@@ -1190,14 +1190,15 @@ namespace puck.core.Controllers
         }
         [HttpPost]
         [Authorize(Roles = PuckRoles.Publish, AuthenticationSchemes = Mvc.AuthenticationScheme)]
-        public async Task<JsonResult> RePublish(Guid id, string variant, string descendants = "")
+        public async Task<JsonResult> RePublish(Guid id, string variants, string descendants = "")
         {
             var message = string.Empty;
             var success = false;
             try
             {
+                var arrVariants = variants.Split(new char[] { ','},StringSplitOptions.RemoveEmptyEntries).ToList();
                 var arrDescendants = descendants.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries).ToList();
-                await contentService.RePublish(id, variant, arrDescendants);
+                await contentService.RePublish(id, arrVariants, arrDescendants);
                 success = true;
             }
             catch (Exception ex)
@@ -1210,14 +1211,15 @@ namespace puck.core.Controllers
         }
         [HttpPost]
         [Authorize(Roles = PuckRoles.Publish, AuthenticationSchemes = Mvc.AuthenticationScheme)]
-        public async Task<JsonResult> Publish(Guid id, string variant, string descendants = "")
+        public async Task<JsonResult> Publish(Guid id, string variants, string descendants = "")
         {
             var message = string.Empty;
             var success = false;
             try
             {
+                var arrVariants = variants.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries).ToList();
                 var arrDescendants = descendants.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries).ToList();
-                await contentService.Publish(id, variant, arrDescendants);
+                await contentService.Publish(id, arrVariants, arrDescendants);
                 success = true;
             }
             catch (Exception ex)
@@ -1230,14 +1232,15 @@ namespace puck.core.Controllers
         }
         [HttpPost]
         [Authorize(Roles = PuckRoles.Unpublish, AuthenticationSchemes = Mvc.AuthenticationScheme)]
-        public async Task<JsonResult> UnPublish(Guid id, string variant, string descendants = "")
+        public async Task<JsonResult> UnPublish(Guid id, string variants, string descendants = "")
         {
             var message = string.Empty;
             var success = false;
             try
             {
+                var arrVariants = variants.Split(new char[] { ','},StringSplitOptions.RemoveEmptyEntries).ToList();
                 var arrDescendants = descendants.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries).ToList();
-                await contentService.UnPublish(id, variant, arrDescendants);
+                await contentService.UnPublish(id, arrVariants, arrDescendants);
                 success = true;
             }
             catch (Exception ex)

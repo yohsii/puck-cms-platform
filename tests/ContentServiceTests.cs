@@ -283,30 +283,30 @@ namespace puck.tests
         public async Task UnpublishPublish(string type)
         {
             var s = GetServices(type);
-            // home
+            // homePublishUnpublish
             s.Repo.Context.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
             var homePage = await s.ContentService.Create<Folder>(Guid.Empty, "en-gb", "homePublishUnpublish", template: "~/views/home/homepage.cshtml", published: true, userName: "darkezmo@hotmail.com");
             await s.ContentService.SaveContent(homePage, triggerEvents: false, userName: uname);
 
-            // home/news
+            // homePublishUnpublish/news
             var newsPageEn = await s.ContentService.Create<Folder>(homePage.Id, "en-gb", "news", template: "~/views/home/homepage.cshtml", published: true, userName: uname);
             await s.ContentService.SaveContent(newsPageEn, triggerEvents: false, userName: uname);
-            var newsPageJp = await s.ContentService.Create<Folder>(homePage.Id, "ja-jp", "news", template: "~/views/home/homepage.cshtml", published: false, userName: uname);
-            newsPageJp.Id = newsPageEn.Id;
-            await s.ContentService.SaveContent(newsPageJp, triggerEvents: false, userName: uname);
+            //var newsPageJp = await s.ContentService.Create<Folder>(homePage.Id, "ja-jp", "news", template: "~/views/home/homepage.cshtml", published: false, userName: uname);
+            //newsPageJp.Id = newsPageEn.Id;
+            //await s.ContentService.SaveContent(newsPageJp, triggerEvents: false, userName: uname);
 
-            // home/news/images
+            // homePublishUnpublish/news/images
             var imagesPageEn = await s.ContentService.Create<Folder>(newsPageEn.Id, "en-gb", "images", template: "~/views/home/homepage.cshtml", published: true, userName: uname);
             await s.ContentService.SaveContent(imagesPageEn, triggerEvents: false, userName: uname);
             var imagesPageJp = await s.ContentService.Create<Folder>(newsPageEn.Id, "ja-jp", "images", template: "~/views/home/homepage.cshtml", published: false, userName: uname);
             imagesPageJp.Id = imagesPageEn.Id;
             await s.ContentService.SaveContent(imagesPageJp, triggerEvents: false, userName: uname);
 
-            // home/news/images/tokyo
+            // homePublishUnpublish/news/images/tokyo
             var tokyoPageEn = await s.ContentService.Create<Folder>(imagesPageEn.Id, "en-gb", "tokyo", template: "~/views/home/homepage.cshtml", published: true, userName: uname);
             await s.ContentService.SaveContent(tokyoPageEn, triggerEvents: false, userName: uname);
 
-            // home/news/images/london
+            // homePublishUnpublish/news/images/london
             var londonPageEn = await s.ContentService.Create<Folder>(imagesPageEn.Id, "en-gb", "london", template: "~/views/home/homepage.cshtml", published: true, userName: uname);
             await s.ContentService.SaveContent(londonPageEn, triggerEvents: false, userName: uname);
 
@@ -338,6 +338,27 @@ namespace puck.tests
             Assert.That(tokyoModel.Published);
             homepageModel = getContentFromIndex(homePage.Id, homePage.Variant);
             Assert.That(homepageModel.Published);
+
+            s.ContentService.repo = NewRepo(type);
+            //s.Repo.Context.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.TrackAll;
+
+            newsPageEn.Published = false;
+            newsPageEn.NodeName = "news2";
+            await s.ContentService.SaveContent(newsPageEn, triggerEvents: false, userName: uname);
+            
+            var modNewsPage = getContentFromIndex(newsPageEn.Id, newsPageEn.Variant);
+            var modTokyoPage = getContentFromIndex(tokyoModel.Id, tokyoModel.Variant);
+
+            Assert.That(modNewsPage.Path == "/homepublishunpublish/news");
+            Assert.That(modTokyoPage.Path == "/homepublishunpublish/news/images/tokyo");
+
+            await s.ContentService.UnPublish(newsPageEn.Id, new List<string> { newsPageEn.Variant }, new string[] { "en-gb", "ru-ru", "ja-jp" }.ToList(), userName: uname);
+
+            modNewsPage = getContentFromIndex(newsPageEn.Id, newsPageEn.Variant);
+            modTokyoPage = getContentFromIndex(tokyoModel.Id, tokyoModel.Variant);
+
+            Assert.That(modNewsPage.Path == "/homepublishunpublish/news2");
+            Assert.That(modTokyoPage.Path == "/homepublishunpublish/news2/images/tokyo");
         }
 
         [Test]

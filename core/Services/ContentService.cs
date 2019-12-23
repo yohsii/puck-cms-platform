@@ -431,11 +431,16 @@ namespace puck.core.Services
             rowsAffected = repo.Context.Database.ExecuteSqlRaw(sql, parameters);
             return rowsAffected;
         }
-        public async Task RePublish(Guid id, string variant, List<string> descendantVariants, string userName = null)
+        public async Task RePublish(Guid id, string variant, List<string> descendantVariants, string userName = null) {
+            await RePublish(id,new List<string> { variant},descendantVariants,userName:userName);
+        }
+        public async Task RePublish(Guid id, List<string> variants, List<string> descendantVariants, string userName = null)
         {
             //await slock1.WaitAsync();
             try
             {
+                if (variants.Count == 0)
+                    throw new ArgumentException("you cannot republish with empty variants argument");
                 PuckUser user = null;
                 if (!string.IsNullOrEmpty(userName))
                 {
@@ -446,18 +451,24 @@ namespace puck.core.Services
                 else
                     userName = HttpContext.Current.User.Identity.Name;
 
-                var currentRevision = repo.PublishedOrCurrentRevision(id, variant);
-
-                var mod = currentRevision.ToBaseModel();
-
+                var variantsLowerCase = variants.Select(x=>x.ToLower()).ToList();
                 var toIndex = new List<BaseModel>();
-                toIndex.Add(mod);
+
+                var publishedOrCurrentRevisions = repo.PublishedOrCurrentRevisions(id).ToList();
+
+                if (publishedOrCurrentRevisions.Count == 0) throw new Exception("no revisions to republish");
+
+                foreach (var revision in publishedOrCurrentRevisions)
+                {
+                    var mod = revision.ToBaseModel();
+                    toIndex.Add(mod);
+                }
 
                 string notes = "";
                 if (descendantVariants.Any())
                 {
                     var descendantVariantsLowerCase = descendantVariants.Select(x => x.ToLower()).ToList();
-                    var descendantRevisions = repo.PublishedOrCurrentDescendants(currentRevision.IdPath).Where(x => descendantVariantsLowerCase.Contains(x.Variant)).ToList();
+                    var descendantRevisions = repo.PublishedOrCurrentDescendants(publishedOrCurrentRevisions.FirstOrDefault().IdPath).Where(x => descendantVariantsLowerCase.Contains(x.Variant)).ToList();
                     var descendantModels = descendantRevisions.Select(x => x.ToBaseModel()).ToList();
                     toIndex.AddRange(descendantModels);
                     if (descendantModels.Any())
@@ -465,7 +476,11 @@ namespace puck.core.Services
                 }
                 AddPublishInstruction(toIndex);
                 indexer.Index(toIndex);
-                AddAuditEntry(mod.Id, mod.Variant, AuditActions.RePublish, notes, userName);
+                foreach (var revision in publishedOrCurrentRevisions)
+                {
+                    AddAuditEntry(revision.Id, revision.Variant, AuditActions.RePublish, notes, userName,save:false);
+                }
+                repo.SaveChanges();
             }
             catch (Exception ex) {
                 logger.Log(ex);
@@ -476,11 +491,16 @@ namespace puck.core.Services
                 //slock1.Release(); 
             }
         }
-        public async Task Publish(Guid id, string variant, List<string> descendantVariants, string userName = null)
+        public async Task Publish(Guid id, string variant, List<string> descendantVariants, string userName = null) {
+            await Publish(id,new List<string> { variant},descendantVariants,userName:userName);
+        }
+        public async Task Publish(Guid id, List<string> variants, List<string> descendantVariants, string userName = null)
         {
             //await slock1.WaitAsync();
             try
             {
+                if (variants.Count == 0)
+                    throw new ArgumentException("you cannot publish with empty variants argument");
                 PuckUser user = null;
                 if (!string.IsNullOrEmpty(userName))
                 {
@@ -491,33 +511,42 @@ namespace puck.core.Services
                 else
                     userName = HttpContext.Current.User.Identity.Name;
 
-                var currentRevision = repo.CurrentRevision(id, variant);
-                if (currentRevision.ParentId != Guid.Empty)
+                var variantsLowerCase = variants.Select(x => x.ToLower()).ToList();
+                var currentRevisions = repo.CurrentRevisions(id).Where(x => variantsLowerCase.Contains(x.Variant)).ToList();
+
+                if (currentRevisions.Count == 0) throw new Exception("no revisions to publish");
+
+                if (currentRevisions.FirstOrDefault().ParentId != Guid.Empty)
                 {
-                    var publishedParentRevisions = repo.PublishedRevisions(currentRevision.ParentId);
+                    var publishedParentRevisions = repo.PublishedRevisions(currentRevisions.FirstOrDefault().ParentId);
                     if (publishedParentRevisions.Count() == 0)
                     {
                         throw new Exception("You cannot publish this node because its parent is not published.");
                     }
                 }
-                var mod = currentRevision.ToBaseModel();
-                mod.Published = true;
+
                 var toIndex = new List<BaseModel>();
-                toIndex.AddRange(
-                    await SaveContent(mod, shouldIndex: false, makeRevision: false, userName: userName)
-                );
+                foreach (var currentRevision in currentRevisions)
+                {
+                    var mod = currentRevision.ToBaseModel();
+                    mod.Published = true;
+                    toIndex.AddRange(
+                        await SaveContent(mod, shouldIndex: false, makeRevision: false, userName: userName)
+                    );
+                }
+
                 var affected = 0;
                 string notes = "";
                 if (descendantVariants.Any())
                 {
                     //set descendants to have HasNoPublishedRevision set to false
-                    affected = UpdateDescendantHasNoPublishedRevision(currentRevision.IdPath + ",", false, descendantVariants);
+                    affected = UpdateDescendantHasNoPublishedRevision(currentRevisions.FirstOrDefault().IdPath + ",", false, descendantVariants);
                     //set descendants to have IsPublishedRevision set to false
-                    affected = UpdateDescendantIsPublishedRevision(currentRevision.IdPath + ",", false, false, descendantVariants);
+                    affected = UpdateDescendantIsPublishedRevision(currentRevisions.FirstOrDefault().IdPath + ",", false, false, descendantVariants);
                     //set current descendants to have IsPublishedRevision set to true, since we're publishing Current descendants
-                    affected = UpdateDescendantIsPublishedRevision(currentRevision.IdPath + ",", true, true, descendantVariants);
+                    affected = UpdateDescendantIsPublishedRevision(currentRevisions.FirstOrDefault().IdPath + ",", true, true, descendantVariants);
                     var descendantVariantsLowerCase = descendantVariants.Select(x => x.ToLower()).ToList();
-                    var descendantRevisions = repo.CurrentRevisionDescendants(currentRevision.IdPath).Where(x => descendantVariantsLowerCase.Contains(x.Variant)).ToList();
+                    var descendantRevisions = repo.CurrentRevisionDescendants(currentRevisions.FirstOrDefault().IdPath).Where(x => descendantVariantsLowerCase.Contains(x.Variant)).ToList();
                     var descendantModels = descendantRevisions.Select(x => x.ToBaseModel()).ToList();
                     toIndex.AddRange(descendantModels);
                     if (descendantModels.Any())
@@ -525,7 +554,7 @@ namespace puck.core.Services
                 }
                 AddPublishInstruction(toIndex);
                 indexer.Index(toIndex);
-                AddAuditEntry(mod.Id, mod.Variant, AuditActions.Publish, notes, userName);
+                AddAuditEntry(currentRevisions.FirstOrDefault().Id, currentRevisions.FirstOrDefault().Variant, AuditActions.Publish, notes, userName);
             }
             catch (Exception ex) {
                 logger.Log(ex);
@@ -586,6 +615,102 @@ namespace puck.core.Services
                 AddPublishInstruction(toIndex);
                 indexer.Index(toIndex);
                 AddAuditEntry(mod.Id, mod.Variant, AuditActions.Unpublish, notes, userName);
+            }
+            catch (Exception ex)
+            {
+                logger.Log(ex);
+                throw;
+            }
+            finally
+            {
+                //slock1.Release();
+            }
+        }
+        public async Task UnPublish(Guid id, List<string> variants, List<string> descendantVariants, string userName = null)
+        {
+            //await slock1.WaitAsync();
+            try
+            {
+                if (variants.Count == 0)
+                    throw new ArgumentException("you cannot unpublish with empty variants argument");
+                PuckUser user = null;
+                if (!string.IsNullOrEmpty(userName))
+                {
+                    user = await userManager.FindByNameAsync(userName);
+                    if (user == null)
+                        throw new UserNotFoundException("there is no user for provided username");
+                }
+                else
+                    userName = HttpContext.Current.User.Identity.Name;
+
+                var toIndex = new List<BaseModel>();
+                var variantsLowerCase = variants.Select(x => x.ToLower()).ToList();
+
+                var currentRevisions = repo.CurrentRevisions(id).Where(x => variantsLowerCase.Contains(x.Variant)).ToList();
+
+                if (currentRevisions.Count == 0) throw new Exception("no revisions to unpublish");
+
+                var shouldUpdatePaths = false;
+                string currentPath = null;
+                string publishedPath = null;
+                foreach (var currentRevision in currentRevisions) {
+                    var publishedRevision = repo.PublishedRevision(id, currentRevision.Variant);
+                    if (publishedRevision != null)
+                    {
+                        publishedRevision.IsPublishedRevision = false;
+                        publishedRevision.HasNoPublishedRevision = true;
+                        publishedRevision.Published = false;
+                    }
+                    currentRevision.IsPublishedRevision = false;
+                    currentRevision.HasNoPublishedRevision = true;
+                    currentRevision.Published = false;
+                    
+                    int _affected = UpdateHasNoPublishedRevisionAndIsPublishedRevision(currentRevision.Id, currentRevision.Variant, true, false);
+
+                    if (!currentRevision.IsPublishedRevision && publishedRevision != null && !currentRevision.Path.ToLower().Equals(publishedRevision.Path.ToLower()))
+                    {
+                        shouldUpdatePaths = true;
+                        currentPath = currentRevision.Path;
+                        publishedPath = publishedRevision.Path;
+                    }
+                    var mod = currentRevision.ToBaseModel();
+                    mod.Published = false;
+                    toIndex.Add(mod);
+                    //await SaveContent(mod, shouldIndex: false, makeRevision: false, userName: userName);
+                }
+
+                var publishedVariants = repo.PublishedRevisions(id).Where(x => !variantsLowerCase.Contains(x.Variant));
+                var affected = 0;
+                if (publishedVariants.Count() == 0)
+                {
+                    if (shouldUpdatePaths)
+                    {
+                        //since we're unpublishing the published revision (which descendant paths are based on), we should set descendant paths to be based off of the current revision
+                        affected = UpdateDescendantPaths(publishedPath + "/", currentPath + "/");
+                        UpdatePathRelatedMeta(publishedPath, currentPath);
+                    }
+                }
+                var notes = "";
+                if (descendantVariants.Any())
+                {
+                    //set descendants to have HasNoPublishedRevision set to true
+                    affected = UpdateDescendantHasNoPublishedRevision(currentRevisions.FirstOrDefault().IdPath + ",", true, descendantVariants);
+                    //set descendants to have IsPublishedRevision set to false
+                    affected = UpdateDescendantIsPublishedRevision(currentRevisions.FirstOrDefault().IdPath + ",", false, false, descendantVariants);
+                    var descendantVariantsLowerCase = descendantVariants.Select(x => x.ToLower()).ToList();
+                    var descendantRevisions = repo.CurrentRevisionDescendants(currentRevisions.FirstOrDefault().IdPath).Where(x => descendantVariantsLowerCase.Contains(x.Variant)).ToList();
+                    var descendantModels = descendantRevisions.Select(x => x.ToBaseModel()).ToList();
+                    toIndex.AddRange(descendantModels);
+                    if (descendantModels.Any())
+                        notes = $"{descendantModels.Count} descendant items also unpublished";
+                }
+                AddPublishInstruction(toIndex);
+                indexer.Index(toIndex);
+                foreach (var currentRevision in currentRevisions)
+                {
+                    AddAuditEntry(currentRevision.Id, currentRevision.Variant, AuditActions.Unpublish, notes, userName,save:false);
+                }
+                repo.SaveChanges();
             }
             catch (Exception ex) {
                 logger.Log(ex);
@@ -1625,7 +1750,7 @@ namespace puck.core.Services
             affected = repo.Context.Database.ExecuteSqlRaw(batchedSql, parameters);
             return affected;
         }
-        public void AddAuditEntry(Guid id, string variant, string action, string notes, string username)
+        public void AddAuditEntry(Guid id, string variant, string action, string notes, string username,bool save=true)
         {
             var audit = new PuckAudit();
             audit.ContentId = id;
@@ -1634,7 +1759,8 @@ namespace puck.core.Services
             audit.Notes = notes;
             audit.Username = username;
             repo.AddPuckAudit(audit);
-            repo.SaveChanges();
+            if(save)
+                repo.SaveChanges();
         }
         public async Task RePublishEntireSite()
         {
@@ -1690,11 +1816,11 @@ namespace puck.core.Services
                 using (var command = repo.Context.Database.GetDbConnection().CreateCommand())
                 {
                     PuckCache.IndexingStatus = $"retrieving records to republish";
-                    string sql = "SELECT [Path],[Type],[Value],[TypeChain],[SortOrder],[ParentId],[TemplatePath],[Variant] FROM PuckRevision where ([IsPublishedRevision] = 1 OR ([HasNoPublishedRevision]=1 AND [Current] = 1))";
+                    string sql = "SELECT [Path],[Type],[Value],[TypeChain],[SortOrder],[ParentId],[TemplatePath],[Variant],[Published] FROM PuckRevision where ([IsPublishedRevision] = 1 OR ([HasNoPublishedRevision]=1 AND [Current] = 1))";
                     if (repo.Context.Database.IsNpgsql())
-                        sql = "SELECT \"Path\",\"Type\",\"Value\",\"TypeChain\",\"SortOrder\",\"ParentId\",\"TemplatePath\",\"Variant\" FROM \"PuckRevision\" where (\"IsPublishedRevision\" = true OR (\"HasNoPublishedRevision\"=true AND \"Current\" = true))";
+                        sql = "SELECT \"Path\",\"Type\",\"Value\",\"TypeChain\",\"SortOrder\",\"ParentId\",\"TemplatePath\",\"Variant\",\"Published\" FROM \"PuckRevision\" where (\"IsPublishedRevision\" = true OR (\"HasNoPublishedRevision\"=true AND \"Current\" = true))";
                     else if (repo.Context.Database.IsMySql())
-                        sql = "SELECT `Path`,`Type`,`Value`,`TypeChain`,`SortOrder`,`ParentId`,`TemplatePath`,`Variant` FROM `PuckRevision` where (`IsPublishedRevision` = 1 OR (`HasNoPublishedRevision`=1 AND `Current` = 1))";
+                        sql = "SELECT `Path`,`Type`,`Value`,`TypeChain`,`SortOrder`,`ParentId`,`TemplatePath`,`Variant`,`Published` FROM `PuckRevision` where (`IsPublishedRevision` = 1 OR (`HasNoPublishedRevision`=1 AND `Current` = 1))";
                     command.CommandText = sql;
                     repo.Context.Database.OpenConnection();
                     using (var reader = command.ExecuteReader())
@@ -1717,6 +1843,7 @@ namespace puck.core.Services
                                 model.ParentId = reader.GetGuid(5);
                                 model.TemplatePath = reader.GetString(6);
                                 model.Variant = reader.GetString(7);
+                                model.Published = reader.GetBoolean(8);
                                 try
                                 {
                                     if (PuckCache.StoreReferences)

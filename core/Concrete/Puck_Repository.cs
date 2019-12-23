@@ -283,6 +283,12 @@ namespace puck.core.Concrete
                 .Where(x => x.Id == id && x.IsPublishedRevision);
             return results;
         }
+        public IQueryable<PuckRevision> CurrentRevisions(Guid id)
+        {
+            var results = repo.PuckRevision
+                .Where(x => x.Id == id && x.Current);
+            return results;
+        }
         public PuckRevision CurrentRevision(Guid id, string variant)
         {
             var results = repo.PuckRevision

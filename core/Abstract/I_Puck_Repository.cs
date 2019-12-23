@@ -55,6 +55,7 @@ namespace puck.core.Abstract
         IQueryable<PuckRevision> CurrentRevisionChildren(Guid id);
         IQueryable<PuckRevision> CurrentRevisionVariants(Guid id, string variant);
         IQueryable<PuckRevision> PublishedRevisionVariants(Guid id, string variant);
+        IQueryable<PuckRevision> CurrentRevisions(Guid id);
         IQueryable<PuckRevision> PublishedRevisions(Guid id);
         PuckRevision CurrentRevision(Guid id, string variant);
         PuckRevision PublishedRevision(Guid id,string variant);
