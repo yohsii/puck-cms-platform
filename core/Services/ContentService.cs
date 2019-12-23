@@ -1144,6 +1144,8 @@ namespace puck.core.Services
         {
             if (nodeNameExistsCounter == 0)
                 await slock1.WaitAsync();
+            Exception caughtException = null;
+            var toIndex = new List<BaseModel>();
             try
             {
                 PuckUser user = null;
@@ -1227,7 +1229,7 @@ namespace puck.core.Services
                 var publishedRevision = repo.PublishedRevision(mod.Id, mod.Variant);
                 //could be published revision, or even a published variant
                 var publishedRevisionOrVariant = repo.PublishedRevisions(mod.Id).OrderByDescending(x => x.Updated).FirstOrDefault();
-                var toIndex = new List<BaseModel>();
+                //var toIndex = new List<BaseModel>();
                 //toIndex.Add(mod);
                 bool nameChanged = false;
                 bool nameDifferentThanCurrent = false;
@@ -1304,7 +1306,8 @@ namespace puck.core.Services
                     idPath = original.IdPath;
                 }
 
-                if (!makeRevision && nameChanged && !mod.Published && original!=null && original.IsPublishedRevision) {
+                if (!makeRevision && nameChanged && !mod.Published && original != null && original.IsPublishedRevision)
+                {
                     //you shouldn't be using SaveContent to unpublish currently published content as this can cause issues when the NodeName is changed. use UnPublish instead.
                     makeRevision = true;
                 }
@@ -1570,10 +1573,10 @@ namespace puck.core.Services
                                 indexer.Index(toIndex, triggerEvents: triggerIndexEvents);
                         }
                         else if (mod.Published /*|| currentMod == null*/)//add to lucene index if published or no such node exists in index
-                                                                         /*note that you can only have one node with particular id/variant in index at any one time
-                                                                         * the reason that you want to add node to index when it's not published but there is no such node currently in index
-                                                                         * is to make sure there is always at least one version of the node in the index for back office search operations
-                                                                         */
+                        /*note that you can only have one node with particular id/variant in index at any one time
+                        * the reason that you want to add node to index when it's not published but there is no such node currently in index
+                        * is to make sure there is always at least one version of the node in the index for back office search operations
+                        */
                         {
                             toIndex.Add(mod);
                             var changed = false;
@@ -1669,11 +1672,17 @@ namespace puck.core.Services
                     }
                 }
             }
+            catch (Exception ex) { 
+                caughtException = ex;
+            }
             finally
             {
                 if (nodeNameExistsCounter == 0)
                     slock1.Release();
             }
+            if (caughtException != null)
+                throw caughtException;
+            else return toIndex;
         }
         public void Index(List<BaseModel> toIndex, bool addPublishInstruction = true, bool triggerEvents = true)
         {
@@ -1844,16 +1853,16 @@ namespace puck.core.Services
                                 model.TemplatePath = reader.GetString(6);
                                 model.Variant = reader.GetString(7);
                                 model.Published = reader.GetBoolean(8);
-                                try
-                                {
-                                    if (PuckCache.StoreReferences)
-                                        model.References = new List<string>();
-                                    await ObjectDumper.Transform(model, int.MaxValue, new List<Type> { typeof(PuckPickerReferencesTransformer) });
-                                }
-                                catch (Exception ex)
-                                {
-                                    logger.Log($"transorm failed during republish entire site. id:{model.Id}, variant:{model.Variant}, type:{model.Type}. error:{ex.Message}", ex.StackTrace, level: "error", exceptionType: ex.GetType());
-                                }
+                                //try
+                                //{
+                                //    if (PuckCache.StoreReferences)
+                                //        model.References = new List<string>();
+                                //    await ObjectDumper.Transform(model, int.MaxValue, new List<Type> { typeof(PuckPickerReferencesTransformer) });
+                                //}
+                                //catch (Exception ex)
+                                //{
+                                //    logger.Log($"transorm failed during republish entire site. id:{model.Id}, variant:{model.Variant}, type:{model.Type}. error:{ex.Message}", ex.StackTrace, level: "error", exceptionType: ex.GetType());
+                                //}
                                 models.Add(model);
                                 //typeAndValues.Add(new KeyValuePair<string, string>(aqn, value));
                                 //values.Add(reader.GetString(2));
