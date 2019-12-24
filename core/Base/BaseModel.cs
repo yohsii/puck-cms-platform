@@ -47,7 +47,7 @@ namespace puck.core.Base
         public Guid ParentId { get; set; }
         
         [Required]
-        [Display(Name="Node Name")]
+        [Display(Name="Node Name",Description = "This determines the URL, changes will update URLs of published content even if you save without publishing")]
         public String NodeName { get; set; }
 
         [UIHint("SettingsReadOnly")]

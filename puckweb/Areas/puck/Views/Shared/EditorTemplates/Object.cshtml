@@ -33,12 +33,16 @@
             <div class="editor-label @(!complexChild&&isBackOfficePage?"col-sm-2":"")" style="">
                 @Html.Label(string.IsNullOrEmpty(prop.DisplayName)?prop.PropertyName:prop.DisplayName)
                 @Html.ValidationMessage(prop.PropertyName)
-                @if(!string.IsNullOrEmpty(prop.Description)){
+                @if(!string.IsNullOrEmpty(prop.Description)&&prop.Description.Length<76){
                     <span class="description">@prop.Description</span>
                 }
             </div>
             <div tabindex="-1" class="editor-field @(!complexChild&&isBackOfficePage?"col-sm-10":"")">
-                @Html.Editor(prop.PropertyName)            
+                @Html.Editor(prop.PropertyName)
+                @if (!string.IsNullOrEmpty(prop.Description)&&prop.Description.Length>75)
+                {
+                    <span class="description">@prop.Description</span>
+                }
             </div>
             <div class="clearboth"></div>
         </div>        

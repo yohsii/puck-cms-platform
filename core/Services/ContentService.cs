@@ -1164,7 +1164,7 @@ namespace puck.core.Services
             repo.SaveChanges();
 
         }
-        public async Task<List<BaseModel>> SaveContent<T>(T mod, bool makeRevision = true, string userName = null, bool handleNodeNameExists = true, int nodeNameExistsCounter = 0, bool triggerEvents = true, bool triggerIndexEvents = true, bool shouldIndex = true) where T : BaseModel
+        public async Task<List<BaseModel>> SaveContent<T>(T mod, bool makeRevision = true, string userName = null, bool handleNodeNameExists = true, int nodeNameExistsCounter = 0, bool triggerEvents = true, bool triggerIndexEvents = true, bool shouldIndex = true,bool alwaysUpdatePath = true) where T : BaseModel
         {
             if (nodeNameExistsCounter == 0)
                 await slock1.WaitAsync();
@@ -1214,7 +1214,7 @@ namespace puck.core.Services
                             var newName = regex.Replace(mod.NodeName, $"({nodeNameExistsCounter + 1})");
                             mod.NodeName = newName;
                         }
-                        return await SaveContent(mod, makeRevision: makeRevision, userName: userName, handleNodeNameExists: handleNodeNameExists, nodeNameExistsCounter: nodeNameExistsCounter + 1, triggerEvents: triggerEvents, triggerIndexEvents: triggerIndexEvents, shouldIndex: shouldIndex);
+                        return await SaveContent(mod, makeRevision: makeRevision, userName: userName, handleNodeNameExists: handleNodeNameExists, nodeNameExistsCounter: nodeNameExistsCounter + 1, triggerEvents: triggerEvents, triggerIndexEvents: triggerIndexEvents, shouldIndex: shouldIndex,alwaysUpdatePath:alwaysUpdatePath);
                     }
                     else
                     {
@@ -1382,7 +1382,7 @@ namespace puck.core.Services
                                 currentVariantsDb.Where(x => !x.Published).ToList().ForEach(x => { x.NodeName = mod.NodeName; x.Path = mod.Path; });
                             }
                             //}
-                            if (mod.Published)
+                            if (mod.Published || alwaysUpdatePath)
                             {
                                 if (publishedVariantsDb.Any(x =>
                                         !x.NodeName.ToLower().Equals(mod.NodeName.ToLower())
@@ -1438,7 +1438,7 @@ namespace puck.core.Services
                                 affected = UpdateDescendantPaths(original.Path + "/", mod.Path + "/");
                                 UpdatePathRelatedMeta(original.Path, mod.Path);
                             }
-                            else if (mod.Published && (nameDifferentThanCurrent || nameDifferentThanPublished))
+                            else if ((mod.Published||alwaysUpdatePath) && (nameDifferentThanCurrent || nameDifferentThanPublished))
                             {
                                 if (!string.IsNullOrEmpty(publishedRevisionPath))
                                 {
@@ -1453,13 +1453,13 @@ namespace puck.core.Services
                                     UpdatePathRelatedMeta(currentRevisionPath, mod.Path);
                                 }
                             }
-                            else if (nameDifferentThanCurrentVariant && publishedRevisionOrVariant == null)
+                            else if (nameDifferentThanCurrentVariant && (publishedRevisionOrVariant == null||alwaysUpdatePath))
                             {
                                 //update descendant paths
                                 affected = UpdateDescendantPaths(currentVariantOriginalPath + "/", mod.Path + "/");
                                 UpdatePathRelatedMeta(currentVariantOriginalPath, mod.Path);
                             }
-                            else if (nameDifferentThanPublishedVariant && mod.Published)
+                            else if (nameDifferentThanPublishedVariant && (mod.Published||alwaysUpdatePath))
                             {
                                 //update descendant paths
                                 affected = UpdateDescendantPaths(publishedVariantOriginalPath + "/", mod.Path + "/");
@@ -1585,7 +1585,7 @@ namespace puck.core.Services
                         repo.SaveChanges();
                         transaction.Commit();
                         //index related operations
-                        var qh = new QueryHelper<BaseModel>();
+                        var qh = new QueryHelper<BaseModel>(publishedContentOnly:!alwaysUpdatePath);
                         //get current indexed node with same ID and VARIANT
                         var currentMod = qh.And().Field(x => x.Variant, mod.Variant)
                             .ID(mod.Id)
@@ -1596,7 +1596,7 @@ namespace puck.core.Services
                             if (shouldIndex)
                                 indexer.Index(toIndex, triggerEvents: triggerIndexEvents);
                         }
-                        else if (mod.Published /*|| currentMod == null*/)//add to lucene index if published or no such node exists in index
+                        else if (mod.Published || alwaysUpdatePath /*|| currentMod == null*/)//add to lucene index if published or no such node exists in index
                         /*note that you can only have one node with particular id/variant in index at any one time
                         * the reason that you want to add node to index when it's not published but there is no such node currently in index
                         * is to make sure there is always at least one version of the node in the index for back office search operations
@@ -1633,7 +1633,7 @@ namespace puck.core.Services
                                     indexOriginalPath = variants.First().Path;
                             }
                             //if there was a change in the path
-                            if (changed && mod.Published)
+                            if (changed && (mod.Published||alwaysUpdatePath))
                             {
                                 //sync up all the variants so they have the same nodename and path
                                 variants.ForEach(x =>

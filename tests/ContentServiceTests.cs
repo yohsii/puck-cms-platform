@@ -193,48 +193,57 @@ namespace puck.tests
         }
 
         [Test]
-        [TestCase(DbConstants.SQLite)]
-        [TestCase(DbConstants.MySql)]
-        [TestCase(DbConstants.SQLServer)]
-        [TestCase(DbConstants.PostgreSQL)]
-        public async Task NameAndPathChanges(string type) {
+        [TestCase(DbConstants.SQLite,true)]
+        [TestCase(DbConstants.MySql,true)]
+        [TestCase(DbConstants.SQLServer,true)]
+        [TestCase(DbConstants.PostgreSQL,true)]
+        [TestCase(DbConstants.SQLite,false)]
+        [TestCase(DbConstants.MySql,false)]
+        [TestCase(DbConstants.SQLServer,false)]
+        [TestCase(DbConstants.PostgreSQL,false)]
+        public async Task NameAndPathChanges(string type,bool alwaysUpdatePath) {
             var s = GetServices(type);
             // home
-            var homePage = await s.ContentService.Create<Folder>(Guid.Empty, "en-gb", "homeChangeName", template: "~/views/home/homepage.cshtml", published: true, userName: "darkezmo@hotmail.com");
-            await s.ContentService.SaveContent(homePage, triggerEvents: false, userName: uname);
+            string homeName(bool lower=true) {
+                var name = alwaysUpdatePath ? "homeChangeName1" : "homeChangeName";
+                if (lower) return name.ToLower();
+                else return name;
+            }
+            var homePage = await s.ContentService.Create<Folder>(Guid.Empty, "en-gb", homeName(lower:false), template: "~/views/home/homepage.cshtml", published: true, userName: "darkezmo@hotmail.com");
+            await s.ContentService.SaveContent(homePage, triggerEvents: false, userName: uname,alwaysUpdatePath:alwaysUpdatePath);
             
             // home/news
             var newsPageEn = await s.ContentService.Create<Folder>(homePage.Id, "en-gb", "news", template: "~/views/home/homepage.cshtml", published: true, userName: uname);
-            await s.ContentService.SaveContent(newsPageEn, triggerEvents: false, userName: uname);
+            await s.ContentService.SaveContent(newsPageEn, triggerEvents: false, userName: uname, alwaysUpdatePath: alwaysUpdatePath);
             var newsPageJp = await s.ContentService.Create<Folder>(homePage.Id, "ja-jp", "news", template: "~/views/home/homepage.cshtml", published: false, userName: uname);
             newsPageJp.Id = newsPageEn.Id;
-            await s.ContentService.SaveContent(newsPageJp, triggerEvents: false, userName: uname);
+            await s.ContentService.SaveContent(newsPageJp, triggerEvents: false, userName: uname, alwaysUpdatePath: alwaysUpdatePath);
             
             // home/news/images
             var imagesPageEn = await s.ContentService.Create<Folder>(newsPageEn.Id, "en-gb", "images", template: "~/views/home/homepage.cshtml", published: true, userName: uname);
-            await s.ContentService.SaveContent(imagesPageEn, triggerEvents: false, userName: uname);
+            await s.ContentService.SaveContent(imagesPageEn, triggerEvents: false, userName: uname, alwaysUpdatePath: alwaysUpdatePath);
             var imagesPageJp = await s.ContentService.Create<Folder>(newsPageEn.Id, "ja-jp", "images", template: "~/views/home/homepage.cshtml", published: false, userName: uname);
             imagesPageJp.Id = imagesPageEn.Id;
-            await s.ContentService.SaveContent(imagesPageJp, triggerEvents: false, userName: uname);
+            await s.ContentService.SaveContent(imagesPageJp, triggerEvents: false, userName: uname, alwaysUpdatePath: alwaysUpdatePath);
 
             // home/news/images/tokyo
             var tokyoPageEn = await s.ContentService.Create<Folder>(imagesPageEn.Id, "en-gb", "tokyo", template: "~/views/home/homepage.cshtml", published: true, userName: uname);
-            await s.ContentService.SaveContent(tokyoPageEn, triggerEvents: false, userName: uname);
+            await s.ContentService.SaveContent(tokyoPageEn, triggerEvents: false, userName: uname, alwaysUpdatePath: alwaysUpdatePath);
             
             // home/news/images/london
             var londonPageEn = await s.ContentService.Create<Folder>(imagesPageEn.Id, "en-gb", "london", template: "~/views/home/homepage.cshtml", published: true, userName: uname);
-            await s.ContentService.SaveContent(londonPageEn, triggerEvents: false, userName: uname);
+            await s.ContentService.SaveContent(londonPageEn, triggerEvents: false, userName: uname, alwaysUpdatePath: alwaysUpdatePath);
 
             var repo2 = NewRepo(type);
 
             var londonRevision = repo2.CurrentRevision(londonPageEn.Id,londonPageEn.Variant);
 
-            Assert.That(londonRevision.Path=="/homechangename/news/images/london");
+            Assert.That(londonRevision.Path==$"/{homeName()}/news/images/london");
 
             //add new ru-ru translation for imagesPage with different name
             var imagesPageRu = await s.ContentService.Create<Folder>(newsPageEn.Id, "ru-ru", "images1", template: "~/views/home/homepage.cshtml", published: false, userName: uname);
             imagesPageRu.Id = imagesPageEn.Id;
-            await s.ContentService.SaveContent(imagesPageRu, triggerEvents: false, userName: uname);
+            await s.ContentService.SaveContent(imagesPageRu, triggerEvents: false, userName: uname, alwaysUpdatePath: alwaysUpdatePath);
 
             //since imagesPageRu was not published, name change should only affect unpublished variants and not published variants or any descendant paths
             //NOTE - name changes should be synced across variants/translations
@@ -244,19 +253,31 @@ namespace puck.tests
             Assert.That(
                 _imagesJp.NodeName=="images1"
                 );
-            // images-en, since it was published, should have its nodename unchanged
-            Assert.That(
-                NewRepo(type).CurrentRevision(imagesPageEn.Id, imagesPageEn.Variant).NodeName == "images"
-                );
-            // since imagesPageRu was unpublished, descendant content should have its path unchanged
-            Assert.That(
-                NewRepo(type).CurrentRevision(londonPageEn.Id, londonPageEn.Variant).Path == "/homechangename/news/images/london"
-                );
-
+            if (!alwaysUpdatePath)
+            {
+                // images-en, since it was published, should have its nodename unchanged
+                Assert.That(
+                    NewRepo(type).CurrentRevision(imagesPageEn.Id, imagesPageEn.Variant).NodeName == "images"
+                    );
+                // since imagesPageRu was unpublished, descendant content should have its path unchanged
+                Assert.That(
+                    NewRepo(type).CurrentRevision(londonPageEn.Id, londonPageEn.Variant).Path == $"/{homeName()}/news/images/london"
+                    );
+            }
+            else {
+                // images-en, since it was published, should have its nodename unchanged
+                Assert.That(
+                    NewRepo(type).CurrentRevision(imagesPageEn.Id, imagesPageEn.Variant).NodeName == "images1"
+                    );
+                // since imagesPageRu was unpublished, descendant content should have its path unchanged
+                Assert.That(
+                    NewRepo(type).CurrentRevision(londonPageEn.Id, londonPageEn.Variant).Path == $"/{homeName()}/news/images1/london"
+                    );
+            }
             // now publish images-jp
             var _imageJpMod = _imagesJp.ToBaseModel();
             _imageJpMod.Published = true;
-            await s.ContentService.SaveContent(_imageJpMod,triggerEvents:false,userName:uname);
+            await s.ContentService.SaveContent(_imageJpMod,triggerEvents:false,userName:uname, alwaysUpdatePath: alwaysUpdatePath);
             
             var _imagesEn = NewRepo(type).CurrentRevision(imagesPageEn.Id, imagesPageEn.Variant);
             // images-en should now have its nodename changed
@@ -267,45 +288,57 @@ namespace puck.tests
             // since the nodename change is now published, descendant content should have its path changed
             var _londonEn = NewRepo(type).CurrentRevision(londonPageEn.Id, londonPageEn.Variant);
             Assert.That(
-                _londonEn.Path == "/homechangename/news/images1/london"
+                _londonEn.Path == $"/{homeName()}/news/images1/london"
                 );
             var _tokyoEn = NewRepo(type).CurrentRevision(tokyoPageEn.Id, tokyoPageEn.Variant);
             Assert.That(
-                _tokyoEn.Path == "/homechangename/news/images1/tokyo"
+                _tokyoEn.Path == $"/{homeName()}/news/images1/tokyo"
                 );
+
+            s.Indexer.Delete(new List<BaseModel> {homePage,newsPageEn,newsPageJp,imagesPageEn,imagesPageJp,imagesPageRu,londonPageEn,tokyoPageEn });
+
         }
 
         [Test]
-        [TestCase(DbConstants.SQLite)]
-        [TestCase(DbConstants.MySql)]
-        [TestCase(DbConstants.SQLServer)]
-        [TestCase(DbConstants.PostgreSQL)]
-        public async Task UnpublishPublish(string type)
+        [TestCase(DbConstants.SQLite,false)]
+        [TestCase(DbConstants.MySql, false)]
+        [TestCase(DbConstants.SQLServer, false)]
+        [TestCase(DbConstants.PostgreSQL, false)]
+        [TestCase(DbConstants.SQLite, true)]
+        [TestCase(DbConstants.MySql, true)]
+        [TestCase(DbConstants.SQLServer, true)]
+        [TestCase(DbConstants.PostgreSQL, true)]
+        public async Task UnpublishPublish(string type,bool alwaysUpdatePath)
         {
             var s = GetServices(type);
+            string homeName (bool lower = true) {
+                var name = alwaysUpdatePath ? "homePublishUnpublish1" : "homePublishUnpublish";
+                if (lower) return name.ToLower();
+                else return name;
+            }
             // homePublishUnpublish
             s.Repo.Context.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
-            var homePage = await s.ContentService.Create<Folder>(Guid.Empty, "en-gb", "homePublishUnpublish", template: "~/views/home/homepage.cshtml", published: true, userName: "darkezmo@hotmail.com");
-            await s.ContentService.SaveContent(homePage, triggerEvents: false, userName: uname);
+            var homePage = await s.ContentService.Create<Folder>(Guid.Empty, "en-gb", homeName(lower:false), template: "~/views/home/homepage.cshtml", published: true, userName: "darkezmo@hotmail.com");
+            await s.ContentService.SaveContent(homePage, triggerEvents: false, userName: uname,alwaysUpdatePath:alwaysUpdatePath);
 
             // homePublishUnpublish/news
             var newsPageEn = await s.ContentService.Create<Folder>(homePage.Id, "en-gb", "news", template: "~/views/home/homepage.cshtml", published: true, userName: uname);
-            await s.ContentService.SaveContent(newsPageEn, triggerEvents: false, userName: uname);
+            await s.ContentService.SaveContent(newsPageEn, triggerEvents: false, userName: uname, alwaysUpdatePath: alwaysUpdatePath);
             
             // homePublishUnpublish/news/images
             var imagesPageEn = await s.ContentService.Create<Folder>(newsPageEn.Id, "en-gb", "images", template: "~/views/home/homepage.cshtml", published: true, userName: uname);
-            await s.ContentService.SaveContent(imagesPageEn, triggerEvents: false, userName: uname);
+            await s.ContentService.SaveContent(imagesPageEn, triggerEvents: false, userName: uname, alwaysUpdatePath: alwaysUpdatePath);
             var imagesPageJp = await s.ContentService.Create<Folder>(newsPageEn.Id, "ja-jp", "images", template: "~/views/home/homepage.cshtml", published: false, userName: uname);
             imagesPageJp.Id = imagesPageEn.Id;
-            await s.ContentService.SaveContent(imagesPageJp, triggerEvents: false, userName: uname);
+            await s.ContentService.SaveContent(imagesPageJp, triggerEvents: false, userName: uname, alwaysUpdatePath: alwaysUpdatePath);
 
             // homePublishUnpublish/news/images/tokyo
             var tokyoPageEn = await s.ContentService.Create<Folder>(imagesPageEn.Id, "en-gb", "tokyo", template: "~/views/home/homepage.cshtml", published: true, userName: uname);
-            await s.ContentService.SaveContent(tokyoPageEn, triggerEvents: false, userName: uname);
+            await s.ContentService.SaveContent(tokyoPageEn, triggerEvents: false, userName: uname, alwaysUpdatePath: alwaysUpdatePath);
 
             // homePublishUnpublish/news/images/london
             var londonPageEn = await s.ContentService.Create<Folder>(imagesPageEn.Id, "en-gb", "london", template: "~/views/home/homepage.cshtml", published: true, userName: uname);
-            await s.ContentService.SaveContent(londonPageEn, triggerEvents: false, userName: uname);
+            await s.ContentService.SaveContent(londonPageEn, triggerEvents: false, userName: uname, alwaysUpdatePath: alwaysUpdatePath);
 
             var repo2 = NewRepo(type);
 
@@ -343,21 +376,26 @@ namespace puck.tests
 
             newsPageEn.Published = false;
             newsPageEn.NodeName = "news2";
-            await s.ContentService.SaveContent(newsPageEn, triggerEvents: false, userName: uname);
+            await s.ContentService.SaveContent(newsPageEn, triggerEvents: false, userName: uname, alwaysUpdatePath: alwaysUpdatePath);
             
             var modNewsPage = getContentFromIndex(newsPageEn.Id, newsPageEn.Variant);
             var modTokyoPage = getContentFromIndex(tokyoModel.Id, tokyoModel.Variant);
-
-            Assert.That(modNewsPage.Path == "/homepublishunpublish/news");
-            Assert.That(modTokyoPage.Path == "/homepublishunpublish/news/images/tokyo");
-
+            if (!alwaysUpdatePath)
+            {
+                Assert.That(modNewsPage.Path == $"/{homeName()}/news");
+                Assert.That(modTokyoPage.Path == $"/{homeName()}/news/images/tokyo");
+            }
+            else {
+                Assert.That(modNewsPage.Path == $"/{homeName()}/news2");
+                Assert.That(modTokyoPage.Path == $"/{homeName()}/news2/images/tokyo");
+            }
             await s.ContentService.UnPublish(newsPageEn.Id, new List<string> { newsPageEn.Variant }, new string[] { "en-gb", "ru-ru", "ja-jp" }.ToList(), userName: uname);
 
             modNewsPage = getContentFromIndex(newsPageEn.Id, newsPageEn.Variant);
             modTokyoPage = getContentFromIndex(tokyoModel.Id, tokyoModel.Variant);
 
-            Assert.That(modNewsPage.Path == "/homepublishunpublish/news2");
-            Assert.That(modTokyoPage.Path == "/homepublishunpublish/news2/images/tokyo");
+            Assert.That(modNewsPage.Path == $"/{homeName()}/news2");
+            Assert.That(modTokyoPage.Path == $"/{homeName()}/news2/images/tokyo");
 
             s.ContentService.repo = NewRepo(type);
             await s.ContentService.Publish(newsPageEn.Id, new List<string> { "en-gb","ja-jp" }, new string[] { "en-gb", "ru-ru", "ja-jp" }.ToList(), userName: uname);
@@ -365,16 +403,21 @@ namespace puck.tests
             var newsPageJp = await s.ContentService.Create<Folder>(homePage.Id, "ja-jp", "news3", template: "~/views/home/homepage.cshtml", published: false, userName: uname);
             newsPageJp.Id = newsPageEn.Id;
             s.ContentService.repo = NewRepo(type);
-            await s.ContentService.SaveContent(newsPageJp, triggerEvents: false, userName: uname);
+            await s.ContentService.SaveContent(newsPageJp, triggerEvents: false, userName: uname, alwaysUpdatePath: alwaysUpdatePath);
 
             var modNewsPageJp = getContentFromIndex(newsPageEn.Id, newsPageJp.Variant);
-            Assert.That(modNewsPageJp.Path == "/homepublishunpublish/news3");
+            Assert.That(modNewsPageJp.Path == $"/{homeName()}/news3");
 
             s.ContentService.repo = NewRepo(type);
             await s.ContentService.UnPublish(newsPageEn.Id, new List<string> { "en-gb", "ja-jp" }, new string[] { "en-gb", "ru-ru", "ja-jp" }.ToList(), userName: uname);
 
             modNewsPageJp = getContentFromIndex(newsPageEn.Id, newsPageJp.Variant);
-            Assert.That(modNewsPageJp.Path == "/homepublishunpublish/news2");
+            
+            if(!alwaysUpdatePath)
+                Assert.That(modNewsPageJp.Path == $"/{homeName()}/news2");
+            else Assert.That(modNewsPageJp.Path == $"/{homeName()}/news3");
+
+            s.Indexer.Delete(new List<BaseModel> {homePage,newsPageEn,newsPageJp,imagesPageEn,imagesPageJp,londonPageEn,tokyoPageEn });
         }
 
         [Test]

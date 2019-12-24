@@ -930,8 +930,9 @@ div.settings {
             font-weight: bold;
         }
 
-        .fieldwrapper > .editor-label > span.description {
-            color: #aaaaaa;
+        .fieldwrapper > .editor-label > span.description, .fieldwrapper > .editor-field > span.description {
+            /*color: #aaaaaa;*/
+            color: #777;
             display: block;
             clear: both;
         }
