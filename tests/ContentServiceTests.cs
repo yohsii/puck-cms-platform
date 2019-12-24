@@ -291,10 +291,7 @@ namespace puck.tests
             // homePublishUnpublish/news
             var newsPageEn = await s.ContentService.Create<Folder>(homePage.Id, "en-gb", "news", template: "~/views/home/homepage.cshtml", published: true, userName: uname);
             await s.ContentService.SaveContent(newsPageEn, triggerEvents: false, userName: uname);
-            //var newsPageJp = await s.ContentService.Create<Folder>(homePage.Id, "ja-jp", "news", template: "~/views/home/homepage.cshtml", published: false, userName: uname);
-            //newsPageJp.Id = newsPageEn.Id;
-            //await s.ContentService.SaveContent(newsPageJp, triggerEvents: false, userName: uname);
-
+            
             // homePublishUnpublish/news/images
             var imagesPageEn = await s.ContentService.Create<Folder>(newsPageEn.Id, "en-gb", "images", template: "~/views/home/homepage.cshtml", published: true, userName: uname);
             await s.ContentService.SaveContent(imagesPageEn, triggerEvents: false, userName: uname);
@@ -361,6 +358,23 @@ namespace puck.tests
 
             Assert.That(modNewsPage.Path == "/homepublishunpublish/news2");
             Assert.That(modTokyoPage.Path == "/homepublishunpublish/news2/images/tokyo");
+
+            s.ContentService.repo = NewRepo(type);
+            await s.ContentService.Publish(newsPageEn.Id, new List<string> { "en-gb","ja-jp" }, new string[] { "en-gb", "ru-ru", "ja-jp" }.ToList(), userName: uname);
+
+            var newsPageJp = await s.ContentService.Create<Folder>(homePage.Id, "ja-jp", "news3", template: "~/views/home/homepage.cshtml", published: false, userName: uname);
+            newsPageJp.Id = newsPageEn.Id;
+            s.ContentService.repo = NewRepo(type);
+            await s.ContentService.SaveContent(newsPageJp, triggerEvents: false, userName: uname);
+
+            var modNewsPageJp = getContentFromIndex(newsPageEn.Id, newsPageJp.Variant);
+            Assert.That(modNewsPageJp.Path == "/homepublishunpublish/news3");
+
+            s.ContentService.repo = NewRepo(type);
+            await s.ContentService.UnPublish(newsPageEn.Id, new List<string> { "en-gb", "ja-jp" }, new string[] { "en-gb", "ru-ru", "ja-jp" }.ToList(), userName: uname);
+
+            modNewsPageJp = getContentFromIndex(newsPageEn.Id, newsPageJp.Variant);
+            Assert.That(modNewsPageJp.Path == "/homepublishunpublish/news2");
         }
 
         [Test]
