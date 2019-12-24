@@ -1015,5 +1015,11 @@ namespace puck.core.Helpers
             var result = searcher.Query<TModel>(query,filter,sort,out totalHits,1,0).FirstOrDefault();
             return result;
         }
+
+        public TModel GetNoCast()
+        {
+            var result = searcher.QueryNoCast<TModel>(query, filter, sort, out totalHits, 1, 0).FirstOrDefault();
+            return result;
+        }
     }
 }

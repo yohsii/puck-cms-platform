@@ -1594,7 +1594,7 @@ namespace puck.core.Services
                         //get current indexed node with same ID and VARIANT
                         var currentMod = qh.And().Field(x => x.Variant, mod.Variant)
                             .ID(mod.Id)
-                            .Get();
+                            .GetNoCast();
                         //if parent changed, we index regardless of if the model being saved is set to publish or not. moves are always published immediately
                         if (parentChanged)
                         {
@@ -1607,7 +1607,8 @@ namespace puck.core.Services
                         * is to make sure there is always at least one version of the node in the index for back office search operations
                         */
                         {
-                            toIndex.Add(mod);
+                            if(mod.Published)
+                                toIndex.Add(mod);
                             var changed = false;
                             var indexOriginalPath = string.Empty;
                             //if node exists in index
@@ -1657,6 +1658,11 @@ namespace puck.core.Services
                                 });
                                 //replace portion of path that has changed
                                 descendants.ForEach(x => { x.Path = regex.Replace(x.Path, mod.Path, 1); toIndex.Add(x); });
+                                if (currentMod != null && !mod.Published) {
+                                    currentMod.NodeName = mod.NodeName;
+                                    currentMod.Path = mod.Path;
+                                    toIndex.Add(currentMod);
+                                }
                                 //delete previous meta binding
                                 repo.GetPuckMeta().Where(x => x.Name == DBNames.PathToLocale && x.Key.ToLower().Equals(originalPath.ToLower())).ToList()
                                     .ForEach(x => x.Key = mod.Path);
