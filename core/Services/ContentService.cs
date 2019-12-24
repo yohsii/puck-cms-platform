@@ -654,14 +654,15 @@ namespace puck.core.Services
                 if (currentRevisions.Count == 0) throw new Exception("no revisions to unpublish");
 
                 var unpublishedCurrentRevisions = repo.CurrentRevisions(id).Where(x => !x.IsPublishedRevision).ToList();
-                
+
+                var unpublishedCurrentRevisionsPathChanged = false;
                 var shouldUpdatePaths = false;
                 string currentPath = null;
                 string publishedPath = null;
                 foreach (var currentRevision in currentRevisions) {
-
                     if (currentRevision.IsPublishedRevision && unpublishedCurrentRevisions.Any(x=>!x.Path.ToLower().Equals(currentRevision.Path.ToLower()))) {
                         shouldUpdatePaths = false;
+                        unpublishedCurrentRevisionsPathChanged = true;
                         unpublishedCurrentRevisions.ForEach(x=> {
                             x.NodeName = currentRevision.NodeName;
                             x.Path = currentRevision.Path;
@@ -692,6 +693,14 @@ namespace puck.core.Services
                     mod.Published = false;
                     toIndex.Add(mod);
                     //await SaveContent(mod, shouldIndex: false, makeRevision: false, userName: userName);
+                }
+
+                if (unpublishedCurrentRevisionsPathChanged) {
+                    foreach (var mod in unpublishedCurrentRevisions.Where(x => x.HasNoPublishedRevision).Select(x => x.ToBaseModel())) {
+                        if (!toIndex.Any(x => x.Variant == mod.Variant && x.Id == mod.Id)) {
+                            toIndex.Add(mod);
+                        }
+                    }
                 }
 
                 var publishedVariants = repo.PublishedRevisions(id).Where(x => !variantsLowerCase.Contains(x.Variant));
