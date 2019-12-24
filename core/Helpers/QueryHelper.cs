@@ -214,9 +214,9 @@ namespace puck.core.Helpers
             else
                 return qh.GetAll();                
         }
-        public static List<T> Variants<T>(this BaseModel n,bool noCast=false) where T : BaseModel
+        public static List<T> Variants<T>(this BaseModel n,bool noCast=false,bool publishedOnly=true) where T : BaseModel
         {
-            var qh = new QueryHelper<T>();
+            var qh = new QueryHelper<T>(publishedContentOnly:publishedOnly);
             qh      
                     .And()
                     .Field(x => x.Id, n.Id.ToString())
@@ -246,8 +246,8 @@ namespace puck.core.Helpers
             else
                 return qh.GetAll();
         }
-        public static List<T> Descendants<T>(this BaseModel n,bool currentLanguage=true,bool noCast = false,bool ExplicitType=false) where T : BaseModel {
-            var qh = new QueryHelper<T>();
+        public static List<T> Descendants<T>(this BaseModel n,bool currentLanguage=true,bool noCast = false,bool ExplicitType=false,bool publishedOnly=true) where T : BaseModel {
+            var qh = new QueryHelper<T>(publishedContentOnly:publishedOnly);
             qh.And()
                 //.Field(x => x.Path, n.Path.ToLower()+"/".WildCardMulti());
                 .Path(n.Path.ToLower() + "/".WildCardMulti());

@@ -1398,6 +1398,11 @@ namespace puck.core.Services
                                     publishedVariantsDb.ToList().ForEach(x => { x.NodeName = mod.NodeName; x.Path = mod.Path; });
                                 }
                             }
+                            if (alwaysUpdatePath && publishedRevision != null && (publishedRevision.Path.ToLower() != mod.Path.ToLower() || publishedRevision.NodeName.ToLower() != mod.NodeName.ToLower()))
+                            {
+                                publishedRevision.NodeName = mod.NodeName;
+                                publishedRevision.Path = mod.Path;
+                            }
                         }
                         if (parentChanged)
                         {
@@ -1618,7 +1623,7 @@ namespace puck.core.Services
                                 }
                             }
                             //get nodes currently indexed which have the same ID but different VARIANT
-                            var variants = mod.Variants<BaseModel>(noCast: true);
+                            var variants = mod.Variants<BaseModel>(noCast: true,publishedOnly:false);
                             if (variants.Any(x => x.ParentId != mod.ParentId))
                             {
                                 variants.ForEach(x => { x.ParentId = mod.ParentId; toIndex.Add(x); });
@@ -1635,6 +1640,14 @@ namespace puck.core.Services
                             //if there was a change in the path
                             if (changed && (mod.Published||alwaysUpdatePath))
                             {
+                                //new regex which searches for the current indexed path so it can be replaced with the new one
+                                var regex = new Regex(Regex.Escape(indexOriginalPath), RegexOptions.Compiled);
+                                var descendants = new List<BaseModel>();
+                                //get descendants - either from currently indexed version of the node we're currently saving (which may be new variant and so not currently indexed) or from its variants.
+                                if (currentMod != null)
+                                    descendants = currentMod.Descendants<BaseModel>(currentLanguage: false, noCast: true, publishedOnly:false);
+                                else if (variants.Any())
+                                    descendants = variants.First().Descendants<BaseModel>(currentLanguage: false, noCast: true, publishedOnly:false);
                                 //sync up all the variants so they have the same nodename and path
                                 variants.ForEach(x =>
                                 {
@@ -1642,14 +1655,6 @@ namespace puck.core.Services
                                     if (!toIndex.Contains(x))
                                         toIndex.Add(x);
                                 });
-                                //new regex which searches for the current indexed path so it can be replaced with the new one
-                                var regex = new Regex(Regex.Escape(indexOriginalPath), RegexOptions.Compiled);
-                                var descendants = new List<BaseModel>();
-                                //get descendants - either from currently indexed version of the node we're currently saving (which may be new variant and so not currently indexed) or from its variants.
-                                if (currentMod != null)
-                                    descendants = currentMod.Descendants<BaseModel>(currentLanguage: false, noCast: true);
-                                else if (variants.Any())
-                                    descendants = variants.First().Descendants<BaseModel>(currentLanguage: false, noCast: true);
                                 //replace portion of path that has changed
                                 descendants.ForEach(x => { x.Path = regex.Replace(x.Path, mod.Path, 1); toIndex.Add(x); });
                                 //delete previous meta binding
