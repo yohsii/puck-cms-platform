@@ -661,6 +661,7 @@ namespace puck.core.Services
                 foreach (var currentRevision in currentRevisions) {
 
                     if (currentRevision.IsPublishedRevision && unpublishedCurrentRevisions.Any(x=>!x.Path.ToLower().Equals(currentRevision.Path.ToLower()))) {
+                        shouldUpdatePaths = false;
                         unpublishedCurrentRevisions.ForEach(x=> {
                             x.NodeName = currentRevision.NodeName;
                             x.Path = currentRevision.Path;
