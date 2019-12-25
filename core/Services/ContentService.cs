@@ -1658,7 +1658,7 @@ namespace puck.core.Services
                                 });
                                 //replace portion of path that has changed
                                 descendants.ForEach(x => { x.Path = regex.Replace(x.Path, mod.Path, 1); toIndex.Add(x); });
-                                if (currentMod != null && !mod.Published) {
+                                if (alwaysUpdatePath && currentMod != null && !mod.Published) {
                                     currentMod.NodeName = mod.NodeName;
                                     currentMod.Path = mod.Path;
                                     toIndex.Add(currentMod);
