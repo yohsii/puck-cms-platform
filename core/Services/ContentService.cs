@@ -1607,7 +1607,7 @@ namespace puck.core.Services
                         * is to make sure there is always at least one version of the node in the index for back office search operations
                         */
                         {
-                            if(mod.Published)
+                            if(mod.Published || publishedRevision==null)
                                 toIndex.Add(mod);
                             var changed = false;
                             var indexOriginalPath = string.Empty;
