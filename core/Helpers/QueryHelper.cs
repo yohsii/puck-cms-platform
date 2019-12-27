@@ -464,10 +464,13 @@ namespace puck.core.Helpers
                 sorts = new List<SortField>();
             }
             string key = getName(exp.Body.ToString());
-            var strat = new PointVectorStrategy(ctx, key);
-            IPoint pt = ctx.MakePoint(longitude, longitude);
+            int maxLevels = 11;
+            SpatialPrefixTree grid = new GeohashPrefixTree(ctx, maxLevels);
+            var strat = new RecursivePrefixTreeStrategy(grid, key);
+            //var strat = new PointVectorStrategy(ctx, key);
+            IPoint pt = ctx.MakePoint(longitude, latitude);
             ValueSource valueSource = strat.MakeDistanceValueSource(pt, DistanceUtils.DEG_TO_KM);//the distance (in km)
-            sort = new Sort(valueSource.GetSortField(desc));//.Rewrite(indexSearcher);//false=asc dist
+            sort = new Sort(valueSource.GetSortField(!desc));//.Rewrite(indexSearcher);//false=asc dist
             return this;
         }
         public QueryHelper<TModel> Sort(Expression<Func<TModel, object>> exp, bool descending=false,SortFieldType? sortFieldType=null)
