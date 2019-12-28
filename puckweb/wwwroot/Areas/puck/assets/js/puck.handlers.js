@@ -299,8 +299,9 @@ $(document).on("click",".node-dropdown a,.template-dropdown a",function () {
             var variants = allVariants(node.attr("data-id"));
             if (variants.length > 1 || true) {
                 var dialog = dialogForVariants(variants,true);
-                dialog.find(".descendantscontainer label").html("Publish descendants?");
+                dialog.find(".descendantscontainer label").html("Re-publish descendants?");
                 var overlayEl = overlay(dialog, 400, 250, undefined, "Re-Publish");
+                overlayEl.find(".descendantscontainer").after("<div class=\"p-1 pt-3\">including descendants can take some time depending on the number of pages involved. You will not be able to publish any content you're editing while this is happening</div>");
                 dialog.find("button").click(function () {
                     var button = $(this);
                     var selectedVariants = (dialog.find("select[name=variant]").val() || []).join(',');
@@ -353,6 +354,7 @@ $(document).on("click",".node-dropdown a,.template-dropdown a",function () {
                 var dialog = dialogForVariants(variants,true);
                 dialog.find(".descendantscontainer label").html("Publish descendants?");
                 var overlayEl = overlay(dialog, 400, 250, undefined, "Publish");
+                overlayEl.find(".descendantscontainer").after("<div class=\"p-1 pt-3\">including descendants can take some time depending on the number of pages involved. You will not be able to publish any content you're editing while this is happening</div>");
                 dialog.find("button").click(function () {
                     var button = $(this);
                     var selectedVariants = (dialog.find("select[name=variant]").val() || []).join(',');
