@@ -9,7 +9,7 @@
     var value = "";
     if(Model!=null){
         if (Model is DateTime){
-            value = ((DateTime)Model).ToString("dd/MM/yyyy hh:mm:ss");
+            value = ((DateTime)Model).ToString(/*"dd/MM/yyyy hh:mm:ss"*/);
         }else{
             value = Model.ToString();
         }
