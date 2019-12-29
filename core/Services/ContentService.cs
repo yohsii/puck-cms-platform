@@ -49,6 +49,7 @@ namespace puck.core.Services
         public IConfiguration config { get; set; }
         public IMemoryCache cache { get; set; }
         private static SemaphoreSlim slock1 = new SemaphoreSlim(1);
+        private static SemaphoreSlim slock2 = new SemaphoreSlim(1);
         private static void DelegateBeforeEvent(Dictionary<string, Tuple<Type, Action<object, BeforeIndexingEventArgs>, bool>> list, object n, BeforeIndexingEventArgs e)
         {
             var type = e.Node.GetType();
@@ -265,6 +266,7 @@ namespace puck.core.Services
         public void Sort(Guid parentId, List<Guid> ids)
         {
             var qh = new QueryHelper<BaseModel>();
+            var itemsToIndex = new List<BaseModel>();
             var indexItems = qh.And().Field(x => x.ParentId, parentId.ToString()).GetAllNoCast();
             var dbItems = repo.CurrentRevisionsByParentId(parentId).ToList();
             indexItems.ForEach(n =>
@@ -273,6 +275,8 @@ namespace puck.core.Services
                 {
                     if (ids[i].Equals(n.Id))
                     {
+                        if (n.SortOrder != i)
+                            itemsToIndex.Add(n);
                         n.SortOrder = i;
                     }
                 }
@@ -301,7 +305,8 @@ namespace puck.core.Services
             var dbItemsNotListed = dbItems.Where(x => !ids.Contains(x.Id)).ToList();
             dbItemsNotListed.ForEach(x => { x.SortOrder = ids.Count + c; c++; });
             repo.SaveChanges();
-            indexer.Index(indexItems);
+            AddPublishInstruction(itemsToIndex);
+            indexer.Index(itemsToIndex);
         }
 
         public int UpdateDescendantHasNoPublishedRevision(string path, bool value, List<string> descendantVariants)
@@ -530,9 +535,8 @@ namespace puck.core.Services
                 {
                     var mod = currentRevision.ToBaseModel();
                     mod.Published = true;
-                    toIndex.AddRange(
-                        await SaveContent(mod, shouldIndex: false, makeRevision: false, userName: userName)
-                    );
+                    var saveResult = await SaveContent(mod, shouldIndex: false, makeRevision: false, userName: userName);
+                    toIndex.AddRange(saveResult.ItemsToIndex);
                 }
 
                 var affected = 0;
@@ -1164,12 +1168,16 @@ namespace puck.core.Services
             repo.SaveChanges();
 
         }
-        public async Task<List<BaseModel>> SaveContent<T>(T mod, bool makeRevision = true, string userName = null, bool handleNodeNameExists = true, int nodeNameExistsCounter = 0, bool triggerEvents = true, bool triggerIndexEvents = true, bool shouldIndex = true,bool alwaysUpdatePath = true) where T : BaseModel
+        public async Task<SaveResult> SaveContent<T>(T mod, bool makeRevision = true, string userName = null, bool handleNodeNameExists = true, int nodeNameExistsCounter = 0, bool triggerEvents = true, bool triggerIndexEvents = true, bool shouldIndex = true, bool alwaysUpdatePath = true, bool queueIfIndexerBusy = false) where T : BaseModel
         {
             if (nodeNameExistsCounter == 0)
                 await slock1.WaitAsync();
             Exception caughtException = null;
-            var toIndex = new List<BaseModel>();
+            var result = new SaveResult
+            {
+                ItemsToIndex = new List<BaseModel>(),
+                Message = "content updated"
+            };
             try
             {
                 PuckUser user = null;
@@ -1214,7 +1222,7 @@ namespace puck.core.Services
                             var newName = regex.Replace(mod.NodeName, $"({nodeNameExistsCounter + 1})");
                             mod.NodeName = newName;
                         }
-                        return await SaveContent(mod, makeRevision: makeRevision, userName: userName, handleNodeNameExists: handleNodeNameExists, nodeNameExistsCounter: nodeNameExistsCounter + 1, triggerEvents: triggerEvents, triggerIndexEvents: triggerIndexEvents, shouldIndex: shouldIndex,alwaysUpdatePath:alwaysUpdatePath);
+                        return await SaveContent(mod, makeRevision: makeRevision, userName: userName, handleNodeNameExists: handleNodeNameExists, nodeNameExistsCounter: nodeNameExistsCounter + 1, triggerEvents: triggerEvents, triggerIndexEvents: triggerIndexEvents, shouldIndex: shouldIndex,alwaysUpdatePath:alwaysUpdatePath,queueIfIndexerBusy:queueIfIndexerBusy);
                     }
                     else
                     {
@@ -1423,17 +1431,17 @@ namespace puck.core.Services
                             var variantsToIndex = new List<BaseModel>();
                             variantsToIndex.AddRange(currentVariantsDb.Select(x => x.ToBaseModel()).ToList());
                             variantsToIndex.AddRange(publishedVariantsDb.Select(x => x.ToBaseModel()).ToList());
-                            toIndex.AddRange(descendants);
-                            toIndex.AddRange(variantsToIndex);
+                            result.ItemsToIndex.AddRange(descendants);
+                            result.ItemsToIndex.AddRange(variantsToIndex);
                             //if current model is not set to publish, update the currently published revision to reflect parent id being changed
                             if (publishedRevision != null && !mod.Published)
                             {
                                 publishedRevision.IdPath = idPath;
                                 publishedRevision.Path = mod.Path;
-                                toIndex.Add(publishedRevision.ToBaseModel());
+                                result.ItemsToIndex.Add(publishedRevision.ToBaseModel());
                             }
                             else
-                                toIndex.Add(mod);
+                                result.ItemsToIndex.Add(mod);
                         }
                         else
                         {
@@ -1599,7 +1607,26 @@ namespace puck.core.Services
                         if (parentChanged)
                         {
                             if (shouldIndex)
-                                indexer.Index(toIndex, triggerEvents: triggerIndexEvents);
+                            {
+                                if (queueIfIndexerBusy)
+                                {
+                                    if (indexer.IsBusy())
+                                    {
+                                        PuckCache.PublishQueue.Enqueue(result.ItemsToIndex);
+                                        result.Message = "indexer is currently busy, your content has been queued and will be indexed as soon as possible";
+                                    }
+                                    else
+                                    {
+                                        indexer.Index(result.ItemsToIndex, triggerEvents: triggerIndexEvents);
+                                        result.Message = mod.Published ? "content published" : "content updated";
+                                    }
+                                }
+                                else
+                                {
+                                    indexer.Index(result.ItemsToIndex, triggerEvents: triggerIndexEvents);
+                                    result.Message = mod.Published ? "content published" : "content updated";
+                                }
+                            }
                         }
                         else if (mod.Published || alwaysUpdatePath /*|| currentMod == null*/)//add to lucene index if published or no such node exists in index
                         /*note that you can only have one node with particular id/variant in index at any one time
@@ -1607,8 +1634,8 @@ namespace puck.core.Services
                         * is to make sure there is always at least one version of the node in the index for back office search operations
                         */
                         {
-                            if(mod.Published || publishedRevision==null)
-                                toIndex.Add(mod);
+                            if(mod.Published || publishedRevision==null || isUnpublished)
+                                result.ItemsToIndex.Add(mod);
                             var changed = false;
                             var indexOriginalPath = string.Empty;
                             //if node exists in index
@@ -1627,7 +1654,7 @@ namespace puck.core.Services
                             var variants = mod.Variants<BaseModel>(noCast: true,publishedOnly:false);
                             if (variants.Any(x => x.ParentId != mod.ParentId))
                             {
-                                variants.ForEach(x => { x.ParentId = mod.ParentId; toIndex.Add(x); });
+                                variants.ForEach(x => { x.ParentId = mod.ParentId; result.ItemsToIndex.Add(x); });
                             }
                             //if any of the variants have different path to the current node
                             if (variants.Any(x => !x.Path.ToLower().Equals(mod.Path.ToLower())))
@@ -1653,15 +1680,15 @@ namespace puck.core.Services
                                 variants.ForEach(x =>
                                 {
                                     x.NodeName = mod.NodeName; x.Path = mod.Path;
-                                    if (!toIndex.Contains(x))
-                                        toIndex.Add(x);
+                                    if (!result.ItemsToIndex.Contains(x))
+                                        result.ItemsToIndex.Add(x);
                                 });
                                 //replace portion of path that has changed
-                                descendants.ForEach(x => { x.Path = regex.Replace(x.Path, mod.Path, 1); toIndex.Add(x); });
+                                descendants.ForEach(x => { x.Path = regex.Replace(x.Path, mod.Path, 1); result.ItemsToIndex.Add(x); });
                                 if (alwaysUpdatePath && currentMod != null && !mod.Published) {
                                     currentMod.NodeName = mod.NodeName;
                                     currentMod.Path = mod.Path;
-                                    toIndex.Add(currentMod);
+                                    result.ItemsToIndex.Add(currentMod);
                                 }
                                 //delete previous meta binding
                                 repo.GetPuckMeta().Where(x => x.Name == DBNames.PathToLocale && x.Key.ToLower().Equals(originalPath.ToLower())).ToList()
@@ -1673,13 +1700,51 @@ namespace puck.core.Services
                                 shouldUpdatePathLocaleMappings = true;
                             }
                             if (shouldIndex)
-                                indexer.Index(toIndex, triggerEvents: triggerIndexEvents);
+                            {
+                                if (queueIfIndexerBusy)
+                                {
+                                    if (indexer.IsBusy())
+                                    {
+                                        PuckCache.PublishQueue.Enqueue(result.ItemsToIndex);
+                                        result.Message = "indexer is currently busy, your content has been queued and will be indexed as soon as possible";
+                                    }
+                                    else
+                                    {
+                                        indexer.Index(result.ItemsToIndex, triggerEvents: triggerIndexEvents);
+                                        result.Message = mod.Published ? "content published" : "content updated";
+                                    }
+                                }
+                                else
+                                {
+                                    indexer.Index(result.ItemsToIndex, triggerEvents: triggerIndexEvents);
+                                    result.Message = mod.Published ? "content published" : "content updated";
+                                }
+                            }
                         }
                         else if (publishedRevision == null || isUnpublished)
                         {
-                            toIndex.Add(mod);
+                            result.ItemsToIndex.Add(mod);
                             if (shouldIndex)
-                                indexer.Index(toIndex, triggerEvents: triggerIndexEvents);
+                            {
+                                if (queueIfIndexerBusy)
+                                {
+                                    if (indexer.IsBusy())
+                                    {
+                                        PuckCache.PublishQueue.Enqueue(result.ItemsToIndex);
+                                        result.Message = "indexer is currently busy, your content has been queued and will be indexed as soon as possible";
+                                    }
+                                    else
+                                    {
+                                        indexer.Index(result.ItemsToIndex, triggerEvents: triggerIndexEvents);
+                                        result.Message = mod.Published ? "content published" : "content updated";
+                                    }
+                                }
+                                else
+                                {
+                                    indexer.Index(result.ItemsToIndex, triggerEvents: triggerIndexEvents);
+                                    result.Message = mod.Published ? "content published" : "content updated";
+                                }
+                            }
                         }
 
                         if (triggerEvents)
@@ -1688,7 +1753,7 @@ namespace puck.core.Services
                             OnAfterSave(this, afterArgs);
                         }
                         if (shouldIndex)
-                            AddPublishInstruction(toIndex);
+                            AddPublishInstruction(result.ItemsToIndex);
 
                         string auditAction = mod.Published ? AuditActions.Publish : AuditActions.Save;
                         if (original == null) auditAction = AuditActions.Create;
@@ -1697,7 +1762,7 @@ namespace puck.core.Services
                             StateHelper.UpdateDomainMappings(true);
                         if (shouldUpdatePathLocaleMappings)
                             StateHelper.UpdatePathLocaleMappings(true);
-                        return toIndex;
+                        return result;
                     }
                     catch (Exception ex)
                     {
@@ -1717,7 +1782,7 @@ namespace puck.core.Services
             }
             if (caughtException != null)
                 throw caughtException;
-            else return toIndex;
+            else return result;
         }
         public void Index(List<BaseModel> toIndex, bool addPublishInstruction = true, bool triggerEvents = true)
         {
@@ -1851,7 +1916,7 @@ namespace puck.core.Services
             var errored = false;
             var errorMsg = string.Empty;
             PuckCache.IsRepublishingEntireSite = true;
-            await slock1.WaitAsync();
+            await slock2.WaitAsync();
             try
             {
                 var values = new List<string>();
@@ -1929,7 +1994,7 @@ namespace puck.core.Services
             }
             finally
             {
-                slock1.Release();
+                slock2.Release();
                 PuckCache.IsRepublishingEntireSite = false;
                 PuckCache.IndexingStatus = "";
                 if (errored)
@@ -2096,7 +2161,8 @@ namespace puck.core.Services
                     foreach (var model in group)
                     {
                         model.Path = "";
-                        toIndex.AddRange(await SaveContent(model, userName: userName, shouldIndex: false));
+                        var saveResult = await SaveContent(model, userName: userName, shouldIndex: false);
+                        toIndex.AddRange(saveResult.ItemsToIndex);
                     }
                     await SaveCopies(group.Key, items);
                 }

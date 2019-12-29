@@ -1017,7 +1017,13 @@ var displayMarkup = function (parentId, type, variant, fromVariant,contentId,con
         } else { container.find(".content_preview").hide(); }
 
         wireForm(container.find('form'), function (data) {
-            msg(true, "content updated",undefined,msgContainer);
+            var status = true;
+            if (data.message && data.message.indexOf("queued") > -1) {
+                status = undefined;
+            } else if (!data.message) {
+                data.message = "content updated";
+            }
+            msg(status, data.message, undefined, msgContainer);
             getDrawContent(data.parentId, undefined, true, function () {
                 var pnode = cleft.find(".node[data-id='" + data.parentId + "']");
                 //pnode.find(".expand:first").removeClass("fa-chevron-right").addClass("fa-chevron-down").css({ visibility: "visible" });

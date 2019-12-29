@@ -37,6 +37,7 @@ using Microsoft.Extensions.Configuration;
 using Lucene.Net.Store.Azure;
 using Microsoft.Azure.Storage;
 using Microsoft.Extensions.Hosting;
+using System.Threading;
 
 namespace puck.core.Concrete
 {
@@ -73,6 +74,7 @@ namespace puck.core.Concrete
         public bool CanWrite { get; set; } = true;
         public bool UseAzureDirectory { get; set; } = false;
         public IHostEnvironment env { get; set; }
+        public bool handleQueueStarted = false;
         public Content_Indexer_Searcher(I_Log Logger, IConfiguration configuration, IHostEnvironment env)
         {
             this.logger = Logger;
@@ -380,7 +382,51 @@ namespace puck.core.Concrete
                 }
             }
         }
-
+        public void HandleIndexQueue(bool triggerEvents=true,bool delete=true) {
+            try
+            {
+                var itemsToIndex = new List<BaseModel>();
+                try
+                {
+                    while (PuckCache.PublishQueue.Count > 0)
+                    {
+                        List<BaseModel> items;
+                        if (PuckCache.PublishQueue.TryDequeue(out items))
+                        {
+                            itemsToIndex.AddRange(items);
+                        }
+                    }
+                }
+                catch (Exception ex) {
+                    handleQueueStarted = false;
+                    throw;
+                }
+                handleQueueStarted = false;
+                if (itemsToIndex.Count > 0)
+                    Index(itemsToIndex, triggerEvents: triggerEvents, delete: delete);
+            }
+            catch (Exception ex) {
+                logger.Log(ex);
+            }
+        }
+        public bool IsBusy()
+        {
+            bool taken = false;
+            try
+            {
+                Monitor.TryEnter(write_lock, 0, ref taken);
+            }
+            catch (Exception ex)
+            {
+                PuckCache.PuckLog.Log(ex);
+            }
+            finally
+            {
+                if (taken)
+                    Monitor.Exit(write_lock);
+            }
+            return !taken;
+        }
         public void Index<T>(List<T> models, bool triggerEvents = true,bool delete=true) where T : BaseModel
         {
             if (models.Count == 0) return;
@@ -446,16 +492,6 @@ namespace puck.core.Concrete
                     {
                         Writer.Commit();
                     }
-                    //Optimize();
-
-                }
-                catch (Exception ex)
-                {
-                    throw;
-                    //logger.Log(ex);
-                }
-                finally
-                {
                     CloseWriter();
                     SetSearcher();
                     if (triggerEvents)
@@ -465,6 +501,25 @@ namespace puck.core.Concrete
                             .ToList()
                             .ForEach(x => { OnAfterIndex(this, new IndexingEventArgs() { Node = x }); });
                     }
+                    if (!handleQueueStarted)
+                    {
+                        handleQueueStarted = true;
+                        System.Threading.Tasks.Task.Factory.StartNew(() =>
+                        {
+                            Thread.Sleep(2000);
+                            HandleIndexQueue();
+                        });
+                    }
+                    //Optimize();
+                }
+                catch (Exception ex)
+                {
+                    logger.Log(ex);
+                    throw;
+                }
+                finally
+                {
+                    
                 }
             }
         }

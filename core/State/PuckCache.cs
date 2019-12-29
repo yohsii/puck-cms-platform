@@ -16,6 +16,8 @@ using Microsoft.Extensions.DependencyInjection;
 using puck.core.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Caching.Memory;
+using puck.core.Base;
+using System.Collections.Concurrent;
 
 namespace puck.core.State
 {
@@ -38,6 +40,7 @@ namespace puck.core.State
             ContentRootPath = env.ContentRootPath;
             Configuration = config;
         }
+        public static ConcurrentQueue<List<BaseModel>> PublishQueue { get; set; } = new ConcurrentQueue<List<BaseModel>>();
         public static List<string> SyncKeys { get; set; } = new List<string>();
         public static bool UseAzureDirectory { get; set; }
         public static bool UseSyncDirectory { get; set; }

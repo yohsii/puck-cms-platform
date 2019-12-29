@@ -1533,7 +1533,8 @@ namespace puck.core.Controllers
                     path = mod.Path;
                     id = mod.Id;
                     parentId = mod.ParentId;
-                    await contentService.SaveContent(mod);
+                    var saveResult = await contentService.SaveContent(mod,queueIfIndexerBusy:true);
+                    message = saveResult.Message;
                     success = true;
                 }
                 else

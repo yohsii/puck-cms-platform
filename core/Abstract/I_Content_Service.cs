@@ -7,6 +7,7 @@ using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using puck.core.Base;
 using puck.core.Entities;
+using puck.core.Models;
 
 namespace puck.core.Abstract
 {
@@ -41,7 +42,7 @@ namespace puck.core.Abstract
         int RenameOrphaned2(string orphanTypeName, string newTypeName);
         Task RePublishEntireSite();
         Task RePublishEntireSite2(bool addInstruction = false);
-        Task<List<BaseModel>> SaveContent<T>(T mod, bool makeRevision = true, string userName = null, bool handleNodeNameExists = true, int nodeNameExistsCounter = 0, bool triggerEvents = true, bool triggerIndexEvents = true, bool shouldIndex = true,bool alwaysUpdatePath=true) where T : BaseModel;
+        Task<SaveResult> SaveContent<T>(T mod, bool makeRevision = true, string userName = null, bool handleNodeNameExists = true, int nodeNameExistsCounter = 0, bool triggerEvents = true, bool triggerIndexEvents = true, bool shouldIndex = true,bool alwaysUpdatePath=true, bool queueIfIndexerBusy = false) where T : BaseModel;
         void Sort(Guid parentId, List<Guid> ids);
         int UpdateDescendantHasNoPublishedRevision(string path, bool value, List<string> descendantVariants);
         int UpdateDescendantIdPaths(string oldPath, string newPath);
