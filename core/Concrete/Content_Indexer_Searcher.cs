@@ -427,101 +427,110 @@ namespace puck.core.Concrete
             }
             return !taken;
         }
-        public void Index<T>(List<T> models, bool triggerEvents = true,bool delete=true) where T : BaseModel
+        public bool Index<T>(List<T> models, bool triggerEvents = true,bool delete=true,bool queueIfBusy=false) where T : BaseModel
         {
-            if (models.Count == 0) return;
-            lock (write_lock)
+            if (models.Count == 0) return true;
+            bool taken = false;
+            Exception caughtException = null;
+            try
             {
+                var timeout = queueIfBusy ? TimeSpan.FromMilliseconds(0) : TimeSpan.FromMilliseconds(-1);
+                Monitor.TryEnter(write_lock, timeout, ref taken);
+                if (!taken && queueIfBusy) {
+                    PuckCache.PublishQueue.Enqueue(models as List<BaseModel>);
+                    return false;
+                }
                 var cancelled = new List<BaseModel>();
                 var count = 1;
-                try
-                {
-                    if (!CanWrite) return;
-                    SetWriter(false);
-                    //Writer.Flush(true, true, true);
-                    Parallel.ForEach(models, (m, state, index) => {
-                        PuckCache.IndexingStatus = $"indexing item {count} of {models.Count}";
-                        //var type = ApiHelper.GetType(m.Type);
-                        //if (type == null)
-                        //    type = typeof(BaseModel);
-                        var type = ApiHelper.GetTypeFromName(m.Type, defaultToBaseModel: true);
-                        var analyzer = PuckCache.AnalyzerForModel[type];
-                        var parser = new PuckQueryParser<T>(Lucene.Net.Util.LuceneVersion.LUCENE_48, FieldKeys.PuckDefaultField, analyzer);
-                        if (triggerEvents)
-                        {
-                            var args = new BeforeIndexingEventArgs() { Node = m, Cancel = false };
-                            OnBeforeIndex(this, args);
-                            if (args.Cancel)
-                            {
-                                cancelled.Add(m);
-                                return;
-                            }
-                        }
-                        if (delete)
-                        {
-                            //delete doc
-                            string removeQuery = "+" + FieldKeys.ID + ":" + m.Id.ToString() + " +" + FieldKeys.Variant + ":" + m.Variant.ToLower();
-                            var q = parser.Parse(removeQuery);
-                            Writer.DeleteDocuments(q);
-                        }
-                        Document doc = new Document();
-                        //get fields to index
-                        List<FlattenedObject> props = null;
-                        using (MiniProfiler.Current.CustomTiming("get properties", ""))
-                        {
-                            props = ObjectDumper.Write(m, int.MaxValue);
-                        }
-                        using (MiniProfiler.Current.CustomTiming("add fields to doc", ""))
-                        {
-                            GetFieldSettings(props, doc, null);
-                        }//add cms properties
-                        if (!PuckCache.StoreReferences)
-                            m.References = new List<string>();
-                        string jsonDoc = JsonConvert.SerializeObject(m);
-                        //doc in json form for deserialization later
-                        doc.Add(new StringField(FieldKeys.PuckValue, jsonDoc, Field.Store.YES));
-                        using (MiniProfiler.Current.CustomTiming("add document", ""))
-                        {
-                            Writer.AddDocument(doc, analyzer);
-                        }
-                        count++;
-                    });
-
-                    //Writer.Flush(true,true,true);
-                    using (MiniProfiler.Current.CustomTiming("commit", ""))
-                    {
-                        Writer.Commit();
-                    }
-                    CloseWriter();
-                    SetSearcher();
+                
+                if (!CanWrite) return true;
+                SetWriter(false);
+                //Writer.Flush(true, true, true);
+                Parallel.ForEach(models, (m, state, index) => {
+                    PuckCache.IndexingStatus = $"indexing item {count} of {models.Count}";
+                    //var type = ApiHelper.GetType(m.Type);
+                    //if (type == null)
+                    //    type = typeof(BaseModel);
+                    var type = ApiHelper.GetTypeFromName(m.Type, defaultToBaseModel: true);
+                    var analyzer = PuckCache.AnalyzerForModel[type];
+                    var parser = new PuckQueryParser<T>(Lucene.Net.Util.LuceneVersion.LUCENE_48, FieldKeys.PuckDefaultField, analyzer);
                     if (triggerEvents)
                     {
-                        models
-                            .Where(x => !cancelled.Contains(x))
-                            .ToList()
-                            .ForEach(x => { OnAfterIndex(this, new IndexingEventArgs() { Node = x }); });
-                    }
-                    if (!handleQueueStarted)
-                    {
-                        handleQueueStarted = true;
-                        System.Threading.Tasks.Task.Factory.StartNew(() =>
+                        var args = new BeforeIndexingEventArgs() { Node = m, Cancel = false };
+                        OnBeforeIndex(this, args);
+                        if (args.Cancel)
                         {
-                            Thread.Sleep(2000);
-                            HandleIndexQueue();
-                        });
+                            cancelled.Add(m);
+                            return;
+                        }
                     }
-                    //Optimize();
-                }
-                catch (Exception ex)
+                    if (delete)
+                    {
+                        //delete doc
+                        string removeQuery = "+" + FieldKeys.ID + ":" + m.Id.ToString() + " +" + FieldKeys.Variant + ":" + m.Variant.ToLower();
+                        var q = parser.Parse(removeQuery);
+                        Writer.DeleteDocuments(q);
+                    }
+                    Document doc = new Document();
+                    //get fields to index
+                    List<FlattenedObject> props = null;
+                    using (MiniProfiler.Current.CustomTiming("get properties", ""))
+                    {
+                        props = ObjectDumper.Write(m, int.MaxValue);
+                    }
+                    using (MiniProfiler.Current.CustomTiming("add fields to doc", ""))
+                    {
+                        GetFieldSettings(props, doc, null);
+                    }//add cms properties
+                    if (!PuckCache.StoreReferences)
+                        m.References = new List<string>();
+                    string jsonDoc = JsonConvert.SerializeObject(m);
+                    //doc in json form for deserialization later
+                    doc.Add(new StringField(FieldKeys.PuckValue, jsonDoc, Field.Store.YES));
+                    using (MiniProfiler.Current.CustomTiming("add document", ""))
+                    {
+                        Writer.AddDocument(doc, analyzer);
+                    }
+                    count++;
+                });
+
+                //Writer.Flush(true,true,true);
+                using (MiniProfiler.Current.CustomTiming("commit", ""))
                 {
-                    logger.Log(ex);
-                    throw;
+                    Writer.Commit();
                 }
-                finally
+                CloseWriter();
+                SetSearcher();
+                if (triggerEvents)
                 {
-                    
+                    models
+                        .Where(x => !cancelled.Contains(x))
+                        .ToList()
+                        .ForEach(x => { OnAfterIndex(this, new IndexingEventArgs() { Node = x }); });
                 }
+                if (!handleQueueStarted)
+                {
+                    handleQueueStarted = true;
+                    System.Threading.Tasks.Task.Factory.StartNew(() =>
+                    {
+                        Thread.Sleep(2000);
+                        HandleIndexQueue();
+                    });
+                }
+                //Optimize();
             }
+            catch (Exception ex)
+            {
+                logger.Log(ex);
+                caughtException = ex;
+            }
+            finally
+            {
+                if (taken)
+                    Monitor.Exit(write_lock);
+            }
+            if (caughtException != null) throw caughtException;
+            return true;
         }
         public void Delete<T>(List<T> toDelete) where T : BaseModel
         {

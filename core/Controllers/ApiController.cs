@@ -1465,7 +1465,9 @@ namespace puck.core.Controllers
         public ActionResult GetRepublishEntireSiteStatus()
         {
             string message = "";
-            if (PuckCache.IsRepublishingEntireSite)
+            if (!string.IsNullOrEmpty(PuckCache.RepublishEntireSiteError))
+                message = "error: " + PuckCache.RepublishEntireSiteError;
+            else if (PuckCache.IsRepublishingEntireSite)
                 message = PuckCache.IndexingStatus;
             else
                 message = "complete";

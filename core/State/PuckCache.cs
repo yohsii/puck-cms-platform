@@ -75,6 +75,7 @@ namespace puck.core.State
         public static bool ShouldSync { get; set; }
         public static bool IsSyncQueued { get; set; }
         public static string IndexingStatus { get; set; }
+        public static string RepublishEntireSiteError { get; set; }
         public static List<Variant> Variants { get; set; }
         public static Dictionary<string, string> DomainRoots { get; set; }
         public static Dictionary<string, string> PathToLocale { get; set; }

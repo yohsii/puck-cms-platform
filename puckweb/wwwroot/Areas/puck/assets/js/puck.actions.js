@@ -1377,9 +1377,12 @@ var pollRepublishStatus = function () {
     getRepublishEntireSiteStatus(function (data) {
         if (data.Message == "complete") {
             msg(true, data.Message);
-        } else {
+        } else if (data.Message.indexOf("error")>-1) {
+            msg(false, data.Message);
+        }
+        else {
             msg(0, data.Message,true)
-            setTimeout(pollRepublishStatus,5000);
+            setTimeout(pollRepublishStatus,3000);
         }
     });
 }

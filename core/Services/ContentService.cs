@@ -1608,24 +1608,10 @@ namespace puck.core.Services
                         {
                             if (shouldIndex)
                             {
-                                if (queueIfIndexerBusy)
-                                {
-                                    if (indexer.IsBusy())
-                                    {
-                                        PuckCache.PublishQueue.Enqueue(result.ItemsToIndex);
-                                        result.Message = "indexer is currently busy, your content has been queued and will be indexed as soon as possible";
-                                    }
-                                    else
-                                    {
-                                        indexer.Index(result.ItemsToIndex, triggerEvents: triggerIndexEvents);
-                                        result.Message = mod.Published ? "content published" : "content updated";
-                                    }
-                                }
+                                if (!indexer.Index(result.ItemsToIndex, triggerEvents: triggerIndexEvents, queueIfBusy: queueIfIndexerBusy))
+                                    result.Message = "indexer is currently busy, your content has been queued and will be indexed as soon as possible";
                                 else
-                                {
-                                    indexer.Index(result.ItemsToIndex, triggerEvents: triggerIndexEvents);
                                     result.Message = mod.Published ? "content published" : "content updated";
-                                }
                             }
                         }
                         else if (mod.Published || alwaysUpdatePath /*|| currentMod == null*/)//add to lucene index if published or no such node exists in index
@@ -1701,24 +1687,10 @@ namespace puck.core.Services
                             }
                             if (shouldIndex)
                             {
-                                if (queueIfIndexerBusy)
-                                {
-                                    if (indexer.IsBusy())
-                                    {
-                                        PuckCache.PublishQueue.Enqueue(result.ItemsToIndex);
-                                        result.Message = "indexer is currently busy, your content has been queued and will be indexed as soon as possible";
-                                    }
-                                    else
-                                    {
-                                        indexer.Index(result.ItemsToIndex, triggerEvents: triggerIndexEvents);
-                                        result.Message = mod.Published ? "content published" : "content updated";
-                                    }
-                                }
+                                if (!indexer.Index(result.ItemsToIndex, triggerEvents: triggerIndexEvents, queueIfBusy: queueIfIndexerBusy))
+                                    result.Message = "indexer is currently busy, your content has been queued and will be indexed as soon as possible";
                                 else
-                                {
-                                    indexer.Index(result.ItemsToIndex, triggerEvents: triggerIndexEvents);
                                     result.Message = mod.Published ? "content published" : "content updated";
-                                }
                             }
                         }
                         else if (publishedRevision == null || isUnpublished)
@@ -1726,24 +1698,10 @@ namespace puck.core.Services
                             result.ItemsToIndex.Add(mod);
                             if (shouldIndex)
                             {
-                                if (queueIfIndexerBusy)
-                                {
-                                    if (indexer.IsBusy())
-                                    {
-                                        PuckCache.PublishQueue.Enqueue(result.ItemsToIndex);
-                                        result.Message = "indexer is currently busy, your content has been queued and will be indexed as soon as possible";
-                                    }
-                                    else
-                                    {
-                                        indexer.Index(result.ItemsToIndex, triggerEvents: triggerIndexEvents);
-                                        result.Message = mod.Published ? "content published" : "content updated";
-                                    }
-                                }
+                                if (!indexer.Index(result.ItemsToIndex, triggerEvents: triggerIndexEvents, queueIfBusy: queueIfIndexerBusy))
+                                    result.Message = "indexer is currently busy, your content has been queued and will be indexed as soon as possible";
                                 else
-                                {
-                                    indexer.Index(result.ItemsToIndex, triggerEvents: triggerIndexEvents);
                                     result.Message = mod.Published ? "content published" : "content updated";
-                                }
                             }
                         }
 
@@ -1916,6 +1874,7 @@ namespace puck.core.Services
             var errored = false;
             var errorMsg = string.Empty;
             PuckCache.IsRepublishingEntireSite = true;
+            PuckCache.RepublishEntireSiteError = string.Empty;
             await slock2.WaitAsync();
             try
             {
@@ -1991,6 +1950,7 @@ namespace puck.core.Services
                 logger.Log(ex);
                 errored = true;
                 errorMsg = ex.Message;
+                PuckCache.RepublishEntireSiteError = errorMsg;
             }
             finally
             {
