@@ -1412,7 +1412,7 @@ namespace puck.core.Services
                                     publishedVariantsDb.ToList().ForEach(x => { x.NodeName = mod.NodeName; x.Path = mod.Path; });
                                 }
                             }
-                            if (alwaysUpdatePath && publishedRevision != null && (publishedRevision.Path.ToLower() != mod.Path.ToLower() || publishedRevision.NodeName.ToLower() != mod.NodeName.ToLower()))
+                            if (alwaysUpdatePath && !mod.Published && publishedRevision != null && (publishedRevision.Path.ToLower() != mod.Path.ToLower() || publishedRevision.NodeName.ToLower() != mod.NodeName.ToLower()))
                             {
                                 publishedRevision.NodeName = mod.NodeName;
                                 publishedRevision.Path = mod.Path;
