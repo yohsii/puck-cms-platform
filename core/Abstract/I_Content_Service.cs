@@ -22,7 +22,7 @@ namespace puck.core.Abstract
         UserManager<PuckUser> userManager { get; set; }
 
         void AddAuditEntry(Guid id, string variant, string action, string notes, string username,bool save=true);
-        void AddPublishInstruction(List<BaseModel> toIndex);
+        void AddPublishInstruction(List<BaseModel> toIndex,bool save=true);
         Task Sync(Guid id, Guid parentId, bool includeDescendants, bool onlyOverwriteIfNewer, I_Content_Service destinationContentService, IMemoryCache cache, string cacheKey, string userName = null);
         Task Copy(Guid id, Guid parentId, bool includeDescendants, string userName = null);
         Task<T> Create<T>(Guid parentId, string variant, string name, string template = null, bool published = true, string userName = null) where T : BaseModel;
@@ -48,7 +48,7 @@ namespace puck.core.Abstract
         int UpdateDescendantIdPaths(string oldPath, string newPath);
         int UpdateDescendantIsPublishedRevision(string path, bool value, bool addWhereIsCurrentClause, List<string> descendantVariants);
         int UpdateDescendantPaths(string oldPath, string newPath);
-        void UpdatePathRelatedMeta(string oldPath, string newPath);
+        void UpdatePathRelatedMeta(string oldPath, string newPath,bool save = true);
         int UpdateTypeAndTypeChain(string oldType, string newType, string newTypeChain);
         int UpdateHasNoPublishedRevisionAndIsPublishedRevision(Guid id, string variant, bool? hasNoPublishedRevision,
                     bool? isPublishedRevision, int? hasNoPublishedRevisionIgnoreRevisionId = null, int? isPublishedRevisionIgnoreRevisionId = null);

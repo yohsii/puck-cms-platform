@@ -269,22 +269,25 @@ namespace puck.core.Services
             var itemsToIndex = new List<BaseModel>();
             var indexItems = qh.And().Field(x => x.ParentId, parentId.ToString()).GetAllNoCast();
             var dbItems = repo.CurrentRevisionsByParentId(parentId).ToList();
-            indexItems.ForEach(n =>
+            foreach(var n in indexItems)
             {
                 for (var i = 0; i < ids.Count; i++)
                 {
                     if (ids[i].Equals(n.Id))
                     {
                         if (n.SortOrder != i)
+                        {
+                            n.SortOrder = i;
                             itemsToIndex.Add(n);
-                        n.SortOrder = i;
+                        }
+                        break;
                     }
                 }
-            });
+            }
             var c = 0;
             var indexItemsNotListed = indexItems.Where(x => !ids.Contains(x.Id)).ToList();
             indexItemsNotListed.ForEach(x => { x.SortOrder = ids.Count + c; c++; });
-            dbItems.ForEach(n =>
+            foreach(var n in dbItems)
             {
                 for (var i = 0; i < ids.Count; i++)
                 {
@@ -299,13 +302,15 @@ namespace puck.core.Services
                             }
                         }
                         n.SortOrder = i;
+                        break;
                     }
                 }
-            });
+            }
+            c = 0;
             var dbItemsNotListed = dbItems.Where(x => !ids.Contains(x.Id)).ToList();
             dbItemsNotListed.ForEach(x => { x.SortOrder = ids.Count + c; c++; });
+            AddPublishInstruction(itemsToIndex, save: false);
             repo.SaveChanges();
-            AddPublishInstruction(itemsToIndex);
             indexer.Index(itemsToIndex);
         }
 
@@ -749,7 +754,7 @@ namespace puck.core.Services
                 //slock1.Release();
             }
         }
-        public void AddPublishInstruction(List<BaseModel> toIndex)
+        public void AddPublishInstruction(List<BaseModel> toIndex,bool save=true)
         {
             if (toIndex.Count > 0)
             {
@@ -759,7 +764,8 @@ namespace puck.core.Services
                 instructionDetail = instructionDetail.TrimEnd(',');
                 instruction.InstructionDetail = instructionDetail;
                 repo.AddPuckInstruction(instruction);
-                repo.SaveChanges();
+                if(save)
+                    repo.SaveChanges();
             }
         }
 
@@ -1143,7 +1149,7 @@ namespace puck.core.Services
                 result = "length";
             return result;
         }
-        public void UpdatePathRelatedMeta(string oldPath, string newPath)
+        public void UpdatePathRelatedMeta(string oldPath, string newPath,bool save=true)
         {
             var regex = new Regex(Regex.Escape(oldPath), RegexOptions.Compiled);
 
@@ -1164,8 +1170,8 @@ namespace puck.core.Services
             nmeta.ForEach(x => x.Key = newPath);
             var nmetaD = repo.GetPuckMeta().Where(x => x.Name.StartsWith(DBNames.Notify) && x.Key.ToLower().StartsWith(oldPath.ToLower() + "/")).ToList();
             nmetaD.ForEach(x => x.Key = regex.Replace(x.Key, newPath, 1));
-
-            repo.SaveChanges();
+            if(save)
+                repo.SaveChanges();
 
         }
         public async Task<SaveResult> SaveContent<T>(T mod, bool makeRevision = true, string userName = null, bool handleNodeNameExists = true, int nodeNameExistsCounter = 0, bool triggerEvents = true, bool triggerIndexEvents = true, bool shouldIndex = true, bool alwaysUpdatePath = true, bool queueIfIndexerBusy = false) where T : BaseModel
@@ -1419,13 +1425,13 @@ namespace puck.core.Services
                             {
                                 //update descendant paths(publishedRevisionPath)
                                 affected = UpdateDescendantPaths(publishedRevisionPath + "/", mod.Path + "/");
-                                UpdatePathRelatedMeta(publishedRevisionPath, mod.Path);
+                                UpdatePathRelatedMeta(publishedRevisionPath, mod.Path, save: false);
                             }
                             else
                             {
                                 //update descendant paths(currentRevisionPath)
                                 affected = UpdateDescendantPaths(currentRevisionPath + "/", mod.Path + "/");
-                                UpdatePathRelatedMeta(currentRevisionPath, mod.Path);
+                                UpdatePathRelatedMeta(currentRevisionPath, mod.Path, save: false);
                             }
                             var descendants = repo.PublishedOrCurrentDescendants(idPath).ToList().Select(x => x.ToBaseModel()).ToList();
                             var variantsToIndex = new List<BaseModel>();
@@ -1449,7 +1455,7 @@ namespace puck.core.Services
                             {
                                 //update descendant paths
                                 affected = UpdateDescendantPaths(original.Path + "/", mod.Path + "/");
-                                UpdatePathRelatedMeta(original.Path, mod.Path);
+                                UpdatePathRelatedMeta(original.Path, mod.Path, save: false);
                             }
                             else if ((mod.Published||alwaysUpdatePath) && (nameDifferentThanCurrent || nameDifferentThanPublished))
                             {
@@ -1457,26 +1463,26 @@ namespace puck.core.Services
                                 {
                                     //update descendant paths(publishedRevisionPath)
                                     affected = UpdateDescendantPaths(publishedRevisionPath + "/", mod.Path + "/");
-                                    UpdatePathRelatedMeta(publishedRevisionPath, mod.Path);
+                                    UpdatePathRelatedMeta(publishedRevisionPath, mod.Path, save: false);
                                 }
                                 else
                                 {
                                     //update descendant paths(currentRevisionPath)
                                     affected = UpdateDescendantPaths(currentRevisionPath + "/", mod.Path + "/");
-                                    UpdatePathRelatedMeta(currentRevisionPath, mod.Path);
+                                    UpdatePathRelatedMeta(currentRevisionPath, mod.Path, save: false);
                                 }
                             }
                             else if (nameDifferentThanCurrentVariant && (publishedRevisionOrVariant == null||alwaysUpdatePath))
                             {
                                 //update descendant paths
                                 affected = UpdateDescendantPaths(currentVariantOriginalPath + "/", mod.Path + "/");
-                                UpdatePathRelatedMeta(currentVariantOriginalPath, mod.Path);
+                                UpdatePathRelatedMeta(currentVariantOriginalPath, mod.Path, save: false);
                             }
                             else if (nameDifferentThanPublishedVariant && (mod.Published||alwaysUpdatePath))
                             {
                                 //update descendant paths
                                 affected = UpdateDescendantPaths(publishedVariantOriginalPath + "/", mod.Path + "/");
-                                UpdatePathRelatedMeta(publishedVariantOriginalPath, mod.Path);
+                                UpdatePathRelatedMeta(publishedVariantOriginalPath, mod.Path,save:false);
                             }
                         }
 
@@ -1595,6 +1601,13 @@ namespace puck.core.Services
                         if (parentVariants.Any(x => !x.HasChildren))
                             parentVariants.ToList().ForEach(x => x.HasChildren = true);
 
+                        if (shouldIndex)
+                            AddPublishInstruction(result.ItemsToIndex, save:false);
+
+                        string auditAction = mod.Published ? AuditActions.Publish : AuditActions.Save;
+                        if (original == null) auditAction = AuditActions.Create;
+                        AddAuditEntry(mod.Id, mod.Variant, auditAction, "", username, save:false);
+
                         repo.SaveChanges();
                         transaction.Commit();
                         //index related operations
@@ -1676,12 +1689,14 @@ namespace puck.core.Services
                                     currentMod.Path = mod.Path;
                                     result.ItemsToIndex.Add(currentMod);
                                 }
-                                //delete previous meta binding
+                                //delete previous meta binding - should be handled by earlier call to UpdatePathRelatedMeta
+                                /*
                                 repo.GetPuckMeta().Where(x => x.Name == DBNames.PathToLocale && x.Key.ToLower().Equals(originalPath.ToLower())).ToList()
                                     .ForEach(x => x.Key = mod.Path);
                                 repo.GetPuckMeta().Where(x => x.Name == DBNames.DomainMapping && x.Key.ToLower().Equals(originalPath.ToLower())).ToList()
                                     .ForEach(x => x.Key = mod.Path);
                                 repo.SaveChanges();
+                                */
                                 shouldUpdateDomainMappings = true;
                                 shouldUpdatePathLocaleMappings = true;
                             }
@@ -1710,12 +1725,7 @@ namespace puck.core.Services
                             var afterArgs = new IndexingEventArgs { Node = mod };
                             OnAfterSave(this, afterArgs);
                         }
-                        if (shouldIndex)
-                            AddPublishInstruction(result.ItemsToIndex);
-
-                        string auditAction = mod.Published ? AuditActions.Publish : AuditActions.Save;
-                        if (original == null) auditAction = AuditActions.Create;
-                        AddAuditEntry(mod.Id, mod.Variant, auditAction, "", username);
+                        
                         if (shouldUpdateDomainMappings)
                             StateHelper.UpdateDomainMappings(true);
                         if (shouldUpdatePathLocaleMappings)
