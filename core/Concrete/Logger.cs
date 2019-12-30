@@ -20,7 +20,19 @@ namespace puck.core.Concrete
             DATADIRECTORY = logPath;
         }
         public void Log(Exception ex) {
-            this.Log(ex.Message,ex.StackTrace,"error",ex.GetType());
+            if (ex == null) return;
+            var message = ex.Message ?? "";
+            var tempEx = ex;
+            var maxExceptions = 10;
+            var count = 0;
+            while (tempEx.InnerException != null && count < maxExceptions)
+            {
+                if (!string.IsNullOrEmpty(tempEx.InnerException.Message))
+                    message += $" - inner exception: {tempEx.InnerException.Message}";
+                tempEx = tempEx.InnerException;
+                count++;
+            }
+            this.Log(message,ex.StackTrace,"error",ex.GetType());
         }
         public void Log(string message,string stackTrace,string level="error",Type exceptionType=null)
         {
