@@ -470,7 +470,8 @@ namespace puck.core.Helpers
             //var strat = new PointVectorStrategy(ctx, key);
             IPoint pt = ctx.MakePoint(longitude, latitude);
             ValueSource valueSource = strat.MakeDistanceValueSource(pt, DistanceUtils.DEG_TO_KM);//the distance (in km)
-            sort = new Sort(valueSource.GetSortField(!desc));//.Rewrite(indexSearcher);//false=asc dist
+            sorts.Add(valueSource.GetSortField(!desc));
+            sort.SetSort(sorts.ToArray());//.Rewrite(indexSearcher);//false=asc dist
             return this;
         }
         public QueryHelper<TModel> Sort(Expression<Func<TModel, object>> exp, bool descending=false,SortFieldType? sortFieldType=null)
