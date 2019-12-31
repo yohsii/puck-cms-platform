@@ -13,7 +13,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Lucene.Net" Version="4.8.0-beta00006" />
+    <PackageReference Include="Lucene.Net" Version="4.8.0-beta00007" />
     <PackageReference Include="Microsoft.Azure.Storage.Blob" Version="11.1.1" />
   </ItemGroup>
 
