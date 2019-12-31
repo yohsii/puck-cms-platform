@@ -1179,6 +1179,7 @@ namespace puck.core.Services
             if (nodeNameExistsCounter == 0)
                 await slock1.WaitAsync();
             Exception caughtException = null;
+            var transactionCommitted = false;
             var result = new SaveResult
             {
                 ItemsToIndex = new List<BaseModel>(),
@@ -1610,6 +1611,7 @@ namespace puck.core.Services
 
                         repo.SaveChanges();
                         transaction.Commit();
+                        transactionCommitted = true;
                         //index related operations
                         var qh = new QueryHelper<BaseModel>(publishedContentOnly:!alwaysUpdatePath);
                         //get current indexed node with same ID and VARIANT
@@ -1734,7 +1736,8 @@ namespace puck.core.Services
                     }
                     catch (Exception ex)
                     {
-                        transaction.Rollback();
+                        if(!transactionCommitted)
+                            transaction.Rollback();
                         logger.Log($"failed to save model id:{mod.Id} variant:{mod.Variant} nodename:{mod.NodeName}. " + ex.Message, ex.StackTrace, exceptionType: ex.GetType());
                         throw;
                     }
