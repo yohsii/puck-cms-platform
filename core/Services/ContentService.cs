@@ -1602,9 +1602,6 @@ namespace puck.core.Services
                         if (parentVariants.Any(x => !x.HasChildren))
                             parentVariants.ToList().ForEach(x => x.HasChildren = true);
 
-                        if (shouldIndex)
-                            AddPublishInstruction(result.ItemsToIndex, save:false);
-
                         string auditAction = mod.Published ? AuditActions.Publish : AuditActions.Save;
                         if (original == null) auditAction = AuditActions.Create;
                         AddAuditEntry(mod.Id, mod.Variant, auditAction, "", username, save:false);
@@ -1721,6 +1718,9 @@ namespace puck.core.Services
                                     result.Message = mod.Published ? "content published" : "content updated";
                             }
                         }
+
+                        if (shouldIndex)
+                            AddPublishInstruction(result.ItemsToIndex, save: true);
 
                         if (triggerEvents)
                         {
