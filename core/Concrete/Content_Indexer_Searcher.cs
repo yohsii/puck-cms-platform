@@ -125,9 +125,11 @@ namespace puck.core.Concrete
             {
                 try
                 {
-                    SetWriter(create);
-                    if (Writer != null && !UseAzureDirectory) CloseWriter();
-                    //Writer.Optimize();
+                    if (CanWrite) { 
+                        SetWriter(create);
+                        if (Writer != null && !UseAzureDirectory) CloseWriter();
+                        //Writer.Optimize();
+                    }
                 }
                 catch (Lucene.Net.Store.LockObtainFailedException ex)
                 {
