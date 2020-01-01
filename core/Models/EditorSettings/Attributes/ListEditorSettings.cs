@@ -13,6 +13,6 @@ namespace puck.core.Models.EditorSettings.Attributes
     [Display(Name = "List Editor Settings")]
     public class ListEditorSettingsAttribute: Attribute
     {
-        public string StringEditorTemplate { get; set; }
+        public string EditorTemplate { get; set; }
     }
 }

@@ -34,6 +34,8 @@ namespace puck.core.Extensions
         }
         public static T GetPropertyAttribute<T>(this ModelMetadata instance)
         {
+            if (instance.ContainerType == null || string.IsNullOrEmpty(instance.PropertyName))
+                return default(T);
             var result = instance.ContainerType
               .GetProperty(instance.PropertyName)
               .GetCustomAttributes(typeof(T), false)
