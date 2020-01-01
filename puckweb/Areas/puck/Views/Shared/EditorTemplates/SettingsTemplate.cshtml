@@ -35,7 +35,7 @@
             if (views == null)
             {
                 views = apiHelper.Views(new string[] { "~/views/shared/", "~/views/_ViewStart.cshtml" });
-                if (views.Count > 0 && env.IsProduction()) {
+                if (views.Count > 0 && !env.IsDevelopment()) {
                     cache.Set("puckviews", views,TimeSpan.FromMinutes(30));
                 }
             }
@@ -47,7 +47,7 @@
         if (views == null)
         {
             views = apiHelper.Views(new string[] { "~/views/shared/", "~/views/_ViewStart.cshtml" });
-            if (views.Count > 0 && env.IsProduction()) {
+            if (views.Count > 0 && !env.IsDevelopment()) {
                 cache.Set("puckviews", views,TimeSpan.FromMinutes(30));
             }
         }
