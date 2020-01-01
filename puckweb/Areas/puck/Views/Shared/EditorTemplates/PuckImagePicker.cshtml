@@ -242,10 +242,10 @@
                     var pathEl = $("<span data-id='" + id + "'/>").html(name + (name == "/" ? "" : "/"));
                     cont.find(".path").append(pathEl);
                 }
-                getContentByParentId(id, function (res) {
+                getMinimumContentByParentId(id, function (res) {
                     //console.log(res);
-                    for (guid in res.current) {
-                        var itemGroup = res.current[guid];
+                    for (guid in res.published) {
+                        var itemGroup = res.published[guid];
                         var vCount = 0;
                         for (variant in itemGroup) {
                             var item = itemGroup[variant];
@@ -255,8 +255,13 @@
                             vCount++;
                         }
                     }
+                    var items = itemContainer.find(".item");
+                    items.sort(function (a, b) {
+                        return parseInt($(a).attr("data-sortorder")) - parseInt($(b).attr("data-sortorder"));
+                    });
+                    itemContainer.append(items);
                     if (f) f();
-                }, false);
+                }, true);
             }
 
             var draw = function (model, children, itemContainer) {
@@ -266,7 +271,7 @@
                 if (selected_container.find("[data-id='" + model.Id + "'][data-variant='" + model.Variant + "']").length > 0) {
                     el.addClass("selected");
                 }
-                el.attr({ "data-id": model.Id, "data-variant": model.Variant, "data-nodename": model.NodeName });
+                el.attr({ "data-id": model.Id, "data-variant": model.Variant, "data-nodename": model.NodeName,"data-sortorder":model.SortOrder });
                 el.find(".variant").html(model.Variant);
                 el.find(".nodename").html(model.NodeName);
                 if (model.Type == "ImageVM") {

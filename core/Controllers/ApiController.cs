@@ -1018,7 +1018,7 @@ namespace puck.core.Controllers
             return Json(new { success = true, message = "" });
         }
         [Authorize(Roles = PuckRoles.Puck, AuthenticationSchemes = Mvc.AuthenticationScheme)]
-        public ActionResult MinimumContentByParentId(Guid parentId = default(Guid))
+        public ActionResult MinimumContentByParentId(Guid parentId = default(Guid),bool fullIndexContent=false)
         {
             //using path instead of p_path in the method sig means path won't be checked against user's start node - which we don't want for this method
             List<PuckRevision> resultsRev;
@@ -1065,36 +1065,45 @@ namespace puck.core.Controllers
                 if (group.FirstOrDefault().HasChildren)
                     haveChildren.Add(group.FirstOrDefault().Id.ToString());
             }
-            var qh = new QueryHelper<BaseModel>().And().Field(x => x.ParentId, parentId.ToString());
-            //var publishedContent = qh.And().Field(x => x.ParentId, parentId.ToString()).GetAll().GroupById().ToDictionary(x => x.Key.ToString(), x => x.Value);
-            var publishedContentDictionaryList = searcher.Query(
-                qh.ToString(),
-                typeof(BaseModel).Name,
-                fieldsToLoad: new HashSet<string> { FieldKeys.ID, FieldKeys.Variant, FieldKeys.PuckType }
-                , limit: int.MaxValue);
-            List<BaseModel> publishedBaseModels = new List<BaseModel>();
-            foreach (var dict in publishedContentDictionaryList)
+
+            Dictionary<string, Dictionary<string, BaseModel>> publishedContent = null;
+            if (fullIndexContent)
             {
-                string idStr = "";
-                string variant = "";
-                var mod = new BaseModel();
-                if (dict.TryGetValue(FieldKeys.ID, out idStr))
-                {
-                    if (!string.IsNullOrEmpty(idStr))
-                        mod.Id = Guid.Parse(idStr);
-                    else continue;
-                }
-                else continue;
-                if (dict.TryGetValue(FieldKeys.Variant, out variant))
-                {
-                    if (!string.IsNullOrEmpty(variant))
-                        mod.Variant = variant;
-                    else continue;
-                }
-                else continue;
-                publishedBaseModels.Add(mod);
+                var qh = new QueryHelper<BaseModel>();
+                publishedContent = qh.And().Field(x => x.ParentId, parentId.ToString()).GetAllNoCast(limit: int.MaxValue).GroupById().ToDictionary(x => x.Key.ToString(), x => x.Value);
             }
-            var publishedContent = publishedBaseModels.GroupById().ToDictionary(x => x.Key.ToString(), x => x.Value);
+            else
+            {
+                var qh = new QueryHelper<BaseModel>().And().Field(x => x.ParentId, parentId.ToString());
+                var publishedContentDictionaryList = searcher.Query(
+                    qh.ToString(),
+                    typeof(BaseModel).Name,
+                    fieldsToLoad: new HashSet<string> { FieldKeys.ID, FieldKeys.Variant, FieldKeys.PuckType }
+                    , limit: int.MaxValue);
+                List<BaseModel> publishedBaseModels = new List<BaseModel>();
+                foreach (var dict in publishedContentDictionaryList)
+                {
+                    string idStr = "";
+                    string variant = "";
+                    var mod = new BaseModel();
+                    if (dict.TryGetValue(FieldKeys.ID, out idStr))
+                    {
+                        if (!string.IsNullOrEmpty(idStr))
+                            mod.Id = Guid.Parse(idStr);
+                        else continue;
+                    }
+                    else continue;
+                    if (dict.TryGetValue(FieldKeys.Variant, out variant))
+                    {
+                        if (!string.IsNullOrEmpty(variant))
+                            mod.Variant = variant;
+                        else continue;
+                    }
+                    else continue;
+                    publishedBaseModels.Add(mod);
+                }
+                publishedContent = publishedBaseModels.GroupById().ToDictionary(x => x.Key.ToString(), x => x.Value);
+            }
 
             var jsonStr = JsonConvert.SerializeObject(new { current = results, published = publishedContent, children = haveChildren });
             return base.Content(jsonStr, "application/json");
@@ -1133,7 +1142,7 @@ namespace puck.core.Controllers
             if (fullPublishedContent)
             {
                 var qh = new QueryHelper<BaseModel>();
-                publishedContent = qh.And().Field(x => x.ParentId, parentId.ToString()).GetAll(limit: int.MaxValue).GroupById().ToDictionary(x => x.Key.ToString(), x => x.Value);
+                publishedContent = qh.And().Field(x => x.ParentId, parentId.ToString()).GetAllNoCast(limit: int.MaxValue).GroupById().ToDictionary(x => x.Key.ToString(), x => x.Value);
             }
             else
             {
