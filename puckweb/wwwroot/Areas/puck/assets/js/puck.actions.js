@@ -812,6 +812,7 @@ var displayMarkup = function (parentId, type, variant, fromVariant,contentId,con
             cinterfaces.find("div[data-type='" + type + "']").remove();
             cinterfaces.find(".type_templates").append($("<div/>").attr("data-type", type));
             cinterfaces.find("div[data-type='" + type + "']").html(data);
+            afterDom();
         });
 
         var path = container.find("input[name=Path]").val();
