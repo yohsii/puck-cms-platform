@@ -10,8 +10,9 @@ else if (ViewData.ModelMetadata.IsReadOnly)
 else
 {
     var guid = Guid.NewGuid();
-    <input data-guid="@guid.ToString()" type="checkbox" name="@ViewData.TemplateInfo.HtmlFieldPrefix" @(Model.HasValue && Model.Value?"checked":"") value="@(Model.HasValue && Model.Value?"true":"false")"/>
-    <script>
+    <input data-guid="@guid.ToString()" type="checkbox" name="@ViewData.TemplateInfo.HtmlFieldPrefix" @(Model.HasValue && Model.Value?"checked":"") value="true"/>
+    
+    @*<script>
         onAfterDom(function () {
             var guid = "@Html.Raw(guid.ToString())";
             $("input[data-guid='" + guid + "']").change(function () {
@@ -23,7 +24,8 @@ else
                 }
             });
         });
-    </script>
+    </script>*@
+
     @*<select name="@ViewData.ModelMetadata.PropertyName">
         <option @(Model.HasValue && Model.Value?"selected":"") value="true">Yes</option>
         <option @(!Model.HasValue||(Model.HasValue && !Model.Value)?"selected":"") value="false">No</option>

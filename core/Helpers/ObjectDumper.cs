@@ -590,10 +590,42 @@ namespace puck.core.Helpers
                             object listItem;
                             if (itemType == typeof(string))
                                 listItem = " ";
+                            else if (itemType == typeof(Single?))
+                            {
+                                listItem = (Single?)0f;
+                            }
+                            else if (itemType==typeof(Char?))
+                            {
+                                listItem = (Char?)' ';
+                            }
+                            else if (itemType==typeof(Decimal?))
+                            {
+                                listItem = (Decimal?)0m;
+                            }
+                            else if (itemType == typeof(Double?))
+                            {
+                                listItem = (Double?)0d;
+                            }
+                            else if (itemType == typeof(Int16?))
+                            {
+                                listItem = (Int16?)0;
+                            }
+                            else if (itemType == typeof(Int32?))
+                            {
+                                listItem = (Int32?)0;
+                            }
+                            else if (itemType == typeof(Int64?))
+                            {
+                                listItem = (Int64?)0;
+                            }
+                            else if (itemType == typeof(bool?))
+                            {
+                                listItem = (bool?)false;
+                            }
                             else
                                 listItem = Activator.CreateInstance(itemType);
                             subObject.GetType().GetMethod("Add").Invoke(subObject, new[] { listItem });
-                            if(depth<SetPropertyValuesMaxDepth)
+                            if(depth<SetPropertyValuesMaxDepth && listItem!=null)
                                 SetPropertyValues(listItem,onlyPopulateListEditorLists:onlyPopulateListEditorLists,depth:depth+1);
                         }
                         property.SetValue(obj, subObject, null);
