@@ -379,7 +379,7 @@ namespace puck.core.Helpers
                     var instance = ApiHelper.CreateInstance(t);
                     try
                     {
-                        ObjectDumper.SetPropertyValues(instance);
+                        ObjectDumper.SetPropertyValues(instance,setNullableFields:true);
                     }
                     catch (Exception ex)
                     {

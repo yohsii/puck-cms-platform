@@ -563,7 +563,7 @@ namespace puck.core.Helpers
             }
         }
         public static int SetPropertyValuesMaxDepth = 50;
-        public static void SetPropertyValues(object obj,bool onlyPopulateListEditorLists=false,int depth=1)
+        public static void SetPropertyValues(object obj,bool onlyPopulateListEditorLists=false,int depth=1,bool setNullableFields=false)
         {
             PropertyInfo[] properties = obj.GetType().GetProperties();
 
@@ -626,7 +626,7 @@ namespace puck.core.Helpers
                                 listItem = Activator.CreateInstance(itemType);
                             subObject.GetType().GetMethod("Add").Invoke(subObject, new[] { listItem });
                             if(depth<SetPropertyValuesMaxDepth && listItem!=null)
-                                SetPropertyValues(listItem,onlyPopulateListEditorLists:onlyPopulateListEditorLists,depth:depth+1);
+                                SetPropertyValues(listItem,onlyPopulateListEditorLists:onlyPopulateListEditorLists,depth:depth+1,setNullableFields:setNullableFields);
                         }
                         property.SetValue(obj, subObject, null);
                     }
@@ -641,7 +641,7 @@ namespace puck.core.Helpers
                     {
                         var subObject = Activator.CreateInstance(propType);
                         if(depth<SetPropertyValuesMaxDepth)
-                            SetPropertyValues(subObject,onlyPopulateListEditorLists:onlyPopulateListEditorLists,depth:depth+1);
+                            SetPropertyValues(subObject,onlyPopulateListEditorLists:onlyPopulateListEditorLists,depth:depth+1,setNullableFields:setNullableFields);
                         property.SetValue(obj, subObject, null);
                     }
                     catch (Exception ex) { }
@@ -649,7 +649,45 @@ namespace puck.core.Helpers
                 else if (property.PropertyType == typeof(string))
                 {
                     property.SetValue(obj, "", null);
-                }/*
+                }
+                else if (setNullableFields && property.PropertyType == typeof(Single?))
+                {
+                    property.SetValue(obj, (Single?)0f, null);
+                }
+                else if (setNullableFields && property.PropertyType == typeof(char?))
+                {
+                    property.SetValue(obj, (Char?)' ', null);
+                }
+                else if (setNullableFields && property.PropertyType == typeof(Decimal?))
+                {
+                    property.SetValue(obj, (Decimal?)0m, null);
+                }
+                else if (setNullableFields && property.PropertyType == typeof(Double?))
+                {
+                    property.SetValue(obj, (Double?)0d, null);
+                }
+                else if (setNullableFields && property.PropertyType == typeof(Int16?))
+                {
+                    property.SetValue(obj, (Int16?)0, null);
+                }
+                else if (setNullableFields && property.PropertyType == typeof(Int32?))
+                {
+                    property.SetValue(obj, (Int32?)0, null);
+                }
+                else if (setNullableFields && property.PropertyType == typeof(Int64?))
+                {
+                    property.SetValue(obj, (Int64?)0, null);
+                }
+                else if (setNullableFields && property.PropertyType == typeof(bool?))
+                {
+                    property.SetValue(obj, (bool?)false, null);
+                }
+                else if (setNullableFields && property.PropertyType == typeof(DateTime?))
+                {
+                    property.SetValue(obj, (DateTime?)DateTime.Now, null);
+                }
+
+                /*
                 else if (property.PropertyType == typeof(DateTime))
                 {
                     property.SetValue(obj, DateTime.Today, null);

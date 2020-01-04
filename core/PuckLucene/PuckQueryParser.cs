@@ -18,6 +18,7 @@ namespace puck.core.PuckLucene
     {
         public static List<string> NumericFieldTypes = new List<string>() { 
             typeof(int).AssemblyQualifiedName,typeof(long).AssemblyQualifiedName,typeof(double).AssemblyQualifiedName,typeof(float).AssemblyQualifiedName
+            ,typeof(int?).AssemblyQualifiedName,typeof(long?).AssemblyQualifiedName,typeof(double?).AssemblyQualifiedName,typeof(float?).AssemblyQualifiedName
         };
         private string TypeName = typeof(T).AssemblyQualifiedName;
         public PuckQueryParser(LuceneVersion version, string field, Analyzer analyzer) 
@@ -27,26 +28,26 @@ namespace puck.core.PuckLucene
             try
             {
                 string fieldTypeName = PuckCache.TypeFields[TypeName][field];
-                if (fieldTypeName.Equals(typeof(int).AssemblyQualifiedName))
+                if (fieldTypeName.Equals(typeof(int).AssemblyQualifiedName) || fieldTypeName.Equals(typeof(int?).AssemblyQualifiedName))
                 {
                     BytesRef bytes = new BytesRef(NumericUtils.BUF_SIZE_INT32);
                     NumericUtils.Int32ToPrefixCoded(int.Parse(queryText), 0, bytes);
                     return new TermQuery(new Term(field, bytes));
                 }
-                else if (fieldTypeName.Equals(typeof(long).AssemblyQualifiedName))
+                else if (fieldTypeName.Equals(typeof(long).AssemblyQualifiedName) || fieldTypeName.Equals(typeof(long?).AssemblyQualifiedName))
                 {
                     BytesRef bytes = new BytesRef(NumericUtils.BUF_SIZE_INT64);
                     NumericUtils.Int64ToPrefixCoded(long.Parse(queryText), 0, bytes);
                     return new TermQuery(new Term(field, bytes));
                 }
-                else if (fieldTypeName.Equals(typeof(float).AssemblyQualifiedName))
+                else if (fieldTypeName.Equals(typeof(float).AssemblyQualifiedName) || fieldTypeName.Equals(typeof(float?).AssemblyQualifiedName))
                 {
                     BytesRef bytes = new BytesRef(NumericUtils.BUF_SIZE_INT32);
                     int intFloat = NumericUtils.SingleToSortableInt32(float.Parse(queryText));
                     NumericUtils.Int32ToPrefixCoded(intFloat, 0, bytes);
                     return new TermQuery(new Term(field, bytes));
                 }
-                else if (fieldTypeName.Equals(typeof(double).AssemblyQualifiedName))
+                else if (fieldTypeName.Equals(typeof(double).AssemblyQualifiedName) || fieldTypeName.Equals(typeof(double?).AssemblyQualifiedName))
                 {
                     BytesRef bytes = new BytesRef(NumericUtils.BUF_SIZE_INT64);
                     long longDouble = NumericUtils.DoubleToSortableInt64(double.Parse(queryText));
@@ -66,19 +67,19 @@ namespace puck.core.PuckLucene
             try
             {
                 string fieldTypeName = PuckCache.TypeFields[TypeName][field];
-                if (fieldTypeName.Equals(typeof(int).AssemblyQualifiedName))
+                if (fieldTypeName.Equals(typeof(int).AssemblyQualifiedName) || fieldTypeName.Equals(typeof(int?).AssemblyQualifiedName))
                 {
                     return NumericRangeQuery.NewInt32Range(field, int.Parse(part1), int.Parse(part2), inclusiveStart, inclusiveEnd);
                 }
-                else if (fieldTypeName.Equals(typeof(long).AssemblyQualifiedName))
+                else if (fieldTypeName.Equals(typeof(long).AssemblyQualifiedName) || fieldTypeName.Equals(typeof(long?).AssemblyQualifiedName))
                 {
                     return NumericRangeQuery.NewInt64Range(field, long.Parse(part1), long.Parse(part2), inclusiveStart, inclusiveEnd);
                 }
-                else if (fieldTypeName.Equals(typeof(float).AssemblyQualifiedName))
+                else if (fieldTypeName.Equals(typeof(float).AssemblyQualifiedName) || fieldTypeName.Equals(typeof(float?).AssemblyQualifiedName))
                 {
                     return NumericRangeQuery.NewSingleRange(field, float.Parse(part1), float.Parse(part2), inclusiveStart, inclusiveEnd);
                 }
-                else if (fieldTypeName.Equals(typeof(double).AssemblyQualifiedName))
+                else if (fieldTypeName.Equals(typeof(double).AssemblyQualifiedName) || fieldTypeName.Equals(typeof(double?).AssemblyQualifiedName))
                 {
                     return NumericRangeQuery.NewDoubleRange(field, double.Parse(part1), double.Parse(part2), inclusiveStart, inclusiveStart);
                 }

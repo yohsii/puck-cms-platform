@@ -322,6 +322,9 @@ namespace puck.core.Concrete
         {
             foreach (var p in props)
             {
+                if (p == null) {
+                    continue;
+                }
                 if (analyzers != null)
                 {
                     if (p.Analyzer != null)
@@ -331,22 +334,22 @@ namespace puck.core.Concrete
                 }
                 if (doc != null)
                 {
-                    if (p.Value is int)
+                    if (p.Value is int || p.Value is int?)
                     {
                         var nf = new Int32Field(p.Key, int.Parse(p.Value.ToString()), p.FieldStoreSetting);
                         doc.Add(nf);
                     }
-                    else if (p.Value is long)
+                    else if (p.Value is long || p.Value is long?)
                     {
                         var nf = new Int64Field(p.Key, long.Parse(p.Value.ToString()), p.FieldStoreSetting);
                         doc.Add(nf);
                     }
-                    else if (p.Value is float)
+                    else if (p.Value is float || p.Value is float?)
                     {
                         var nf = new SingleField(p.Key, float.Parse(p.Value.ToString()), p.FieldStoreSetting);
                         doc.Add(nf);
                     }
-                    else if (p.Value is double)
+                    else if (p.Value is double || p.Value is double?)
                     {
                         var nf = new DoubleField(p.Key, double.Parse(p.Value.ToString()), p.FieldStoreSetting);
                         doc.Add(nf);

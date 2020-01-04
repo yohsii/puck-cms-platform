@@ -43,7 +43,7 @@
                     <span>Height:</span>@Html.EditorFor(x => x.Height)
                 </div>
                 }
-                @if (!string.IsNullOrEmpty(Model?.Size))
+                @if (!string.IsNullOrEmpty(Model?.Size?.ToString()))
                 {   
                 <div class="field">
                     <span>Size:</span>@Html.EditorFor(x => x.Size)

@@ -34,7 +34,7 @@ namespace puck.core.Attributes.Transformers
                     p.File.CopyTo(stream);
                 }
                 p.Path = filepath.Replace("~/wwwroot","");
-                p.Size = p.File.Length.ToString();
+                p.Size = p.File.Length;
                 p.Extension=Path.GetExtension(p.File.FileName);
                 var img = Image.Load(absfilepath);
                 p.Width = img.Width;

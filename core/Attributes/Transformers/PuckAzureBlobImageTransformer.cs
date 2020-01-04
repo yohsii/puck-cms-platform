@@ -57,7 +57,7 @@ namespace puck.core.Attributes.Transformers
                 CloudBlockBlob cblob = cont.GetBlockBlobReference(filepath);
                 //var stream = new MemoryStream();
                 //p.File.CopyTo(stream);
-                p.Size = p.File.Length.ToString();
+                p.Size = p.File.Length;
                 p.Extension = Path.GetExtension(p.File.FileName);
 
                 using (var stream = p.File.OpenReadStream()) {

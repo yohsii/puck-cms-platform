@@ -17,7 +17,7 @@ namespace puck.core.Models
         [DataType(DataType.MultilineText)]
         public string Description { get; set; }
         [UIHint("SettingsReadOnly")]
-        public string Size {get;set;}
+        public long? Size {get;set;}
         [UIHint("SettingsReadOnly")]
         public string Extension { get; set; }
         [UIHint("SettingsReadOnly")]
