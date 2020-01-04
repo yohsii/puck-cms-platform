@@ -172,7 +172,7 @@
                 var cropper = $("<div/>").attr({ class: "cropper" }).css({ width: cropperWidth, height: cropperHeight, zIndex: 2 });
                 var left = 0;
                 var top = 0;
-                if (leftFrac != undefined && topFrac != undefined) {
+                if (leftFrac != undefined && leftFrac != "" && topFrac != undefined && topFrac!="") {
                     left = imgWidth * leftFrac;
                     top = imgHeight * topFrac;
                 } else {
