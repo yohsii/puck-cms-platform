@@ -580,7 +580,8 @@ namespace puck.core.Helpers
 
                     var subObject = Activator.CreateInstance(propType);
 
-                    if (propType.IsGenericType /*&&
+                    if (propType.IsGenericType && propType.GetGenericArguments().Length == 1
+                        /*&&
                         propType.GetGenericTypeDefinition()
                         == typeof(IList<>)*/)
                     {
@@ -594,11 +595,11 @@ namespace puck.core.Helpers
                             {
                                 listItem = (Single?)0f;
                             }
-                            else if (itemType==typeof(Char?))
+                            else if (itemType == typeof(Char?))
                             {
                                 listItem = (Char?)' ';
                             }
-                            else if (itemType==typeof(Decimal?))
+                            else if (itemType == typeof(Decimal?))
                             {
                                 listItem = (Decimal?)0m;
                             }
@@ -625,13 +626,18 @@ namespace puck.core.Helpers
                             else
                                 listItem = Activator.CreateInstance(itemType);
                             subObject.GetType().GetMethod("Add").Invoke(subObject, new[] { listItem });
-                            if(depth<SetPropertyValuesMaxDepth && listItem!=null)
-                                SetPropertyValues(listItem,onlyPopulateListEditorLists:onlyPopulateListEditorLists,depth:depth+1,setNullableFields:setNullableFields);
+                            if (depth < SetPropertyValuesMaxDepth && listItem != null)
+                                SetPropertyValues(listItem, onlyPopulateListEditorLists: onlyPopulateListEditorLists, depth: depth + 1, setNullableFields: setNullableFields);
                         }
                         property.SetValue(obj, subObject, null);
                     }
-
-
+                    else if (propType.GetGenericArguments().Length > 1) {
+                        if (propType.GetGenericArguments().Length == 2) {
+                            //likely a dictionary
+                            Type keyType = propType.GetGenericArguments()[0];
+                            //TODO, handle dictionaries
+                        }
+                    }
                 }
                 else
                 if (property.PropertyType.IsClass && property.PropertyType != typeof(string))
