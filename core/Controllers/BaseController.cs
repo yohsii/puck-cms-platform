@@ -38,7 +38,7 @@ namespace puck.core.Controllers
                 if (!PuckCache.DomainRoots.TryGetValue(domain, out searchPathPrefix))
                 {
                     if (!PuckCache.DomainRoots.TryGetValue("*", out searchPathPrefix))
-                        throw new Exception("domain roots not set. DOMAIN:" + domain);
+                        throw new Exception($"domain root not set. DOMAIN:{domain} - visit the backoffice to set up your site");
                 }
                 string searchPath = searchPathPrefix.ToLower() + path;
 
