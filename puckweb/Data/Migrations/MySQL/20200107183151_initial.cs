@@ -1,7 +1,8 @@
 ﻿using System;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 
-namespace puckweb.Data.Migrations.PostgreSQL
+namespace puckweb.Data.Migrations.MySQL
 {
     public partial class initial : Migration
     {

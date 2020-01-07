@@ -100,6 +100,7 @@ namespace puck.core.Base
 
         [UIHint("SettingsType")]
         [IndexSettings(FieldIndexSetting = Lucene.Net.Documents.Field.Index.NOT_ANALYZED,Analyzer = typeof(KeywordAnalyzer), FieldStoreSetting = Lucene.Net.Documents.Field.Store.YES)]
+        [MaxLength(256)]
         public string Type { get; set; }
         
         [UIHint("PuckReferences")]

@@ -9,11 +9,17 @@ namespace puck.core.Entities
 {
     public class PuckInstruction
     {
+        public PuckInstruction() {
+            TimeStamp = DateTime.Now;
+        }
         [Key]
         public int Id { get; set; }
+        
+        [MaxLength(256)]
         public string ServerName { get; set; }
         public int Count { get; set; }
         public string InstructionKey { get; set; }
         public string InstructionDetail { get; set; }
+        public DateTime TimeStamp { get; set; }
     }
 }

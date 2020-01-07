@@ -16,7 +16,7 @@ namespace puck.core.Migrations.PostgreSQL
 #pragma warning disable 612, 618
             modelBuilder
                 .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn)
-                .HasAnnotation("ProductVersion", "3.0.0")
+                .HasAnnotation("ProductVersion", "3.1.0")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -155,9 +155,15 @@ namespace puck.core.Migrations.PostgreSQL
                         .HasColumnType("text");
 
                     b.Property<string>("ServerName")
-                        .HasColumnType("text");
+                        .HasColumnType("character varying(256)")
+                        .HasMaxLength(256);
+
+                    b.Property<DateTime>("TimeStamp")
+                        .HasColumnType("timestamp without time zone");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ServerName");
 
                     b.ToTable("PuckInstruction");
                 });
@@ -271,7 +277,8 @@ namespace puck.core.Migrations.PostgreSQL
                         .HasColumnType("text");
 
                     b.Property<string>("Type")
-                        .HasColumnType("text");
+                        .HasColumnType("character varying(256)")
+                        .HasMaxLength(256);
 
                     b.Property<string>("TypeChain")
                         .HasColumnType("text");
@@ -294,7 +301,11 @@ namespace puck.core.Migrations.PostgreSQL
 
                     b.HasIndex("Id");
 
+                    b.HasIndex("IsPublishedRevision");
+
                     b.HasIndex("ParentId");
+
+                    b.HasIndex("Type");
 
                     b.HasIndex("Variant");
 

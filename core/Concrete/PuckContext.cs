@@ -49,8 +49,13 @@ namespace puck.core.Concrete
                 e.HasIndex(x => x.Current);
                 e.HasIndex(x => x.Variant);
                 e.HasIndex(x => x.HasNoPublishedRevision);
+                e.HasIndex(x => x.IsPublishedRevision);
+                e.HasIndex(x => x.Type);
             });
-                
+            builder.Entity<PuckInstruction>(e => {
+                e.HasIndex(x=>x.ServerName);
+            });
+            
             builder.Entity<PuckUser>(b =>
             {
                 // Each User can have many UserClaims

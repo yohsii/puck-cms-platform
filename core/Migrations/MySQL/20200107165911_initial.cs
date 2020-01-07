@@ -1,7 +1,8 @@
 ﻿using System;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 
-namespace puck.core.Migrations.SQLServer
+namespace puck.core.Migrations.MySQL
 {
     public partial class initial : Migration
     {
@@ -56,7 +57,7 @@ namespace puck.core.Migrations.SQLServer
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
                     ContentId = table.Column<Guid>(nullable: false),
                     Variant = table.Column<string>(nullable: true),
                     Action = table.Column<string>(nullable: true),
@@ -74,11 +75,12 @@ namespace puck.core.Migrations.SQLServer
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    ServerName = table.Column<string>(nullable: true),
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                    ServerName = table.Column<string>(maxLength: 256, nullable: true),
                     Count = table.Column<int>(nullable: false),
                     InstructionKey = table.Column<string>(nullable: true),
-                    InstructionDetail = table.Column<string>(nullable: true)
+                    InstructionDetail = table.Column<string>(nullable: true),
+                    TimeStamp = table.Column<DateTime>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -90,7 +92,7 @@ namespace puck.core.Migrations.SQLServer
                 columns: table => new
                 {
                     ID = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
                     Name = table.Column<string>(maxLength: 2048, nullable: true),
                     Key = table.Column<string>(maxLength: 2048, nullable: true),
                     Value = table.Column<string>(nullable: true),
@@ -107,7 +109,7 @@ namespace puck.core.Migrations.SQLServer
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
                     From = table.Column<string>(nullable: true),
                     To = table.Column<string>(nullable: true),
                     Type = table.Column<string>(nullable: true)
@@ -122,7 +124,7 @@ namespace puck.core.Migrations.SQLServer
                 columns: table => new
                 {
                     RevisionID = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
                     Id = table.Column<Guid>(nullable: false),
                     ParentId = table.Column<Guid>(nullable: false),
                     NodeName = table.Column<string>(nullable: false),
@@ -137,7 +139,7 @@ namespace puck.core.Migrations.SQLServer
                     SortOrder = table.Column<int>(nullable: false),
                     TemplatePath = table.Column<string>(nullable: false),
                     TypeChain = table.Column<string>(nullable: true),
-                    Type = table.Column<string>(nullable: true),
+                    Type = table.Column<string>(maxLength: 256, nullable: true),
                     Current = table.Column<bool>(nullable: false),
                     Value = table.Column<string>(nullable: true),
                     HasNoPublishedRevision = table.Column<bool>(nullable: false),
@@ -155,7 +157,7 @@ namespace puck.core.Migrations.SQLServer
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
                     Category = table.Column<string>(nullable: true),
                     Tag = table.Column<string>(nullable: true),
                     Count = table.Column<int>(nullable: false)
@@ -170,7 +172,7 @@ namespace puck.core.Migrations.SQLServer
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
                     RoleId = table.Column<string>(nullable: false),
                     ClaimType = table.Column<string>(nullable: true),
                     ClaimValue = table.Column<string>(nullable: true)
@@ -191,7 +193,7 @@ namespace puck.core.Migrations.SQLServer
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
                     UserId = table.Column<string>(nullable: false),
                     ClaimType = table.Column<string>(nullable: true),
                     ClaimValue = table.Column<string>(nullable: true)
@@ -280,8 +282,7 @@ namespace puck.core.Migrations.SQLServer
                 name: "RoleNameIndex",
                 table: "AspNetRoles",
                 column: "NormalizedName",
-                unique: true,
-                filter: "[NormalizedName] IS NOT NULL");
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetUserClaims_UserId",
@@ -307,8 +308,12 @@ namespace puck.core.Migrations.SQLServer
                 name: "UserNameIndex",
                 table: "AspNetUsers",
                 column: "NormalizedUserName",
-                unique: true,
-                filter: "[NormalizedUserName] IS NOT NULL");
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PuckInstruction_ServerName",
+                table: "PuckInstruction",
+                column: "ServerName");
 
             migrationBuilder.CreateIndex(
                 name: "IX_PuckRevision_Current",
@@ -326,9 +331,19 @@ namespace puck.core.Migrations.SQLServer
                 column: "Id");
 
             migrationBuilder.CreateIndex(
+                name: "IX_PuckRevision_IsPublishedRevision",
+                table: "PuckRevision",
+                column: "IsPublishedRevision");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_PuckRevision_ParentId",
                 table: "PuckRevision",
                 column: "ParentId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PuckRevision_Type",
+                table: "PuckRevision",
+                column: "Type");
 
             migrationBuilder.CreateIndex(
                 name: "IX_PuckRevision_Variant",

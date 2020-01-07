@@ -7,17 +7,17 @@ using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using puckweb.Data.Contexts;
 
-namespace puckweb.Data.Migrations.SQLite
+namespace puckweb.Data.Migrations.SQLServer
 {
-    [DbContext(typeof(DbContextSQLite))]
-    [Migration("20191130123257_initial")]
+    [DbContext(typeof(DbContextSQLServer))]
+    [Migration("20200107175131_initial")]
     partial class initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "3.0.0")
+                .HasAnnotation("ProductVersion", "3.1.0")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 

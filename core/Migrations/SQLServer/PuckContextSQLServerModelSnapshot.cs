@@ -15,7 +15,7 @@ namespace puck.core.Migrations.SQLServer
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "3.0.0")
+                .HasAnnotation("ProductVersion", "3.1.0")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
@@ -155,9 +155,15 @@ namespace puck.core.Migrations.SQLServer
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ServerName")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(256)")
+                        .HasMaxLength(256);
+
+                    b.Property<DateTime>("TimeStamp")
+                        .HasColumnType("datetime2");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ServerName");
 
                     b.ToTable("PuckInstruction");
                 });
@@ -271,7 +277,8 @@ namespace puck.core.Migrations.SQLServer
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Type")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(256)")
+                        .HasMaxLength(256);
 
                     b.Property<string>("TypeChain")
                         .HasColumnType("nvarchar(max)");
@@ -294,7 +301,11 @@ namespace puck.core.Migrations.SQLServer
 
                     b.HasIndex("Id");
 
+                    b.HasIndex("IsPublishedRevision");
+
                     b.HasIndex("ParentId");
+
+                    b.HasIndex("Type");
 
                     b.HasIndex("Variant");
 

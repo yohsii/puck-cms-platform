@@ -1,7 +1,8 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore.Migrations;
+using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
-namespace puck.core.Migrations.SQLite
+namespace puck.core.Migrations.PostgreSQL
 {
     public partial class initial : Migration
     {
@@ -56,7 +57,7 @@ namespace puck.core.Migrations.SQLite
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     ContentId = table.Column<Guid>(nullable: false),
                     Variant = table.Column<string>(nullable: true),
                     Action = table.Column<string>(nullable: true),
@@ -74,11 +75,12 @@ namespace puck.core.Migrations.SQLite
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    ServerName = table.Column<string>(nullable: true),
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    ServerName = table.Column<string>(maxLength: 256, nullable: true),
                     Count = table.Column<int>(nullable: false),
                     InstructionKey = table.Column<string>(nullable: true),
-                    InstructionDetail = table.Column<string>(nullable: true)
+                    InstructionDetail = table.Column<string>(nullable: true),
+                    TimeStamp = table.Column<DateTime>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -90,7 +92,7 @@ namespace puck.core.Migrations.SQLite
                 columns: table => new
                 {
                     ID = table.Column<int>(nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     Name = table.Column<string>(maxLength: 2048, nullable: true),
                     Key = table.Column<string>(maxLength: 2048, nullable: true),
                     Value = table.Column<string>(nullable: true),
@@ -107,7 +109,7 @@ namespace puck.core.Migrations.SQLite
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     From = table.Column<string>(nullable: true),
                     To = table.Column<string>(nullable: true),
                     Type = table.Column<string>(nullable: true)
@@ -122,7 +124,7 @@ namespace puck.core.Migrations.SQLite
                 columns: table => new
                 {
                     RevisionID = table.Column<int>(nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     Id = table.Column<Guid>(nullable: false),
                     ParentId = table.Column<Guid>(nullable: false),
                     NodeName = table.Column<string>(nullable: false),
@@ -137,7 +139,7 @@ namespace puck.core.Migrations.SQLite
                     SortOrder = table.Column<int>(nullable: false),
                     TemplatePath = table.Column<string>(nullable: false),
                     TypeChain = table.Column<string>(nullable: true),
-                    Type = table.Column<string>(nullable: true),
+                    Type = table.Column<string>(maxLength: 256, nullable: true),
                     Current = table.Column<bool>(nullable: false),
                     Value = table.Column<string>(nullable: true),
                     HasNoPublishedRevision = table.Column<bool>(nullable: false),
@@ -155,7 +157,7 @@ namespace puck.core.Migrations.SQLite
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     Category = table.Column<string>(nullable: true),
                     Tag = table.Column<string>(nullable: true),
                     Count = table.Column<int>(nullable: false)
@@ -170,7 +172,7 @@ namespace puck.core.Migrations.SQLite
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     RoleId = table.Column<string>(nullable: false),
                     ClaimType = table.Column<string>(nullable: true),
                     ClaimValue = table.Column<string>(nullable: true)
@@ -191,7 +193,7 @@ namespace puck.core.Migrations.SQLite
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     UserId = table.Column<string>(nullable: false),
                     ClaimType = table.Column<string>(nullable: true),
                     ClaimValue = table.Column<string>(nullable: true)
@@ -309,6 +311,11 @@ namespace puck.core.Migrations.SQLite
                 unique: true);
 
             migrationBuilder.CreateIndex(
+                name: "IX_PuckInstruction_ServerName",
+                table: "PuckInstruction",
+                column: "ServerName");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_PuckRevision_Current",
                 table: "PuckRevision",
                 column: "Current");
@@ -324,9 +331,19 @@ namespace puck.core.Migrations.SQLite
                 column: "Id");
 
             migrationBuilder.CreateIndex(
+                name: "IX_PuckRevision_IsPublishedRevision",
+                table: "PuckRevision",
+                column: "IsPublishedRevision");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_PuckRevision_ParentId",
                 table: "PuckRevision",
                 column: "ParentId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PuckRevision_Type",
+                table: "PuckRevision",
+                column: "Type");
 
             migrationBuilder.CreateIndex(
                 name: "IX_PuckRevision_Variant",

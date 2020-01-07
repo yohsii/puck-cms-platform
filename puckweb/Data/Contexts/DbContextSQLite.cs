@@ -12,7 +12,7 @@ namespace puckweb.Data.Contexts
     public class DbContextSQLite : ApplicationDbContext
     {
         public DbContextSQLite(IConfiguration config)
-            : base(new DbContextOptionsBuilder().UseSqlServer(config.GetConnectionString("SQLite")).Options) 
+            : base(new DbContextOptionsBuilder().UseSqlite(config.GetConnectionString("SQLite")).Options) 
         { 
         
         }

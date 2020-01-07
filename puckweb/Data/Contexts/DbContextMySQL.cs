@@ -12,7 +12,7 @@ namespace puckweb.Data.Contexts
     public class DbContextMySQL : ApplicationDbContext
     {
         public DbContextMySQL(IConfiguration config)
-            : base(new DbContextOptionsBuilder().UseSqlServer(config.GetConnectionString("MySQL")).Options) 
+            : base(new DbContextOptionsBuilder().UseMySql(config.GetConnectionString("MySQL")).Options) 
         { 
         
         }

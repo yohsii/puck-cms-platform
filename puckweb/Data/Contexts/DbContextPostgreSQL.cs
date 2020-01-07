@@ -12,7 +12,7 @@ namespace puckweb.Data.Contexts
     public class DbContextPostgreSQL : ApplicationDbContext
     {
         public DbContextPostgreSQL(IConfiguration config)
-            : base(new DbContextOptionsBuilder().UseSqlServer(config.GetConnectionString("PostgreSQL")).Options) 
+            : base(new DbContextOptionsBuilder().UseNpgsql(config.GetConnectionString("PostgreSQL")).Options) 
         { 
         
         }

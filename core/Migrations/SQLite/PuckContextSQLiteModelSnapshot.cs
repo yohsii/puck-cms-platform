@@ -14,7 +14,7 @@ namespace puck.core.Migrations.SQLite
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "3.0.0");
+                .HasAnnotation("ProductVersion", "3.1.0");
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
@@ -148,9 +148,15 @@ namespace puck.core.Migrations.SQLite
                         .HasColumnType("TEXT");
 
                     b.Property<string>("ServerName")
+                        .HasColumnType("TEXT")
+                        .HasMaxLength(256);
+
+                    b.Property<DateTime>("TimeStamp")
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ServerName");
 
                     b.ToTable("PuckInstruction");
                 });
@@ -261,7 +267,8 @@ namespace puck.core.Migrations.SQLite
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Type")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("TEXT")
+                        .HasMaxLength(256);
 
                     b.Property<string>("TypeChain")
                         .HasColumnType("TEXT");
@@ -284,7 +291,11 @@ namespace puck.core.Migrations.SQLite
 
                     b.HasIndex("Id");
 
+                    b.HasIndex("IsPublishedRevision");
+
                     b.HasIndex("ParentId");
+
+                    b.HasIndex("Type");
 
                     b.HasIndex("Variant");
 
