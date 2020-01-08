@@ -33,6 +33,7 @@
 
         $("input.@ViewData.ModelMetadata.PropertyName").on("change", function () {
             $("span.@ViewData.ModelMetadata.PropertyName").html("");
+            if ($(this).val() == "") return;
             $($(this).val().split(",")).each(function () {
                 $("span.@ViewData.ModelMetadata.PropertyName").append('<input type="hidden" name="@ViewData.ModelMetadata.PropertyName" value="'+this+'"/>');
             });

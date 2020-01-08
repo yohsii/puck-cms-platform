@@ -170,7 +170,7 @@ namespace puck.core.Migrations.PostgreSQL
 
             modelBuilder.Entity("puck.core.Entities.PuckMeta", b =>
                 {
-                    b.Property<int>("ID")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer")
                         .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
@@ -192,7 +192,7 @@ namespace puck.core.Migrations.PostgreSQL
                     b.Property<string>("Value")
                         .HasColumnType("text");
 
-                    b.HasKey("ID");
+                    b.HasKey("Id");
 
                     b.ToTable("PuckMeta");
                 });

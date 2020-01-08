@@ -253,7 +253,7 @@ namespace puck.core.Helpers
                     return;
                 }
                 var instance = JsonConvert.DeserializeObject(x.Value, type) as BaseTask;
-                instance.ID = x.ID;
+                instance.Id = x.Id;
                 if (!tdispatcher.CanRun(instance))
                 {
                     toRemove.Add(x);
@@ -429,7 +429,7 @@ namespace puck.core.Helpers
         {
             var allVariants = AllVariants();
             var results = new List<Variant>();
-            var allLanguageMetas = repo.GetPuckMeta().Where(x => x.Name == DBNames.Settings && x.Key == DBKeys.Languages).ToList();
+            var allLanguageMetas = repo.GetPuckMeta().Where(x => x.Name == DBNames.Settings && x.Key == DBKeys.Languages).ToList().OrderBy(x=>x.Dt??DateTime.Now).ToList();
             for (var i = 0; i < allLanguageMetas.Count; i++)
             {
                 var language = allLanguageMetas[i];

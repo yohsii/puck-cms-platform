@@ -22,7 +22,7 @@ namespace puck.core.Base
         }
 
         [HiddenInput(DisplayValue=false)]
-        public int ID { get; set; }
+        public int Id { get; set; }
         public string Name { get; set; }
         public bool Recurring { get; set; }
         public int IntervalSeconds { get; set; }

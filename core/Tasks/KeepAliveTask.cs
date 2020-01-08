@@ -15,7 +15,7 @@ namespace puck.core.Tasks
     class KeepAliveTask:BaseTask
     {
         public KeepAliveTask() {
-            this.ID = -3;
+            this.Id = -3;
             this.Recurring = true;
             this.IntervalSeconds = 60;
             this.RunOn = DateTime.Now;

@@ -163,7 +163,7 @@ namespace puck.core.Migrations.SQLite
 
             modelBuilder.Entity("puck.core.Entities.PuckMeta", b =>
                 {
-                    b.Property<int>("ID")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
@@ -184,7 +184,7 @@ namespace puck.core.Migrations.SQLite
                     b.Property<string>("Value")
                         .HasColumnType("TEXT");
 
-                    b.HasKey("ID");
+                    b.HasKey("Id");
 
                     b.ToTable("PuckMeta");
                 });

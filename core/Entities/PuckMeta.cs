@@ -9,7 +9,7 @@ namespace puck.core.Entities
     public class PuckMeta
     {
         [Key]
-        public int ID { get; set; }
+        public int Id { get; set; }
         [MaxLength(2048)]
         public string Name { get; set; }
         [MaxLength(2048)]

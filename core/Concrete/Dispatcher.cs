@@ -53,7 +53,7 @@ namespace puck.core.Concrete
         }
         public void HandleTaskEnd(object s, DispatchEventArgs e){
             int removedId=0;
-            QueuedTasks.Remove(e.Task.ID,out removedId);
+            QueuedTasks.Remove(e.Task.Id,out removedId);
             if (!e.Task.Recurring)
             {
                 Tasks.Remove(e.Task);
@@ -63,7 +63,7 @@ namespace puck.core.Concrete
                 using (var scope = PuckCache.ServiceProvider.CreateScope())
                 {
                     var repo = scope.ServiceProvider.GetService<I_Puck_Repository>();
-                    var taskMeta = repo.GetPuckMeta().Where(x => x.Name == DBNames.Tasks && x.ID == e.Task.ID).FirstOrDefault();
+                    var taskMeta = repo.GetPuckMeta().Where(x => x.Name == DBNames.Tasks && x.Id == e.Task.Id).FirstOrDefault();
                     if (taskMeta != null)
                     {
                         taskMeta.Value = JsonConvert.SerializeObject(e.Task);
@@ -84,9 +84,9 @@ namespace puck.core.Concrete
                     return;
 
                 foreach (var t in Tasks) {
-                    if (ShouldRunNow(t)&&!QueuedTasks.ContainsKey(t.ID))
+                    if (ShouldRunNow(t)&&!QueuedTasks.ContainsKey(t.Id))
                     {
-                        QueuedTasks.TryAdd(t.ID,t.ID);
+                        QueuedTasks.TryAdd(t.Id,t.Id);
                         System.Threading.Tasks.Task.Factory.StartNew(() => {
                             t.DoRun(this.cancellationToken);
                         }, cancellationToken);

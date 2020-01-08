@@ -170,7 +170,7 @@ namespace puck.core.Migrations.SQLServer
 
             modelBuilder.Entity("puck.core.Entities.PuckMeta", b =>
                 {
-                    b.Property<int>("ID")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
@@ -192,7 +192,7 @@ namespace puck.core.Migrations.SQLServer
                     b.Property<string>("Value")
                         .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("ID");
+                    b.HasKey("Id");
 
                     b.ToTable("PuckMeta");
                 });

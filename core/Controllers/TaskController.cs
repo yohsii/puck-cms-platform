@@ -726,7 +726,7 @@ namespace puck.core.Controllers
             ViewBag.ShouldBindListEditor = true;
             ViewBag.IsPrepopulated = false;
             if (id != -1) {
-                var meta = repo.GetPuckMeta().Where(x => x.Name == DBNames.Tasks && x.ID == id).FirstOrDefault();
+                var meta = repo.GetPuckMeta().Where(x => x.Name == DBNames.Tasks && x.Id == id).FirstOrDefault();
                 if (meta != null) {
                     //Type t = Type.GetType(meta.Key);
                     Type t = apiHelper.TaskTypes().FirstOrDefault(x=>x.FullName.Equals(meta.Key));
@@ -738,7 +738,7 @@ namespace puck.core.Controllers
             //Type modelType = Type.GetType(type);
             Type modelType = apiHelper.TaskTypes().FirstOrDefault(x => x.FullName.Equals(type));
             var model = Activator.CreateInstance(modelType);
-            ((BaseTask)model).ID = -1;
+            ((BaseTask)model).Id = -1;
             ViewBag.Level0Type = model.GetType();
             return View(model);
         }
@@ -760,9 +760,9 @@ namespace puck.core.Controllers
                 {
                     var mod = model as BaseTask;
                     PuckMeta taskMeta = null;
-                    if (mod.ID != -1)
+                    if (mod.Id != -1)
                     {
-                        taskMeta = repo.GetPuckMeta().Where(x => x.ID == mod.ID).FirstOrDefault();
+                        taskMeta = repo.GetPuckMeta().Where(x => x.Id == mod.Id).FirstOrDefault();
                         taskMeta.Value = JsonConvert.SerializeObject(mod);
                     }
                     else
@@ -800,7 +800,7 @@ namespace puck.core.Controllers
             string message = "";
             try
             {
-                repo.GetPuckMeta().Where(x => x.Name == DBNames.Tasks && x.ID == id).ToList().ForEach(x=>repo.DeleteMeta(x));
+                repo.GetPuckMeta().Where(x => x.Name == DBNames.Tasks && x.Id == id).ToList().ForEach(x=>repo.DeleteMeta(x));
                 repo.SaveChanges();
                 StateHelper.UpdateTaskMappings(true);
                 success = true;

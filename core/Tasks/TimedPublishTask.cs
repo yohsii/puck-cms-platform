@@ -17,7 +17,7 @@ namespace puck.core.Tasks
     class TimedPublishTask:BaseTask
     {
         public TimedPublishTask() {
-            this.ID = -1;
+            this.Id = -1;
             this.Recurring = true;
             this.IntervalSeconds = 60;
             this.RunOn = DateTime.Now;

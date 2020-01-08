@@ -182,7 +182,7 @@ namespace puck.core.Controllers
             var model = new Settings();
             var meta = repo.GetPuckMeta();
 
-            var languages = meta.Where(x => x.Name == DBNames.Settings && x.Key == DBKeys.Languages).ToList().Select(x => x.Value).ToList();
+            var languages = meta.Where(x => x.Name == DBNames.Settings && x.Key == DBKeys.Languages).ToList().OrderBy(x=>x.Dt??DateTime.Now).Select(x => x.Value).ToList();
             model.Languages = languages;
 
             return View(model);
@@ -206,13 +206,27 @@ namespace puck.core.Controllers
                             repo.DeleteMeta(x);
                         });
                     }
-                    model.Languages.ForEach(x => {
+                    var i = 0;
+                    foreach(var x in model.Languages)
+                    {
                         var newMeta = new PuckMeta();
                         newMeta.Name = DBNames.Settings;
                         newMeta.Key = DBKeys.Languages;
                         newMeta.Value = x;
+                        newMeta.Dt = DateTime.Now.AddMinutes(i+1);
                         repo.AddMeta(newMeta);
-                    });
+                        i++;
+                    }
+                }
+                else {
+                    var metaLanguages = repo.GetPuckMeta().Where(x => x.Name == DBNames.Settings && x.Key == DBKeys.Languages).ToList();
+                    if (metaLanguages.Count > 0)
+                    {
+                        metaLanguages.ForEach(x =>
+                        {
+                            repo.DeleteMeta(x);
+                        });
+                    }
                 }
                 
                 repo.SaveChanges();
