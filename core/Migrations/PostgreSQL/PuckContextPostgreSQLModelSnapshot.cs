@@ -158,7 +158,7 @@ namespace puck.core.Migrations.PostgreSQL
                         .HasColumnType("character varying(256)")
                         .HasMaxLength(256);
 
-                    b.Property<DateTime>("TimeStamp")
+                    b.Property<DateTime>("Timestamp")
                         .HasColumnType("timestamp without time zone");
 
                     b.HasKey("Id");

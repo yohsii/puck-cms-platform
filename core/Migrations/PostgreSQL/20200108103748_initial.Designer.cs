@@ -10,7 +10,7 @@ using puck.core.Concrete;
 namespace puck.core.Migrations.PostgreSQL
 {
     [DbContext(typeof(PuckContextPostgreSQL))]
-    [Migration("20200107165641_initial")]
+    [Migration("20200108103748_initial")]
     partial class initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -160,7 +160,7 @@ namespace puck.core.Migrations.PostgreSQL
                         .HasColumnType("character varying(256)")
                         .HasMaxLength(256);
 
-                    b.Property<DateTime>("TimeStamp")
+                    b.Property<DateTime>("Timestamp")
                         .HasColumnType("timestamp without time zone");
 
                     b.HasKey("Id");

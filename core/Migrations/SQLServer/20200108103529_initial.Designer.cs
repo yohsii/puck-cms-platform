@@ -10,7 +10,7 @@ using puck.core.Concrete;
 namespace puck.core.Migrations.SQLServer
 {
     [DbContext(typeof(PuckContextSQLServer))]
-    [Migration("20200107165341_initial")]
+    [Migration("20200108103529_initial")]
     partial class initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -160,7 +160,7 @@ namespace puck.core.Migrations.SQLServer
                         .HasColumnType("nvarchar(256)")
                         .HasMaxLength(256);
 
-                    b.Property<DateTime>("TimeStamp")
+                    b.Property<DateTime>("Timestamp")
                         .HasColumnType("datetime2");
 
                     b.HasKey("Id");

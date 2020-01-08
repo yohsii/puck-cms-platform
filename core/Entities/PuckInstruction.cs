@@ -10,7 +10,7 @@ namespace puck.core.Entities
     public class PuckInstruction
     {
         public PuckInstruction() {
-            TimeStamp = DateTime.Now;
+            Timestamp = DateTime.Now;
         }
         [Key]
         public int Id { get; set; }
@@ -20,6 +20,6 @@ namespace puck.core.Entities
         public int Count { get; set; }
         public string InstructionKey { get; set; }
         public string InstructionDetail { get; set; }
-        public DateTime TimeStamp { get; set; }
+        public DateTime Timestamp { get; set; }
     }
 }

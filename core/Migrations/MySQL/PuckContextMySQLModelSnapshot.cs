@@ -152,7 +152,7 @@ namespace puck.core.Migrations.MySQL
                         .HasColumnType("varchar(256) CHARACTER SET utf8mb4")
                         .HasMaxLength(256);
 
-                    b.Property<DateTime>("TimeStamp")
+                    b.Property<DateTime>("Timestamp")
                         .HasColumnType("datetime(6)");
 
                     b.HasKey("Id");

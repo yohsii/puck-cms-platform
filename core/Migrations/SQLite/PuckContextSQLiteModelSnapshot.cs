@@ -151,7 +151,7 @@ namespace puck.core.Migrations.SQLite
                         .HasColumnType("TEXT")
                         .HasMaxLength(256);
 
-                    b.Property<DateTime>("TimeStamp")
+                    b.Property<DateTime>("Timestamp")
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
