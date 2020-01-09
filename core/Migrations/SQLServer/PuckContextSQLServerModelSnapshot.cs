@@ -127,7 +127,7 @@ namespace puck.core.Migrations.SQLServer
                     b.Property<DateTime>("Timestamp")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("Username")
+                    b.Property<string>("UserName")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Variant")
@@ -186,7 +186,7 @@ namespace puck.core.Migrations.SQLServer
                         .HasColumnType("nvarchar(2048)")
                         .HasMaxLength(2048);
 
-                    b.Property<string>("Username")
+                    b.Property<string>("UserName")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Value")
@@ -220,7 +220,7 @@ namespace puck.core.Migrations.SQLServer
 
             modelBuilder.Entity("puck.core.Entities.PuckRevision", b =>
                 {
-                    b.Property<int>("RevisionID")
+                    b.Property<int>("RevisionId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
@@ -293,7 +293,7 @@ namespace puck.core.Migrations.SQLServer
                         .HasColumnType("nvarchar(10)")
                         .HasMaxLength(10);
 
-                    b.HasKey("RevisionID");
+                    b.HasKey("RevisionId");
 
                     b.HasIndex("Current");
 

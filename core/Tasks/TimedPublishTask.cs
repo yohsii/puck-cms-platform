@@ -40,7 +40,7 @@ namespace puck.core.Tasks
                         var id = Guid.Parse(meta.Key.Split(':')[0]);
                         var variant = meta.Key.Split(':')[1];
                         var descendantVariants = (meta.Value ?? "").Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries).ToList();
-                        await contentService.Publish(id, variant, descendantVariants, userName: meta.Username);
+                        await contentService.Publish(id, variant, descendantVariants, userName: meta.UserName);
                     }
                     catch (Exception ex) {
                         PuckCache.PuckLog.Log($"timed publish failed {meta.Key??""}. {ex.Message}", ex.StackTrace, level: "error", exceptionType: ex.GetType());
@@ -54,7 +54,7 @@ namespace puck.core.Tasks
                         var id = Guid.Parse(meta.Key.Split(':')[0]);
                         var variant = meta.Key.Split(':')[1];
                         var descendantVariants = new List<string>() { variant };
-                        await contentService.UnPublish(id, variant, descendantVariants, userName: meta.Username);
+                        await contentService.UnPublish(id, variant, descendantVariants, userName: meta.UserName);
                     }
                     catch (Exception ex) {
                         PuckCache.PuckLog.Log($"timed unpublish failed {meta.Key ?? ""}. {ex.Message}", ex.StackTrace, level: "error", exceptionType: ex.GetType());

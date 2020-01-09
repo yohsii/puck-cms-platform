@@ -10,7 +10,7 @@ using puck.core.Concrete;
 namespace puck.core.Migrations.PostgreSQL
 {
     [DbContext(typeof(PuckContextPostgreSQL))]
-    [Migration("20200108123711_initial")]
+    [Migration("20200109091940_initial")]
     partial class initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -129,7 +129,7 @@ namespace puck.core.Migrations.PostgreSQL
                     b.Property<DateTime>("Timestamp")
                         .HasColumnType("timestamp without time zone");
 
-                    b.Property<string>("Username")
+                    b.Property<string>("UserName")
                         .HasColumnType("text");
 
                     b.Property<string>("Variant")
@@ -188,7 +188,7 @@ namespace puck.core.Migrations.PostgreSQL
                         .HasColumnType("character varying(2048)")
                         .HasMaxLength(2048);
 
-                    b.Property<string>("Username")
+                    b.Property<string>("UserName")
                         .HasColumnType("text");
 
                     b.Property<string>("Value")
@@ -222,7 +222,7 @@ namespace puck.core.Migrations.PostgreSQL
 
             modelBuilder.Entity("puck.core.Entities.PuckRevision", b =>
                 {
-                    b.Property<int>("RevisionID")
+                    b.Property<int>("RevisionId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer")
                         .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
@@ -295,7 +295,7 @@ namespace puck.core.Migrations.PostgreSQL
                         .HasColumnType("character varying(10)")
                         .HasMaxLength(10);
 
-                    b.HasKey("RevisionID");
+                    b.HasKey("RevisionId");
 
                     b.HasIndex("Current");
 

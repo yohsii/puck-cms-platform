@@ -16,6 +16,6 @@ namespace puck.core.Entities
         public string Key { get; set; }
         public string Value { get; set; }
         public DateTime? Dt { get; set; }
-        public string Username { get; set; }
+        public string UserName { get; set; }
     }
 }

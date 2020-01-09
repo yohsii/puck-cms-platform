@@ -121,7 +121,7 @@ namespace puck.core.Migrations.SQLite
                     b.Property<DateTime>("Timestamp")
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("Username")
+                    b.Property<string>("UserName")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Variant")
@@ -178,7 +178,7 @@ namespace puck.core.Migrations.SQLite
                         .HasColumnType("TEXT")
                         .HasMaxLength(2048);
 
-                    b.Property<string>("Username")
+                    b.Property<string>("UserName")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Value")
@@ -211,7 +211,7 @@ namespace puck.core.Migrations.SQLite
 
             modelBuilder.Entity("puck.core.Entities.PuckRevision", b =>
                 {
-                    b.Property<int>("RevisionID")
+                    b.Property<int>("RevisionId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
@@ -283,7 +283,7 @@ namespace puck.core.Migrations.SQLite
                         .HasColumnType("TEXT")
                         .HasMaxLength(10);
 
-                    b.HasKey("RevisionID");
+                    b.HasKey("RevisionId");
 
                     b.HasIndex("Current");
 

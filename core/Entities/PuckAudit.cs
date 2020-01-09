@@ -17,7 +17,8 @@ namespace puck.core.Entities
         public Guid ContentId { get; set; }
         public string Variant { get; set; }
         public string Action { get; set; }
-        public string Username { get; set; }
+        [Display(Name ="User Name")]
+        public string UserName { get; set; }
         public string Notes { get; set; }
         public DateTime Timestamp { get; set; }
     }

@@ -1557,7 +1557,7 @@ namespace puck.core.Services
                             //if this revision or any previous revisions have a published revision, HasNoPublishedRevision must be false
                             revision.HasNoPublishedRevision = false;
                             //revisions.ForEach(x => x.HasNoPublishedRevision = false);
-                            int? isPublishedIgnoreRevisionId = makeRevision ? (int?)null : revision.RevisionID;
+                            int? isPublishedIgnoreRevisionId = makeRevision ? (int?)null : revision.RevisionId;
                             int _affected = UpdateHasNoPublishedRevisionAndIsPublishedRevision(mod.Id, mod.Variant, false, false, isPublishedRevisionIgnoreRevisionId: isPublishedIgnoreRevisionId);
                         }
                         else if (publishedRevision == null)
@@ -1566,7 +1566,7 @@ namespace puck.core.Services
                         }
 
                         //prune old revisions
-                        revisions.OrderByDescending(x => x.RevisionID).Skip(PuckCache.MaxRevisions).ToList().ForEach(x => repo.DeleteRevision(x));
+                        revisions.OrderByDescending(x => x.RevisionId).Skip(PuckCache.MaxRevisions).ToList().ForEach(x => repo.DeleteRevision(x));
                         var shouldUpdateDomainMappings = false;
                         var shouldUpdatePathLocaleMappings = false;
                         //if first time node saved and is root node - set locale for path
@@ -1837,7 +1837,7 @@ namespace puck.core.Services
             audit.Variant = variant;
             audit.Action = action;
             audit.Notes = notes;
-            audit.Username = username;
+            audit.UserName = username;
             repo.AddPuckAudit(audit);
             if(save)
                 repo.SaveChanges();

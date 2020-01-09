@@ -122,7 +122,7 @@ namespace puck.core.Migrations.MySQL
                     b.Property<DateTime>("Timestamp")
                         .HasColumnType("datetime(6)");
 
-                    b.Property<string>("Username")
+                    b.Property<string>("UserName")
                         .HasColumnType("longtext CHARACTER SET utf8mb4");
 
                     b.Property<string>("Variant")
@@ -179,7 +179,7 @@ namespace puck.core.Migrations.MySQL
                         .HasColumnType("longtext CHARACTER SET utf8mb4")
                         .HasMaxLength(2048);
 
-                    b.Property<string>("Username")
+                    b.Property<string>("UserName")
                         .HasColumnType("longtext CHARACTER SET utf8mb4");
 
                     b.Property<string>("Value")
@@ -212,7 +212,7 @@ namespace puck.core.Migrations.MySQL
 
             modelBuilder.Entity("puck.core.Entities.PuckRevision", b =>
                 {
-                    b.Property<int>("RevisionID")
+                    b.Property<int>("RevisionId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
@@ -284,7 +284,7 @@ namespace puck.core.Migrations.MySQL
                         .HasColumnType("varchar(10) CHARACTER SET utf8mb4")
                         .HasMaxLength(10);
 
-                    b.HasKey("RevisionID");
+                    b.HasKey("RevisionId");
 
                     b.HasIndex("Current");
 

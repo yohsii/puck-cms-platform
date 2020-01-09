@@ -14,7 +14,7 @@ namespace puck.core.Entities
     {
         [Key]
         [IndexSettings(Ignore=false)]
-        public int RevisionID { get; set; }
+        public int RevisionId { get; set; }
         [IndexSettings(Ignore = false)]
         public bool Current { get; set; }
         [IndexSettings(Ignore = false)]

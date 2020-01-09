@@ -648,7 +648,7 @@ namespace puck.core.Controllers
                     meta.Name = DBNames.TimedPublish;
                     meta.Key = key;
                     meta.Dt = model.PublishAt.Value;
-                    meta.Username = User.Identity.Name;
+                    meta.UserName = User.Identity.Name;
                     meta.Value = value;
                 }
                 else
@@ -670,7 +670,7 @@ namespace puck.core.Controllers
                     meta.Name = DBNames.TimedUnpublish;
                     meta.Key = key;
                     meta.Dt = model.UnpublishAt.Value;
-                    meta.Username = User.Identity.Name;
+                    meta.UserName = User.Identity.Name;
                 }
                 else
                 {
@@ -738,7 +738,7 @@ namespace puck.core.Controllers
             if (!string.IsNullOrEmpty(variant))
                 audit = audit.Where(x => x.Variant.ToLower().Equals(variant.ToLower()));
             if (!string.IsNullOrEmpty(userName))
-                audit = audit.Where(x => x.Username.ToLower().Equals(userName.ToLower()));
+                audit = audit.Where(x => x.UserName.ToLower().Equals(userName.ToLower()));
             var count = audit.Count();
             var model = audit.OrderByDescending(x => x.Timestamp).Skip((page - 1) * pageSize).Take(pageSize).ToList();
             ViewData["count"] = count;
@@ -1622,7 +1622,7 @@ namespace puck.core.Controllers
         [Authorize(Roles = PuckRoles.Revert, AuthenticationSchemes = Mvc.AuthenticationScheme)]
         public ActionResult Compare(int id)
         {
-            var compareTo = repo.GetPuckRevision().Where(x => x.RevisionID == id).FirstOrDefault();
+            var compareTo = repo.GetPuckRevision().Where(x => x.RevisionId == id).FirstOrDefault();
             var current = repo.GetPuckRevision().Where(x => x.Id == compareTo.Id && x.Variant.ToLower().Equals(compareTo.Variant.ToLower()) && x.Current).FirstOrDefault();
             var model = new RevisionCompare { Current = null, Revision = null, RevisionID = -1 };
             if (compareTo != null && current != null)
@@ -1631,7 +1631,7 @@ namespace puck.core.Controllers
                 var mCompareTo = JsonConvert.DeserializeObject(compareTo.Value, ApiHelper.ConcreteType(ApiHelper.GetTypeFromName(compareTo.Type))) as BaseModel;
                 //var mCurrent = JsonConvert.DeserializeObject(current.Value,ApiHelper.ConcreteType(ApiHelper.GetType(current.Type))) as BaseModel;
                 var mCurrent = JsonConvert.DeserializeObject(current.Value, ApiHelper.ConcreteType(ApiHelper.GetTypeFromName(current.Type))) as BaseModel;
-                model = new RevisionCompare { Current = mCurrent, Revision = mCompareTo, RevisionID = compareTo.RevisionID };
+                model = new RevisionCompare { Current = mCurrent, Revision = mCompareTo, RevisionID = compareTo.RevisionId };
             }
             return View(model);
         }
@@ -1646,7 +1646,7 @@ namespace puck.core.Controllers
             Guid modelId = Guid.Empty;
             try
             {
-                var rnode = repo.GetPuckRevision().Where(x => x.RevisionID == id).FirstOrDefault();
+                var rnode = repo.GetPuckRevision().Where(x => x.RevisionId == id).FirstOrDefault();
                 if (rnode == null)
                     throw new Exception(string.Format("revision does not exist: id:{0}", id));
                 var current = repo.GetPuckRevision().Where(x => x.Id == rnode.Id && x.Variant.ToLower().Equals(rnode.Variant.ToLower()) && x.Current).ToList();
@@ -1692,7 +1692,7 @@ namespace puck.core.Controllers
             var success = false;
             try
             {
-                repo.GetPuckRevision().Where(x => x.RevisionID == id).ToList().ForEach(x => repo.DeleteRevision(x));
+                repo.GetPuckRevision().Where(x => x.RevisionId == id).ToList().ForEach(x => repo.DeleteRevision(x));
                 repo.SaveChanges();
                 success = true;
             }
