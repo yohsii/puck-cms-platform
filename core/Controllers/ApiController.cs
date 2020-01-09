@@ -731,7 +731,7 @@ namespace puck.core.Controllers
         [Authorize(Roles = PuckRoles.Audit, AuthenticationSchemes = Mvc.AuthenticationScheme)]
         public ActionResult AuditMarkup(Guid id, int page = 1, int pageSize = 10, string variant = null, string userName = null)
         {
-            var revision = repo.GetPuckRevision().Where(x => x.Id == id).FirstOrDefault();
+            var revision = repo.GetPuckRevision().Where(x => x.Id == id && x.Current).FirstOrDefault();
             if (revision != null)
                 ViewData["nodeName"] = revision.NodeName;
             var audit = repo.GetPuckAudit().Where(x => x.ContentId == id);
