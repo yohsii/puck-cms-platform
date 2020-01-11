@@ -721,16 +721,55 @@ var draw = function (data, el, sortable, renderVariantLinks) {
         elinner.append($("<i class=\"fas fa-chevron-right expand\"></i>"))
         elinner.append($("<i class=\"fas fa-cog menu\"></i>"))
             .append("<span class='nodename'>" + node.NodeName + (!renderVariantLinks ? "&nbsp;" : "") + "</span>");
+        var elVariants = $("<div class=\"variants d-inline\"/>");
+        elinner.append(elVariants);
+        var hasPublished = false;
+        var hasUnpublished = false;
         for (var i = 0; i < variants.length; i++) {
             var a = $('<a class="variantLink" href="#content?id=' + node.Id + '&variant=' + variants[i] + '"/>');
             var vel = $("<span class=\"variant\"/>").attr("data-variant", variants[i]).html(variants[i] + (!renderVariantLinks?"&nbsp;":""));
             if (publishedContent[node.Id] != undefined && publishedContent[node.Id][variants[i]] != undefined) {
                 vel.addClass("published");
+                hasPublished = true;
+            } else {
+                hasUnpublished = true;
             }
             if (renderVariantLinks) {
                 a.append(vel);
-                elinner.append(a);
-            } else elinner.append(vel);
+                elVariants.append(a);
+            } else elVariants.append(vel);
+        }
+        if (variants.length > 3) {
+            elnode.addClass("many-variants");
+            var setupVariantsPopover = function (elVariants,elinner,hasPublished,hasUnpublished) {
+                elVariants.hide().removeClass("d-inline");
+                var trigger = $("<div class=\"variantsPopoverTrigger d-inline\">V</div>");
+                if (hasPublished && hasUnpublished)
+                    trigger.addClass("has-published-and-unpublished");
+                else if (hasPublished)
+                    trigger.addClass("has-published");
+                else if (hasUnpublished)
+                    trigger.addClass("has-unpublished");
+                elinner.append(trigger);
+                trigger.attr({ "title": "Variants", "data-content": elVariants.html(), "data-toggle": "popover" });
+                trigger.popover({
+                    html: true,
+                    placement: "bottom",
+                    container: elinner
+                });
+                trigger.on('shown.bs.popover', function () {
+                    elinner.find(".popover .variant").each(function () {
+                        var el = $(this);
+                        el.attr("data-variant", el.html().replace("&nbsp;",""));
+                        el.html(variantNames[el.html().replace("&nbsp;", "")]);
+                    });
+                    $(document).on("click.popover", function (e) {
+                        trigger.popover('hide');
+                        $(document).off("click.popover");
+                    });
+                });
+            }
+            setupVariantsPopover(elVariants, elinner, hasPublished, hasUnpublished);
         }
         elnode.attr({
             "data-type_chain": typeFromChain(node.TypeChain)

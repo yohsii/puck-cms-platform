@@ -965,7 +965,16 @@ div.settings {
         margin-left: 15px;
         margin-top: 10px;
     }
+.variantsPopoverTrigger {
+    background-color: #f2f2f2;
+    margin-left: 5px;
+    padding: 1px 5px;
+    border: 1px solid transparent;
+    border-radius: 10px;
+    cursor: pointer;
+}
 
+}
     .node.unpublished > .inner {
         background: #ffeeee;
     }
@@ -1107,14 +1116,42 @@ background-color: #c7d1d6;
     width: 20px;
 }
 
-    .leftarea .node.selected > .inner {
-        border-top: 1px solid #0088cc;
-        border-bottom: 1px solid #0088cc;
-    }
+.leftarea .node.selected > .inner {
+    border-top: 1px solid #0088cc;
+    border-bottom: 1px solid #0088cc;
+}
+.leftarea .node.selected.many-variants > .inner {
+    padding-top: 4px;
+    padding-bottom: 4px;
+}
+.has-published-and-unpublished {
+    background-color: #f2f2f2;
+    color: #3e3e3e;
+    font-weight: bold;
+}
+.has-published {
+    background-color: #33aa33;
+    color: white;
+    font-weight: bold;
+}
+.has-unpublished {
+    background-color: #ff3333;
+    color: white;
+    font-weight: bold;
+}
+.node .popover-body>span {
+    padding-right:3px;
+    padding-left:3px;
+    border-right:solid 1px #3e3e3e;
+}
+.node .popover-body > a span {
+    border-right: solid 1px #3e3e3e;
+    padding-right: 3px;
+}
 
-    .leftarea .node > .inner {
-        position: relative;
-    }
+.leftarea .node > .inner {
+    position: relative;
+}
 
         .leftarea .node > .inner:hover .icon-search, .leftarea .node > .inner:hover .icon_search {
             display: block;
