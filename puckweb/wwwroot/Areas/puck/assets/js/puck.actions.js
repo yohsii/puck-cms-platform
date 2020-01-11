@@ -1307,16 +1307,20 @@ var dialogForVariants = function (variants, multiSelect) {
 var unpublishedVariants = function (id) {
     var variants = [];
     cleft.find(".node[data-id='" + id + "']>.inner .variant").each(function () {
-        if (!$(this).hasClass("published"))
-            variants.push($(this).attr("data-variant"));
+        if (!$(this).hasClass("published")) {
+            if (!variants.includes($(this).attr("data-variant")))
+                variants.push($(this).attr("data-variant"));
+        }
     });
     return variants.length == 0 ? false : variants;
 }
 var publishedVariants = function (id) {
     var variants = [];
     cleft.find(".node[data-id='" + id + "']>.inner .variant").each(function () {
-        if ($(this).hasClass("published"))
-            variants.push($(this).attr("data-variant"));
+        if ($(this).hasClass("published")) {
+            if (!variants.includes($(this).attr("data-variant")))
+                variants.push($(this).attr("data-variant"));
+        }
     });
     return variants.length == 0 ? false : variants;
 }
