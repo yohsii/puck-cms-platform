@@ -1772,18 +1772,18 @@ namespace puck.core.Services
                 var value = hasNoPublishedRevision.Value ? 1 : 0;
                 hasNoPublishedRevisionSql = $"update PuckRevision set [HasNoPublishedRevision]=@hasNoPublishedRevision"
                     + $" where [Id]=@id and [Variant]=@variant and [HasNoPublishedRevision]!=@hasNoPublishedRevision"
-                    + (hasNoPublishedRevisionIgnoreRevisionId.HasValue ? $" and [RevisionID]!=@hasNoPublishedRevisionIgnoreId" : "");
+                    + (hasNoPublishedRevisionIgnoreRevisionId.HasValue ? $" and [RevisionId]!=@hasNoPublishedRevisionIgnoreId" : "");
                 if (repo.Context.Database.IsNpgsql())
                 {
                     hasNoPublishedRevisionSql = $"update \"PuckRevision\" set \"HasNoPublishedRevision\"=@hasNoPublishedRevision"
                     + $" where \"Id\"=@id and \"Variant\"=@variant and \"HasNoPublishedRevision\"!=@hasNoPublishedRevision"
-                    + (hasNoPublishedRevisionIgnoreRevisionId.HasValue ? $" and \"RevisionID\"!=@hasNoPublishedRevisionIgnoreId" : "");
+                    + (hasNoPublishedRevisionIgnoreRevisionId.HasValue ? $" and \"RevisionId\"!=@hasNoPublishedRevisionIgnoreId" : "");
                 }
                 else if (repo.Context.Database.IsMySql())
                 {
                     hasNoPublishedRevisionSql = $"update `PuckRevision` set `HasNoPublishedRevision`=@hasNoPublishedRevision"
                     + $" where `Id`=@id and `Variant`=@variant and `HasNoPublishedRevision`!=@hasNoPublishedRevision"
-                    + (hasNoPublishedRevisionIgnoreRevisionId.HasValue ? $" and `RevisionID`!=@hasNoPublishedRevisionIgnoreId" : "");
+                    + (hasNoPublishedRevisionIgnoreRevisionId.HasValue ? $" and `RevisionId`!=@hasNoPublishedRevisionIgnoreId" : "");
                 }
                 parameters.Add(CreateParameter("@id", id));
                 parameters.Add(CreateParameter("@variant", variant));
@@ -1797,18 +1797,18 @@ namespace puck.core.Services
                 var value = isPublishedRevision.Value ? 1 : 0;
                 isPublishedRevisionSql = $"update PuckRevision set [IsPublishedRevision]=@isPublishedRevision"
                     + $" where [Id]=@id and [Variant]=@variant and [IsPublishedRevision]!=@isPublishedRevision"
-                    + (isPublishedRevisionIgnoreRevisionId.HasValue ? $" and [RevisionID]!=@isPublishedRevisionIgnoreId" : "");
+                    + (isPublishedRevisionIgnoreRevisionId.HasValue ? $" and [RevisionId]!=@isPublishedRevisionIgnoreId" : "");
                 if (repo.Context.Database.IsNpgsql())
                 {
                     isPublishedRevisionSql = $"update \"PuckRevision\" set \"IsPublishedRevision\"=@isPublishedRevision"
                     + $" where \"Id\"=@id and \"Variant\"=@variant and \"IsPublishedRevision\"!=@isPublishedRevision"
-                    + (isPublishedRevisionIgnoreRevisionId.HasValue ? $" and \"RevisionID\"!=@isPublishedRevisionIgnoreId" : "");
+                    + (isPublishedRevisionIgnoreRevisionId.HasValue ? $" and \"RevisionId\"!=@isPublishedRevisionIgnoreId" : "");
                 }
                 else if (repo.Context.Database.IsMySql())
                 {
                     isPublishedRevisionSql = $"update `PuckRevision` set `IsPublishedRevision`=@isPublishedRevision"
                     + $" where `Id`=@id and `Variant`=@variant and `IsPublishedRevision`!=@isPublishedRevision"
-                    + (isPublishedRevisionIgnoreRevisionId.HasValue ? $" and `RevisionID`!=@isPublishedRevisionIgnoreId" : "");
+                    + (isPublishedRevisionIgnoreRevisionId.HasValue ? $" and `RevisionId`!=@isPublishedRevisionIgnoreId" : "");
                 }
                 if (!hasNoPublishedRevision.HasValue)
                 {
