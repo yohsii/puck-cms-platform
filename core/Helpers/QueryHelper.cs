@@ -396,7 +396,7 @@ namespace puck.core.Helpers
             var qh = new QueryHelper<TModel>();
             //qh.And().Field(x => x.Path, path);
             qh.And().Path(path);
-            return qh.GetAll();
+            return qh.GetAllNoCast();
         }
 
         public static TModel Current()
@@ -422,7 +422,7 @@ namespace puck.core.Helpers
             var qh = new QueryHelper<TModel>();
             //qh.And().Field(x => x.Path, path).Variant(variant);
             qh.And().Path(path).Variant(variant);
-            return qh.Get();
+            return qh.GetNoCast();
         }
 
         //constructor
