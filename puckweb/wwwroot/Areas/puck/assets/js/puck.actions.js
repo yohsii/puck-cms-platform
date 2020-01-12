@@ -743,7 +743,7 @@ var draw = function (data, el, sortable, renderVariantLinks) {
             elnode.addClass("many-variants");
             var setupVariantsPopover = function (elVariants,elinner,hasPublished,hasUnpublished) {
                 elVariants.hide().removeClass("d-inline");
-                var trigger = $("<div class=\"variantsPopoverTrigger d-inline\">V</div>");
+                var trigger = $("<div class=\"variantsPopoverTrigger d-inline fas fa-globe\"></div>");
                 if (hasPublished && hasUnpublished)
                     trigger.addClass("has-published-and-unpublished");
                 else if (hasPublished)

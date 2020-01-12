@@ -966,11 +966,11 @@ div.settings {
         margin-top: 10px;
     }
 .variantsPopoverTrigger {
-    background-color: #f2f2f2;
+    /*background-color: #f2f2f2;*/
     margin-left: 5px;
-    padding: 1px 5px;
-    border: 1px solid transparent;
-    border-radius: 10px;
+    /*padding: 1px 5px;*/
+    /*border: 1px solid transparent;*/
+    /*border-radius: 10px;*/
     cursor: pointer;
 }
 
@@ -1125,18 +1125,18 @@ background-color: #c7d1d6;
     padding-bottom: 4px;
 }
 .has-published-and-unpublished {
-    background-color: #f2f2f2;
-    color: #3e3e3e;
+    color: #a2a2a2;
+    /*color: #3e3e3e;*/
     font-weight: bold;
 }
 .has-published {
-    background-color: #33aa33;
-    color: white;
+    color: #33aa33;
+    /*color: white;*/
     font-weight: bold;
 }
 .has-unpublished {
-    background-color: #ff3333;
-    color: white;
+    color: #ff3333;
+    /*color: white;*/
     font-weight: bold;
 }
 .node .popover-body>span {
