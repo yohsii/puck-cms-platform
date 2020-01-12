@@ -960,9 +960,7 @@ namespace puck.core.Services
                         nmeta.ForEach(x => { repo.DeleteMeta(x); });
                     }
                     repo.SaveChanges();
-                    StateHelper.UpdateDomainMappings(true);
-                    StateHelper.UpdatePathLocaleMappings(true);
-
+                    
                     var instruction = new PuckInstruction() { InstructionKey = InstructionKeys.Delete, Count = 1, ServerName = ApiHelper.ServerName() };
                     instruction.InstructionDetail = deleteQuery.ToString();
                     repo.AddPuckInstruction(instruction);
@@ -974,6 +972,8 @@ namespace puck.core.Services
                     parentRevisions.ForEach(x => x.HasChildren = hasChildren);
                     repo.SaveChanges();
                     transaction.Commit();
+                    StateHelper.UpdateDomainMappings(true);
+                    StateHelper.UpdatePathLocaleMappings(true);
                     toDelete.ForEach(x => { OnAfterDelete(this, new IndexingEventArgs() { Node = x }); });
                 }
                 catch (Exception ex)
