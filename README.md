@@ -17,6 +17,7 @@ it's fast, with queries avoiding the database and instead using Lucene. it's als
 
 - multi-site - multiple site roots mapped to different domains
 - multilingual - associate languages with nodes so you can for example, have different site roots with different associated languages. this is recursive so you can associate different languages to nodes further down the hierarchy if necessary. each content node may also have translations, opening up the possibility for 1:1 and multi-site approaches to multilingual websites.
+- can be used headless or decoupled
 - strongly typed design - data querying is done in a strongly typed manner, making use of query expressions and a fluent api. templates are also strongly typed.
 - not much to learn - models designed as regular poco decorated with attributes as you normally would with .net mvc
 - full text search - data storage is lucene based and you can set analyzers and field settings (analyze,store,ignore,keep casing) per property in your model
@@ -33,5 +34,4 @@ it's fast, with queries avoiding the database and instead using Lucene. it's als
 - task api - supports one-off and recurring background custom tasks with editable parameters
 - scheduled publish
 - sync content between databases (e.g. staging to production)
-- can be used headless or decoupled
 - supports sql server, sqlite, mysql, postgresql
