@@ -1624,14 +1624,14 @@ namespace puck.core.Controllers
         {
             var compareTo = repo.GetPuckRevision().Where(x => x.RevisionId == id).FirstOrDefault();
             var current = repo.GetPuckRevision().Where(x => x.Id == compareTo.Id && x.Variant.ToLower().Equals(compareTo.Variant.ToLower()) && x.Current).FirstOrDefault();
-            var model = new RevisionCompare { Current = null, Revision = null, RevisionID = -1 };
+            var model = new RevisionCompare { Current = null, Revision = null, RevisionId = -1 };
             if (compareTo != null && current != null)
             {
                 //var mCompareTo = JsonConvert.DeserializeObject(compareTo.Value,ApiHelper.ConcreteType(ApiHelper.GetType(compareTo.Type))) as BaseModel;
                 var mCompareTo = JsonConvert.DeserializeObject(compareTo.Value, ApiHelper.ConcreteType(ApiHelper.GetTypeFromName(compareTo.Type))) as BaseModel;
                 //var mCurrent = JsonConvert.DeserializeObject(current.Value,ApiHelper.ConcreteType(ApiHelper.GetType(current.Type))) as BaseModel;
                 var mCurrent = JsonConvert.DeserializeObject(current.Value, ApiHelper.ConcreteType(ApiHelper.GetTypeFromName(current.Type))) as BaseModel;
-                model = new RevisionCompare { Current = mCurrent, Revision = mCompareTo, RevisionID = compareTo.RevisionId };
+                model = new RevisionCompare { Current = mCurrent, Revision = mCompareTo, RevisionId = compareTo.RevisionId };
             }
             return View(model);
         }

@@ -11,6 +11,6 @@ namespace puck.core.Models
     {
         public BaseModel Current { get; set; }
         public BaseModel Revision { get; set; }
-        public int RevisionID { get; set; }
+        public int RevisionId { get; set; }
     }
 }
