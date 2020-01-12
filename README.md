@@ -1,19 +1,19 @@
-NOTE: this is an asp.net core migration of the mvc 5 project which you can find [here](https://github.com/yohsii/puck). commits were not carried over to this new repo.
+NOTE: This is an asp.net core migration of the mvc 5 project which you can find [here](https://github.com/yohsii/puck). Commits were not carried over to this new repo.
 
 # puck cms
-Fast, scalable, code-first, unobtrusive and extensible with powerful querying and Lucene integration.
+Fast, scalable, code-first, unobtrusive, extensible with powerful querying and Lucene integration.
 
 [![Build status](https://ci.appveyor.com/api/projects/status/7d984nlou8fxw0hq?svg=true)](https://ci.appveyor.com/project/yohsii/puck-core)
 
 [Wiki](https://github.com/yohsii/puck-core/wiki)
 
-**why use puck**
+**Why use puck**
 
-there are no unnecessary abstractions, if you're already using asp.net mvc then you'll know how to use puck. your pages are based on [ViewModels](https://github.com/yohsii/puck-core/wiki/Creating-ViewModels) which are just classes optionally decorated with attributes and the edit screen is made up of [Editor Templates](https://github.com/yohsii/puck-core/wiki/Editor-templates) just like in standard .net mvc. your razor views will receive instances of the appropriate ViewModel as its Model property and you [query](https://github.com/yohsii/puck-core/wiki/Querying-for-content) for content in a strongly typed manner using the properties of your ViewModels and query expressions.
+There are no unnecessary abstractions, if you're already using asp.net mvc then you'll know how to use puck. your pages are based on [ViewModels](https://github.com/yohsii/puck-core/wiki/Creating-ViewModels) which are just classes optionally decorated with attributes and the edit screen is made up of [Editor Templates](https://github.com/yohsii/puck-core/wiki/Editor-templates) just like in standard .net mvc. your razor views will receive instances of the appropriate ViewModel as its Model property and you [query](https://github.com/yohsii/puck-core/wiki/Querying-for-content) for content in a strongly typed manner using the properties of your ViewModels and query expressions.
 
-it's fast, with queries avoiding the database and instead using Lucene. it's also scalable, syncing between servers in a load balanced environment.
+It's fast, with queries avoiding the database and instead using Lucene. It's scalable, syncing between servers in a load balanced environment.
 
-**features**
+**Features**
 
 - multi-site - multiple site roots mapped to different domains
 - multilingual - associate languages with nodes so you can for example, have different site roots with different associated languages. this is recursive so you can associate different languages to nodes further down the hierarchy if necessary. each content node may also have translations, opening up the possibility for 1:1 and multi-site approaches to multilingual websites.
