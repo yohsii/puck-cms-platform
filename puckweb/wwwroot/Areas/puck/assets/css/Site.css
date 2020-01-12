@@ -1148,6 +1148,9 @@ background-color: #c7d1d6;
     border-right: solid 1px #3e3e3e;
     padding-right: 3px;
 }
+.overlay_screen .tree_container.sort .node .inner .variants, .overlay_screen .tree_container.sort .node .inner .variantsPopoverTrigger {
+    display:none !important;
+}
 
 .leftarea .node > .inner {
     position: relative;
