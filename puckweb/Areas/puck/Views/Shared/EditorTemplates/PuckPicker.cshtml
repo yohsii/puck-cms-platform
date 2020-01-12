@@ -142,7 +142,7 @@
                 getContentModels(ids, function (res) {
                     for (var i = 0; i < res.length; i++) {
                         var el = selected_container.find(".selected_node[data-id='" + res[i].Id + "']");
-                        el.attr("data-nodenamme", res[i].NodeName);
+                        el.attr("data-nodename", res[i].NodeName);
                         el.find(".nname").html(res[i].NodeName);
                     }
                 });
