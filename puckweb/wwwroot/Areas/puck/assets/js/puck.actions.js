@@ -726,8 +726,8 @@ var draw = function (data, el, sortable, renderVariantLinks) {
         var hasPublished = false;
         var hasUnpublished = false;
         for (var i = 0; i < variants.length; i++) {
-            var a = $('<a class="variantLink" href="#content?id=' + node.Id + '&variant=' + variants[i] + '"/>');
-            var vel = $("<span class=\"variant\"/>").attr("data-variant", variants[i]).html(variants[i] + (!renderVariantLinks?"&nbsp;":""));
+            var a = $('<a title="' + variantNames[variants[i]] +'" class="variantLink" href="#content?id=' + node.Id + '&variant=' + variants[i] + '"/>');
+            var vel = $("<span title=\"" + variantNames[variants[i]] + "\" class=\"variant\"/>").attr("data-variant", variants[i]).html(variants[i] + (!renderVariantLinks ? "&nbsp;" : ""));
             if (publishedContent[node.Id] != undefined && publishedContent[node.Id][variants[i]] != undefined) {
                 vel.addClass("published");
                 hasPublished = true;
