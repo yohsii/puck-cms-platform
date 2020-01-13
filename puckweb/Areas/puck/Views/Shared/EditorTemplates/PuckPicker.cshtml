@@ -169,6 +169,7 @@
                     selected_container.find(".selected_node").each(function () {
                         var selected = $(this);
                         overlayEl.find(".node[data-id='" + selected.attr("data-id") + "']").addClass("selected");
+                        overlayEl.find(".node[data-id='" + selected.attr("data-id") + "'] .variant[data-variant='"+selected.attr("data-variant")+"']").addClass("selected");
                     });
                     if (overlayEl.find(".node").length == 1) {
                         overlayEl.find("ul.contentTree").before($("<p/>").html("there is no content to select."));
@@ -208,6 +209,7 @@
                         selected_container.find(".selected_node").filter("[data-id='" + node.attr("data-id") + "'][data-variant='" + variant + "']").remove();
                         if (selected_container.find(".selected_node").filter("[data-id='" + node.attr("data-id") + "']").length == 0)
                             node.removeClass("selected");
+                        node.find(".variant[data-variant='" + variant + "']").removeClass("selected");
                         setValue();
                         return;
                     }
@@ -217,6 +219,7 @@
                         return false;
                     }
                     node.addClass("selected");
+                    node.find(".variant[data-variant='" + variant + "']").addClass("selected");
 
                     if (isVariantSelection && (selectionType == "variant" || selectionType == "both")) {
                         selected_container.append(
@@ -257,6 +260,7 @@
                             selected_container.find(".selected_node").each(function () {
                                 var selected = $(this);
                                 overlayEl.find(".node[data-id='" + selected.attr("data-id") + "']").addClass("selected");
+                                overlayEl.find(".node[data-id='" + selected.attr("data-id") + "'] .variant[data-variant='"+selected.attr("data-variant")+"']").addClass("selected");
                             });
                             node.find(".node").each(function () {
                                 var n = $(this);

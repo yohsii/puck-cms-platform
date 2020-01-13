@@ -1139,6 +1139,9 @@ background-color: #c7d1d6;
     /*color: white;*/
     font-weight: bold;
 }
+.overlay_screen .contentTree .node .variant.selected {
+    border-bottom:1px solid #4d4d4d;
+}
 .node .popover-body>span {
     padding-right:3px;
     padding-left:3px;

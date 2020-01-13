@@ -760,8 +760,11 @@ var draw = function (data, el, sortable, renderVariantLinks) {
                 trigger.on('shown.bs.popover', function () {
                     elinner.find(".popover .variant").each(function () {
                         var el = $(this);
-                        el.attr("data-variant", el.html().replace("&nbsp;",""));
-                        el.html(variantNames[el.html().replace("&nbsp;", "")]);
+                        var variant = el.html().replace("&nbsp;", "");
+                        el.attr("data-variant", variant);
+                        el.html(variantNames[variant]);
+                        if (elinner.find(".variants .variant.selected[data-variant='" + variant + "']").length > 0)
+                            el.addClass("selected");
                     });
                     $(document).on("click.popover", function (e) {
                         trigger.popover('hide');
