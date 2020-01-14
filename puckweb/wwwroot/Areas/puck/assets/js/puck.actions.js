@@ -743,7 +743,7 @@ var draw = function (data, el, sortable, renderVariantLinks) {
                 elVariants.append(a);
             } else elVariants.append(vel);
         }
-        if (variants.length > 3) {
+        if (variants.length > 1) {
             elnode.addClass("many-variants");
             var setupVariantsPopover = function (elVariants,elinner,hasPublished,hasUnpublished) {
                 elVariants.hide().removeClass("d-inline");
