@@ -354,6 +354,9 @@ namespace puck.core.Controllers
         {
             var model = repo.CurrentRevision(id,variant);
 
+            if (model == null)
+                return Json(new List<BaseModel>());
+
             var url = "";
             if (model.Path.Count(x => x == '/') == 1)
                 url = "/";

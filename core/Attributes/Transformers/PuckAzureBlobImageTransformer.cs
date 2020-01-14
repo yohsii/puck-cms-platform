@@ -58,7 +58,7 @@ namespace puck.core.Attributes.Transformers
                 //var stream = new MemoryStream();
                 //p.File.CopyTo(stream);
                 p.Size = p.File.Length;
-                p.Extension = Path.GetExtension(p.File.FileName);
+                p.Extension = Path.GetExtension(p.File.FileName).Replace(".","");
 
                 using (var stream = p.File.OpenReadStream()) {
                     await cblob.UploadFromStreamAsync(stream);
