@@ -304,18 +304,19 @@ namespace puck.core.Helpers
                         else
                         {
                             var _item = item;
-                            if (PuckCache.TransformListElements) {
-                                if (_item != null)
-                                {
-                                    //transform
-                                    var attributes = _item.GetType().GetCustomAttributes(false).ToList();
-                                    var newValue = await DoTransform(attributes,_item.GetType(), topElement, prefix.TrimEnd('.'), ukey.TrimEnd('.'), _item, dict, allowedTransformers: allowedTransformers);
-                                    if (newValue != _item)
-                                        _item = newValue;
-                                }
+                            if (PuckCache.TransformListElements && _item != null && !( _item is string)) {
+                                //transform
+                                var attributes = _item.GetType().GetCustomAttributes(false).ToList();
+                                var newValue = await DoTransform(attributes,_item.GetType(), topElement, prefix.TrimEnd('.'), ukey.TrimEnd('.') + "[" + i + "]", _item, dict, allowedTransformers: allowedTransformers);
+                                if (newValue != _item)
+                                    _item = newValue;
                             }
-                            if(item != null)
+                            if (item != null && level < depth)
+                            {
+                                level++;
                                 await Transform(prefix, ukey + "[" + i + "].", item);
+                                level--;
+                            }
                         }
                         i++;
                     }
