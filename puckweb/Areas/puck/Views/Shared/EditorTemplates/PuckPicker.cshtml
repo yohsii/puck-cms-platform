@@ -199,7 +199,15 @@
                     var variant;
                     if (!isVariantSelection) {
                         //changed to only allow variant selection
-                        variant = clicked.parents(".node:first").find(".variant:first").attr("data-variant");
+                        var variants = node.attr("data-variants").split(",");
+                        var path = node.attr("data-path");
+                        variants.sort(function (a, b) {
+                            var aOrder = getVariantOrder(a, path);
+                            var bOrder = getVariantOrder(b, path);
+                            return aOrder - bOrder;
+                        });
+                        //variant = node.find(".variant:first").attr("data-variant");
+                        variant = variants[0];
                         isVariantSelection = true;
                     }
                     else
