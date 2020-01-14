@@ -444,7 +444,7 @@ $(document).on("click",".node-dropdown a,.template-dropdown a",function () {
                     var selectedVariants = dialog.find("select[name='variant']").val() || [];
                     if (selectedVariants.length == 0) {
                         dCon.find("select").show();
-                        dCon.find("p").html("Select any additional languages to unpublish for descendant content");
+                        dCon.find("p").html("Select any language variants to unpublish for descendant content");
                         //dCon.hide();
                         //dCon.find("p").html('');
                     } else {
@@ -468,7 +468,7 @@ $(document).on("click",".node-dropdown a,.template-dropdown a",function () {
                             dCon.find("p").html("All descendant content will be unpublished");
                         } else {
                             dCon.find("select").show();
-                            dCon.find("p").html("Select any additional languages to unpublish for descendant content");
+                            dCon.find("p").html("Select any language variants to unpublish for descendant content");
                         }
 
                     }
