@@ -444,6 +444,10 @@ var showSettings = function (path) {
             window.scrollTo(0, 0);
             getVariants(function (data) {
                 languages = data;
+                languageSortDictionary = [];
+                for (var i = 0; i < data.length; i++) {
+                    languageSortDictionary[data[i].Key] = i;
+                }
             });
         }, function (data) {
             msg(false, data.message);

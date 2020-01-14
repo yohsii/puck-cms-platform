@@ -39,5 +39,10 @@
             });
         });
 
+        if ($("input.@ViewData.ModelMetadata.PropertyName").val() != "") {
+            $($("input.@ViewData.ModelMetadata.PropertyName").val().split(",")).each(function () {
+                $("span.@ViewData.ModelMetadata.PropertyName").append('<input type="hidden" name="@ViewData.ModelMetadata.PropertyName" value="' + this + '"/>');
+            });
+        }
     });
 </script>
