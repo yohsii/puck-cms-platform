@@ -15,11 +15,19 @@
             MaxPick = 5,
             /*SelectionType = "both",*/
             StartPath = null,
-            AllowedTypes=""
+            AllowedTypes="",
+            Types = new Type[] { }
         };
     }
     var startPath = "";
     Guid startId = Guid.Empty;
+    string allowedTypes = "";
+    
+    if (settings.Types != null && settings.Types.Any()) {
+        allowedTypes = string.Join(",", settings.Types.Select(x => x.Name));
+    } else if (!string.IsNullOrEmpty(settings.AllowedTypes)) {
+        allowedTypes = settings.AllowedTypes;
+    }
 
     if (!string.IsNullOrEmpty(settings.StartPathId)) {
         Guid.TryParse(settings.StartPathId,out startId);
@@ -92,7 +100,7 @@
                 selected_container = container.find(".selected_content");
                 //console.log("new container",container);
             });
-            var allowedTypesCSV = "@Html.Raw(settings.AllowedTypes??"")";
+            var allowedTypesCSV = "@Html.Raw(allowedTypes)";
             var allowedTypes = [];
             var tempAllowedTypes = allowedTypesCSV.split(",");
             for (var i = 0; i < tempAllowedTypes.length; i++) {

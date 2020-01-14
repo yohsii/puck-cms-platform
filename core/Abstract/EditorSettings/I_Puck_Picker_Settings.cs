@@ -14,5 +14,6 @@ namespace puck.core.Abstract.EditorSettings
         //bool AllowDuplicates { get; set; }
         List<PuckPicker> StartPath { get; set; }
         public string AllowedTypes { get; set; }
+        public Type[] Types { get; set; }
     }
 }

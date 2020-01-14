@@ -352,8 +352,23 @@ namespace puck.core.Controllers
         [Authorize(Roles = PuckRoles.Puck, AuthenticationSchemes = Mvc.AuthenticationScheme)]
         public ActionResult GetReferencedContent(Guid id, string variant)
         {
+            var model = repo.CurrentRevision(id,variant);
+
+            var url = "";
+            if (model.Path.Count(x => x == '/') == 1)
+                url = "/";
+            else{
+                var trimmed = model.Path.TrimStart('/');
+                url = trimmed.Substring(trimmed.IndexOf("/"));
+            }
+
+            var innerQuery = new QueryHelper<BaseModel>(publishedContentOnly: false)
+                .Field(x => x.References, $"{id.ToString()}_{variant.ToLower()}")
+                .Field(x => x.References, url.Replace("/", @"\/"));
+
             var qh = new QueryHelper<BaseModel>(publishedContentOnly: false)
-                .Must().Field(x => x.References, $"{id.ToString()}_{variant.ToLower()}");
+                .Must(innerQuery);
+
             var results = qh
                 .GetAllNoCast()
                 .Where(x => !(x.Id == id && x.Variant.ToLower().Equals(variant.ToLower())))

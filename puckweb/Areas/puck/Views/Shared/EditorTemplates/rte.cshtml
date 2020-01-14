@@ -51,6 +51,7 @@
             return {
                 selector: selector,
                 min_height: 300,
+                convert_urls: false,
                 @Html.Raw(string.IsNullOrEmpty(width)?"":$"width:\"{width}\",")
                 @Html.Raw(string.IsNullOrEmpty(height)?"":$"height:\"{height}\",")
                 plugins: [

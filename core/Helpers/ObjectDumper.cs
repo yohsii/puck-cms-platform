@@ -367,7 +367,7 @@ namespace puck.core.Helpers
             {
                 var fo = new FlattenedObject
                 {
-                    UniqueKey = ukey,
+                    UniqueKey = ukey.TrimEnd('.'),
                     Model = topElement,
                     Key = prefix.TrimEnd('.'),
                     Value = element,

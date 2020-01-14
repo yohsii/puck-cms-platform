@@ -964,7 +964,7 @@ namespace puck.core.Helpers
                 query += "+";
             }
             else {
-                query += string.Concat("AND(",q.query,") ");
+                query += string.Concat("+(",q.query,") ");
             }
             return this;
         }

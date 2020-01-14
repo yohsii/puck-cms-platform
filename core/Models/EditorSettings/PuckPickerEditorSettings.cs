@@ -39,5 +39,8 @@ namespace puck.core.Models.EditorSettings
 
         [Display(Name ="Allowed Types",Description ="Comma-separated")]
         public string AllowedTypes { get; set; }
+
+        [HiddenInput(DisplayValue = false)]
+        public Type[] Types { get; set; }
     }
 }
