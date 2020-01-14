@@ -1385,6 +1385,9 @@ var setLocalisation = function (p) {
         wireForm(form, function (data) {
             msg(true,"localisation settings saved");
             overlayClose();
+            getAllLocalisations(function (data) {
+                pathToLocale = data;
+            });
         }, function (data) {
             msg(false, data.message);
         });

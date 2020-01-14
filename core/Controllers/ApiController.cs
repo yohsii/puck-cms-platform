@@ -552,6 +552,12 @@ namespace puck.core.Controllers
             }
             return Json(result);
         }
+        [Authorize(Roles = PuckRoles.Puck, AuthenticationSchemes = Mvc.AuthenticationScheme)]
+        public JsonResult AllLocalisations()
+        {
+            var result = PuckCache.PathToLocale ?? new Dictionary<string, string>();
+            return Json(result);
+        }
         [Authorize(Roles = PuckRoles.ChangeType, AuthenticationSchemes = Mvc.AuthenticationScheme)]
         public ActionResult ChangeTypeDialog(Guid id)
         {
