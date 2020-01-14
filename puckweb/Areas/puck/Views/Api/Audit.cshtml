@@ -5,6 +5,11 @@
     var pageSize = ViewData["pageSize"] as int?;
     var count = ViewData["count"] as int?;
     int pageCount = (int)Math.Ceiling(((float)count.Value) / pageSize.Value);
+    var variants = ViewData["variants"] as List<puck.core.Models.Variant>;
+    var variantDictionary = new Dictionary<string, string>();
+    foreach (var variant in variants) {
+        variantDictionary[variant.Key] = variant.FriendlyName;
+    }
 }
 <div class="audit_container">
     <h5>Audit trail</h5>
@@ -40,7 +45,15 @@
             @ViewData["nodeName"]
         </td>
         <td>
-            @Html.DisplayFor(modelItem => item.Variant)
+            @{ 
+                if (variantDictionary.ContainsKey(item.Variant))
+                {
+                    @variantDictionary[item.Variant]
+                }
+                else {
+                    @item.Variant
+                }
+            }
         </td>
         <td>
             @Html.DisplayFor(modelItem => item.Action)

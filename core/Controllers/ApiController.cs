@@ -750,6 +750,7 @@ namespace puck.core.Controllers
             ViewData["count"] = count;
             ViewData["currentPage"] = page;
             ViewData["pageSize"] = pageSize;
+            ViewData["variants"] = apiHelper.Variants();
             return View("Audit", model);
         }
         [Authorize(Roles = PuckRoles.ChangeType, AuthenticationSchemes = Mvc.AuthenticationScheme)]
