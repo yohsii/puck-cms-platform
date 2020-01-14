@@ -21,7 +21,7 @@ namespace puck.core.Abstract
         I_Task_Dispatcher tdispatcher { get; set; }
         UserManager<PuckUser> userManager { get; set; }
 
-        void AddAuditEntry(Guid id, string variant, string action, string notes, string username,bool save=true);
+        void AddAuditEntry(Guid id, string variant, string action, string notes, string username,bool save=true,DateTime? timestamp=null);
         void AddPublishInstruction(List<BaseModel> toIndex,bool save=true);
         Task Sync(Guid id, Guid parentId, bool includeDescendants, bool onlyOverwriteIfNewer, I_Content_Service destinationContentService, IMemoryCache cache, string cacheKey, string userName = null);
         Task Copy(Guid id, Guid parentId, bool includeDescendants, string userName = null);

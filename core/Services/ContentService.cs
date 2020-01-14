@@ -1604,7 +1604,7 @@ namespace puck.core.Services
 
                         string auditAction = mod.Published ? AuditActions.Publish : AuditActions.Save;
                         if (original == null) auditAction = AuditActions.Create;
-                        AddAuditEntry(mod.Id, mod.Variant, auditAction, "", username, save:false);
+                        AddAuditEntry(mod.Id, mod.Variant, auditAction, "", username, save:false,timestamp:mod.Updated);
 
                         repo.SaveChanges();
                         transaction.Commit();
@@ -1830,7 +1830,7 @@ namespace puck.core.Services
             affected = repo.Context.Database.ExecuteSqlRaw(batchedSql, parameters);
             return affected;
         }
-        public void AddAuditEntry(Guid id, string variant, string action, string notes, string username,bool save=true)
+        public void AddAuditEntry(Guid id, string variant, string action, string notes, string username,bool save=true,DateTime? timestamp=null)
         {
             var audit = new PuckAudit();
             audit.ContentId = id;
@@ -1838,6 +1838,8 @@ namespace puck.core.Services
             audit.Action = action;
             audit.Notes = notes;
             audit.UserName = username;
+            if (timestamp.HasValue)
+                audit.Timestamp = timestamp.Value;
             repo.AddPuckAudit(audit);
             if(save)
                 repo.SaveChanges();
