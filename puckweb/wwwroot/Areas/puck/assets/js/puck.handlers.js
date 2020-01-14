@@ -418,11 +418,21 @@ $(document).on("click",".node-dropdown a,.template-dropdown a",function () {
                         msg(undefined, "cannot unpublish without selecting at least one variant");
                         return;
                     }
-                    var descendantVariants = selectedVariants;
-                    var selectedDescendants = (dialog.find("select[name='descendants']").val() || []).join(',');
-                    if (selectedDescendants)
-                        descendantVariants += "," + selectedDescendants;
-                    descendantVariants = descendantVariants.replace(",,",",");
+                    var allSelected = dialog.find("select[name='variant'] option").length == dialog.find("select[name='variant'] option:selected").length;
+                    //var descendantVariants = selectedVariants;
+                    var descendantVariants = "";
+                    if (allSelected) {
+                        $(languages).each(function (i) {
+                            descendantVariants += this.Key;
+                            if (i < languages.length - 1)
+                                descendantVariants += ",";
+                        });
+                    } else {
+                        var selectedDescendants = (dialog.find("select[name='descendants']").val() || []).join(',');
+                        if (selectedDescendants)
+                            descendantVariants += /*"," +*/ selectedDescendants;
+                        descendantVariants = descendantVariants.replace(",,", ",");
+                    }
                     //console.log("variant:", variant, "descendantVariants:", descendantVariants);
                     button.attr("disabled", "disabled");
 
@@ -433,28 +443,41 @@ $(document).on("click",".node-dropdown a,.template-dropdown a",function () {
                 var updateVariant = function () {
                     var selectedVariants = dialog.find("select[name='variant']").val() || [];
                     if (selectedVariants.length == 0) {
-                        dCon.hide();
-                        dCon.find("p").html('');
+                        dCon.find("select").show();
+                        dCon.find("p").html("Select any additional languages to unpublish for descendant content");
+                        //dCon.hide();
+                        //dCon.find("p").html('');
                     } else {
-                        dCon.show();
+                        //dCon.show();
                         var friendlyNames = [];
                         for (var i = 0; i < selectedVariants.length; i++) {
                             friendlyNames.push(variantNames[selectedVariants[i]]);
                         }
                         var hasUnselectedDescendants = languages.length != selectedVariants.length;
-                        if (hasUnselectedDescendants) {
-                            dCon.find("select").show();
-                            dCon.find("p").html("Descendant content with language(s) - " + friendlyNames.join(", ") + " - will be unpublished, select any additional languages to unpublish for descendant content");
-                        } else {
+                        //if (hasUnselectedDescendants) {
+                        //    dCon.find("select").show();
+                        //    dCon.find("p").html("Descendant content with language(s) - " + friendlyNames.join(", ") + " - will be unpublished, select any additional languages to unpublish for descendant content");
+                        //} else {
+                        //    dCon.find("select").hide();
+                        //    dCon.find("p").html("Descendant content with language(s) - " + friendlyNames.join(", ") + " - will be unpublished");
+                        //}
+
+                        var allSelected = dialog.find("select[name='variant'] option").length == dialog.find("select[name='variant'] option:selected").length;
+                        if (allSelected) {
                             dCon.find("select").hide();
-                            dCon.find("p").html("Descendant content with language(s) - " + friendlyNames.join(", ") + " - will be unpublished");
+                            dCon.find("p").html("All descendant content will be unpublished");
+                        } else {
+                            dCon.find("select").show();
+                            dCon.find("p").html("Select any additional languages to unpublish for descendant content");
                         }
+
                     }
-                    dCon.find("option").removeAttr("disabled");
+                    //dCon.find("option").removeAttr("disabled");
                     for (var i = 0; i < selectedVariants.length; i++) {
                         var v = selectedVariants[i];
-                        dCon.find("option[value='" + v + "']").attr("disabled", "disabled").removeAttr("selected");
+                        //dCon.find("option[value='" + v + "']").attr("disabled", "disabled").removeAttr("selected");
                     }
+                    //dCon.find("p").html("Select any additional languages to unpublish for descendant content");
                 }
                 dialog.find("select[name='variant']").change(function () {
                     updateVariant();

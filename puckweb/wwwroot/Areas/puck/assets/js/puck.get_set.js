@@ -161,8 +161,8 @@ var setUnpublish = function (id, variants, descendants, f) {
     var path = "/puck/api/unpublish?id=" + id;
     if (variants) {
         path += "&variants=" + variants;
-        if (!descendants)
-            descendants = variant;
+        //if (!descendants)
+        //    descendants = variant;
     }
     if (descendants)
         path += "&descendants=" + descendants;
