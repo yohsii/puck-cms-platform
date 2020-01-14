@@ -446,7 +446,7 @@ var showSettings = function (path) {
                 languages = data;
                 languageSortDictionary = [];
                 for (var i = 0; i < data.length; i++) {
-                    languageSortDictionary[data[i].Key] = i;
+                    languageSortDictionary[data[i].Key] = i+1;
                 }
             });
         }, function (data) {
