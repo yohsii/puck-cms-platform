@@ -4,15 +4,17 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Web;
 using puck.core.Constants;
-
 using puck.core.State;
 using Microsoft.AspNetCore.Http;
+using puck.core.Attributes;
+using Lucene.Net.Analysis.Core;
 
 namespace puck.core.Models
 {
     public class PuckImage
     {
         [UIHint("SettingsDisplayImage")]
+        [IndexSettings(LowerCaseValue = false, FieldIndexSetting = Lucene.Net.Documents.Field.Index.NOT_ANALYZED, Analyzer = typeof(KeywordAnalyzer))]
         public string Path { get; set; }
         [DataType(DataType.MultilineText)]
         public string Description { get; set; }
