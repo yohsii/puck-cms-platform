@@ -142,6 +142,7 @@ namespace puck.core.Constants
         public static Dictionary<Type, Type> DefaultPropertyTransformers = new Dictionary<Type, Type>
         {
             {typeof(DateTime),typeof(DateTransformer)}
+            ,{typeof(DateTime?),typeof(DateTransformer)}
             ,{typeof(List<PuckPicker>),typeof(PuckPickerReferencesTransformer) }
             ,{typeof(IFormFile),typeof(DefaultIFormFileTransformer) }
         };

@@ -119,48 +119,64 @@ namespace puck.core.Helpers
             });
             return dumper.result;
         }
-        public static async Task<object> DoTransform(List<object> attributes,Type valueType, object element, string propertyName, string uniqueKey, object value,Dictionary<string,object> dictionary,List<Type> allowedTransformers=null) {
+        public static async Task<object> DoTransform(List<object> attributes,Type valueType, object element, string propertyName, string uniqueKey, object value,Dictionary<string,object> dictionary,List<Type> allowedTransformers=null,bool allowMultiple=false) {
             object result = value;
             object attr = null;
+            var transformerAttributes = new List<object>();
             var tattr = attributes
                 .Where(x => x.GetType().GetInterfaces()
                     .Any(y => y.IsGenericType && y.GetGenericTypeDefinition() == typeof(I_Property_Transformer<,>))
-                ).Where(x=>allowedTransformers==null||allowedTransformers.Contains(x.GetType()));
+                ).Where(x=>allowedTransformers==null||allowedTransformers.Contains(x.GetType())).ToList();
             if (tattr.Any())//check for custom transform attribute
             {
-                attr = tattr.First();
+                //attr = tattr.First();
+                if (allowMultiple) {
+                    if (FieldSettings.DefaultPropertyTransformers.ContainsKey(valueType))
+                    {
+                        if (allowedTransformers == null || allowedTransformers.Contains(FieldSettings.DefaultPropertyTransformers[valueType]))
+                            tattr.Add(Activator.CreateInstance(FieldSettings.DefaultPropertyTransformers[valueType]));
+                    }
+                }
             }
             else
             { //check for default transform for type
                 if (FieldSettings.DefaultPropertyTransformers.ContainsKey(valueType))
                 {
                     if(allowedTransformers==null || allowedTransformers.Contains(FieldSettings.DefaultPropertyTransformers[valueType]))
-                        attr = Activator.CreateInstance(FieldSettings.DefaultPropertyTransformers[valueType]);
+                        tattr.Add(Activator.CreateInstance(FieldSettings.DefaultPropertyTransformers[valueType]));
                 }
             }
             //transform if possible
-            if (attr != null)
+            if (tattr.Count > 0)
             {
-                using (var scope = PuckCache.ServiceProvider.CreateScope())
+                var n = allowMultiple ? tattr.Count : 1;
+                for (var i = 0; i < n; i++)
                 {
-                    var configureMethod = attr.GetType().GetMethod("Configure");
-                    if (configureMethod != null)
+                    attr = tattr[i];
+                    if (attr != null)
                     {
-                        var parameterInfos = configureMethod.GetParameters();
-                        var parameters = new List<object>();
-                        foreach (var paramInfo in parameterInfos)
+                        using (var scope = PuckCache.ServiceProvider.CreateScope())
                         {
-                            var parameter = scope.ServiceProvider.GetService(paramInfo.ParameterType);
-                            parameters.Add(parameter);
+                            var configureMethod = attr.GetType().GetMethod("Configure");
+                            if (configureMethod != null)
+                            {
+                                var parameterInfos = configureMethod.GetParameters();
+                                var parameters = new List<object>();
+                                foreach (var paramInfo in parameterInfos)
+                                {
+                                    var parameter = scope.ServiceProvider.GetService(paramInfo.ParameterType);
+                                    parameters.Add(parameter);
+                                }
+                                configureMethod.Invoke(attr, parameters.ToArray());
+                            }
+                            var task = (Task)attr.GetType().GetMethod("Transform").Invoke(attr, new[] { element, propertyName, uniqueKey, result, dictionary });
+                            await task.ConfigureAwait(false);
+                            var resultProperty = task.GetType().GetProperty("Result");
+                            var newValue = resultProperty.GetValue(task);
+                            result = newValue;
                         }
-                        configureMethod.Invoke(attr, parameters.ToArray());
                     }
-                    var task = (Task) attr.GetType().GetMethod("Transform").Invoke(attr, new[] { element, propertyName, uniqueKey, value, dictionary});
-                    await task.ConfigureAwait(false);
-                    var resultProperty = task.GetType().GetProperty("Result");
-                    var newValue = resultProperty.GetValue(task);
-                    result = newValue;
-                }   
+                }
             }
             return result;
         }
@@ -171,7 +187,7 @@ namespace puck.core.Helpers
             dumper.dict = new Dictionary<string, object>();
             dumper.allowedTransformers = allowedTransformers;
             var attributes = element.GetType().GetCustomAttributes(false).ToList();
-            element = await DoTransform(attributes,element.GetType(),element,"","",element,dumper.dict,dumper.allowedTransformers);
+            element = await DoTransform(attributes,element.GetType(),element,"","",element,dumper.dict,dumper.allowedTransformers,allowMultiple:true);
             //transform the rest of the model
             await dumper.Transform("","", element);
         }
@@ -307,7 +323,7 @@ namespace puck.core.Helpers
                             if (PuckCache.TransformListElements && _item != null && !( _item is string)) {
                                 //transform
                                 var attributes = _item.GetType().GetCustomAttributes(false).ToList();
-                                var newValue = await DoTransform(attributes,_item.GetType(), topElement, prefix.TrimEnd('.'), ukey.TrimEnd('.') + "[" + i + "]", _item, dict, allowedTransformers: allowedTransformers);
+                                var newValue = await DoTransform(attributes,_item.GetType(), topElement, prefix.TrimEnd('.'), ukey.TrimEnd('.') + "[" + i + "]", _item, dict, allowedTransformers: allowedTransformers,allowMultiple:true);
                                 if (newValue != _item)
                                     _item = newValue;
                             }
@@ -353,8 +369,8 @@ namespace puck.core.Helpers
                                         //transform
                                         var attributes = p.GetCustomAttributes(false).ToList();
                                         attributes.AddRange(p.PropertyType.GetCustomAttributes(false));
-                                        var newValue = await DoTransform(attributes,t,topElement,propertyName,ukey+p.Name,value,dict,allowedTransformers:allowedTransformers);
-                                        if(newValue!=value)
+                                        var newValue = await DoTransform(attributes,t,topElement,propertyName,ukey+p.Name,value,dict,allowedTransformers:allowedTransformers,allowMultiple:true);
+                                        if(newValue!=value && (newValue == null || newValue.GetType() == value.GetType()))
                                             p.SetValue(element, newValue, null);
                                         if (newValue != null)
                                         {
