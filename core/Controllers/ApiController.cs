@@ -352,10 +352,12 @@ namespace puck.core.Controllers
         [Authorize(Roles = PuckRoles.Puck, AuthenticationSchemes = Mvc.AuthenticationScheme)]
         public ActionResult GetReferencedContent(Guid id, string variant)
         {
-            var model = repo.CurrentRevision(id,variant);
+            var revision = repo.CurrentRevision(id,variant);
 
-            if (model == null)
+            if (revision == null)
                 return Json(new List<BaseModel>());
+
+            var model = revision.ToBaseModel();
 
             var url = "";
             if (model.Path.Count(x => x == '/') == 1)
@@ -368,6 +370,21 @@ namespace puck.core.Controllers
             var innerQuery = new QueryHelper<BaseModel>(publishedContentOnly: false)
                 .Field(x => x.References, $"{id.ToString()}_{variant.ToLower()}")
                 .Field(x => x.References, url.Replace("/", @"\/"));
+
+            if (model.Type == "ImageVM") {
+                var puckImageProperty = model.GetType().GetProperties().Where(x => x.PropertyType == typeof(PuckImage)).FirstOrDefault();
+                if (puckImageProperty != null) {
+                    var puckImageValue = puckImageProperty.GetValue(model) as PuckImage;
+                    if (puckImageValue != null && !string.IsNullOrEmpty(puckImageValue.Path)) {
+                        if (puckImageValue.Path.StartsWith("http")) {
+                            var relativePath = new Uri(puckImageValue.Path).AbsolutePath;
+                            if(!string.IsNullOrEmpty(relativePath))
+                                innerQuery.Field(x=>x.References,relativePath.Wrap());
+                        }else
+                            innerQuery.Field(x => x.References, puckImageValue.Path.Wrap());
+                    }
+                }
+            }
 
             var qh = new QueryHelper<BaseModel>(publishedContentOnly: false)
                 .Must(innerQuery);
