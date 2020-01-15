@@ -320,7 +320,7 @@ namespace puck.core.Helpers
                         else
                         {
                             var _item = item;
-                            if (PuckCache.TransformListElements && _item != null && !( _item is string)) {
+                            if (PuckCache.TransformListElements && _item != null && !( _item is string) && !(_item is ValueType)) {
                                 //transform
                                 var attributes = _item.GetType().GetCustomAttributes(false).ToList();
                                 var newValue = await DoTransform(attributes,_item.GetType(), topElement, prefix.TrimEnd('.'), ukey.TrimEnd('.') + "[" + i + "]", _item, dict, allowedTransformers: allowedTransformers,allowMultiple:true);
