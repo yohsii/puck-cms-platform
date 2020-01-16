@@ -116,6 +116,7 @@ namespace puck.core.Controllers
                 if (model == null)
                 {
                     //404
+                    HttpContext.Response.StatusCode = 404;
                     return View(PuckCache.Path404);
                 }
                 var cache = PuckCache.Cache;
@@ -148,6 +149,7 @@ namespace puck.core.Controllers
             {
                 PuckCache.PuckLog.Log(ex);
                 ViewBag.Error = ex.Message;
+                HttpContext.Response.StatusCode = 500;
                 return View(PuckCache.Path500);
             }
         }
