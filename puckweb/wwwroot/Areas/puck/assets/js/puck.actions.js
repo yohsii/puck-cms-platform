@@ -699,6 +699,7 @@ var draw = function (data, el, sortable, renderVariantLinks) {
     renderVariantLinks = renderVariantLinks || false;
     var str = "";
     var toAppend = $("<ul/>");
+    var textIndent = el.parents(".node").length * 13;
     for (var p in data) {//ids as keys
         dbcontent[p] = data[p];
         var variants = [];
@@ -715,7 +716,6 @@ var draw = function (data, el, sortable, renderVariantLinks) {
         else
             node = data[p][variants[0]];
         var elnode = $("<li/>").addClass("node");
-        var textIndent = el.parents(".node").length * 13;
         var elinner = $("<div class=\"inner\" style=\"text-indent:" + textIndent + "px\"/>");
         elnode.append(elinner);
         if (hasUnpublished)
