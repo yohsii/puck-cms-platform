@@ -24,22 +24,24 @@
                     templateName = settings.EditorTemplate;
                 } else if (m.GetType().Equals(typeof(string))) {
                     templateName = "String";
-                }else if (m.GetType().Equals(typeof(Single))) {
+                }else if (m.GetType().Equals(typeof(Single)) || m.GetType().Equals(typeof(Single?))) {
                     templateName = "Single";
                 }else if (m.GetType().Equals(typeof(Char))) {
                     templateName = "Char";
-                }else if (m.GetType().Equals(typeof(Decimal))) {
+                }else if (m.GetType().Equals(typeof(Decimal))||m.GetType().Equals(typeof(Decimal?))) {
                     templateName = "Decimal";
-                }else if (m.GetType().Equals(typeof(Double))) {
+                }else if (m.GetType().Equals(typeof(Double)) || m.GetType().Equals(typeof(Double?))) {
                     templateName = "Double";
-                }else if (m.GetType().Equals(typeof(Int16))) {
+                }else if (m.GetType().Equals(typeof(Int16))||m.GetType().Equals(typeof(Int16?))) {
                     templateName = "Int16";
-                }else if (m.GetType().Equals(typeof(Int32))) {
+                }else if (m.GetType().Equals(typeof(Int32))||m.GetType().Equals(typeof(Int32?))) {
                     templateName = "Int32";
-                }else if (m.GetType().Equals(typeof(Int64))) {
+                }else if (m.GetType().Equals(typeof(Int64)) || m.GetType().Equals(typeof(Int64?))) {
                     templateName = "Int64";
-                }else if (m.GetType().Equals(typeof(bool))) {
+                }else if (m.GetType().Equals(typeof(bool)) || m.GetType().Equals(typeof(bool?))) {
                     templateName = "Boolean";
+                }else if (m.GetType().Equals(typeof(DateTime)) || m.GetType().Equals(typeof(DateTime?))) {
+                    templateName = "DateTime";
                 }
             <li class="itemContainer">
                 <div class="titleContainer"><i class="sortHandle fas fa-arrows-alt" /><i class="expand fas fa-chevron-down" /> <span>item @(count+1)</span> <i class="fas fa-minus-circle remove" /></div>
