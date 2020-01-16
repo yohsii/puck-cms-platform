@@ -54,7 +54,7 @@
         }
     </ul>
 </div>
-<script type="text/javascript">
+<script class="list-editor-remove" type="text/javascript">
     onAfterDom(function () {
         var guid = "@guid.ToString()";
         var modelType = "@Html.Raw(ViewBag.Level0Type.Name)";
@@ -99,6 +99,7 @@
                 afterDom();
                 //console.log("templateReady:" + getPropName());
                 container.find(".addContainer:first button").click(function () {
+                    template = cinterfaces.find("div[data-type='" + modelType + "']");
                     if (window.debug)
                         debugger;
                     var el = $(this);
@@ -107,6 +108,7 @@
                     //console.log("el to copy", elToCopy);
                     var index = _selected_container.find(">.itemContainer").length;
                     var copy = elToCopy.clone(true, true);
+                    //copy.find("script.list-editor-remove").remove();
                     copy.find("input[type=text][value=' ']").val("");
                     copy.find(".listeditor .selected_content").each(function () {
                         $(this).empty();
