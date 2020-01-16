@@ -56,14 +56,18 @@ namespace puck.core.Helpers
                     {
                         var adminEmail = config.GetValue<string>("InitialUserEmail");
                         var adminPassword = config.GetValue<string>("InitialUserPassword");
-                        if (!string.IsNullOrEmpty(adminEmail))
+                        if (!string.IsNullOrEmpty(adminEmail) && !string.IsNullOrEmpty(adminPassword))
                         {
                             var admin = await userManager.FindByEmailAsync(adminEmail);
                             if (admin == null)
                             {
                                 admin = new PuckUser { Email = adminEmail, UserName = adminEmail };
                                 var result = await userManager.CreateAsync(admin, adminPassword);
-
+                                if (!result.Succeeded)
+                                {
+                                    string message = "Initial user could not be created, make sure you've set the InitialUserEmail and InitialUserPassword appSettings correctly - " + string.Join(" ", result.Errors.Select(x => x.Description));
+                                    throw new Exception(message);
+                                }
                             }
                             //userManager.AddPassword(admin.Id, adminPassword);
                             foreach (var roleName in roles)
@@ -72,6 +76,7 @@ namespace puck.core.Helpers
                                     await userManager.AddToRoleAsync(admin, roleName);
                             }
                         }
+                        else throw new Exception("Initial user could not be created, make sure you've set the InitialUserEmail and InitialUserPassword appSettings");
 
 
                     }
