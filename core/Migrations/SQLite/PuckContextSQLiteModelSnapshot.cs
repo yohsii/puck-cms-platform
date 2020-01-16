@@ -176,7 +176,7 @@ namespace puck.core.Migrations.SQLite
 
                     b.Property<string>("Name")
                         .HasColumnType("TEXT")
-                        .HasMaxLength(2048);
+                        .HasMaxLength(256);
 
                     b.Property<string>("UserName")
                         .HasColumnType("TEXT");
@@ -185,6 +185,8 @@ namespace puck.core.Migrations.SQLite
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("Name");
 
                     b.ToTable("PuckMeta");
                 });

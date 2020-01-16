@@ -10,7 +10,7 @@ namespace puck.core.Entities
     {
         [Key]
         public int Id { get; set; }
-        [MaxLength(2048)]
+        [MaxLength(256)]
         public string Name { get; set; }
         [MaxLength(2048)]
         public string Key { get; set; }

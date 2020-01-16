@@ -92,7 +92,7 @@ namespace puck.core.Migrations.SQLServer
                 {
                     Id = table.Column<int>(nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(maxLength: 2048, nullable: true),
+                    Name = table.Column<string>(maxLength: 256, nullable: true),
                     Key = table.Column<string>(maxLength: 2048, nullable: true),
                     Value = table.Column<string>(nullable: true),
                     Dt = table.Column<DateTime>(nullable: true),
@@ -315,6 +315,11 @@ namespace puck.core.Migrations.SQLServer
                 name: "IX_PuckInstruction_ServerName",
                 table: "PuckInstruction",
                 column: "ServerName");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PuckMeta_Name",
+                table: "PuckMeta",
+                column: "Name");
 
             migrationBuilder.CreateIndex(
                 name: "IX_PuckRevision_Current",

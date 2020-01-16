@@ -40,7 +40,7 @@ namespace puck.core.Concrete
             base.OnModelCreating(builder);
             builder.Entity<PuckRevision>(e=>e.Ignore(x=>x.References));
             builder.Entity<PuckMeta>(e=> {
-                //e.HasIndex(x=>x.Name);
+                e.HasIndex(x=>x.Name);
                 //e.HasIndex(x=>x.Key);
             });
             builder.Entity<PuckRevision>(e => {

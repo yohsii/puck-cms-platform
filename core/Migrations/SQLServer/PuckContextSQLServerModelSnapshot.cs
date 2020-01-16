@@ -183,8 +183,8 @@ namespace puck.core.Migrations.SQLServer
                         .HasMaxLength(2048);
 
                     b.Property<string>("Name")
-                        .HasColumnType("nvarchar(2048)")
-                        .HasMaxLength(2048);
+                        .HasColumnType("nvarchar(256)")
+                        .HasMaxLength(256);
 
                     b.Property<string>("UserName")
                         .HasColumnType("nvarchar(max)");
@@ -193,6 +193,8 @@ namespace puck.core.Migrations.SQLServer
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("Name");
 
                     b.ToTable("PuckMeta");
                 });

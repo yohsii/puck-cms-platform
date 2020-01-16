@@ -183,8 +183,8 @@ namespace puck.core.Migrations.PostgreSQL
                         .HasMaxLength(2048);
 
                     b.Property<string>("Name")
-                        .HasColumnType("character varying(2048)")
-                        .HasMaxLength(2048);
+                        .HasColumnType("character varying(256)")
+                        .HasMaxLength(256);
 
                     b.Property<string>("UserName")
                         .HasColumnType("text");
@@ -193,6 +193,8 @@ namespace puck.core.Migrations.PostgreSQL
                         .HasColumnType("text");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("Name");
 
                     b.ToTable("PuckMeta");
                 });

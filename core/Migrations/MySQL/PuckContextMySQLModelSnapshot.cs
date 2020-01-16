@@ -176,8 +176,8 @@ namespace puck.core.Migrations.MySQL
                         .HasMaxLength(2048);
 
                     b.Property<string>("Name")
-                        .HasColumnType("longtext CHARACTER SET utf8mb4")
-                        .HasMaxLength(2048);
+                        .HasColumnType("varchar(256) CHARACTER SET utf8mb4")
+                        .HasMaxLength(256);
 
                     b.Property<string>("UserName")
                         .HasColumnType("longtext CHARACTER SET utf8mb4");
@@ -186,6 +186,8 @@ namespace puck.core.Migrations.MySQL
                         .HasColumnType("longtext CHARACTER SET utf8mb4");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("Name");
 
                     b.ToTable("PuckMeta");
                 });
