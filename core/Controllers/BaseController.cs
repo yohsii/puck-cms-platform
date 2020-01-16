@@ -143,6 +143,9 @@ namespace puck.core.Controllers
                         cache.Set(cacheKey, templatePath, cacheEntryOptions);
                     }
                 }
+                if (templatePath.Equals(PuckCache.Path404 ?? "")) {
+                    HttpContext.Response.StatusCode = 404;
+                }
                 return View(templatePath, model);
             }
             catch (Exception ex)
