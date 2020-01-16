@@ -715,7 +715,8 @@ var draw = function (data, el, sortable, renderVariantLinks) {
         else
             node = data[p][variants[0]];
         var elnode = $("<li/>").addClass("node");
-        var elinner = $("<div class='inner'/>");
+        var textIndent = el.parents(".node").length * 13;
+        var elinner = $("<div class=\"inner\" style=\"text-indent:" + textIndent + "px\"/>");
         elnode.append(elinner);
         if (hasUnpublished)
             elnode.addClass("unpublished");
@@ -774,6 +775,7 @@ var draw = function (data, el, sortable, renderVariantLinks) {
                         trigger.popover('hide');
                         $(document).off("click.popover");
                     });
+                    el.parents(".scrollContainer:first").scrollLeft(1);
                 });
             }
             setupVariantsPopover(elVariants, elinner, hasPublished, hasUnpublished);

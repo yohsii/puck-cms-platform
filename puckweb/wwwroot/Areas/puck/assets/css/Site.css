@@ -205,7 +205,7 @@ ul.contentTree span.nodename {
     margin-left:5px;
 }
 ul.contentTree ul {
-    margin-left: 10px !important;
+    /*margin-left: 10px !important;*/
 }
 ul.contentTree .node.disallowed > .inner > span.nodename {
     background: rgba(204, 204, 204, 0.9) !important;
@@ -235,8 +235,14 @@ ul.contentTree .node.selected>.inner>span.nodename{
     }
 
     .main.grid ul.content ul {
-        margin-left: 15px;
+        /*margin-left: 15px;*/
     }
+        .main.grid ul.content .popover-body, .main.grid ul.contentTree .popover-body {
+            text-indent: 0px !important;
+        }
+        .main.grid ul.content i, .main.grid ul.contentTree i {
+            text-indent: 0px !important;
+        }
 
     .create_default {
         display: none;
