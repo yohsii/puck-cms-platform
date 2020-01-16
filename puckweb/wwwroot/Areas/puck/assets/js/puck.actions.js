@@ -775,7 +775,9 @@ var draw = function (data, el, sortable, renderVariantLinks) {
                         trigger.popover('hide');
                         $(document).off("click.popover");
                     });
-                    el.parents(".scrollContainer:first").scrollLeft(1);
+                    var scrollParent = el.parents(".scrollContainer:first");
+                    scrollParent.scrollLeft(10);//trigger re-positioning of bootstrap popover to fit within boundary
+                    scrollParent.scrollLeft(0);
                 });
             }
             setupVariantsPopover(elVariants, elinner, hasPublished, hasUnpublished);
