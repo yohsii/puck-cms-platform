@@ -478,7 +478,7 @@ namespace puck.tests
             var _londonEn = NewRepo(type).CurrentRevision(londonPageEn.Id, londonPageEn.Variant);
 
             await s.ContentService.RePublishEntireSite2();
-            Assert.Pass();
+            Assert.That(string.IsNullOrEmpty(PuckCache.RepublishEntireSiteError));
         }
 
         [Test]
