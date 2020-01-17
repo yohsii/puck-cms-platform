@@ -75,6 +75,7 @@ namespace puck.core.Helpers
                                 if (!await userManager.IsInRoleAsync(admin, roleName))
                                     await userManager.AddToRoleAsync(admin, roleName);
                             }
+                            PuckCache.JustSeeded = true;
                         }
                         else throw new Exception("Initial user could not be created, make sure you've set the InitialUserEmail and InitialUserPassword appSettings");
 
