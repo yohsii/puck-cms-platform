@@ -19,6 +19,7 @@ namespace puck.tests.Helpers
 {
     public static class TestsHelper
     {
+        public static IConfiguration Config = GetConfig();
         public static IConfiguration GetConfig() {
             return new ConfigurationBuilder()
                 .AddJsonFile("appSettings.json")

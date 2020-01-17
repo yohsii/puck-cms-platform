@@ -30,7 +30,7 @@ namespace puck.tests
     public class ContentServiceTests
     {
         Dictionary<string, Services> ServiceDictionary { get; set; }
-        string uname = "darkezmo@hotmail.com";
+        string uname = TestsHelper.Config.GetValue<string>("InitialUserEmail");
         public I_Puck_Repository NewRepo(string type) {
             var services = ServiceDictionary[type];
             var context = new PuckContext(services.DbContextOptionsBuilder.Options);
@@ -130,7 +130,7 @@ namespace puck.tests
         [TestCase(DbConstants.PostgreSQL)]
         public async Task IdPath(string type) {
             var s = GetServices(type);
-            var level1 = await s.ContentService.Create<Folder>(Guid.Empty, "en-gb", "idPathRoot", template: "~/views/home/homepage.cshtml", published: true, userName: "darkezmo@hotmail.com");
+            var level1 = await s.ContentService.Create<Folder>(Guid.Empty, "en-gb", "idPathRoot", template: "~/views/home/homepage.cshtml", published: true, userName: uname);
             await s.ContentService.SaveContent(level1,triggerEvents:false,userName:uname);
             var level2_1 = await s.ContentService.Create<Folder>(level1.Id, "en-gb", "level2_1", template: "~/views/home/homepage.cshtml", published: true, userName: uname);
             await s.ContentService.SaveContent(level2_1, triggerEvents: false, userName: uname);
@@ -150,7 +150,7 @@ namespace puck.tests
             PuckCache.StoreReferences = storeReferences;
             var s = GetServices(type);
             // home
-            var homePage = await s.ContentService.Create<Folder>(Guid.Empty, "en-gb", $"homeReferences{(storeReferences?"Store":"NoStore")}", template: "~/views/home/homepage.cshtml", published: true, userName: "darkezmo@hotmail.com");
+            var homePage = await s.ContentService.Create<Folder>(Guid.Empty, "en-gb", $"homeReferences{(storeReferences?"Store":"NoStore")}", template: "~/views/home/homepage.cshtml", published: true, userName: uname);
             await s.ContentService.SaveContent(homePage, triggerEvents: false, userName: uname);
 
             // home/news
@@ -209,7 +209,7 @@ namespace puck.tests
                 if (lower) return name.ToLower();
                 else return name;
             }
-            var homePage = await s.ContentService.Create<Folder>(Guid.Empty, "en-gb", homeName(lower:false), template: "~/views/home/homepage.cshtml", published: true, userName: "darkezmo@hotmail.com");
+            var homePage = await s.ContentService.Create<Folder>(Guid.Empty, "en-gb", homeName(lower:false), template: "~/views/home/homepage.cshtml", published: true, userName: uname);
             await s.ContentService.SaveContent(homePage, triggerEvents: false, userName: uname,alwaysUpdatePath:alwaysUpdatePath);
             
             // home/news
@@ -318,7 +318,7 @@ namespace puck.tests
             }
             // homePublishUnpublish
             s.Repo.Context.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
-            var homePage = await s.ContentService.Create<Folder>(Guid.Empty, "en-gb", homeName(lower:false), template: "~/views/home/homepage.cshtml", published: true, userName: "darkezmo@hotmail.com");
+            var homePage = await s.ContentService.Create<Folder>(Guid.Empty, "en-gb", homeName(lower:false), template: "~/views/home/homepage.cshtml", published: true, userName: uname);
             await s.ContentService.SaveContent(homePage, triggerEvents: false, userName: uname,alwaysUpdatePath:alwaysUpdatePath);
 
             // homePublishUnpublish/news
@@ -429,7 +429,7 @@ namespace puck.tests
         {
             var s = GetServices(type);
             // home
-            var homePage = await s.ContentService.Create<Folder>(Guid.Empty, "en-gb", "homeRepublish", template: "~/views/home/homepage.cshtml", published: true, userName: "darkezmo@hotmail.com");
+            var homePage = await s.ContentService.Create<Folder>(Guid.Empty, "en-gb", "homeRepublish", template: "~/views/home/homepage.cshtml", published: true, userName: uname);
             await s.ContentService.SaveContent(homePage, triggerEvents: false, userName: uname);
 
             // home/news
@@ -491,7 +491,7 @@ namespace puck.tests
             var s = GetServices(type);
             var rootName = "homemove";
             // home
-            var homePage = await s.ContentService.Create<Folder>(Guid.Empty, "en-gb", rootName, template: "~/views/home/homepage.cshtml", published: true, userName: "darkezmo@hotmail.com");
+            var homePage = await s.ContentService.Create<Folder>(Guid.Empty, "en-gb", rootName, template: "~/views/home/homepage.cshtml", published: true, userName: uname);
             await s.ContentService.SaveContent(homePage, triggerEvents: false, userName: uname);
 
             // home/news

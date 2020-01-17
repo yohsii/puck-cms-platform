@@ -10,12 +10,14 @@ using Microsoft.Extensions.Options;
 using Moq;
 using puck.core.Abstract;
 using puck.core.Entities;
+using Microsoft.Extensions.Configuration;
 
 namespace puck.tests.Helpers
 {
     public static class MockHelpers
     {
         public static StringBuilder LogMessage = new StringBuilder();
+        public static IConfiguration Config = TestsHelper.GetConfig();
         public static Mock<IServiceProvider> MockServiceProvider(I_Puck_Repository repo) {
             var serviceProvider = new Mock<IServiceProvider>();
             var serviceScope = new Mock<IServiceScope>();
@@ -39,7 +41,7 @@ namespace puck.tests.Helpers
         public static Mock<UserManager<PuckUser>> MockUserManager()
         {
             var store = new Mock<IUserStore<PuckUser>>();
-            var user = new PuckUser() { UserName = "darkezmo@hotmail.com" };
+            var user = new PuckUser() { UserName = Config.GetValue<string>("InitialUserEmail") };
             var mgr = new Mock<UserManager<PuckUser>>(store.Object, null, null, null, null, null, null, null, null);
             mgr.Object.UserValidators.Add(new UserValidator<PuckUser>());
             mgr.Object.PasswordValidators.Add(new PasswordValidator<PuckUser>());
