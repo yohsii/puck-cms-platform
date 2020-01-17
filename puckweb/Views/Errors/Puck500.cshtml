@@ -1,7 +1,17 @@
-﻿
+﻿@model puck.core.Models.ErrorViewModel
 @{
-    ViewBag.Title = "error500";
+    ViewBag.Title = "500 Error";
 }
 
-<h2>500 :/</h2>
-<p>@ViewBag.Error</p>
+<h1 class="text-danger">500 Error</h1>
+<h2 class="text-info">An error occurred while processing your request.</h2>
+@if (Model.Exception != null)
+{
+<p>@Model.Exception.Message</p>
+}
+@if (!string.IsNullOrEmpty(Model.RequestId))
+{
+    <p>
+        <strong>Request ID:</strong> <code>@Model.RequestId</code>
+    </p>
+}

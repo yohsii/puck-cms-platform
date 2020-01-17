@@ -261,6 +261,11 @@ namespace puckweb
                     pattern: "puck/{controller=Api}/{action=Index}/{id?}"
                     );
                 endpoints.MapControllerRoute(
+                    name: "error",
+                    pattern: "/Home/Error"
+                    , defaults: new { controller = "Home", action = "Error" }
+                    );
+                endpoints.MapControllerRoute(
                     name: "default",
                     pattern: "{**path}"
                     ,defaults: new { controller = "Home", action = "Index"}

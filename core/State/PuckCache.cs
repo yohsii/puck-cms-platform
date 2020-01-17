@@ -25,8 +25,8 @@ namespace puck.core.State
     {
         public static void Configure(IConfiguration config, IHostEnvironment env,IServiceProvider serviceProvider)
         {
-            Path404 = string.IsNullOrEmpty(config.GetValue<string>("Puck404Path")) ? "~/Views/Errors/Puck404.cshtml" : config.GetValue<string>("Puck404Path");
-            Path500 = string.IsNullOrEmpty(config.GetValue<string>("Puck500Path")) ? "~/Views/Errors/Puck500.cshtml" : config.GetValue<string>("Puck500Path");
+            Path404 = string.IsNullOrEmpty(config.GetValue<string>("404TemplatePath")) ? "~/Views/Errors/Puck404.cshtml" : config.GetValue<string>("404TemplatePath");
+            Path500 = string.IsNullOrEmpty(config.GetValue<string>("500TemplatePath")) ? "~/Views/Errors/Puck500.cshtml" : config.GetValue<string>("500TemplatePath");
             Debug = env.IsDevelopment();//config.GetValue<bool>("PuckDebug");
             UpdateTaskLastRun = config.GetValue<bool>("PuckUpdateTaskLastRun");
             UpdateRecurringTaskLastRun = config.GetValue<bool>("PuckUpdateRecurringTaskLastRun");

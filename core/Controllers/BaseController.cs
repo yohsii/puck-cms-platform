@@ -16,13 +16,16 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.AspNetCore.Localization;
+using puck.core.Models;
+using System.Diagnostics;
+using Microsoft.AspNetCore.Diagnostics;
 
 namespace puck.core.Controllers
 {
     public class BaseController : Controller
     {
 
-        public ActionResult Puck(string variant=null)
+        public IActionResult Puck(string variant=null)
         {
             try
             {
@@ -151,9 +154,7 @@ namespace puck.core.Controllers
             catch (Exception ex)
             {
                 PuckCache.PuckLog.Log(ex);
-                ViewBag.Error = ex.Message;
-                HttpContext.Response.StatusCode = 500;
-                return View(PuckCache.Path500);
+                return ErrorPage(ex);
             }
         }
 
@@ -200,6 +201,20 @@ namespace puck.core.Controllers
                 //can't do that in asp.net core so passing in a new cancellation token which is a bit pointless
                 System.Threading.Tasks.Task.Factory.StartNew(() => SyncHelper.Sync(new CancellationToken()));
             }
+        }
+
+        protected IActionResult ErrorPage(Exception exception=null) {
+            HttpContext.Response.StatusCode = 500;
+            var model = new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier };
+            if (exception == null)
+            {
+                var exceptionHandlerFeature = HttpContext.Features.Get<IExceptionHandlerFeature>();
+                if (exceptionHandlerFeature != null)
+                    model.Exception = exceptionHandlerFeature.Error;
+            }
+            else
+                model.Exception = exception;
+            return View(PuckCache.Path500,model);
         }
 
     }
