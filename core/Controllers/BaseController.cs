@@ -157,8 +157,7 @@ namespace puck.core.Controllers
             }
             catch (Exception ex)
             {
-                PuckCache.PuckLog.Log(ex);
-                return ErrorPage(ex);
+                return ErrorPage(exception:ex);
             }
         }
 
@@ -207,7 +206,7 @@ namespace puck.core.Controllers
             }
         }
 
-        protected IActionResult ErrorPage(Exception exception=null) {
+        protected IActionResult ErrorPage(Exception exception=null,bool log = true) {
             HttpContext.Response.StatusCode = 500;
             var model = new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier };
             if (exception == null)
@@ -218,6 +217,10 @@ namespace puck.core.Controllers
             }
             else
                 model.Exception = exception;
+
+            if (log && model.Exception != null)
+                PuckCache.PuckLog.Log(model.Exception);
+
             return View(PuckCache.Path500,model);
         }
 
