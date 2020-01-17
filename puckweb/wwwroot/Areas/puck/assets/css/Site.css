@@ -68,6 +68,12 @@ ul.contentTree i.expand {
     padding:0 5px 0 10px!important;
     cursor:pointer;
 }
+ul.content i.fa-chevron-down {
+    margin-left:-2px!important;
+}
+ul.contentTree i.fa-chevron-down {
+    margin-left: -1px !important;
+}
 ul.content ul, ul.contentTree ul {
     padding: 0px;
 }
