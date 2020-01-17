@@ -3,8 +3,8 @@
     ViewBag.Title = "500 Error";
 }
 
-<h1 class="text-danger">500 Error</h1>
-<h2 class="text-info">An error occurred while processing your request.</h2>
+<h1 class="text-danger font-weight-light">500 Error</h1>
+<h2 class="text-info font-weight-light">An error occurred while processing your request.</h2>
 @if (Model.Exception != null)
 {
 <p>@Model.Exception.Message</p>
