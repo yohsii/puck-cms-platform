@@ -699,6 +699,7 @@ var draw = function (data, el, sortable, renderVariantLinks) {
     renderVariantLinks = renderVariantLinks || false;
     var str = "";
     var toAppend = $("<ul/>");
+    var textIndent = el.parents(".node").length * 13;
     for (var p in data) {//ids as keys
         dbcontent[p] = data[p];
         var variants = [];
@@ -715,7 +716,6 @@ var draw = function (data, el, sortable, renderVariantLinks) {
         else
             node = data[p][variants[0]];
         var elnode = $("<li/>").addClass("node");
-        var textIndent = el.parents(".node").length * 13;
         var elinner = $("<div class=\"inner\" style=\"text-indent:" + textIndent + "px\"/>");
         elnode.append(elinner);
         if (hasUnpublished)
@@ -1077,7 +1077,7 @@ var displayMarkup = function (parentId, type, variant, fromVariant,contentId,con
             msg(status, data.message, undefined, msgContainer);
             getDrawContent(data.parentId, undefined, true, function () {
                 var pnode = cleft.find(".node[data-id='" + data.parentId + "']");
-                //pnode.find(".expand:first").removeClass("fa-chevron-right").addClass("fa-chevron-down").css({ visibility: "visible" });
+                pnode.find(".expand:first").removeClass("fa-chevron-right").addClass("fa-chevron-down").css({ visibility: "visible" });
                 displayMarkup(null, type, variant,undefined,data.id,container,msgContainer);
             },true);
         }, function (data) {
