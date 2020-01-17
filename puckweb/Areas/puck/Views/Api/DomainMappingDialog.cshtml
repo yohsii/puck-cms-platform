@@ -8,7 +8,8 @@
         <div class="">
             <b>@ViewContext.HttpContext.Request.Query["p_path"].ToString()</b><br />
             <div class="fieldwrapper">
-                <label for="variant">Domain Mappings (csv)</label>
+                <label for="variant">Domain Mappings</label>
+                <p>e.g. domain.com,blog.domain.com (multiple entries are comma-separated). * is used for wildcard mapping</p>
                 <input name="domains" value="@Model" type="text" />
             </div>
             <br />
