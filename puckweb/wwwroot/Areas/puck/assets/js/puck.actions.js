@@ -1077,7 +1077,7 @@ var displayMarkup = function (parentId, type, variant, fromVariant,contentId,con
             msg(status, data.message, undefined, msgContainer);
             getDrawContent(data.parentId, undefined, true, function () {
                 var pnode = cleft.find(".node[data-id='" + data.parentId + "']");
-                //pnode.find(".expand:first").removeClass("fa-chevron-right").addClass("fa-chevron-down").css({ visibility: "visible" });
+                pnode.find(".expand:first").removeClass("fa-chevron-right").addClass("fa-chevron-down").css({ visibility: "visible" });
                 displayMarkup(null, type, variant,undefined,data.id,container,msgContainer);
             },true);
         }, function (data) {
