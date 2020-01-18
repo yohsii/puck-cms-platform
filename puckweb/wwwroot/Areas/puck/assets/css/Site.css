@@ -567,10 +567,23 @@ div.settings {
         background: #f9f9f9;
         width: 46%;
     }
-
-    .settings .settings_type_allowed_types .field, .settings .settings_type_allowed_templates .field {
-        cursor: pointer;
-    }
+.settings .settings_type_allowed_templates .included .add, .settings .settings_type_allowed_types .included .add {
+    display: none;
+}
+.settings .settings_type_allowed_templates .excluded .remove, .settings .settings_type_allowed_types .excluded .remove {
+    display: none;
+}
+.settings .settings_type_allowed_templates .excluded input, .settings .settings_type_allowed_types .excluded input {
+    background: transparent;
+    border-top: none;
+    border-right: none;
+    border-left: none;
+    margin-bottom: 7px;
+    width: 100%;
+}
+.settings .settings_type_allowed_types .field, .settings .settings_type_allowed_templates .field {
+    cursor: pointer;
+}
 
     .settings .settings_type_allowed_types select, .settings .settings_type_allowed_templates select {
         width: 400px;
