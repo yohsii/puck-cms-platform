@@ -28,16 +28,17 @@
             <div class="type" data-type="@m.Name">
                 <div class="list excluded">
                     <h2>templates</h2>
+                    <div><input placeholder="filter..." class="filter"/></div>
                     @foreach (var t in excluded)
                     {
-                        <div data-path="@t" class="field">@t</div>
+                        <div data-path="@t" class="field">@t <i class="add fas fa-plus"/> <i class="remove fas fa-minus-circle"/></div>
                     }
                 </div>
                 <div class="list included">
                     <h2>whitelist</h2>
                     @foreach (var t in included)
                     {
-                        <div data-path="@t" class="field">@t</div>
+                        <div data-path="@t" class="field">@t <i class="add fas fa-plus" /> <i class="remove fas fa-minus-circle" /></div>
                     }
                 </div>
             </div>
@@ -59,8 +60,37 @@
                     .html("drag templates here. if this is empty, all templates will be allowed for this type"));
             }
         }
+
+        container.find("input.filter").keyup(function (e) {
+            var val = $(this).val();
+            filter(val);
+        });
+
+        var filter = function (str) {
+            container.find(".excluded:visible .field").each(function () {
+                if (!str || (this.dataset.path && this.dataset.path.toLowerCase().indexOf(str.toLowerCase()) > -1))
+                    $(this).removeClass("hide");
+                else
+                    $(this).addClass("hide");
+            });
+        }
+
         container.find(".list").hide();
         container.find(".type[data-type='" + select.val() + "'] .list").show();
+        container.on("click", ".add", function (e) {
+            var el = $(this).parents(".field");
+            el.parents(".type:first").find(".included").append(el);
+            emptyMessage();
+            setValue();
+        });
+        container.on("click", ".remove", function (e) {
+            var el = $(this).parents(".field");
+            el.parents(".type:first").find(".excluded").append(el);
+            emptyMessage();
+            setValue();
+            var filterVal = container.find("input.filter:visible").val();
+            filter(filterVal);
+        });
         select.change(function (e) {
             var val = $(this).val();
             container.find(".list").hide();
@@ -69,7 +99,7 @@
         });
         var setValue = function () {
             emptyMessage();
-            container.find("input:hidden").remove();
+            container.find("input:hidden:not(.filter)").remove();
             container.find(".included .field").each(function (i) {
                 var typeEl = $(this).parents(".type:first");
                 var typeName = typeEl.attr("data-type");

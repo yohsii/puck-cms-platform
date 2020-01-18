@@ -58,10 +58,12 @@
             }
         }
     }
-
+    if (!hasAllowedViews) {
+        views = views.OrderBy(x => x.Name).ToList();
+    }
     var selectListItems = new List<SelectListItem>();
     var c = 0;
-    @foreach (var f in views.OrderBy(x => x.Name).ToList())
+    @foreach (var f in views)
     {
         var selected = (string.IsNullOrEmpty(Model) && hasAllowedViews && c == 0) || (!string.IsNullOrEmpty(Model) && Model.ToLower().Equals(ApiHelper.ToVirtualPath(f.FullName).ToLower()));
         selectListItems.Add(new SelectListItem(f.Name,@ApiHelper.ToVirtualPath(f.FullName),selected));

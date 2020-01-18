@@ -186,11 +186,14 @@ namespace puck.core.Helpers
             }
             else
             {
-                var d = domains.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries).ToList();
+                var d = domains.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
+                    .Where(x=>!string.IsNullOrEmpty(x) && !string.IsNullOrWhiteSpace(x))
+                    .Select(x=>x.ToLower())
+                    .ToList();
                 d.ForEach(dd =>
                 {
                     if (meta.Where(x => x.Value == dd && !x.Key.Equals(path)).Count() > 0)
-                        throw new Exception("domain already mapped to another node, unset first.");
+                        throw new Exception($"domain {dd} already mapped to another node, unset first.");
                 });
                 var m = meta.Where(x => x.Key == path).ToList();
                 m.ForEach(x =>
@@ -463,10 +466,20 @@ namespace puck.core.Helpers
 
         public List<FileInfo> AllowedViews(string type, string[] excludePaths = null)
         {
+            var results = new List<FileInfo>();
             var paths = repo.GetPuckMeta().Where(x => x.Name == DBNames.TypeAllowedTemplates && x.Key.Equals(type))
+                .ToList()
+                .OrderBy(x=>x.Dt??DateTime.Now)
                 .Select(x => x.Value)
                 .ToList();
-            return Views(excludePaths).Where(x => paths.Contains(ToVirtualPath(x.FullName))).ToList();
+            if (paths.Count == 0) return results;
+            var views = Views(excludePaths);
+            foreach (var path in paths) {
+                var view = views.FirstOrDefault(x=>path == ToVirtualPath(x.FullName));
+                if(view!=null)
+                    results.Add(view);
+            }
+            return results;
         }
         public List<FileInfo> Views(string[] excludePaths = null)
         {
@@ -500,7 +513,11 @@ namespace puck.core.Helpers
         }
         public List<Type> AllowedTypes(string typeName)
         {
-            var meta = repo.GetPuckMeta().Where(x => x.Name == DBNames.TypeAllowedTypes && x.Key.Equals(typeName)).ToList();
+            var meta = repo.GetPuckMeta()
+                .Where(x => x.Name == DBNames.TypeAllowedTypes && x.Key.Equals(typeName))
+                .ToList()
+                .OrderBy(x=>x.Dt??DateTime.Now)
+                .ToList();
             //var result = meta.Select(x=>ApiHelper.GetType(x.Value)).ToList();
             var result = meta.Select(x => ApiHelper.GetTypeFromName(x.Value)).ToList();
             return result;
