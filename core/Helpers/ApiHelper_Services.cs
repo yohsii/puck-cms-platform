@@ -186,11 +186,14 @@ namespace puck.core.Helpers
             }
             else
             {
-                var d = domains.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries).ToList();
+                var d = domains.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
+                    .Where(x=>!string.IsNullOrEmpty(x))
+                    .Select(x=>x.ToLower())
+                    .ToList();
                 d.ForEach(dd =>
                 {
                     if (meta.Where(x => x.Value == dd && !x.Key.Equals(path)).Count() > 0)
-                        throw new Exception("domain already mapped to another node, unset first.");
+                        throw new Exception($"domain {dd} already mapped to another node, unset first.");
                 });
                 var m = meta.Where(x => x.Key == path).ToList();
                 m.ForEach(x =>
