@@ -187,7 +187,7 @@ namespace puck.core.Helpers
             else
             {
                 var d = domains.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
-                    .Where(x=>!string.IsNullOrEmpty(x))
+                    .Where(x=>!string.IsNullOrEmpty(x) && !string.IsNullOrWhiteSpace(x))
                     .Select(x=>x.ToLower())
                     .ToList();
                 d.ForEach(dd =>
