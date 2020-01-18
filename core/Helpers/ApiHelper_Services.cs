@@ -466,12 +466,20 @@ namespace puck.core.Helpers
 
         public List<FileInfo> AllowedViews(string type, string[] excludePaths = null)
         {
+            var results = new List<FileInfo>();
             var paths = repo.GetPuckMeta().Where(x => x.Name == DBNames.TypeAllowedTemplates && x.Key.Equals(type))
                 .ToList()
                 .OrderBy(x=>x.Dt??DateTime.Now)
                 .Select(x => x.Value)
                 .ToList();
-            return Views(excludePaths).Where(x => paths.Contains(ToVirtualPath(x.FullName))).ToList();
+            if (paths.Count == 0) return results;
+            var views = Views(excludePaths);
+            foreach (var path in paths) {
+                var view = views.FirstOrDefault(x=>path == ToVirtualPath(x.FullName));
+                if(view!=null)
+                    results.Add(view);
+            }
+            return results;
         }
         public List<FileInfo> Views(string[] excludePaths = null)
         {

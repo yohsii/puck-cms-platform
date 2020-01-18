@@ -368,7 +368,12 @@ namespace puck.core.Controllers
             var model = new Settings();
             var meta = repo.GetPuckMeta();
 
-            var typeAllowedTemplates = meta.Where(x => x.Name == DBNames.TypeAllowedTemplates).Select(x => x.Key + ":" + x.Value).ToList();
+            var typeAllowedTemplates = meta
+                .Where(x => x.Name == DBNames.TypeAllowedTemplates)
+                .ToList()
+                .OrderBy(x=>x.Dt??DateTime.Now)
+                .Select(x => x.Key + ":" + x.Value)
+                .ToList();
             model.TypeAllowedTemplates = typeAllowedTemplates;
             return View(model);
         }
@@ -456,7 +461,12 @@ namespace puck.core.Controllers
             var model = new Settings();
             var meta = repo.GetPuckMeta();
 
-            var typeAllowedTypes = meta.Where(x => x.Name == DBNames.TypeAllowedTypes).Select(x => x.Key + ":" + x.Value).ToList();
+            var typeAllowedTypes = meta
+                .Where(x => x.Name == DBNames.TypeAllowedTypes)
+                .ToList()
+                .OrderBy(x => x.Dt ?? DateTime.Now)
+                .Select(x => x.Key + ":" + x.Value)
+                .ToList();
             model.TypeAllowedTypes = typeAllowedTypes;
             return View(model);
         }
