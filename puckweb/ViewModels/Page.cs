@@ -26,6 +26,10 @@ namespace puckweb.ViewModels
         [PuckImagePickerEditorSettings(MaxPick = 2)]
         public List<PuckPicker> ImageGallery { get; set; }
 
+        [Display(GroupName = "Images")]
+        [PuckImageTransformer()]
+        public PuckImage Image { get; set; }
+
         [Display(GroupName ="Content")]
         [UIHint(EditorTemplates.Tags)]
         [PuckTagsEditorSettings(Category ="")]
