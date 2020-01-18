@@ -381,23 +381,31 @@ namespace puck.core.Controllers
             try
             {
                 //typeallowedtemplates
+                var i = 0;
                 if (model.TypeAllowedTemplates != null && model.TypeAllowedTemplates.Count > 0)
                 {
                     var typeAllowedTemplatesMeta = repo.GetPuckMeta().Where(x => x.Name == DBNames.TypeAllowedTemplates).ToList();
                     
                     var metaPosted = new List<PuckMeta>();
-                    
                     model.TypeAllowedTemplates.ForEach(x =>
                     {
+                        var dt = DateTime.Now.AddMinutes(i+1);
                         var values = x.Split(new char[] { ':' }, StringSplitOptions.RemoveEmptyEntries);
                         var newMeta = new PuckMeta();
                         newMeta.Name = DBNames.TypeAllowedTemplates;
                         newMeta.Key = values[0];
                         newMeta.Value = values[1];
+                        newMeta.Dt = dt;
                         metaPosted.Add(newMeta);
-                        if (!typeAllowedTemplatesMeta.Any(m => m.Name == newMeta.Name && m.Key == newMeta.Key && m.Value == newMeta.Value)) {
+                        var existingMeta = typeAllowedTemplatesMeta.FirstOrDefault(m => m.Name == newMeta.Name && m.Key == newMeta.Key && m.Value == newMeta.Value);
+                        if (existingMeta == null)
+                        {
                             repo.AddMeta(newMeta);
                         }
+                        else {
+                            existingMeta.Dt = dt;
+                        }
+                        i++;
                     });
 
                     typeAllowedTemplatesMeta.ForEach(x =>
@@ -460,6 +468,7 @@ namespace puck.core.Controllers
             try
             {
                 //typeallowedtypes
+                var i = 0;
                 if (model.TypeAllowedTypes != null && model.TypeAllowedTypes.Count > 0)
                 {
                     var typeAllowedTypesMeta = repo.GetPuckMeta().Where(x => x.Name == DBNames.TypeAllowedTypes).ToList();
@@ -467,16 +476,23 @@ namespace puck.core.Controllers
                     var metaPosted = new List<PuckMeta>();
                     model.TypeAllowedTypes.ForEach(x =>
                     {
+                        var dt = DateTime.Now.AddMinutes(i+1);
                         var values = x.Split(new char[] { ':' }, StringSplitOptions.RemoveEmptyEntries);
                         var newMeta = new PuckMeta();
                         newMeta.Name = DBNames.TypeAllowedTypes;
                         newMeta.Key = values[0];
                         newMeta.Value = values[1];
+                        newMeta.Dt = dt;
                         metaPosted.Add(newMeta);
-                        if (!typeAllowedTypesMeta.Any(m => m.Name == newMeta.Name && m.Key == newMeta.Key && m.Value == newMeta.Value))
+                        var existingMeta = typeAllowedTypesMeta.FirstOrDefault(m => m.Name == newMeta.Name && m.Key == newMeta.Key && m.Value == newMeta.Value);
+                        if (existingMeta == null)
                         {//only add meta that isn't already in db
                             repo.AddMeta(newMeta);
                         }
+                        else {
+                            existingMeta.Dt = dt;
+                        }
+                        i++;
                     });
 
                     typeAllowedTypesMeta.ForEach(x =>

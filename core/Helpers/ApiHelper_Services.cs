@@ -467,6 +467,8 @@ namespace puck.core.Helpers
         public List<FileInfo> AllowedViews(string type, string[] excludePaths = null)
         {
             var paths = repo.GetPuckMeta().Where(x => x.Name == DBNames.TypeAllowedTemplates && x.Key.Equals(type))
+                .ToList()
+                .OrderBy(x=>x.Dt??DateTime.Now)
                 .Select(x => x.Value)
                 .ToList();
             return Views(excludePaths).Where(x => paths.Contains(ToVirtualPath(x.FullName))).ToList();
@@ -503,7 +505,11 @@ namespace puck.core.Helpers
         }
         public List<Type> AllowedTypes(string typeName)
         {
-            var meta = repo.GetPuckMeta().Where(x => x.Name == DBNames.TypeAllowedTypes && x.Key.Equals(typeName)).ToList();
+            var meta = repo.GetPuckMeta()
+                .Where(x => x.Name == DBNames.TypeAllowedTypes && x.Key.Equals(typeName))
+                .ToList()
+                .OrderBy(x=>x.Dt??DateTime.Now)
+                .ToList();
             //var result = meta.Select(x=>ApiHelper.GetType(x.Value)).ToList();
             var result = meta.Select(x => ApiHelper.GetTypeFromName(x.Value)).ToList();
             return result;
