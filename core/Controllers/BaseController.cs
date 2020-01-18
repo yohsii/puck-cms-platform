@@ -42,9 +42,13 @@ namespace puck.core.Controllers
                 {
                     if (!PuckCache.DomainRoots.TryGetValue("*", out searchPathPrefix))
                     {
-                        if (PuckCache.JustSeeded) return Redirect("/puck");
+                        var ex = new Exception($"domain root not set, likely because there is no content. DOMAIN:{domain} - visit the backoffice to set up your site");
+                        if (PuckCache.JustSeeded) {
+                            PuckCache.JustSeeded = false;
+                            return Redirect("/puck"); 
+                        }
                         else
-                            throw new Exception($"domain root not set, likely because there is no content. DOMAIN:{domain} - visit the backoffice to set up your site");
+                            throw ex;
                     }
                 }
                 string searchPath = searchPathPrefix.ToLower() + path;
