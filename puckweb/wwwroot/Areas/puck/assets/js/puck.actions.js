@@ -1408,7 +1408,7 @@ var setDomainMapping = function (p) {
             overlayClose();
         }, function (data) {
             msg(false, data.message);
-            overlayClose();
+            //overlayClose();
         });
     });
 }
