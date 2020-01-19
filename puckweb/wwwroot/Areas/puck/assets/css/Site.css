@@ -1210,6 +1210,14 @@ div.settings div.redirects span.delete, div.settings div.redirects span.edit {
     padding: 5px;
     margin: 5px;
 }
+div.settings div.redirects label {
+    text-decoration:none;
+}
+div.settings div.redirects label i.choose-page {
+    text-decoration: underline;
+    color: #007bff;
+    cursor:pointer;
+}
 .overlay_screen .content.nomenu.redirect span.nodename {
     margin-left:10px;
 }
