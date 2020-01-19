@@ -7,21 +7,25 @@
     @{
         var models = apiHelper.AllModels(true);
         <div class="row">
-            <div class="col-md-3">
-                <label>Model Type</label>
+            <div class="col-xl-3">
+                <label class="text-decoration-none">Model Type</label>
                 <select class="w-100">
                     @foreach (var m in models)
                     {
-                    <option value="@m.Name">@ApiHelper.FriendlyClassName(ApiHelper.ConcreteType(m))</option>
+                        <option value="@m.Name">@ApiHelper.FriendlyClassName(ApiHelper.ConcreteType(m))</option>
                     }
                 </select>
             </div>
-            <div class="col-md-4">
-                <label>Cache Minutes</label>
+            <div class="col-xl-3">
+                <label class="text-decoration-none">Cache Minutes</label>
                 <input type="number" class="minutes w-100" />
             </div>
-            <div class="col-md-3">
-                <br/>
+            <div class="col-xl-3">
+                <label class="text-decoration-none">Vary by Querystring</label>
+                <input placeholder="e.g. * or id,name,age" type="text" class="varybyqs w-100" />
+            </div>
+            <div class="col-xl-3">
+                <br />
                 <button class="btn btn-light mt-md-2">
                     set
                 </button>
@@ -29,10 +33,11 @@
         </div>    
     
         <table>
-            <tr><td>Model Type</td><td>Cache Minutes</td></tr>
+            <tr><td>Model Type</td><td>Cache Minutes</td><td>Vary by Querystring</td></tr>
             @foreach (var m in Model)
             {
-                var kvp = m.Split(new char[] { ':' }, StringSplitOptions.RemoveEmptyEntries);
+                var kvp = m.Split(new char[] { ':' });
+                if (kvp.Length < 3) { continue; }
                 try
                 {
                     //var ctype = ApiHelper.GetType(kvp[0]);
@@ -42,13 +47,16 @@
                     if (ctype == null || !int.TryParse(kvp[1], out mins))
                     {
                         error = true;
+                        throw new Exception("error");
                     }
-                    <tr class="entry @(error?"error":"")"><td data-type="@kvp[0]">@ctype.Name</td><td data-minutes="@kvp[1]">@kvp[1]</td></tr>
+                    <tr class="entry @(error?"error":"")"><td class="col-type" data-type="@kvp[0]">@ctype.Name</td><td class="col-mins" data-minutes="@kvp[1]">@kvp[1]</td><td class="col-vary" data-varybyqs="@kvp[2]">@kvp[2]</td></tr>
                 }
                 catch (Exception ex)
                 {
-                    <b>could not load type @(kvp.Length > 0 ? " - " + kvp[0] : "")</b>
-                    <!--@ex.Message <text>-</text> @m-->
+                    <tr class="error">
+                        <td>@(kvp.Length>0?kvp[0]:"error: empty type field")</td>
+                        <td><b>could not load type</b></td>
+                    </tr>
                 }
             }
         </table>
@@ -59,40 +67,49 @@
         var propertyName = "@ViewData.ModelMetadata.PropertyName";
         var container = $(".cachepolicy_" + propertyName);
         var sel = container.find("select");
-        var input = container.find("input");
+        var minsInput = container.find("input.minutes");
+        var varyInput = container.find("input.varybyqs");
         var btn = container.find("button");
         var table = container.find("table:last");
 
         sel.change(function (e) {
             var td = table.find("[data-type='" + sel.val() + "']");
             if (td.length > 0) {
-                input.val(td.parents("tr:first").find("[data-minutes]").html());
+                minsInput.val(td.parents("tr:first").find("[data-minutes]").attr("data-minutes"));
+                varyInput.val(td.parents("tr:first").find("[data-varybyqs]").attr("data-varybyqs"));
             } else {
-                input.val("0");
+                minsInput.val("0");
+                varyInput.val("");
             }
         });
 
         var setValue = function () {
             container.find("input:hidden").remove();
             table.find("tr.entry:not(.error)").each(function () {
-                var type = $(this).find("td:first").attr("data-type");
-                var minutes = $(this).find("td:last").html();
+                var type = $(this).find("td.col-type").attr("data-type");
+                var minutes = $(this).find("td.col-mins").attr("data-minutes");
+                var vary = $(this).find("td.col-vary").attr("data-varybyqs");
                 container.append(
-                    "<input type='hidden' name='" + propertyName + "' value='" + type + ":" + minutes + "'/>"
+                    "<input type='hidden' name='" + propertyName + "' value='" + type + ":" + minutes +":" + vary + "'/>"
                 );
             });
         }
 
         btn.click(function (e) {
             e.preventDefault();
-            if (isNullEmpty(input.val()) || !isInt(input.val()))
+            if (isNullEmpty(minsInput.val()) || !isInt(minsInput.val()))
                 return;
             var td = table.find("td[data-type='" + sel.val() + "']");
             if (td.length > 0) {
-                td.parents("tr:first").find("td:last").html(input.val());
+                td.parents("tr:first").find("td.col-mins").attr("data-minutes",minsInput.val()).html(minsInput.val());
+                td.parents("tr:first").find("td.col-vary").attr("data-varybyqs",varyInput.val()).html(varyInput.val());
             } else {
                 table.append(
-                    "<tr class='entry'><td data-type='" + sel.val() + "'>" + sel.find(":selected").html() + "</td><td>" + input.val() + "</td></tr>"
+                    "<tr class='entry'>"
+                    + "<td class=\"col-type\" data-type='" + sel.val() + "'>" + sel.find(":selected").html() + "</td>"
+                    + "<td class=\"col-mins\" data-minutes=\"" + minsInput.val() + "\">" + minsInput.val() + "</td>"
+                    + "<td class=\"col-vary\" data-varybyqs=\"" + varyInput.val() + "\">" + varyInput.val() + "</td>"
+                    + "</tr>"
                 );
             }
             setValue();

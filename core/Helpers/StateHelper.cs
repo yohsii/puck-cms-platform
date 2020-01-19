@@ -276,15 +276,24 @@ namespace puck.core.Helpers
                 var metaCacheExclude = repo.GetPuckMeta().Where(x => x.Name == DBNames.CacheExclude).ToList();
 
                 var mapTypeCache = new Dictionary<string, int>();
-                metaTypeCache.ForEach(x =>
+                var mapTypeVaryByQs = new Dictionary<string, string>();
+                foreach(var x in metaTypeCache)
                 {
+                    var values = x.Value.Split(":",StringSplitOptions.RemoveEmptyEntries);
+                    if (values.Length == 0)
+                        continue;
                     int cacheMinutes;
-                    if (int.TryParse(x.Value, out cacheMinutes))
+                    if (int.TryParse(values[0], out cacheMinutes))
                     {
-                    //mapTypeCache.Add(x.Key, cacheMinutes);
-                    mapTypeCache[x.Key] = cacheMinutes;
+                        //mapTypeCache.Add(x.Key, cacheMinutes);
+                        mapTypeCache[x.Key] = cacheMinutes;
                     }
-                });
+                    if (values.Length > 1) {
+                        if (!string.IsNullOrEmpty(values[1]) && !string.IsNullOrWhiteSpace(values[1])) {
+                            mapTypeVaryByQs[x.Key] = values[1];
+                        }
+                    }
+                }
 
                 var mapCacheExclude = new HashSet<string>();
                 metaCacheExclude.Where(x => x.Value.ToLower() == bool.TrueString.ToLower()).ToList().ForEach(x =>
@@ -294,7 +303,7 @@ namespace puck.core.Helpers
                 });
                 PuckCache.TypeOutputCache = mapTypeCache;
                 PuckCache.OutputCacheExclusion = mapCacheExclude;
-
+                PuckCache.TypeOutputCacheVaryByQueryString = mapTypeVaryByQs;
                 if (addInstruction)
                 {
                     var instruction = new PuckInstruction();

@@ -85,6 +85,7 @@ namespace puck.core.State
         public static Dictionary<string, string> Redirect301 { get; set; }
         public static Dictionary<string, string> Redirect302 { get; set; }
         public static Dictionary<string, int> TypeOutputCache { get; set; }
+        public static Dictionary<string, string> TypeOutputCacheVaryByQueryString { get; set; } = new Dictionary<string, string>();
         public static Dictionary<string, Type> IGeneratedToModel { get; set; }
         public static Dictionary<string, Dictionary<string, string>> TypeFields { get; set; }
         public static Dictionary<string,List<Type>> ModelDerivedModels { get; set; }

@@ -19,6 +19,7 @@ using Microsoft.AspNetCore.Localization;
 using puck.core.Models;
 using System.Diagnostics;
 using Microsoft.AspNetCore.Diagnostics;
+using Microsoft.AspNetCore.ResponseCaching;
 
 namespace puck.core.Controllers
 {
@@ -126,6 +127,17 @@ namespace puck.core.Controllers
                                 MaxAge = TimeSpan.FromMinutes(cacheMinutes)
                             };
                             Response.Headers[Microsoft.Net.Http.Headers.HeaderNames.Vary] = new string[] { "Accept-Encoding" };
+                            var varyByQs = string.Empty;
+                            if (PuckCache.TypeOutputCacheVaryByQueryString.TryGetValue(result[FieldKeys.PuckType], out varyByQs)) {
+                                var responseCachingFeature = HttpContext.Features.Get<IResponseCachingFeature>();
+                                if (responseCachingFeature != null && !string.IsNullOrEmpty(varyByQs) && !string.IsNullOrWhiteSpace(varyByQs))
+                                {
+                                    responseCachingFeature.VaryByQueryKeys = varyByQs
+                                        .Split(",", StringSplitOptions.RemoveEmptyEntries)
+                                        .Where(x=>!string.IsNullOrEmpty(x)&&!string.IsNullOrWhiteSpace(x))
+                                        .ToArray();
+                                }
+                            }
                         }
                     }
                 }

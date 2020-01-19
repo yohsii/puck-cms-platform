@@ -565,20 +565,22 @@ namespace puck.core.Controllers
                 {
                     foreach (var entry in model.CachePolicy)
                     {
-                        var type = entry.Split(new char[] { ':' }, StringSplitOptions.RemoveEmptyEntries)[0];
+                        var values = entry.Split(new char[] { ':' });
+                        var type = values[0];
                         cacheTypes.Add(type);
-                        var minutes = entry.Split(new char[] { ':' }, StringSplitOptions.RemoveEmptyEntries)[1];
+                        var minutes = values[1];
                         int min;
                         if (!int.TryParse(minutes, out min))
                             throw new Exception("cache policy minutes not int for type:" + type);
+                        var varyByQs = string.Join(",",(values[2]??"").Split(",",StringSplitOptions.RemoveEmptyEntries).Where(x=>!string.IsNullOrEmpty(x) && !string.IsNullOrWhiteSpace(x)).Distinct()) ?? "";
                         var meta = repo.GetPuckMeta().Where(x => x.Name == DBNames.CachePolicy && x.Key.ToLower().Equals(type.ToLower())).FirstOrDefault();
                         if (meta != null)
                         {
-                            meta.Value = minutes;
+                            meta.Value = minutes + ":" +varyByQs;
                         }
                         else
                         {
-                            meta = new PuckMeta() { Name = DBNames.CachePolicy, Key = type, Value = minutes };
+                            meta = new PuckMeta() { Name = DBNames.CachePolicy, Key = type, Value = minutes + ":" + varyByQs };
                             repo.AddMeta(meta);
                         }
                     }
