@@ -1637,13 +1637,19 @@ namespace puck.core.Controllers
             {
                 var meta = repo.GetPuckMeta().Where(x => x.Name == DBNames.CacheExclude && x.Key.ToLower().Equals(p_path.ToLower())).FirstOrDefault();
                 if (meta != null)
-                    meta.Value = value.ToString();
-                else
+                {
+                    if (value)
+                        meta.Value = value.ToString();
+                    else
+                        repo.DeleteMeta(meta);
+                }
+                else if(value)
                 {
                     meta = new PuckMeta() { Name = DBNames.CacheExclude, Key = p_path, Value = value.ToString() };
                     repo.AddMeta(meta);
                 }
                 repo.SaveChanges();
+                StateHelper.UpdateCacheMappings(true);
                 success = true;
             }
             catch (Exception ex)
