@@ -21,7 +21,11 @@
                 var kv = entry.Split(new char[] { ':' }, StringSplitOptions.RemoveEmptyEntries);
                 if (m.Name.Equals(kv[0]))
                 {
-                    included.Add(ApiHelper.GetTypeFromName(kv[1]));
+                    var type = ApiHelper.GetTypeFromName(kv[1]);
+                    if (type != null)
+                    {
+                        included.Add(type);
+                    }
                 }
             }
             var excluded = models.Where(x => !included.Any(i => x.Name.Equals(i.Name))).ToList();
