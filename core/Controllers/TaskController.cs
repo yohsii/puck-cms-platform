@@ -771,7 +771,7 @@ namespace puck.core.Controllers
                         taskMeta.Name = DBNames.Tasks;
                         taskMeta.Key = mod.GetType().FullName;
                         taskMeta.Value = taskMeta.Value = JsonConvert.SerializeObject(mod);
-                        repo.AddMeta(taskMeta);
+                        repo.AddPuckMeta(taskMeta);
                     }
                     repo.SaveChanges();
                     StateHelper.UpdateTaskMappings(true);
@@ -800,7 +800,7 @@ namespace puck.core.Controllers
             string message = "";
             try
             {
-                repo.GetPuckMeta().Where(x => x.Name == DBNames.Tasks && x.Id == id).ToList().ForEach(x=>repo.DeleteMeta(x));
+                repo.GetPuckMeta().Where(x => x.Name == DBNames.Tasks && x.Id == id).ToList().ForEach(x=>repo.DeletePuckMeta(x));
                 repo.SaveChanges();
                 StateHelper.UpdateTaskMappings(true);
                 success = true;

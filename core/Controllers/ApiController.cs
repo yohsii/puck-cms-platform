@@ -684,7 +684,7 @@ namespace puck.core.Controllers
                     if (meta == null)
                     {
                         meta = new PuckMeta();
-                        repo.AddMeta(meta);
+                        repo.AddPuckMeta(meta);
                     }
                     meta.Name = DBNames.TimedPublish;
                     meta.Key = key;
@@ -697,7 +697,7 @@ namespace puck.core.Controllers
                     var meta = repo.GetPuckMeta().FirstOrDefault(x => x.Name == DBNames.TimedPublish && x.Key == key);
                     if (meta != null)
                     {
-                        repo.DeleteMeta(meta);
+                        repo.DeletePuckMeta(meta);
                     }
                 }
                 if (model.UnpublishAt.HasValue)
@@ -706,7 +706,7 @@ namespace puck.core.Controllers
                     if (meta == null)
                     {
                         meta = new PuckMeta();
-                        repo.AddMeta(meta);
+                        repo.AddPuckMeta(meta);
                     }
                     meta.Name = DBNames.TimedUnpublish;
                     meta.Key = key;
@@ -718,7 +718,7 @@ namespace puck.core.Controllers
                     var meta = repo.GetPuckMeta().FirstOrDefault(x => x.Name == DBNames.TimedUnpublish && x.Key == key);
                     if (meta != null)
                     {
-                        repo.DeleteMeta(meta);
+                        repo.DeletePuckMeta(meta);
                     }
                 }
 
@@ -750,7 +750,7 @@ namespace puck.core.Controllers
                 }
                 else
                 {
-                    repo.DeleteMeta(publishMeta);
+                    repo.DeletePuckMeta(publishMeta);
                 }
             }
             var unPublishMeta = repo.GetPuckMeta().Where(x => x.Name == DBNames.TimedUnpublish && x.Key == key).FirstOrDefault();
@@ -763,7 +763,7 @@ namespace puck.core.Controllers
                 }
                 else
                 {
-                    repo.DeleteMeta(unPublishMeta);
+                    repo.DeletePuckMeta(unPublishMeta);
                 }
             }
             repo.SaveChanges();
@@ -1641,12 +1641,12 @@ namespace puck.core.Controllers
                     if (value)
                         meta.Value = value.ToString();
                     else
-                        repo.DeleteMeta(meta);
+                        repo.DeletePuckMeta(meta);
                 }
                 else if(value)
                 {
                     meta = new PuckMeta() { Name = DBNames.CacheExclude, Key = p_path, Value = value.ToString() };
-                    repo.AddMeta(meta);
+                    repo.AddPuckMeta(meta);
                 }
                 repo.SaveChanges();
                 StateHelper.UpdateCacheMappings(true);
@@ -1740,7 +1740,7 @@ namespace puck.core.Controllers
             var success = false;
             try
             {
-                repo.GetPuckRevision().Where(x => x.RevisionId == id).ToList().ForEach(x => repo.DeleteRevision(x));
+                repo.GetPuckRevision().Where(x => x.RevisionId == id).ToList().ForEach(x => repo.DeletePuckRevision(x));
                 repo.SaveChanges();
                 success = true;
             }

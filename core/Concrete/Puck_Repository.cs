@@ -131,13 +131,13 @@ namespace puck.core.Concrete
         }
 
         
-        public void AddMeta(PuckMeta meta) {
+        public void AddPuckMeta(PuckMeta meta) {
             repo.PuckMeta.Add(meta);
             //repo.SaveChanges();
             //return meta.ID;
         }
 
-        public void DeleteMeta(PuckMeta meta) {
+        public void DeletePuckMeta(PuckMeta meta) {
             repo.PuckMeta.Remove(meta);
             //repo.SaveChanges();
         }
@@ -153,10 +153,10 @@ namespace puck.core.Concrete
         {
             return repo.PuckTag;
         }
-        public void DeleteRevision(PuckRevision revision) {
+        public void DeletePuckRevision(PuckRevision revision) {
             repo.PuckRevision.Remove(revision);
         }
-        public void AddRevision(PuckRevision revision) {
+        public void AddPuckRevision(PuckRevision revision) {
             repo.PuckRevision.Add(revision);
         }
         public IQueryable<PuckRevision> GetPuckRevision() {
@@ -312,7 +312,7 @@ namespace puck.core.Concrete
                 .Where(x => x.Id == id && (x.IsPublishedRevision || (x.HasNoPublishedRevision && x.Current)));
             return results;
         }
-        public void DeleteMeta(string name,string key,string value)
+        public void DeletePuckMeta(string name,string key,string value)
         {
             var metas = GetPuckMeta();
             if (!string.IsNullOrEmpty(name))

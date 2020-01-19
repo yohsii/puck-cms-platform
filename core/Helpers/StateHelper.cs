@@ -219,7 +219,7 @@ namespace puck.core.Helpers
                 //publish content with updated typechains
                 indexer.Index(toIndex);
                 //delete typechains from previous bootstrap
-                meta.ForEach(x => repo.DeleteMeta(x));
+                meta.ForEach(x => repo.DeletePuckMeta(x));
                 repo.SaveChanges();
                 //save typechains from current bootstrap
                 currentTypes.ToList().ForEach(x =>
@@ -230,7 +230,7 @@ namespace puck.core.Helpers
                         Key = x.Name,
                         Value = ApiHelper.TypeChain(x)
                     };
-                    repo.AddMeta(newMeta);
+                    repo.AddPuckMeta(newMeta);
                 });
                 repo.SaveChanges();
             }

@@ -44,7 +44,7 @@ namespace puck.core.Helpers
                     newMeta.Key = ApiHelper.ServerName();
                     int? maxId = repo.GetPuckInstruction().Max(x => (int?)x.Id);
                     newMeta.Value = (maxId ?? 0).ToString();
-                    repo.AddMeta(newMeta);
+                    repo.AddPuckMeta(newMeta);
                     repo.SaveChanges();
                     return true;
                 }

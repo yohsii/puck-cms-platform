@@ -59,7 +59,7 @@ namespace puck.core.Controllers
                     , Key = token
                     , Value = model.Email
                 };
-                repo.AddMeta(meta);
+                repo.AddPuckMeta(meta);
                 repo.SaveChanges();
 
                 var uri = HttpContext.Request.GetUri() ?? PuckCache.FirstRequestUrl;
@@ -121,7 +121,7 @@ namespace puck.core.Controllers
                     return View(model);
                 }
 
-                repo.DeleteMeta(meta);
+                repo.DeletePuckMeta(meta);
                 repo.SaveChanges();
 
                 ViewBag.SuccessMessage = "Password successfully changed.";

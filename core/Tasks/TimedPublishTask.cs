@@ -61,8 +61,8 @@ namespace puck.core.Tasks
                     }
                 }
 
-                publishMeta.ForEach(x => repo.DeleteMeta(x));
-                unpublishMeta.ForEach(x => repo.DeleteMeta(x));
+                publishMeta.ForEach(x => repo.DeletePuckMeta(x));
+                unpublishMeta.ForEach(x => repo.DeletePuckMeta(x));
                 repo.SaveChanges();
             }
         }

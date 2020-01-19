@@ -46,7 +46,7 @@ namespace puck.core.Controllers
             {
                 var metas = repo.GetPuckMeta().Where(x => x.Name == DBNames.EditorSettings && x.Key == key).ToList();
                 var meta = metas.FirstOrDefault();
-                metas.ForEach(x=>repo.DeleteMeta(x));
+                metas.ForEach(x=>repo.DeletePuckMeta(x));
 
                 //clear cached values
                 var cachePrefix = "editor_settings_";
@@ -137,7 +137,7 @@ namespace puck.core.Controllers
                         settingsMeta.Name = DBNames.EditorSettings;
                         settingsMeta.Key = key;
                         settingsMeta.Value = JsonConvert.SerializeObject(model);
-                        repo.AddMeta(settingsMeta);
+                        repo.AddPuckMeta(settingsMeta);
                     }
                     
                     //clear cached values
@@ -203,7 +203,7 @@ namespace puck.core.Controllers
                     {
                         metaLanguages.ForEach(x =>
                         {
-                            repo.DeleteMeta(x);
+                            repo.DeletePuckMeta(x);
                         });
                     }
                     var i = 0;
@@ -214,7 +214,7 @@ namespace puck.core.Controllers
                         newMeta.Key = DBKeys.Languages;
                         newMeta.Value = x;
                         newMeta.Dt = DateTime.Now.AddMinutes(i+1);
-                        repo.AddMeta(newMeta);
+                        repo.AddPuckMeta(newMeta);
                         i++;
                     }
                 }
@@ -224,7 +224,7 @@ namespace puck.core.Controllers
                     {
                         metaLanguages.ForEach(x =>
                         {
-                            repo.DeleteMeta(x);
+                            repo.DeletePuckMeta(x);
                         });
                     }
                 }
@@ -321,7 +321,7 @@ namespace puck.core.Controllers
                         var fieldGroupMeta = repo.GetPuckMeta().Where(x => x.Name.StartsWith(DBNames.FieldGroups + mod.Name)).ToList();
                         fieldGroupMeta.ForEach(x =>
                         {
-                            repo.DeleteMeta(x);
+                            repo.DeletePuckMeta(x);
                         });
                     }
                     model.TypeGroupField.ForEach(x => {
@@ -330,7 +330,7 @@ namespace puck.core.Controllers
                         newMeta.Name = DBNames.FieldGroups + values[0];
                         newMeta.Key = values[1];
                         newMeta.Value = values[2];
-                        repo.AddMeta(newMeta);
+                        repo.AddPuckMeta(newMeta);
                     });
                 }
 
@@ -405,7 +405,7 @@ namespace puck.core.Controllers
                         var existingMeta = typeAllowedTemplatesMeta.FirstOrDefault(m => m.Name == newMeta.Name && m.Key == newMeta.Key && m.Value == newMeta.Value);
                         if (existingMeta == null)
                         {
-                            repo.AddMeta(newMeta);
+                            repo.AddPuckMeta(newMeta);
                         }
                         else {
                             existingMeta.Dt = dt;
@@ -416,7 +416,7 @@ namespace puck.core.Controllers
                     typeAllowedTemplatesMeta.ForEach(x =>
                     {
                         if (!metaPosted.Any(p => p.Name == x.Name && p.Key == x.Key && p.Value == x.Value)) {
-                            repo.DeleteMeta(x);
+                            repo.DeletePuckMeta(x);
                         }
                     });
                 }
@@ -424,7 +424,7 @@ namespace puck.core.Controllers
                     var typeAllowedTemplatesMeta = repo.GetPuckMeta().Where(x => x.Name == DBNames.TypeAllowedTemplates).ToList();
                     typeAllowedTemplatesMeta.ForEach(x =>
                     {
-                        repo.DeleteMeta(x);
+                        repo.DeletePuckMeta(x);
                     });
                 }
 
@@ -497,7 +497,7 @@ namespace puck.core.Controllers
                         var existingMeta = typeAllowedTypesMeta.FirstOrDefault(m => m.Name == newMeta.Name && m.Key == newMeta.Key && m.Value == newMeta.Value);
                         if (existingMeta == null)
                         {//only add meta that isn't already in db
-                            repo.AddMeta(newMeta);
+                            repo.AddPuckMeta(newMeta);
                         }
                         else {
                             existingMeta.Dt = dt;
@@ -509,14 +509,14 @@ namespace puck.core.Controllers
                     {
                         //only delete meta that's in db but wasn't posted back with the model
                         if (!metaPosted.Any(p => p.Name == x.Name && p.Key == x.Key && p.Value == x.Value))
-                            repo.DeleteMeta(x);
+                            repo.DeletePuckMeta(x);
                     });
 
                 }
                 else {
                     var typeAllowedTypesMeta = repo.GetPuckMeta().Where(x => x.Name == DBNames.TypeAllowedTypes).ToList();
                     typeAllowedTypesMeta.ForEach(x => {
-                        repo.DeleteMeta(x);
+                        repo.DeletePuckMeta(x);
                     });
                 }
 
@@ -581,12 +581,12 @@ namespace puck.core.Controllers
                         else
                         {
                             meta = new PuckMeta() { Name = DBNames.CachePolicy, Key = type, Value = minutes + ":" + varyByQs };
-                            repo.AddMeta(meta);
+                            repo.AddPuckMeta(meta);
                         }
                     }
                 }
                 //delete unset
-                repo.GetPuckMeta().Where(x => x.Name == DBNames.CachePolicy && !cacheTypes.Contains(x.Key)).ToList().ForEach(x => repo.DeleteMeta(x));
+                repo.GetPuckMeta().Where(x => x.Name == DBNames.CachePolicy && !cacheTypes.Contains(x.Key)).ToList().ForEach(x => repo.DeletePuckMeta(x));
 
                 repo.SaveChanges();
                 StateHelper.UpdateCacheMappings(true);
@@ -696,7 +696,7 @@ namespace puck.core.Controllers
                         newMeta.Name = DBNames.Settings;
                         newMeta.Key = DBKeys.DefaultLanguage;
                         newMeta.Value = model.DefaultLanguage;
-                        repo.AddMeta(newMeta);
+                        repo.AddPuckMeta(newMeta);
                     }
                 }
                 //enable local prefix
@@ -710,7 +710,7 @@ namespace puck.core.Controllers
                     newMeta.Name = DBNames.Settings;
                     newMeta.Key = DBKeys.EnableLocalePrefix;
                     newMeta.Value = model.EnableLocalePrefix.ToString();
-                    repo.AddMeta(newMeta);
+                    repo.AddPuckMeta(newMeta);
                 }
                 //languages
                 if (model.Languages!=null && model.Languages.Count > 0)
@@ -720,7 +720,7 @@ namespace puck.core.Controllers
                     {
                         metaLanguages.ForEach(x =>
                         {
-                            repo.DeleteMeta(x);
+                            repo.DeletePuckMeta(x);
                         });
                     }
                     model.Languages.ForEach(x => {
@@ -728,14 +728,14 @@ namespace puck.core.Controllers
                         newMeta.Name = DBNames.Settings;
                         newMeta.Key = DBKeys.Languages;
                         newMeta.Value = x;
-                        repo.AddMeta(newMeta);
+                        repo.AddPuckMeta(newMeta);
                     });
                 }
                 //redirects
                 if (model.Redirect!=null&&model.Redirect.Count > 0) {
                     var redirectMeta = repo.GetPuckMeta().Where(x => x.Name == DBNames.Redirect301 || x.Name==DBNames.Redirect302).ToList();
                     redirectMeta.ForEach(x => {
-                        repo.DeleteMeta(x);
+                        repo.DeletePuckMeta(x);
                     });
                     //count of 1 and key/value of null indicates delete only so inserts are skipped
                     if (!(model.Redirect.Count == 1 && string.IsNullOrEmpty(model.Redirect.First().Key)))
@@ -746,7 +746,7 @@ namespace puck.core.Controllers
                             newMeta.Name = x.Key.StartsWith(DBNames.Redirect301) ? DBNames.Redirect301 : DBNames.Redirect302;
                             newMeta.Key = x.Key.Substring(newMeta.Name.Length);
                             newMeta.Value = x.Value;
-                            repo.AddMeta(newMeta);
+                            repo.AddPuckMeta(newMeta);
                         });
                     }
                 }
@@ -757,7 +757,7 @@ namespace puck.core.Controllers
                         var fieldGroupMeta = repo.GetPuckMeta().Where(x => x.Name.StartsWith(DBNames.FieldGroups+mod.AssemblyQualifiedName)).ToList();
                         fieldGroupMeta.ForEach(x =>
                         {
-                            repo.DeleteMeta(x);
+                            repo.DeletePuckMeta(x);
                         });
                     }
                     model.TypeGroupField.ForEach(x => {
@@ -766,14 +766,14 @@ namespace puck.core.Controllers
                         newMeta.Name = DBNames.FieldGroups+values[0];
                         newMeta.Key = values[1];
                         newMeta.Value=values[2];
-                        repo.AddMeta(newMeta);
+                        repo.AddPuckMeta(newMeta);
                     });
                 }
                 //typeallowedtypes
                 if (model.TypeAllowedTypes != null && model.TypeAllowedTypes.Count > 0){
                     var typeAllowedTypesMeta = repo.GetPuckMeta().Where(x => x.Name == DBNames.TypeAllowedTypes).ToList();
                     typeAllowedTypesMeta.ForEach(x => {
-                        repo.DeleteMeta(x);
+                        repo.DeletePuckMeta(x);
                     });
                     model.TypeAllowedTypes.ForEach(x => {
                         var values = x.Split(new char[] { ':' }, StringSplitOptions.RemoveEmptyEntries);
@@ -781,7 +781,7 @@ namespace puck.core.Controllers
                         newMeta.Name = DBNames.TypeAllowedTypes;
                         newMeta.Key = values[0];
                         newMeta.Value = values[1];
-                        repo.AddMeta(newMeta);
+                        repo.AddPuckMeta(newMeta);
                     });
                 }
                 //typeallowedtemplates
@@ -790,7 +790,7 @@ namespace puck.core.Controllers
                     var typeAllowedTemplatesMeta = repo.GetPuckMeta().Where(x => x.Name == DBNames.TypeAllowedTemplates).ToList();
                     typeAllowedTemplatesMeta.ForEach(x =>
                     {
-                        repo.DeleteMeta(x);
+                        repo.DeletePuckMeta(x);
                     });
                     model.TypeAllowedTemplates.ForEach(x =>
                     {
@@ -799,7 +799,7 @@ namespace puck.core.Controllers
                         newMeta.Name = DBNames.TypeAllowedTemplates;
                         newMeta.Key = values[0];
                         newMeta.Value = values[1];
-                        repo.AddMeta(newMeta);
+                        repo.AddPuckMeta(newMeta);
                     });
                 }
                 //cachepolicy
@@ -821,12 +821,12 @@ namespace puck.core.Controllers
                         }
                         else {
                             meta = new PuckMeta() { Name=DBNames.CachePolicy,Key=type,Value=minutes};
-                            repo.AddMeta(meta);
+                            repo.AddPuckMeta(meta);
                         }
                     }
                 }
                 //delete unset
-                repo.GetPuckMeta().Where(x => x.Name == DBNames.CachePolicy && !cacheTypes.Contains(x.Key)).ToList().ForEach(x => repo.DeleteMeta(x));
+                repo.GetPuckMeta().Where(x => x.Name == DBNames.CachePolicy && !cacheTypes.Contains(x.Key)).ToList().ForEach(x => repo.DeletePuckMeta(x));
                 
                 //orphan types
                 if (model.Orphans != null && model.Orphans.Count > 0)

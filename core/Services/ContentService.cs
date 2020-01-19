@@ -881,7 +881,7 @@ namespace puck.core.Services
                             return;
                         }
                         toDelete.Add(args.Node);
-                        repo.DeleteRevision(x);
+                        repo.DeletePuckRevision(x);
                     });
 
                     //deletes only happening on current revisions. delete all revisions. this is too costly to do with EF for descendants, we'll handle descendants using sql
@@ -890,7 +890,7 @@ namespace puck.core.Services
                         var itemToDelete = toDelete.FirstOrDefault(x => x.Id == id && x.Variant.ToLower().Equals(variant.ToLower()));
                         if (itemToDelete != null)
                         {
-                            repo.GetPuckRevision().Where(x => x.Id == id && x.Variant.ToLower().Equals(variant.ToLower())).ToList().ForEach(x => repo.DeleteRevision(x));
+                            repo.GetPuckRevision().Where(x => x.Id == id && x.Variant.ToLower().Equals(variant.ToLower())).ToList().ForEach(x => repo.DeletePuckRevision(x));
                         }
                     }
                     else
@@ -898,7 +898,7 @@ namespace puck.core.Services
                         var itemsToDelete = toDelete.Where(x => x.Id == id).ToList();
                         foreach (var item in itemsToDelete)
                         {
-                            repo.GetPuckRevision().Where(x => x.Id == item.Id && x.Variant.ToLower().Equals(item.Variant.ToLower())).ToList().ForEach(x => repo.DeleteRevision(x));
+                            repo.GetPuckRevision().Where(x => x.Id == item.Id && x.Variant.ToLower().Equals(item.Variant.ToLower())).ToList().ForEach(x => repo.DeletePuckRevision(x));
                         }
                     }
 
@@ -954,10 +954,10 @@ namespace puck.core.Services
                                 || (lookUpPath.ToLower().StartsWith(x.Key.ToLower()) && x.Name.Contains(":*:"))
                                 )).ToList();
                         }
-                        lmeta.ForEach(x => { repo.DeleteMeta(x); });
-                        dmeta.ForEach(x => { repo.DeleteMeta(x); });
-                        cmeta.ForEach(x => { repo.DeleteMeta(x); });
-                        nmeta.ForEach(x => { repo.DeleteMeta(x); });
+                        lmeta.ForEach(x => { repo.DeletePuckMeta(x); });
+                        dmeta.ForEach(x => { repo.DeletePuckMeta(x); });
+                        cmeta.ForEach(x => { repo.DeletePuckMeta(x); });
+                        nmeta.ForEach(x => { repo.DeletePuckMeta(x); });
                     }
                     repo.SaveChanges();
                     
@@ -1502,7 +1502,7 @@ namespace puck.core.Services
                             //    .ForEach(x => x.Current = false);
                             if (original != null)
                                 original.Current = false;
-                            repo.AddRevision(revision);
+                            repo.AddPuckRevision(revision);
                         }
                         else
                         {
@@ -1510,7 +1510,7 @@ namespace puck.core.Services
                             if (revision == null)
                             {
                                 revision = new PuckRevision();
-                                repo.AddRevision(revision);
+                                repo.AddPuckRevision(revision);
                             }
                         }
                         revision.IdPath = idPath;
@@ -1566,7 +1566,7 @@ namespace puck.core.Services
                         }
 
                         //prune old revisions
-                        revisions.OrderByDescending(x => x.RevisionId).Skip(PuckCache.MaxRevisions).ToList().ForEach(x => repo.DeleteRevision(x));
+                        revisions.OrderByDescending(x => x.RevisionId).Skip(PuckCache.MaxRevisions).ToList().ForEach(x => repo.DeletePuckRevision(x));
                         var shouldUpdateDomainMappings = false;
                         var shouldUpdatePathLocaleMappings = false;
                         //if first time node saved and is root node - set locale for path
@@ -1578,7 +1578,7 @@ namespace puck.core.Services
                                 Key = mod.Path,
                                 Value = mod.Variant
                             };
-                            repo.AddMeta(lMeta);
+                            repo.AddPuckMeta(lMeta);
                             //if first item - set wildcard domain mapping
                             if (nodesAtPath.Count() == 0)
                             {
@@ -1588,7 +1588,7 @@ namespace puck.core.Services
                                     Key = mod.Path,
                                     Value = "*"
                                 };
-                                repo.AddMeta(dMeta);
+                                repo.AddPuckMeta(dMeta);
                             }
                             shouldUpdatePathLocaleMappings = true;
                             shouldUpdateDomainMappings = true;

@@ -179,7 +179,7 @@ namespace puck.core.Helpers
                 var m = meta.Where(x => x.Key == path).ToList();
                 m.ForEach(x =>
                 {
-                    repo.DeleteMeta(x);
+                    repo.DeletePuckMeta(x);
                 });
                 if (m.Count > 0)
                     repo.SaveChanges();
@@ -198,7 +198,7 @@ namespace puck.core.Helpers
                 var m = meta.Where(x => x.Key == path).ToList();
                 m.ForEach(x =>
                 {
-                    repo.DeleteMeta(x);
+                    repo.DeletePuckMeta(x);
                 });
                 d.ForEach(x =>
                 {
@@ -206,7 +206,7 @@ namespace puck.core.Helpers
                     newMeta.Name = DBNames.DomainMapping;
                     newMeta.Key = path;
                     newMeta.Value = x;
-                    repo.AddMeta(newMeta);
+                    repo.AddPuckMeta(newMeta);
                 });
                 repo.SaveChanges();
             }
@@ -221,7 +221,7 @@ namespace puck.core.Helpers
                 var meta = repo.GetPuckMeta().Where(x => x.Name == DBNames.PathToLocale && x.Key == path).ToList();
                 meta.ForEach(x =>
                 {
-                    repo.DeleteMeta(x);
+                    repo.DeletePuckMeta(x);
                 });
                 if (meta.Count > 0)
                     repo.SaveChanges();
@@ -229,13 +229,13 @@ namespace puck.core.Helpers
             else
             {
                 var meta = repo.GetPuckMeta().Where(x => x.Name == DBNames.PathToLocale && x.Key == path).ToList();
-                meta.ForEach(x => repo.DeleteMeta(x));
+                meta.ForEach(x => repo.DeletePuckMeta(x));
 
                 var newMeta = new PuckMeta();
                 newMeta.Name = DBNames.PathToLocale;
                 newMeta.Key = path;
                 newMeta.Value = variant;
-                repo.AddMeta(newMeta);
+                repo.AddPuckMeta(newMeta);
                 repo.SaveChanges();
             }
             StateHelper.UpdatePathLocaleMappings(true);
@@ -264,7 +264,7 @@ namespace puck.core.Helpers
                 }
                 result.Add(instance);
             });
-            toRemove.ForEach(x => repo.DeleteMeta(x));
+            toRemove.ForEach(x => repo.DeletePuckMeta(x));
             repo.SaveChanges();
             return result;
         }
@@ -357,14 +357,14 @@ namespace puck.core.Helpers
                 .Where(x => x.Key.Equals(model.Path))
                 .Where(x => x.Value.Equals(username))
                 .ToList()
-                .ForEach(x => repo.DeleteMeta(x));
+                .ForEach(x => repo.DeletePuckMeta(x));
             var newMeta = new PuckMeta
             {
                 Key = dbkey,
                 Name = dbname,
                 Value = dbvalue
             };
-            repo.AddMeta(newMeta);
+            repo.AddPuckMeta(newMeta);
             repo.SaveChanges();
         }
         public async Task<List<PuckUser>> UsersToNotify(string path, NotifyActions action)

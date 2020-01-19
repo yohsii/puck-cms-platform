@@ -34,12 +34,12 @@ namespace puck.core.Abstract
         void DeletePuckAudit(PuckAudit pa);
 
         IQueryable<PuckMeta> GetPuckMeta();
-        void DeleteMeta(string name, string key, string value);
-        void DeleteMeta(PuckMeta meta);
-        void AddMeta(PuckMeta meta);
+        void DeletePuckMeta(string name, string key, string value);
+        void DeletePuckMeta(PuckMeta meta);
+        void AddPuckMeta(PuckMeta meta);
         IQueryable<PuckRevision> GetPuckRevision();
-        void DeleteRevision(PuckRevision revision);
-        void AddRevision(PuckRevision revision);
+        void DeletePuckRevision(PuckRevision revision);
+        void AddPuckRevision(PuckRevision revision);
         IQueryable<PuckRevision> CurrentRevisionsByPath(string path);
         IQueryable<PuckRevision> CurrentRevisionsByDirectory(string path);
         IQueryable<PuckRevision> CurrentRevisionsByParentId(Guid parentId);
