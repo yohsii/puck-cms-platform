@@ -858,7 +858,7 @@ var showCustomSection = function (id) {
     return dict;
 }
 var handleHash = function (hash) {
-    if (/^#\/?content/.test(hash)) {
+    if (/^#\/?content/.test(hash) || !hash) {
         highlightSection("#content");
         $(".left_item").hide();
         cleft.find(".left_content").show();
@@ -988,10 +988,7 @@ getUserLanguage(function (d) { defaultLanguage = d; });
 getUserRoles(function (d) {
     userRoles = d; hideTopNav();
     $(document).ready(function () {
-        if (!location.hash)
-            location.hash = "#content";
-        else
-            handleHash(location.hash);
+        handleHash(location.hash);
         //var index = location.href.indexOf("?");
         //var qs = location.href.substring(index);
         //if (index != -1 && qs != "") {

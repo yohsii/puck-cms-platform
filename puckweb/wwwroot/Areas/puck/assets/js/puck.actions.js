@@ -182,7 +182,7 @@ var showUsers = function () {
     cright.html("");
     showLoader(cright);
     getUsersJson(function (data) {
-        console.log("users",data);
+        //console.log("users",data);
         puckusers = data;
         if (!canChangeMainContent())
             return;
