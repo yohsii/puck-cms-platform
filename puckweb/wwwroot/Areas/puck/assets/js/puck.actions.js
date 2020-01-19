@@ -449,8 +449,12 @@ var showSettings = function (path) {
                     languageSortDictionary[data[i].Key] = i+1;
                 }
             });
+            cright.find(".submit button").removeAttr("disabled");
         }, function (data) {
             msg(false, data.message);
+            cright.find(".submit button").removeAttr("disabled");
+        }, function () {
+            cright.find(".submit button").attr("disabled","disabled");
         });
         setChangeTracker();
     });

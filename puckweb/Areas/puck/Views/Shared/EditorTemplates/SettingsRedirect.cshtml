@@ -113,6 +113,7 @@
                 }
             });
         }
+        showLoader(cright);
         getRedirects(function (res) {
             for (var i = 0; i < res.redirects.length; i++) {
                 var redirect = res.redirects[i];
@@ -128,6 +129,7 @@
                 entry.find("span.info").append(redirect.From + " - " + redirect.To + " - " + redirect.Type);
                 display.append(entry);
             }
+            hideLoader();
         });
         redirectsContainer.find("button").click(function (e) {
             e.preventDefault();
@@ -150,7 +152,7 @@
                         handleDelete(entry);
                     });
                     entry.find("span.info").html(from.val() + " - " + to.val() + " - " + rtype_sel.val()/*.substr(8, 3)*/);
-                    display.append(entry);
+                    display.prepend(entry);
                 } else {
                     msg(false,res.message);
                 }

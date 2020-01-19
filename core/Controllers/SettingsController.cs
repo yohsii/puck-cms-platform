@@ -259,27 +259,27 @@ namespace puck.core.Controllers
             try
             {
                 //redirects
-                if (model.Redirect != null && model.Redirect.Count > 0)
-                {
-                    var redirectMeta = repo.GetPuckMeta().Where(x => x.Name == DBNames.Redirect301 || x.Name == DBNames.Redirect302).ToList();
-                    redirectMeta.ForEach(x => {
-                        repo.DeleteMeta(x);
-                    });
-                    //count of 1 and key/value of null indicates delete only so inserts are skipped
-                    if (!(model.Redirect.Count == 1 && string.IsNullOrEmpty(model.Redirect.First().Key)))
-                    {
-                        model.Redirect.ToList().ForEach(x =>
-                        {
-                            var newMeta = new PuckMeta();
-                            newMeta.Name = x.Key.StartsWith(DBNames.Redirect301) ? DBNames.Redirect301 : DBNames.Redirect302;
-                            newMeta.Key = x.Key.Substring(newMeta.Name.Length);
-                            newMeta.Value = x.Value;
-                            repo.AddMeta(newMeta);
-                        });
-                    }
-                }
+                //if (model.Redirect != null && model.Redirect.Count > 0)
+                //{
+                //    var redirectMeta = repo.GetPuckMeta().Where(x => x.Name == DBNames.Redirect301 || x.Name == DBNames.Redirect302).ToList();
+                //    redirectMeta.ForEach(x => {
+                //        repo.DeleteMeta(x);
+                //    });
+                //    //count of 1 and key/value of null indicates delete only so inserts are skipped
+                //    if (!(model.Redirect.Count == 1 && string.IsNullOrEmpty(model.Redirect.First().Key)))
+                //    {
+                //        model.Redirect.ToList().ForEach(x =>
+                //        {
+                //            var newMeta = new PuckMeta();
+                //            newMeta.Name = x.Key.StartsWith(DBNames.Redirect301) ? DBNames.Redirect301 : DBNames.Redirect302;
+                //            newMeta.Key = x.Key.Substring(newMeta.Name.Length);
+                //            newMeta.Value = x.Value;
+                //            repo.AddMeta(newMeta);
+                //        });
+                //    }
+                //}
                 
-                repo.SaveChanges();
+                //repo.SaveChanges();
                 StateHelper.UpdateRedirectMappings(true);
                 success = true;
             }
