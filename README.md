@@ -30,7 +30,7 @@ it's fast, with queries avoiding the database and instead using Lucene. it's als
 - works in load balanced environments
 - caching - customisable output caching. (per node-type or catch-all. also supports explicit exclusion for any particular node)
 - streamlined pipeline - data retrieval is fast
-- media - media is handled just like any other content, you can expose a IFormFile property in any of your models and it will be properly bound. you can then use data transformer attributes to decide what should happen to that file before indexing takes place. there are two included transformers which store your images on the local file system or upload them to azure blob storage
+- media - media is handled just like any other content, you can expose a IFormFile property in any of your models and it will be properly bound. you can then use data [transformer](https://github.com/yohsii/puck-core/wiki/Handling-Images-and-Files-with-property-Transformers) attributes to decide what should happen to that file before indexing takes place. there are two included transformers which store your images on the local file system or upload them to azure blob storage
 - task api - supports one-off and recurring background custom tasks with editable parameters
 - scheduled publish
 - sync content between databases (e.g. staging to production)
