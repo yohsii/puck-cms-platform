@@ -988,7 +988,10 @@ getUserLanguage(function (d) { defaultLanguage = d; });
 getUserRoles(function (d) {
     userRoles = d; hideTopNav();
     $(document).ready(function () {
-        handleHash(location.hash);
+        if (!location.hash)
+            location.hash = "#content";
+        else
+            handleHash(location.hash);
         //var index = location.href.indexOf("?");
         //var qs = location.href.substring(index);
         //if (index != -1 && qs != "") {
