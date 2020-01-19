@@ -324,13 +324,21 @@ namespace puck.core.Controllers
                             repo.DeletePuckMeta(x);
                         });
                     }
-                    model.TypeGroupField.ForEach(x => {
+                    model.TypeGroupField.ForEach(x =>
+                    {
                         var values = x.Split(new char[] { ':' }, StringSplitOptions.RemoveEmptyEntries);
                         var newMeta = new PuckMeta();
                         newMeta.Name = DBNames.FieldGroups + values[0];
                         newMeta.Key = values[1];
                         newMeta.Value = values[2];
                         repo.AddPuckMeta(newMeta);
+                    });
+                }
+                else {
+                    var fieldGroupMeta = repo.GetPuckMeta().Where(x => x.Name.StartsWith(DBNames.FieldGroups)).ToList();
+                    fieldGroupMeta.ForEach(x =>
+                    {
+                        repo.DeletePuckMeta(x);
                     });
                 }
 
