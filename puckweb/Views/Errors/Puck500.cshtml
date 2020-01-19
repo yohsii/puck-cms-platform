@@ -1,17 +1,21 @@
 ﻿@model puck.core.Models.ErrorViewModel
 @{
     ViewBag.Title = "500 Error";
+    Layout = null;
+    //be careful setting layouts for 500 pages as they may be the source of errors
 }
-
-<h1 class="text-danger font-weight-light">500 Error</h1>
-<h2 class="text-info font-weight-light">An error occurred while processing your request.</h2>
-@if (Model.Exception != null)
-{
-<p>@Model.Exception.Message</p>
-}
-@if (!string.IsNullOrEmpty(Model.RequestId))
-{
-    <p>
-        <strong>Request ID:</strong> <code>@Model.RequestId</code>
-    </p>
-}
+    
+<div style="max-width:500px;margin:0px auto;">
+    <h1 style="color:#dc3545!important;font-weight:300!important;" class="">500 Error</h1>
+    <h2 style="color:#17a2b8!important;font-weight:300!important;" class="">An error occurred while processing your request.</h2>
+    @if (Model.Exception != null)
+    {
+        <p>@Model.Exception.Message</p>
+    }
+    @if (!string.IsNullOrEmpty(Model.RequestId))
+    {
+        <p>
+            <strong style="font-weight:bolder;">Request ID:</strong> <code style="font-size:87.5%;color:#e83e8c;word-break:break-word;">@Model.RequestId</code>
+        </p>
+    }
+</div>
