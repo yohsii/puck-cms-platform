@@ -62,6 +62,7 @@ namespace puck.core.Controllers
                         Public = true,
                         MaxAge = TimeSpan.FromMinutes(PuckCache.RedirectOuputCacheMinutes)
                     };
+                    Response.Headers[Microsoft.Net.Http.Headers.HeaderNames.Vary] = new string[] { "Accept-Encoding" };
                     Response.Redirect(redirectUrl, true);
                 }
                 if (PuckCache.Redirect302.TryGetValue(searchPath, out redirectUrl))
@@ -71,6 +72,7 @@ namespace puck.core.Controllers
                         Public = true,
                         MaxAge = TimeSpan.FromMinutes(PuckCache.RedirectOuputCacheMinutes)
                     };
+                    Response.Headers[Microsoft.Net.Http.Headers.HeaderNames.Vary] = new string[] { "Accept-Encoding" };
                     Response.Redirect(redirectUrl, false);
                 }
                 
@@ -116,11 +118,15 @@ namespace puck.core.Controllers
                                 cacheMinutes = PuckCache.DefaultOutputCacheMinutes;
                             }
                         }
-                        Response.GetTypedHeaders().CacheControl = new Microsoft.Net.Http.Headers.CacheControlHeaderValue()
+                        if (cacheMinutes != 0)
                         {
-                            Public = true,
-                            MaxAge = TimeSpan.FromMinutes(cacheMinutes)
-                        };
+                            Response.GetTypedHeaders().CacheControl = new Microsoft.Net.Http.Headers.CacheControlHeaderValue()
+                            {
+                                Public = true,
+                                MaxAge = TimeSpan.FromMinutes(cacheMinutes)
+                            };
+                            Response.Headers[Microsoft.Net.Http.Headers.HeaderNames.Vary] = new string[] { "Accept-Encoding" };
+                        }
                     }
                 }
 
