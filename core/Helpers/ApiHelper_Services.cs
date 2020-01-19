@@ -519,7 +519,7 @@ namespace puck.core.Helpers
                 .OrderBy(x=>x.Dt??DateTime.Now)
                 .ToList();
             //var result = meta.Select(x=>ApiHelper.GetType(x.Value)).ToList();
-            var result = meta.Select(x => ApiHelper.GetTypeFromName(x.Value)).ToList();
+            var result = meta.Select(x => ApiHelper.GetTypeFromName(x.Value)).Where(x=>x!=null).ToList();
             return result;
         }
 
