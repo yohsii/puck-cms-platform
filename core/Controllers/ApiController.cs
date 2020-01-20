@@ -912,7 +912,7 @@ namespace puck.core.Controllers
                     var tqs = "(";
                     foreach (var t in PuckCache.TypeFields[_type.AssemblyQualifiedName])
                     {
-                        if (tqs.IndexOf(" " + t.Key + ":") > -1)
+                        if (tqs.IndexOf(" " + t.Key + ":") > -1 || tqs.IndexOf("(" + t.Key + ":") > -1)
                             continue;
                         tqs += string.Concat(t.Key, ":", q, " ");
                     }
