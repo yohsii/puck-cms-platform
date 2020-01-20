@@ -67,10 +67,13 @@ namespace puck.core.Controllers
         {
             return base.Content("success");
         }
+        [Authorize(Roles = PuckRoles.Puck, AuthenticationSchemes = Mvc.AuthenticationScheme)]
         public ActionResult GetCropSizes()
         {
             return Json(PuckCache.CropSizes);
         }
+
+        [Authorize(Roles = PuckRoles.Settings, AuthenticationSchemes = Mvc.AuthenticationScheme)]
         public ActionResult Redirects()
         {
             bool success = true;
@@ -88,6 +91,7 @@ namespace puck.core.Controllers
             return Json(new { redirects = results, success = success, message = message });
         }
         [HttpPost]
+        [Authorize(Roles = PuckRoles.Settings, AuthenticationSchemes = Mvc.AuthenticationScheme)]
         public ActionResult AddRedirect(string from, string to, string type)
         {
             bool success = true;
@@ -95,6 +99,7 @@ namespace puck.core.Controllers
             try
             {
                 apiHelper.AddRedirect(from, to, type);
+                contentService.AddAuditEntry(Guid.Empty, "", AuditActions.AddRedirect, $"from:{from}, to:{to}, type:{type}", User.Identity.Name);
             }
             catch (Exception ex)
             {
@@ -103,7 +108,9 @@ namespace puck.core.Controllers
             }
             return Json(new { success = success, message = message });
         }
+
         [HttpPost]
+        [Authorize(Roles = PuckRoles.Settings, AuthenticationSchemes = Mvc.AuthenticationScheme)]
         public ActionResult DeleteRedirect(string from)
         {
             bool success = true;
@@ -111,6 +118,7 @@ namespace puck.core.Controllers
             try
             {
                 apiHelper.DeleteRedirect(from);
+                contentService.AddAuditEntry(Guid.Empty, "", AuditActions.DeleteRedirect, $"from:{from}", User.Identity.Name);
             }
             catch (Exception ex)
             {

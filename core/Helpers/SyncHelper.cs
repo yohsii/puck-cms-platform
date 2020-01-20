@@ -159,6 +159,7 @@ namespace puck.core.Helpers
                                                 PuckCache.IsRepublishingEntireSite = true;
                                                 var republishTask = contentService.RePublishEntireSite2();
                                                 republishTask.GetAwaiter().GetResult();
+                                                hasPublishInstruction = true;
                                             }
                                         }
                                         else searcher.SetSearcher();

@@ -860,6 +860,7 @@ namespace puck.core.Services
                     var descendants = new List<PuckRevision>();
                     if (repoItems.Count > 0)
                     {
+                        notes += $"name:{repoItems.First().NodeName}, path:{repoItems.First().Path}";
                         repoVariants = repo.CurrentRevisionVariants(repoItems.First().Id, repoItems.First().Variant).ToList();
                         if (repoVariants.Count == 0 || string.IsNullOrEmpty(variant))
                         {
@@ -867,7 +868,7 @@ namespace puck.core.Services
                             descendants = repo.CurrentRevisionDescendants(repoItems.First().IdPath).ToList();
                             repoItems.AddRange(descendants);
                             if (descendants.Any())
-                                notes = $"{descendants.Count} descendant items also deleted";
+                                notes += $", {descendants.Count} descendant items also deleted";
                         }
                     }
                     toDelete.Clear();

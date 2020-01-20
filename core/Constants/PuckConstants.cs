@@ -136,6 +136,8 @@ namespace puck.core.Constants
         public const string Copy = "copy";
         public const string Delete = "delete";
         public const string Unpublish = "unpublish";
+        public const string AddRedirect = "redirect-add";
+        public const string DeleteRedirect = "redirect-delete";
     }
     public static class FieldSettings
     {
