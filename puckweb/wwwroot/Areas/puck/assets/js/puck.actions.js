@@ -805,6 +805,7 @@ var draw = function (data, el, sortable, renderVariantLinks) {
     if (sortable) {
         toAppend.sortable({
             cursorAt: { top: 0, left: 0 },
+            axis:"y",
             update: function (event, ui) {
                 var parent = ui.item.parents("li[data-children_path]:first");
                 var sortParentId = parent.attr("data-id");
