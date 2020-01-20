@@ -115,17 +115,21 @@
         }
         showLoader(cright);
         getRedirects(function (res) {
-            for (var i = 0; i < res.redirects.length; i++) {
+            for (var i = res.redirects.length - 1; i > -1 ; i--) {
                 var redirect = res.redirects[i];
                 var entry = redirectsContainer.find(".entry.nodisplay").clone();
                 entry.removeClass("nodisplay");
                 entry.attr("data-from", redirect.From).attr("data-to", redirect.To).attr("data-rtype", redirect.Type);
-                entry.find("span.edit").click(function () {
-                    handleEdit(entry);
-                });
-                entry.find("span.delete").click(function () {
-                    handleDelete(entry);
-                });
+                (function (entry) {
+                    entry.find("span.edit").click(function () {
+                        handleEdit(entry);
+                    });
+                })(entry);
+                (function (entry) {
+                    entry.find("span.delete").click(function () {
+                        handleDelete(entry);
+                    });
+                })(entry);
                 entry.find("span.info").append(redirect.From + " - " + redirect.To + " - " + redirect.Type);
                 display.append(entry);
             }
