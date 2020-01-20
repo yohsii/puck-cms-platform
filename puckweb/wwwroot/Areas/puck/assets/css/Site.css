@@ -607,7 +607,7 @@ div.settings {
     }
 
     .settings label {
-        text-decoration: underline;
+        /*text-decoration: underline;*/
     }
 
     .settings select.redirect_type {

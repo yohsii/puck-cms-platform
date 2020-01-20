@@ -11,6 +11,9 @@ $(document).ajaxError(function (event, jqxhr, settings, thrownError) {
 $(document).on("click", ".editor-field .nav-tabs li a", function (e) {
     e.preventDefault();
 });
+$(document).on("click", ".puck-dropdown a", function (e) {
+    e.preventDefault();
+});
 //handle tabs without needing to set hrefs and ids
 $(document).off("click.tabs").on("click.tabs", ".editor-field .nav-tabs li", function () {
     var el = $(this);

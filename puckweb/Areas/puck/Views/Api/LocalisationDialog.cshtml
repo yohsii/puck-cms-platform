@@ -10,7 +10,7 @@
         <div class="">
             <b>@ViewContext.HttpContext.Request.Query["p_path"].ToString()</b><br />
             <div class="fieldwrapper">
-                <label class="text-decoration-none" for="variant"><span class="underline">Default Culture</span> @Html.Raw(string.IsNullOrEmpty(Model) ? "" : " - <span class=\"\">" + Model + "</span>")</label>
+                <label class="text-decoration-none" for="variant"><span class="">Default Culture</span> @Html.Raw(string.IsNullOrEmpty(Model) ? "" : " - <span class=\"\">" + Model + "</span>")</label>
                 <p>Descendant content will inherit this setting unless overriden</p>
                 <select name="variant">
                     <option value="">None</option>
