@@ -110,7 +110,8 @@ namespace puck.core.Migrations.SQLite
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("Action")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("TEXT")
+                        .HasMaxLength(256);
 
                     b.Property<Guid>("ContentId")
                         .HasColumnType("TEXT");
@@ -122,12 +123,24 @@ namespace puck.core.Migrations.SQLite
                         .HasColumnType("TEXT");
 
                     b.Property<string>("UserName")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("TEXT")
+                        .HasMaxLength(256);
 
                     b.Property<string>("Variant")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("TEXT")
+                        .HasMaxLength(10);
 
                     b.HasKey("Id");
+
+                    b.HasIndex("Action");
+
+                    b.HasIndex("ContentId");
+
+                    b.HasIndex("Timestamp");
+
+                    b.HasIndex("UserName");
+
+                    b.HasIndex("Variant");
 
                     b.ToTable("PuckAudit");
                 });

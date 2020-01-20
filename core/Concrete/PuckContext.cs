@@ -55,7 +55,14 @@ namespace puck.core.Concrete
             builder.Entity<PuckInstruction>(e => {
                 e.HasIndex(x=>x.ServerName);
             });
-            
+            builder.Entity<PuckAudit>(e => {
+                e.HasIndex(x=>x.Action);
+                e.HasIndex(x => x.ContentId);
+                e.HasIndex(x => x.Timestamp);
+                e.HasIndex(x => x.Variant);
+                e.HasIndex(x => x.UserName);
+            });
+
             builder.Entity<PuckUser>(b =>
             {
                 // Each User can have many UserClaims

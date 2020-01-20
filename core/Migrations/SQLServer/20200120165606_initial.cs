@@ -58,9 +58,9 @@ namespace puck.core.Migrations.SQLServer
                     Id = table.Column<int>(nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     ContentId = table.Column<Guid>(nullable: false),
-                    Variant = table.Column<string>(nullable: true),
-                    Action = table.Column<string>(nullable: true),
-                    UserName = table.Column<string>(nullable: true),
+                    Variant = table.Column<string>(maxLength: 10, nullable: true),
+                    Action = table.Column<string>(maxLength: 256, nullable: true),
+                    UserName = table.Column<string>(maxLength: 256, nullable: true),
                     Notes = table.Column<string>(nullable: true),
                     Timestamp = table.Column<DateTime>(nullable: false)
                 },
@@ -310,6 +310,31 @@ namespace puck.core.Migrations.SQLServer
                 column: "NormalizedUserName",
                 unique: true,
                 filter: "[NormalizedUserName] IS NOT NULL");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PuckAudit_Action",
+                table: "PuckAudit",
+                column: "Action");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PuckAudit_ContentId",
+                table: "PuckAudit",
+                column: "ContentId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PuckAudit_Timestamp",
+                table: "PuckAudit",
+                column: "Timestamp");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PuckAudit_UserName",
+                table: "PuckAudit",
+                column: "UserName");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PuckAudit_Variant",
+                table: "PuckAudit",
+                column: "Variant");
 
             migrationBuilder.CreateIndex(
                 name: "IX_PuckInstruction_ServerName",

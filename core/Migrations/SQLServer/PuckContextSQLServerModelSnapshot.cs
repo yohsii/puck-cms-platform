@@ -116,7 +116,8 @@ namespace puck.core.Migrations.SQLServer
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<string>("Action")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(256)")
+                        .HasMaxLength(256);
 
                     b.Property<Guid>("ContentId")
                         .HasColumnType("uniqueidentifier");
@@ -128,12 +129,24 @@ namespace puck.core.Migrations.SQLServer
                         .HasColumnType("datetime2");
 
                     b.Property<string>("UserName")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(256)")
+                        .HasMaxLength(256);
 
                     b.Property<string>("Variant")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(10)")
+                        .HasMaxLength(10);
 
                     b.HasKey("Id");
+
+                    b.HasIndex("Action");
+
+                    b.HasIndex("ContentId");
+
+                    b.HasIndex("Timestamp");
+
+                    b.HasIndex("UserName");
+
+                    b.HasIndex("Variant");
 
                     b.ToTable("PuckAudit");
                 });

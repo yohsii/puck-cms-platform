@@ -111,7 +111,8 @@ namespace puck.core.Migrations.MySQL
                         .HasColumnType("int");
 
                     b.Property<string>("Action")
-                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+                        .HasColumnType("varchar(256) CHARACTER SET utf8mb4")
+                        .HasMaxLength(256);
 
                     b.Property<Guid>("ContentId")
                         .HasColumnType("char(36)");
@@ -123,12 +124,24 @@ namespace puck.core.Migrations.MySQL
                         .HasColumnType("datetime(6)");
 
                     b.Property<string>("UserName")
-                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+                        .HasColumnType("varchar(256) CHARACTER SET utf8mb4")
+                        .HasMaxLength(256);
 
                     b.Property<string>("Variant")
-                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+                        .HasColumnType("varchar(10) CHARACTER SET utf8mb4")
+                        .HasMaxLength(10);
 
                     b.HasKey("Id");
+
+                    b.HasIndex("Action");
+
+                    b.HasIndex("ContentId");
+
+                    b.HasIndex("Timestamp");
+
+                    b.HasIndex("UserName");
+
+                    b.HasIndex("Variant");
 
                     b.ToTable("PuckAudit");
                 });

@@ -116,7 +116,8 @@ namespace puck.core.Migrations.PostgreSQL
                         .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
                     b.Property<string>("Action")
-                        .HasColumnType("text");
+                        .HasColumnType("character varying(256)")
+                        .HasMaxLength(256);
 
                     b.Property<Guid>("ContentId")
                         .HasColumnType("uuid");
@@ -128,12 +129,24 @@ namespace puck.core.Migrations.PostgreSQL
                         .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("UserName")
-                        .HasColumnType("text");
+                        .HasColumnType("character varying(256)")
+                        .HasMaxLength(256);
 
                     b.Property<string>("Variant")
-                        .HasColumnType("text");
+                        .HasColumnType("character varying(10)")
+                        .HasMaxLength(10);
 
                     b.HasKey("Id");
+
+                    b.HasIndex("Action");
+
+                    b.HasIndex("ContentId");
+
+                    b.HasIndex("Timestamp");
+
+                    b.HasIndex("UserName");
+
+                    b.HasIndex("Variant");
 
                     b.ToTable("PuckAudit");
                 });
