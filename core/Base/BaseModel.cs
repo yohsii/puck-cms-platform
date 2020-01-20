@@ -36,6 +36,17 @@ namespace puck.core.Base
             }
             return this._model;            
         }
+        public string Url()
+        {
+            if (string.IsNullOrEmpty(Path)) return null;
+            //remove root from path - roots are determined by domain
+            if (Path.Count(x => x == '/') == 1)
+                return "/";
+            var firstOccurrence = Path.IndexOf('/');
+            var secondOccurrence = Path.IndexOf('/', firstOccurrence + 1);
+            return Path.Substring(secondOccurrence);
+        }
+
         [UIHint("SettingsReadOnly")]
         [DefaultGUIDTransformer()]
         [IndexSettings(FieldStoreSetting = Lucene.Net.Documents.Field.Store.YES, FieldIndexSetting=Lucene.Net.Documents.Field.Index.NOT_ANALYZED,Analyzer=typeof(KeywordAnalyzer))]

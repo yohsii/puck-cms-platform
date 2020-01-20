@@ -88,16 +88,6 @@ namespace puck.core.Helpers
             return level;
         }
 
-        public static string Url(this BaseModel m)
-        {
-            //remove root from path - roots are determined by domain
-            if (m.Path.Count(x => x == '/') == 1)
-                return "/";
-            var firstOccurrence = m.Path.IndexOf('/');
-            var secondOccurrence = m.Path.IndexOf('/', firstOccurrence+1);
-            return m.Path.Substring(secondOccurrence);
-        }
-
         public static List<T> GetAll<T>(this List<PuckPicker> pp, bool noCast = false) where T : BaseModel
         {
             if (pp == null)
@@ -912,6 +902,19 @@ namespace puck.core.Helpers
             TrimAnd();
             string key = FieldKeys.PuckType;
             query += string.Concat("+",key, ":", typeof(TModel).Name.Wrap(), " ");
+            return this;
+        }
+
+        public QueryHelper<TModel> Implements<TI>()
+        {
+            var innerQ = this.New();
+            var implementingTypes = ApiHelper.FindDerivedClasses(typeof(TI)).ToList();
+            implementingTypes = implementingTypes.Where(x => typeof(BaseModel).IsAssignableFrom(x)).ToList();
+            foreach (var type in implementingTypes)
+            {
+                innerQ.Field(x => x.Type, type.Name);
+            }
+            this.Must().Group(innerQ);
             return this;
         }
 
