@@ -11,11 +11,9 @@ namespace puckweb.Controllers
 {
     public class HomeController : BaseController
     {
-        private readonly I_Log _logger;
-
-        public HomeController(I_Log logger)
+        public HomeController()
         {
-            _logger = logger;
+            
         }
 
         public IActionResult Index()
