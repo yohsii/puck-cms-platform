@@ -1,0 +1,23 @@
+﻿@model String
+@{
+    var settings = this.PuckEditorSettings<puck.core.Models.EditorSettings.Attributes.SelectListSettingsAttribute>(attributeOnly: true)
+        ?? new puck.core.Models.EditorSettings.Attributes.SelectListSettingsAttribute { Values = new string[] { } };
+
+    List<SelectListItem> items = new List<SelectListItem>();
+
+    foreach (var value in settings.Values) {
+        if (string.IsNullOrEmpty(value) || string.IsNullOrWhiteSpace(value)) {
+            continue;
+        }
+        var values = value.Split(settings.Separator,StringSplitOptions.RemoveEmptyEntries);
+        if (values.Length > 0)
+        {
+            var val = values.Length == 1 ? values[0] : values[1];
+            var item = new SelectListItem(values[0],val,!string.IsNullOrEmpty(Model) && Model.Equals(val));
+            items.Add(item);
+        }
+    }
+
+}
+@Html.DropDownListFor(x=>x,items,settings.Label,new {data_editor="SelectList",id=""})
+
