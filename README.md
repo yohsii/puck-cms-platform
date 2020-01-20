@@ -15,7 +15,7 @@ it's fast, with queries avoiding the database and instead using Lucene. it's als
 
 **features**
 
-- can be used [headless](https://github.com/yohsii/puck-core/wiki/Working-with-a-Headless-approach) or decoupled
+- can be used [headless](https://github.com/yohsii/puck-core/wiki/Working-with-a-Headless-approach) or decoupled, as an integrated CMS or a searchable datastore for your apps. it can also sit alongside your web app as a convenient way to index and search your c# ViewModels
 - multi-site - multiple site roots mapped to different domains
 - [multilingual](https://github.com/yohsii/puck-core/wiki/Multilingual-support) - associate languages with nodes so you can for example, have different site roots with different associated languages. this is recursive so you can associate different languages to nodes further down the hierarchy if necessary. each content node may also have translations, opening up the possibility for 1:1 and multi-site approaches to multilingual websites.
 - strongly typed design - [data querying](https://github.com/yohsii/puck-core/wiki/Querying-for-content) is done in a strongly typed manner, making use of query expressions and a fluent api. templates are also strongly typed.
