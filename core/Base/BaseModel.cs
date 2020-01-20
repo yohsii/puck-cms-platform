@@ -98,7 +98,7 @@ namespace puck.core.Base
         public int SortOrder { get; set; }
 
         [Required]
-        [Display(Name = "Template Path",Description ="If you would like this page hidden from public, choose the 404 template")]
+        [Display(Name = "Template",Description ="If you would like this page hidden from public, choose the 404 template")]
         [UIHint("SettingsTemplate")]
         [IndexSettings(FieldIndexSetting = Lucene.Net.Documents.Field.Index.NOT_ANALYZED, Analyzer = typeof(KeywordAnalyzer))]
         public string TemplatePath { get; set; }
