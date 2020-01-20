@@ -1218,6 +1218,9 @@ div.settings div.redirects label i.choose-page {
     color: #007bff;
     cursor:pointer;
 }
+.underline {
+    text-decoration:underline;
+}
 .overlay_screen .content.nomenu.redirect span.nodename {
     margin-left:10px;
 }
