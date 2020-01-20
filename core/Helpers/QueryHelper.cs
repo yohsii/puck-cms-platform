@@ -918,6 +918,36 @@ namespace puck.core.Helpers
             return this;
         }
 
+        public QueryHelper<TModel> Implements(params Type[] types)
+        {
+            var innerQ = this.New();
+            var listOfListsOfTypes = new List<List<Type>>();
+            
+            foreach (var type in types)
+            {
+                var implementingTypes = ApiHelper.FindDerivedClasses(type).ToList();
+                implementingTypes = implementingTypes.Where(x => typeof(BaseModel).IsAssignableFrom(x)).ToList();
+                listOfListsOfTypes.Add(implementingTypes);
+            }
+            
+            if (listOfListsOfTypes.Count == 0) return this;
+
+            var intersectionOfImplementingTypes = listOfListsOfTypes
+                .Skip(1)
+                .Aggregate(
+                    new HashSet<Type>(listOfListsOfTypes.First()),
+                    (h, e) => { h.IntersectWith(e); return h; }
+                );
+
+            foreach (var type in intersectionOfImplementingTypes)
+            {
+                innerQ.Field(x => x.Type, type.Name);
+            }
+
+            this.Must().Group(innerQ);
+            return this;
+        }
+
         public QueryHelper<TModel> Variant(string value,bool must=true)
         {
             TrimAnd();
