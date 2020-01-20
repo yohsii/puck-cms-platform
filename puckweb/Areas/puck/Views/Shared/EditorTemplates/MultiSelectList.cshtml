@@ -3,6 +3,8 @@
     var settings = this.PuckEditorSettings<puck.core.Models.EditorSettings.Attributes.SelectListSettingsAttribute>(attributeOnly: true)
         ?? new puck.core.Models.EditorSettings.Attributes.SelectListSettingsAttribute { Values = new string[] { } };
 
+    settings.Values = settings.Values ?? new string[] { };
+
     List<SelectListItem> items = new List<SelectListItem>();
 
     foreach (var value in settings.Values) {
