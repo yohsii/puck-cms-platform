@@ -12,7 +12,7 @@ $(document).on("click", ".editor-field .nav-tabs li a", function (e) {
     e.preventDefault();
 });
 $(document).on("click", ".puck-dropdown a", function (e) {
-    e.preventDefault();
+    //e.preventDefault();
 });
 //handle tabs without needing to set hrefs and ids
 $(document).off("click.tabs").on("click.tabs", ".editor-field .nav-tabs li", function () {
@@ -861,7 +861,7 @@ var showCustomSection = function (id) {
     return dict;
 }
 var handleHash = function (hash) {
-    if (/^#\/?content/.test(hash) || !hash) {
+    if (/^#\/?content/.test(hash)) {
         highlightSection("#content");
         $(".left_item").hide();
         cleft.find(".left_content").show();
@@ -957,7 +957,11 @@ $(window).load(function () {
 
     var hash = getQueryString("hash");
     //console.log("hashQs",hash);
-    if (!hash) return;
+    if (!hash) {
+        if (!location.hash)
+            location.hash = "#content";
+        return;
+    }
     setTimeout(function () {
         location.hash = hash;
         history.replaceState('','',"/puck"+hash);
