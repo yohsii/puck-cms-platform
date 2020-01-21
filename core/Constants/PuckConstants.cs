@@ -146,7 +146,7 @@ namespace puck.core.Constants
         {
             {typeof(DateTime),typeof(DateTransformer)}
             ,{typeof(DateTime?),typeof(DateTransformer)}
-            ,{typeof(List<PuckReference>),typeof(PuckPickerReferencesTransformer) }
+            ,{typeof(List<PuckReference>),typeof(PuckReferencesTransformer) }
             ,{typeof(IFormFile),typeof(DefaultIFormFileTransformer) }
         };
         public static Field.Index FieldIndexSetting = Field.Index.ANALYZED;

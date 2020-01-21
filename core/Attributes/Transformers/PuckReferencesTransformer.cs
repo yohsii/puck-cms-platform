@@ -10,7 +10,7 @@ using puck.core.Models;
 namespace puck.core.Attributes.Transformers
 {
     [AttributeUsage(AttributeTargets.Class|AttributeTargets.Property)]
-    public class PuckPickerReferencesTransformer : Attribute, I_Property_Transformer<List<PuckReference>, List<PuckReference>>
+    public class PuckReferencesTransformer : Attribute, I_Property_Transformer<List<PuckReference>, List<PuckReference>>
     {
         public async Task<List<PuckReference>> Transform(BaseModel m, string propertyName, string ukey, List<PuckReference> references,Dictionary<string,object> dict)
         {
