@@ -2,6 +2,7 @@
 @model puckweb.ViewModels.Page
 @{
     /*NOTE: this template is only here to show different examples of querying, feel free to delete*/
+    Layout = "/views/shared/_Layout.cshtml";
     ViewBag.Title = "Page";
 
     var variants = Model.Variants<Page>();
@@ -20,5 +21,8 @@
     @Html.Raw(Model.MainContent)
 </div>
 <div>
+    @if (!string.IsNullOrEmpty(Model.Image?.Path))
+    {
     <img alt="@Model.Title" src="@Model.Image?.Path" />
+    }
 </div>

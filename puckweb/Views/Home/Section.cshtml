@@ -2,6 +2,7 @@
 @model puckweb.ViewModels.Section
 @{
     /*NOTE: this template is only here to show different examples of querying, feel free to delete*/
+    Layout = "/views/shared/_Layout.cshtml";
     ViewBag.Title = "Section";
     var pages = Model.Children<Page>();
     var descendants = Model.Descendants<Page>();
@@ -28,9 +29,12 @@
 @foreach (var p in pages) { 
     <h1>@p.Title</h1>
     <time>@p.Updated</time>
+    @if (!string.IsNullOrEmpty(p.Image?.Path))
+    {
     <div>
         <img alt="@p.Title" src="@p.Image.Path"/>
     </div>
+    }
     <div>
         @Html.Raw(p.MainContent)
     </div>
