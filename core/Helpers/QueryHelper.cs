@@ -769,10 +769,10 @@ namespace puck.core.Helpers
             if (query.EndsWith("+"))
                 query = query.TrimEnd('+');
         }
-        public QueryHelper<TModel> Ancestors(BaseModel m) {
-            return this.Ancestors(m.Path);
+        public QueryHelper<TModel> AncestorsOf(BaseModel m) {
+            return this.AncestorsOf(m.Path);
         }
-        public QueryHelper<TModel> Ancestors(string path)
+        public QueryHelper<TModel> AncestorsOf(string path)
         {
             TrimAnd();
             string nodePath = path.ToLower();
