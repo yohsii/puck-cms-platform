@@ -11,7 +11,7 @@
             var trimmed = Model.TrimStart('/');
             url = trimmed.Substring(trimmed.IndexOf("/"));
         }
-        <a target="_blank" href="@url">@Model.ToString()</a>
+        <a title="@url" target="_blank" href="@url">@Model.ToString()</a>
     }    
 </div>
 @Html.Hidden("",Model,new { id=""})
