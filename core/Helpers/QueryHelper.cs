@@ -785,15 +785,15 @@ namespace puck.core.Helpers
             }
             return this;
         }
-        public QueryHelper<TModel> Siblings(BaseModel m)
+        public QueryHelper<TModel> SiblingsOf(BaseModel m)
         {
-            return this.Siblings(m.Path, m.Id.ToString());
+            return this.SiblingsOf(m.Path, m.Id.ToString());
         }
-        public QueryHelper<TModel> Siblings(string path, Guid id)
+        public QueryHelper<TModel> SiblingsOf(string path, Guid id)
         {
-            return this.Siblings(path, id.ToString());
+            return this.SiblingsOf(path, id.ToString());
         }
-        public QueryHelper<TModel> Siblings(string path,string id)
+        public QueryHelper<TModel> SiblingsOf(string path,string id)
         {
             TrimAnd();
             this
@@ -807,10 +807,10 @@ namespace puck.core.Helpers
                     .Field(x => x.Id, id.Wrap());
             return this;
         }
-        public QueryHelper<TModel> Children(BaseModel m) {
-            return this.Children(m.Path);
+        public QueryHelper<TModel> ChildrenOf(BaseModel m) {
+            return this.ChildrenOf(m.Path);
         }
-        public QueryHelper<TModel> Children(string path)
+        public QueryHelper<TModel> ChildrenOf(string path)
         {
             TrimAnd();
             this
@@ -822,7 +822,7 @@ namespace puck.core.Helpers
                     .Path(path.ToLower() + "/".WildCardMulti() + "/*");
             return this;
         }
-        public QueryHelper<TModel> Descendants(string path,bool must=true)
+        public QueryHelper<TModel> DescendantsOf(string path,bool must=true)
         {
             TrimAnd();
             if (must)
@@ -833,9 +833,9 @@ namespace puck.core.Helpers
             return this;
         }
 
-        public QueryHelper<TModel> Descendants(BaseModel m)
+        public QueryHelper<TModel> DescendantsOf(BaseModel m,bool must = true)
         {
-            return this.Descendants(m.Path);
+            return this.DescendantsOf(m.Path,must:must);
         }
 
         public QueryHelper<TModel> CurrentRoot(BaseModel m = null)

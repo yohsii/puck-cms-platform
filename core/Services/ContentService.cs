@@ -835,7 +835,7 @@ namespace puck.core.Services
                 innerQ
             );
             if (addDescendants)
-                deleteQuery.Descendants(toDelete.First().Path, must: false);
+                deleteQuery.DescendantsOf(toDelete.First(), must: false);
             Guid? ParentId = null;
             //indexer.Delete(deleteQuery.ToString());
             var cancelled = new List<BaseModel>();

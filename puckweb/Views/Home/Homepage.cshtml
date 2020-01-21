@@ -6,13 +6,15 @@
 @{
     Layout = "/views/shared/_Layout.cshtml";
     ViewBag.Title = "Homepage";
+    //one way of getting Section viewmodels
     var qh = new QueryHelper<Section>()
-        .Descendants(Model)
+        .DescendantsOf(Model)
         .CurrentLanguage()
         .ExplicitType();
 
 
     var sections = qh.GetAll();
+    //another way of getting Section viewmodels
     var sections2 = Model.Descendants<Section>();
     @qh.ToString()
     <br />
