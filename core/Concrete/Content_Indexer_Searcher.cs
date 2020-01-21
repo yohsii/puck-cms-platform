@@ -434,7 +434,7 @@ namespace puck.core.Concrete
         }
         public bool Index<T>(List<T> models, bool triggerEvents = true,bool delete=true,bool queueIfBusy=false) where T : BaseModel
         {
-            if (models.Count == 0) return true;
+            if (models==null || models.Count == 0) return true;
             bool taken = false;
             Exception caughtException = null;
             try
