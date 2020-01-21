@@ -364,8 +364,13 @@ namespace puck.core.Concrete
                         var strat = new RecursivePrefixTreeStrategy(grid, name);
 
                         //var strat = new PointVectorStrategy(ctx,name);
-                        var yx = p.Value.ToString().Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries).Select(x => double.Parse(x)).ToList();
-                        var point = ctx.MakePoint(yx[1], yx[0]);
+                        var yxArr = p.Value.ToString().Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                        if (yxArr.Length != 2) continue;
+                        double y;
+                        double x;
+                        if (!double.TryParse(yxArr[0], out y) || !double.TryParse(yxArr[1], out x))
+                            continue;
+                        var point = ctx.MakePoint(x, y);
                         //var point = ctx.ReadShape(p.Value.ToString());
                         var fields = strat.CreateIndexableFields(point);
                         fields.ToList().ForEach(x => doc.Add(x));
