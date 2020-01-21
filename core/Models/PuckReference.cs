@@ -5,7 +5,7 @@ using System.Text;
 
 namespace puck.core.Models
 {
-    public class PuckPicker
+    public class PuckReference
     {
         public Guid Id { get; set; }
         public string Variant { get; set; }

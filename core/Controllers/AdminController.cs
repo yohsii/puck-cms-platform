@@ -186,7 +186,7 @@ namespace puck.core.Controllers
                 puvm.User = pu;
                 puvm.Roles = (await userManager.GetRolesAsync(pu)).ToList();
                 if (pu.PuckStartNodeId != Guid.Empty)
-                    puvm.StartNode = new List<PuckPicker> { new PuckPicker { Id = pu.PuckStartNodeId.Value } };
+                    puvm.StartNode = new List<PuckReference> { new PuckReference { Id = pu.PuckStartNodeId.Value } };
                 puvm.UserVariant = pu.PuckUserVariant;
                 puvm.StartPath = "/";
                 if (pu.PuckStartNodeId != Guid.Empty) {
@@ -226,7 +226,7 @@ namespace puck.core.Controllers
                 //model.PasswordConfirm = model.Password;
                 model.Roles = (await userManager.GetRolesAsync(usr)).ToList();
                 if(usr.PuckStartNodeId!=Guid.Empty)
-                    model.StartNode = new List<PuckPicker>{ new PuckPicker { Id=usr.PuckStartNodeId.Value} };
+                    model.StartNode = new List<PuckReference>{ new PuckReference { Id=usr.PuckStartNodeId.Value} };
                 model.UserVariant = usr.PuckUserVariant;
             }
             return View(model);

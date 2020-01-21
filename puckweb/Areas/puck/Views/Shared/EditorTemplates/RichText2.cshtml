@@ -2,13 +2,13 @@
 @{
     var guid = Guid.NewGuid();
 }
-<div class="puck_mce mce_@ViewData.ModelMetadata.PropertyName">
+<div class="puck_mce mce_@ViewData.TemplateInfo.HtmlFieldPrefix">
     @Html.TextAreaFor(x => x,new {data_guid=guid.ToString() })
 </div>
 <script>
     onAfterDom(function () {
         var guid = '@Html.Raw(guid.ToString())';
-        //var selector = ".mce_@ViewData.ModelMetadata.PropertyName textarea";
+        //var selector = ".mce_@ViewData.TemplateInfo.HtmlFieldPrefix";
         var selector = "textarea[data-guid='"+guid+"']";
         $(selector).wysihtml5();
     });

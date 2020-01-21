@@ -5,7 +5,7 @@ using System.Text;
 
 namespace puck.core.Models.EditorSettings.Attributes
 {
-    [Display(Name ="Text Area Settings")]
+    [Display(Name ="Text Area Editor Settings")]
     public class TextAreaEditorSettings : Attribute
     {
         public string Width { get; set; }

@@ -20,11 +20,11 @@ namespace puckweb.ViewModels
     public class Page:BaseModel
     {
         [Display(Name = "Image Gallery", GroupName = "Images")]
-        [UIHint(EditorTemplates.PuckImagePicker)]
+        [UIHint(EditorTemplates.ImagePicker)]
         /*this is an editor template setting, the editor template reads this attribute to modify its behaviour. settings can be set
          using attributes or in the back office on the "settings->editor parameters" page*/
-        [PuckImagePickerEditorSettings(MaxPick = 2)]
-        public List<PuckPicker> ImageGallery { get; set; }
+        [ImagePickerEditorSettings(MaxPick = 2)]
+        public List<PuckReference> ImageGallery { get; set; }
 
         [Display(GroupName = "Images")]
         [PuckImageTransformer()]
@@ -32,7 +32,7 @@ namespace puckweb.ViewModels
 
         [Display(GroupName ="Content")]
         [UIHint(EditorTemplates.Tags)]
-        [PuckTagsEditorSettings(Category ="")]
+        [TagsEditorSettings(Category ="")]
         [IndexSettings(Analyzer=typeof(KeywordAnalyzer))]
         public List<string> Names { get; set; }
 
@@ -59,13 +59,11 @@ namespace puckweb.ViewModels
         public string Title { get; set; }
         
         [Required]
-        [UIHint(EditorTemplates.RichTextEditor)]
+        [UIHint(EditorTemplates.RichText)]
         [Display(Name="Main Content",GroupName ="Content")]
         [IndexSettings(FieldIndexSetting = Field.Index.ANALYZED, Analyzer = typeof(SnowballAnalyzer))]
         public string MainContent { get; set; }
 
-        
-        [UIHint(EditorTemplates.GoogleLongLat)]
         [Display(GroupName ="Content")]
         public GeoPosition Location { get; set; }                
     }

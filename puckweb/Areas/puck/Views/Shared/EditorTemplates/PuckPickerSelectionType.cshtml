@@ -1,7 +1,7 @@
 ﻿@model string
 
 @{
-    var names = Enum.GetNames(typeof(puck.core.Models.EditorSettings.PuckPickerSelectionType));
+    var names = Enum.GetNames(typeof(puck.core.Models.EditorSettings.ContentPickerSelectionType));
     var list = new SelectList(names);
     @Html.DropDownList("",list)
         

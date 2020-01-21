@@ -1,13 +1,13 @@
 ﻿@using puck.core.Abstract.EditorSettings
 @using puck.core.Models.EditorSettings
 @using puck.core.Models.EditorSettings.Attributes
-@model List<puck.core.Models.PuckPicker>
+@model List<puck.core.Models.PuckReference>
 @{
-    I_Puck_Image_Picker_Settings settings = this.PuckEditorSettings<PuckImagePickerEditorSettingsAttribute>();
+    I_Image_Picker_Settings settings = this.PuckEditorSettings<ImagePickerEditorSettingsAttribute>();
     if (settings == null)
     {
-        settings = this.PuckEditorSettings<PuckImagePickerEditorSettings>()
-          ?? new PuckImagePickerEditorSettings()
+        settings = this.PuckEditorSettings<ImagePickerEditorSettings>()
+          ?? new ImagePickerEditorSettings()
           {
               MaxPick = 3,
               StartPath = null

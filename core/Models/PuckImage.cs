@@ -13,18 +13,17 @@ namespace puck.core.Models
 {
     public class PuckImage
     {
-        [UIHint("SettingsDisplayImage")]
         [IndexSettings(LowerCaseValue = false, FieldIndexSetting = Lucene.Net.Documents.Field.Index.NOT_ANALYZED, Analyzer = typeof(KeywordAnalyzer))]
         public string Path { get; set; }
         [DataType(DataType.MultilineText)]
         public string Description { get; set; }
-        [UIHint("SettingsReadOnly")]
+        [UIHint("PuckReadOnly")]
         public long? Size {get;set;}
-        [UIHint("SettingsReadOnly")]
+        [UIHint("PuckReadOnly")]
         public string Extension { get; set; }
-        [UIHint("SettingsReadOnly")]
+        [UIHint("PuckReadOnly")]
         public int? Width { get; set; }
-        [UIHint("SettingsReadOnly")]
+        [UIHint("PuckReadOnly")]
         public int? Height { get; set; }
         public List<CropModel> Crops { get; set; }
         public IFormFile File { get; set; }

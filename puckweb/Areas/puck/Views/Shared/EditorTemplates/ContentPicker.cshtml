@@ -1,14 +1,14 @@
 ﻿@using puck.core.Abstract.EditorSettings
 @using puck.core.Models.EditorSettings
 @using puck.core.Models.EditorSettings.Attributes
-@model List<puck.core.Models.PuckPicker>
+@model List<puck.core.Models.PuckReference>
 @{
 
-    I_Puck_Picker_Settings settings = this.PuckEditorSettings<PuckPickerEditorSettingsAttribute>();
+    I_Content_Picker_Settings settings = this.PuckEditorSettings<ContentPickerEditorSettingsAttribute>();
     if (settings == null)
     {
-        settings = this.PuckEditorSettings<PuckPickerEditorSettings>()
-        ?? new puck.core.Models.EditorSettings.PuckPickerEditorSettings()
+        settings = this.PuckEditorSettings<ContentPickerEditorSettings>()
+        ?? new puck.core.Models.EditorSettings.ContentPickerEditorSettings()
         {
             /*AllowDuplicates = false,*/
             AllowUnpublished = true,
@@ -22,7 +22,7 @@
     var startPath = "";
     Guid startId = Guid.Empty;
     string allowedTypes = "";
-    
+
     if (settings.Types != null && settings.Types.Any()) {
         allowedTypes = string.Join(",", settings.Types.Select(x => x.Name));
     } else if (!string.IsNullOrEmpty(settings.AllowedTypes)) {

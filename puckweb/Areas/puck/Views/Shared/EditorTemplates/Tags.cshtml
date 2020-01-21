@@ -3,8 +3,8 @@
 @model List<string>
 @{
 
-    var settings = this.PuckEditorSettings<PuckTagsEditorSettings>()
-    ?? new puck.core.Models.EditorSettings.PuckTagsEditorSettings()
+    var settings = this.PuckEditorSettings<TagsEditorSettings>()
+    ?? new puck.core.Models.EditorSettings.TagsEditorSettings()
     {
         Category = "",
     };

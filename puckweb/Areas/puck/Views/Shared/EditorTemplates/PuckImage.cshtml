@@ -1,8 +1,8 @@
 ﻿@model puck.core.Models.PuckImage
 @using puck.core.Models.EditorSettings
 @{
-    var settings = this.PuckEditorSettings<PuckCropsEditorSettings>(inherit:false,modelTypeOverride:typeof(puck.core.Base.BaseModel))
-        ?? new PuckCropsEditorSettings()
+    var settings = this.PuckEditorSettings<CropsEditorSettings>(inherit:false,modelTypeOverride:typeof(puck.core.Base.BaseModel))
+        ?? new CropsEditorSettings()
         {
             Crops=new List<puck.core.Models.CropInfo>()
         };
@@ -17,7 +17,26 @@
 
         <div class="tab-content">
             <div class="tab-pane active" role="tabpanel" id="_puckImage_info_tab_@ViewData.ModelMetadata.PropertyName">
-                @Html.EditorFor(x => x.Path)
+                <div class="noedit settings_display_image">
+                    @if (!string.IsNullOrEmpty(Model?.Path))
+                    {
+                        <img alt="image" src="@Model.Path" width="100" />
+                        <a href="@Model.Path" target="_blank" style="display:block;">
+                            @{
+                                var value = Model.Path.TrimEnd('/');
+                            }
+                            @if (value.IndexOf("/") > -1)
+                            {
+                                @value.Substring(Model.Path.LastIndexOf("/") + 1)
+                            }
+                            else
+                            {
+                                @value
+                            }
+                        </a>
+                    }
+                </div>
+                @Html.HiddenFor(x=>x.Path, new { id = "" })
                 <div class="editor-label" style="">
                     @Html.LabelFor(x => x.Description)
                     @Html.ValidationMessageFor(x => x.Description)
@@ -27,29 +46,29 @@
                 </div>
                 @if (!string.IsNullOrEmpty(Model?.Extension))
                 {
-                <div class="field">
-                    <span>Extension:</span>@Html.EditorFor(x => x.Extension)
-                </div>
+                    <div class="field">
+                        <span>Extension:</span>@Html.EditorFor(x => x.Extension)
+                    </div>
                 }
                 @if (!string.IsNullOrEmpty(Model?.Width?.ToString()))
                 {
-                <div class="field">
-                    <span>Width:</span>@Html.EditorFor(x => x.Width)
-                </div>
+                    <div class="field">
+                        <span>Width:</span>@Html.EditorFor(x => x.Width)
+                    </div>
                 }
                 @if (!string.IsNullOrEmpty(Model?.Height?.ToString()))
                 {
-                <div class="field">
-                    <span>Height:</span>@Html.EditorFor(x => x.Height)
-                </div>
+                    <div class="field">
+                        <span>Height:</span>@Html.EditorFor(x => x.Height)
+                    </div>
                 }
                 @if (!string.IsNullOrEmpty(Model?.Size?.ToString()))
-                {   
-                <div class="field">
-                    <span>Size:</span>@Html.EditorFor(x => x.Size)
-                </div>
+                {
+                    <div class="field">
+                        <span>Size:</span>@Html.EditorFor(x => x.Size)
+                    </div>
                 }
-                <br/>
+                <br />
                 @Html.EditorFor(x => x.File)
             </div>
             <div class="tab-pane" role="tabpanel" id="_puckImage_crops_tab_@ViewData.ModelMetadata.PropertyName">
@@ -67,7 +86,7 @@
                 <div class=""></div>
                 <div class="message">
                     @if (settings.Crops == null || settings.Crops.Count == 0) {
-                        <div>Look like you haven't set up any crops. Click <a class="addCropSizesLink" href="#settings?path=/puck/settings/editorparameters&stype=@(typeof(PuckCropsEditorSettings).FullName)&mtype=BaseModel">here</a> to add some crop sizes.</div>
+                        <div>Look like you haven't set up any crops. Click <a class="addCropSizesLink" href="#settings?path=/puck/settings/editorparameters&stype=@(typeof(CropsEditorSettings).FullName)&mtype=BaseModel">here</a> to add some crop sizes.</div>
                     }
                 </div>
                 <div class="viewport" style="height:auto;width:500px;">

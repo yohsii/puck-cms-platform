@@ -3,7 +3,7 @@
     var containerGuid = Guid.NewGuid().ToString();
     var guid ="G"+ Guid.NewGuid().ToString();
 
-    var settings = this.PuckEditorSettings<puck.core.Models.EditorSettings.Attributes.TinyMCEEditorSettings>(attributeOnly:true);
+    var settings = this.PuckEditorSettings<puck.core.Models.EditorSettings.Attributes.RichTextEditorSettings>(attributeOnly:true);
     var width = "";
     var height = "";
     if (settings != null) {

@@ -5,10 +5,10 @@ using System.Text;
 
 namespace puck.core.Abstract.EditorSettings
 {
-    public interface I_Puck_Image_Picker_Settings
+    public interface I_Image_Picker_Settings
     {
         string StartPathId { get; set; }
         int MaxPick { get; set; }
-        List<PuckPicker> StartPath { get; set; }
+        List<PuckReference> StartPath { get; set; }
     }
 }

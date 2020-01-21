@@ -10,11 +10,11 @@ using puck.core.Abstract.EditorSettings;
 
 namespace puck.core.Models.EditorSettings.Attributes
 {
-    [Display(Name= "Puck Image Picker Editor Settings")]
-    public class PuckImagePickerEditorSettingsAttribute:Attribute, I_Puck_Image_Picker_Settings
+    [Display(Name= "Image Picker Editor Settings")]
+    public class ImagePickerEditorSettingsAttribute:Attribute, I_Image_Picker_Settings
     {
         public string StartPathId { get; set; }
         public int MaxPick { get; set; }
-        public List<PuckPicker> StartPath { get; set; }
+        public List<PuckReference> StartPath { get; set; }
     }
 }

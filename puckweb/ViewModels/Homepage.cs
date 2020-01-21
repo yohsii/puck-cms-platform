@@ -14,9 +14,9 @@ namespace puckweb.ViewModels
     {
         [Display(Name="Carousel Items",GroupName ="Content")]
         //this is a content picker, the settings attribute specifies maximum number of selections and the types of content you're allowed to select
-        [PuckPickerEditorSettings(MaxPick =5,Types =new Type[] {typeof(Homepage),typeof(Section),typeof(Page)})]
-        [UIHint(EditorTemplates.PuckPicker)]
-        public List<PuckPicker> CarouselItems { get; set; }
+        [ContentPickerEditorSettings(MaxPick =5,Types =new Type[] {typeof(Homepage),typeof(Section),typeof(Page)})]
+        [UIHint(EditorTemplates.ContentPicker)]
+        public List<PuckReference> CarouselItems { get; set; }
 
         [Display(GroupName = "Selects")]
         [UIHint(EditorTemplates.SelectList)]

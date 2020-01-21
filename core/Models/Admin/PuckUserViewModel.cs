@@ -35,10 +35,10 @@ namespace puck.core.Models.Admin
         [Display(Name="User Language")]
         public string UserVariant { get; set;}
 
-        [UIHint("PuckPicker")]
-        [PuckPickerEditorSettings(MaxPick = 1)]
+        [UIHint(puck.core.Constants.EditorTemplates.ContentPicker)]
+        [ContentPickerEditorSettings(MaxPick = 1)]
         [Display(Name ="Start Node")]
-        public List<PuckPicker> StartNode { get; set; }
+        public List<PuckReference> StartNode { get; set; }
         
         [DataType(DataType.Password)]
         public string Password { get; set; }

@@ -17,7 +17,7 @@
         if (!variant) return;
         getReferencedContent(id, variant, function (res) {
             if (res.length == 0) {
-                container.find("p").prepend("This page is not referenced by other pages.");
+                container.find("p").prepend("This page is not referenced by any other pages.");
             } else {
                 container.find("p").prepend("This page is referenced by " + res.length + " page(s)");
                 container.find("button").removeClass("d-none").click(function (e) {

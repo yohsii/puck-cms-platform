@@ -10,11 +10,11 @@ using puck.core.Abstract.EditorSettings;
 
 namespace puck.core.Models.EditorSettings
 {
-    public enum PuckPickerSelectionType { node, variant, both };
-    [Display(Name = "Puck Picker Editor Settings")]
-    public class PuckPickerEditorSettings:I_Puck_Editor_Settings, I_Puck_Picker_Settings
+    public enum ContentPickerSelectionType { node, variant, both };
+    [Display(Name = "Content Picker Editor Settings")]
+    public class ContentPickerEditorSettings:I_Puck_Editor_Settings, I_Content_Picker_Settings
     {
-        public PuckPickerEditorSettings() {
+        public ContentPickerEditorSettings() {
             if (MaxPick == 0) MaxPick = 1;
         }
         [Display(Name ="Max Pick")]
@@ -28,10 +28,10 @@ namespace puck.core.Models.EditorSettings
         public bool AllowUnpublished { get; set; }
         //public bool AllowDuplicates { get; set; }
 
-        [UIHint("PuckPicker")]
+        [UIHint(puck.core.Constants.EditorTemplates.ContentPicker)]
         [Display(Name="Start Path")]
-        [Attributes.PuckPickerEditorSettings(MaxPick =1)]
-        public List<PuckPicker> StartPath { get; set; }
+        [Attributes.ContentPickerEditorSettings(MaxPick =1)]
+        public List<PuckReference> StartPath { get; set; }
         
         [HiddenInput(DisplayValue =false)]
         [Display(Name = "Start Path Id")]

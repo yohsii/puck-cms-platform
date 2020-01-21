@@ -18,8 +18,8 @@ namespace puck.core.Constants
         public static Dictionary<string,GeneratedPropertySelection> PropertyType = new Dictionary<string,GeneratedPropertySelection>(){
             {"SingleLineText",new GeneratedPropertySelection{Name="Single Line Text",Type=typeof(string),AttributeString=""}},
             {"Number",new GeneratedPropertySelection{Name="Number",Type=typeof(int),AttributeString=""}},
-            {"PuckPicker",new GeneratedPropertySelection{Name="Puck Picker",Type=typeof(PuckPicker),AttributeString=""}},
-            {"RichText",new GeneratedPropertySelection{Name="Rick Text Editor",Type=typeof(string),AttributeString="[UIHint(\"rte\")]"}}
+            {"ContentPicker",new GeneratedPropertySelection{Name="Content Picker",Type=typeof(PuckReference),AttributeString=""}},
+            {"RichText",new GeneratedPropertySelection{Name="Rick Text Editor",Type=typeof(string),AttributeString=$"[UIHint(\"{puck.core.Constants.EditorTemplates.RichText}\")]"}}
         };
     }
     public enum NotifyActions
@@ -27,11 +27,11 @@ namespace puck.core.Constants
         Edit, Publish, Delete, Move
     }
     public static class EditorTemplates {
-        public const string PuckPicker = "PuckPicker";
-        public const string PuckImagePicker = "PuckImagePicker";
-        public const string GoogleLongLat = "PuckGoogleLongLat";
-        public const string RichTextEditor = "rte";
-        public const string Tags = "PuckTags";
+        public const string ContentPicker = "ContentPicker";
+        public const string ImagePicker = "ImagePicker";
+        public const string Map = "GeoPosition";
+        public const string RichText = "RichText";
+        public const string Tags = "Tags";
         public const string ListEditor = "ListEditor";
         public const string TextArea = "TextArea";
         public const string SelectList = "SelectList";
@@ -146,7 +146,7 @@ namespace puck.core.Constants
         {
             {typeof(DateTime),typeof(DateTransformer)}
             ,{typeof(DateTime?),typeof(DateTransformer)}
-            ,{typeof(List<PuckPicker>),typeof(PuckPickerReferencesTransformer) }
+            ,{typeof(List<PuckReference>),typeof(PuckPickerReferencesTransformer) }
             ,{typeof(IFormFile),typeof(DefaultIFormFileTransformer) }
         };
         public static Field.Index FieldIndexSetting = Field.Index.ANALYZED;

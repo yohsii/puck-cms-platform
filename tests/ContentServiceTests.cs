@@ -163,20 +163,20 @@ namespace puck.tests
             
             // home/news/images/tokyo
             var tokyoPageEn = await s.ContentService.Create<ModelWithReferences>(imagesPageEn.Id, "en-gb", "tokyo", template: "~/views/home/homepage.cshtml", published: true, userName: uname);
-            tokyoPageEn.NewsItems = new List<core.Models.PuckPicker> {
-                new PuckPicker {Id=newsPageEn.Id,Variant=newsPageEn.Variant }
-                , new PuckPicker { Id = imagesPageEn.Id, Variant = imagesPageEn.Variant }
+            tokyoPageEn.NewsItems = new List<core.Models.PuckReference> {
+                new PuckReference {Id=newsPageEn.Id,Variant=newsPageEn.Variant }
+                , new PuckReference { Id = imagesPageEn.Id, Variant = imagesPageEn.Variant }
             };
-            tokyoPageEn.Images = new List<core.Models.PuckPicker> {
-                new PuckPicker {Id=newsPageEn.Id,Variant=newsPageEn.Variant }
-                , new PuckPicker { Id = imagesPageEn.Id, Variant = imagesPageEn.Variant }
+            tokyoPageEn.Images = new List<core.Models.PuckReference> {
+                new PuckReference {Id=newsPageEn.Id,Variant=newsPageEn.Variant }
+                , new PuckReference { Id = imagesPageEn.Id, Variant = imagesPageEn.Variant }
             };
             await s.ContentService.SaveContent(tokyoPageEn, triggerEvents: false, userName: uname);
 
             // home/news/images/london
             var londonPageEn = await s.ContentService.Create<ModelWithReferences>(imagesPageEn.Id, "en-gb", "london", template: "~/views/home/homepage.cshtml", published: true, userName: uname);
-            londonPageEn.Images = new List<PuckPicker> { 
-                new PuckPicker{Id=tokyoPageEn.Id,Variant=tokyoPageEn.Variant }
+            londonPageEn.Images = new List<PuckReference> { 
+                new PuckReference{Id=tokyoPageEn.Id,Variant=tokyoPageEn.Variant }
             };
             await s.ContentService.SaveContent(londonPageEn, triggerEvents: false, userName: uname);
 

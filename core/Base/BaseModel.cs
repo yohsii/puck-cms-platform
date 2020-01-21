@@ -47,12 +47,12 @@ namespace puck.core.Base
             return Path.Substring(secondOccurrence);
         }
 
-        [UIHint("SettingsReadOnly")]
+        [UIHint("PuckReadOnly")]
         [DefaultGUIDTransformer()]
         [IndexSettings(FieldStoreSetting = Lucene.Net.Documents.Field.Store.YES, FieldIndexSetting=Lucene.Net.Documents.Field.Index.NOT_ANALYZED,Analyzer=typeof(KeywordAnalyzer))]
         public Guid Id { get; set; }
 
-        [UIHint("SettingsReadOnly")]
+        [UIHint("PuckReadOnly")]
         [DefaultGUIDTransformer()]
         [IndexSettings(FieldIndexSetting = Lucene.Net.Documents.Field.Index.NOT_ANALYZED, Analyzer = typeof(KeywordAnalyzer))]
         public Guid ParentId { get; set; }
@@ -61,11 +61,11 @@ namespace puck.core.Base
         [Display(Name="Node Name",Description = "This determines the URL, changes will update URLs of published content even if you save without publishing")]
         public String NodeName { get; set; }
 
-        [UIHint("SettingsReadOnly")]
+        [UIHint("PuckReadOnly")]
         [Display(Name = "Last Edited By")]
         public string LastEditedBy { get; set; }
         
-        [UIHint("SettingsReadOnly")]
+        [UIHint("PuckReadOnly")]
         [Display(Name = "Created By")]
         public string CreatedBy { get; set; }
         
@@ -75,41 +75,41 @@ namespace puck.core.Base
         public string Path { get; set; }
         
         [DateTransformer()]
-        [UIHint("SettingsReadOnly")]
+        [UIHint("PuckReadOnly")]
         public DateTime Created { get; set; }
 
         [DateTransformer()]
-        [UIHint("SettingsReadOnly")]
+        [UIHint("PuckReadOnly")]
         public DateTime Updated { get; set; }
 
-        [UIHint("SettingsReadOnly")]
+        [UIHint("PuckReadOnly")]
         public int Revision { get; set; }
 
-        [UIHint("SettingsReadOnly")]
+        [UIHint("PuckReadOnly")]
         [IndexSettings(LowerCaseValue = true,FieldStoreSetting = Lucene.Net.Documents.Field.Store.YES,FieldIndexSetting = Lucene.Net.Documents.Field.Index.NOT_ANALYZED, Analyzer = typeof(KeywordAnalyzer))]
         [MaxLength(10)]
         public string Variant { get; set; }
-        
-        [UIHint("SettingsReadOnly")]
+
+        [UIHint("PuckReadOnly")]
         public bool Published { get; set; }
 
         [Display(Name = "Sort Order")]
-        [UIHint("SettingsReadOnly")]
+        [UIHint("PuckReadOnly")]
         public int SortOrder { get; set; }
 
         [Required]
         [Display(Name = "Template",Description ="If you would like this page hidden from public, choose the 404 template")]
-        [UIHint("SettingsTemplate")]
+        [UIHint("PuckTemplatePath")]
         [IndexSettings(FieldIndexSetting = Lucene.Net.Documents.Field.Index.NOT_ANALYZED, Analyzer = typeof(KeywordAnalyzer))]
         public string TemplatePath { get; set; }
 
         [Display(Name = "Type Chain")]
-        //[UIHint("SettingsReadOnly")]
+        //[UIHint("PuckReadOnly")]
         [HiddenInput(DisplayValue = false)]
         [IndexSettings(FieldIndexSetting=Lucene.Net.Documents.Field.Index.ANALYZED,Analyzer=typeof(StandardAnalyzer),FieldStoreSetting=Lucene.Net.Documents.Field.Store.NO)]
         public string TypeChain { get; set; }
 
-        [UIHint("SettingsType")]
+        [UIHint("PuckType")]
         [IndexSettings(FieldIndexSetting = Lucene.Net.Documents.Field.Index.NOT_ANALYZED,Analyzer = typeof(KeywordAnalyzer), FieldStoreSetting = Lucene.Net.Documents.Field.Store.YES)]
         [MaxLength(256)]
         public string Type { get; set; }

@@ -88,7 +88,7 @@ namespace puck.core.Helpers
             return level;
         }
 
-        public static List<T> GetAll<T>(this List<PuckPicker> pp, bool noCast = false) where T : BaseModel
+        public static List<T> GetAll<T>(this List<PuckReference> pp, bool noCast = false) where T : BaseModel
         {
             if (pp == null)
                 return new List<T>();
@@ -125,7 +125,7 @@ namespace puck.core.Helpers
             return results;
         }
 
-        public static List<T> GetAll<T>(this PuckPicker pp,bool noCast=false) where T : BaseModel
+        public static List<T> GetAll<T>(this PuckReference pp,bool noCast=false) where T : BaseModel
         {
             if (pp == null)
                 return new List<T>();
@@ -139,7 +139,7 @@ namespace puck.core.Helpers
                 return qh.GetAll();
         }
 
-        public static T Get<T>(this PuckPicker pp,bool noCast=false) where T : BaseModel
+        public static T Get<T>(this PuckReference pp,bool noCast=false) where T : BaseModel
         {
             return GetAll<T>(pp, noCast).FirstOrDefault();
         }
@@ -910,6 +910,7 @@ namespace puck.core.Helpers
             var innerQ = this.New();
             var implementingTypes = ApiHelper.FindDerivedClasses(typeof(TI)).ToList();
             implementingTypes = implementingTypes.Where(x => typeof(BaseModel).IsAssignableFrom(x)).ToList();
+            if (implementingTypes.Count == 0) return this;
             foreach (var type in implementingTypes)
             {
                 innerQ.Field(x => x.Type, type.Name);
@@ -938,6 +939,8 @@ namespace puck.core.Helpers
                     new HashSet<Type>(listOfListsOfTypes.First()),
                     (h, e) => { h.IntersectWith(e); return h; }
                 );
+
+            if (intersectionOfImplementingTypes.Count == 0) return this;
 
             foreach (var type in intersectionOfImplementingTypes)
             {

@@ -10,10 +10,10 @@ using puck.core.Abstract.EditorSettings;
 
 namespace puck.core.Models.EditorSettings
 {
-    [Display(Name= "Puck Tags Editor Settings")]
-    public class PuckTagsEditorSettings:Attribute,I_Puck_Editor_Settings
+    [Display(Name= "Tags Editor Settings")]
+    public class TagsEditorSettings:Attribute,I_Puck_Editor_Settings
     {
-        public PuckTagsEditorSettings()
+        public TagsEditorSettings()
         {
             if (string.IsNullOrEmpty(Category)) Category = "";
         }

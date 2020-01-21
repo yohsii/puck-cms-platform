@@ -8,7 +8,7 @@ namespace puck.tests.ViewModels
 {
     public class ModelWithReferences:BaseModel
     {
-        public List<PuckPicker> NewsItems { get; set; }
-        public List<PuckPicker> Images { get; set; }
+        public List<PuckReference> NewsItems { get; set; }
+        public List<PuckReference> Images { get; set; }
     }
 }

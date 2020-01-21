@@ -10,10 +10,10 @@ using puck.core.Abstract.EditorSettings;
 
 namespace puck.core.Models.EditorSettings
 {
-    [Display(Name= "Puck Image Picker Editor Settings")]
-    public class PuckImagePickerEditorSettings:I_Puck_Editor_Settings, I_Puck_Image_Picker_Settings
+    [Display(Name= "Image Picker Editor Settings")]
+    public class ImagePickerEditorSettings:I_Puck_Editor_Settings, I_Image_Picker_Settings
     {
-        public PuckImagePickerEditorSettings()
+        public ImagePickerEditorSettings()
         {
             if (MaxPick == 0) MaxPick = 1;
         }
@@ -21,10 +21,10 @@ namespace puck.core.Models.EditorSettings
         [Display(Name ="Max Pick")]
         public int MaxPick { get; set; }
         
-        [UIHint("PuckPicker")]
+        [UIHint(puck.core.Constants.EditorTemplates.ContentPicker)]
         [Display(Name ="Start Path")]
-        [Attributes.PuckPickerEditorSettings(MaxPick =1)]
-        public List<PuckPicker> StartPath { get; set; }
+        [Attributes.ContentPickerEditorSettings(MaxPick =1)]
+        public List<PuckReference> StartPath { get; set; }
         
         [Display(Name ="Start Path Id")]
         [HiddenInput(DisplayValue =false)]
