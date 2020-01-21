@@ -956,8 +956,11 @@ namespace puck.core.Controllers
             var model = new List<BaseModel>();
             foreach (var res in results)
             {
+                var modType = ApiHelper.GetTypeFromName(res[FieldKeys.PuckType]);
+                if (modType == null)
+                    continue;
                 //var mod = JsonConvert.DeserializeObject(res[FieldKeys.PuckValue],ApiHelper.ConcreteType(ApiHelper.GetType(res[FieldKeys.PuckType]))) as BaseModel;
-                var mod = JsonConvert.DeserializeObject(res[FieldKeys.PuckValue], ApiHelper.GetTypeFromName(res[FieldKeys.PuckType])) as BaseModel;
+                var mod = JsonConvert.DeserializeObject(res[FieldKeys.PuckValue], modType) as BaseModel;
                 model.Add(mod);
             }
             return model;
