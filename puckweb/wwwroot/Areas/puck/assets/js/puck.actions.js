@@ -1157,7 +1157,7 @@ var overlay = function (el, width, height, top, title, isRightSided) {
     isRightSided = isRightSided || false;
     var overlayClass = isRightSided ? "right" : "left";
     top = top || "0px";
-    overlayClose(false,overlayClass);
+    overlayClose(false,overlayClass,false);
     var cleftIsVisible = false;
     if (window.innerWidth < 768) {
         if (cleft.is(":visible")) {
@@ -1203,8 +1203,14 @@ var overlay = function (el, width, height, top, title, isRightSided) {
     return outer;
 }
 
-var overlayClose = function (showLeftArea,cssClass) {
-    cright.find(".overlay_screen"+(cssClass?"."+cssClass:"")).remove();
+var overlayClose = function (showLeftArea, cssClass, highlight) {
+    if (highlight == undefined) highlight = true;
+    if (highlight && cright.find(".content_edit_page").length > 0) {
+        var id = cright.find(".content_edit_page input[name=Id]").val();
+        if (id)
+            highlightSelectedNodeById(id);
+    }
+    cright.find(".overlay_screen" + (cssClass ? "." + cssClass : "")).remove();
     $("body").css({ overflow: "initial" });
     $(document).unbind("keyup");
     if ($(window).width() < 768 && showLeftArea) {
