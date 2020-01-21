@@ -1203,8 +1203,9 @@ namespace puck.core.Services
                         throw new UserNotFoundException("there is no user for provided username");
                     else if (cacheMiss) cache.Set(cacheKey, user, TimeSpan.FromMinutes(1));
                 }
+                if (mod == null) throw new ArgumentException("model cannot be null");
                 if (mod.Id == Guid.Empty) throw new ArgumentException("model id cannot be empty");
-                if (string.IsNullOrEmpty(mod.Variant)) throw new ArgumentException("model variant must be set");
+                if (string.IsNullOrEmpty(mod.Variant) || string.IsNullOrWhiteSpace(mod.Variant)) throw new ArgumentException("model variant must be set");
 
                 mod.Variant = mod.Variant.ToLower();
 
