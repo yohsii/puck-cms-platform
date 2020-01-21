@@ -843,18 +843,26 @@ namespace puck.core.Helpers
             TrimAnd();
             string currentPath=null;
             string currentRoot = null;
-            if(m==null)
-                currentPath= HttpContext.Current.Request.GetUri().AbsolutePath.TrimStart('/');
+            if (m == null)
+            {
+                if (HttpContext.Current == null) return this;
+                currentRoot = PathPrefix() + "/";
+                this.And()
+                    .Path(currentRoot.ToLower().WildCardMulti());
+                return this;
+            }
             else
+            {
                 currentPath = m.Path.TrimStart('/');
-            if (currentPath.IndexOf("/") > -1)
-                currentRoot = currentPath.Substring(0, currentPath.IndexOf('/'));
-            else currentRoot = currentPath;
-            currentRoot = "/" + currentRoot + "/";
-            this.And()
-                //.Field(x => x.Path, currentRoot.ToLower().WildCardMulti());
-                .Path(currentRoot.ToLower().WildCardMulti());
-            return this;
+                if (currentPath.IndexOf("/") > -1)
+                    currentRoot = currentPath.Substring(0, currentPath.IndexOf('/'));
+                else currentRoot = currentPath;
+                currentRoot = "/" + currentRoot + "/";
+                this.And()
+                    //.Field(x => x.Path, currentRoot.ToLower().WildCardMulti());
+                    .Path(currentRoot.ToLower().WildCardMulti());
+                return this;
+            }
         }
 
         public QueryHelper<TModel> CurrentLanguage()

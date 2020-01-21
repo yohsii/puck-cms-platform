@@ -61,10 +61,6 @@
     <ProjectReference Include="..\core\core.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Transformers\" />
-  </ItemGroup>
-
 
   <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
     <Exec Command="echo &quot;App Offline&quot; /a &gt; &quot;$(ProjectDir)app_offline.htm&quot;" />
