@@ -1,4 +1,4 @@
-﻿@model String
+﻿@model object
 @{
     var settings = this.PuckEditorSettings<puck.core.Models.EditorSettings.Attributes.SelectListSettingsAttribute>(attributeOnly: true)
         ?? new puck.core.Models.EditorSettings.Attributes.SelectListSettingsAttribute { Values = new string[] { } };
@@ -15,7 +15,7 @@
         if (values.Length > 0)
         {
             var val = values.Length == 1 ? values[0] : values[1];
-            var item = new SelectListItem(values[0],val,!string.IsNullOrEmpty(Model) && Model.Equals(val));
+            var item = new SelectListItem(values[0],val,!string.IsNullOrEmpty(Model?.ToString()) && Model.ToString().Equals(val));
             items.Add(item);
         }
     }
