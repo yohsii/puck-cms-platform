@@ -19,7 +19,9 @@
     @("search for '" + searchQuery + "' count: " + sresults.Count)
     <br />
     var geoQuery = new QueryHelper<Page>();
-    geoQuery.WithinMiles(x => x.Location.LongLat, -0.1277582, 51.5073509, 10);
+    geoQuery
+        .WithinMiles(x => x.Location.LongLat, -0.1277582, 51.5073509, 10)
+        .SortByDistanceFromPoint(x => x.Location.LongLat, -0.127782, 51.5073509, desc: false);
     var georesults = geoQuery.GetAll();
     @("search for locations within 10miles of London(-0.1277582,51.5073509): " + georesults.Count)
 
