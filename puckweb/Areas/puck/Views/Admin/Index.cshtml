@@ -41,11 +41,11 @@
         </td>
         <td>@Html.DisplayFor(modelItem=>item.UserVariant)</td>
         <td>
-            @if (item.StartNode != null && item.StartNode.Count > 0) {
-                var id = item.StartNode[0].Id;
-                var startNode = repo.GetPuckRevision().Where(x => x.Id == id &&x.Current).ToList().FirstOrDefault();
-                if (startNode != null) { 
-                    @startNode.Path
+            @if (item.StartNodes != null && item.StartNodes.Count > 0) {
+                var ids = item.StartNodes.Select(x=>x.Id).ToArray();
+                var groupedStartNodes = repo.GetPuckRevision().Where(x => ids.Contains(x.Id) && x.Current).ToList().GroupBy(x=>x.Id);
+                foreach(var grouping in groupedStartNodes) { 
+                    @grouping.First().Path <br/>
                 }
             }            
         </td>

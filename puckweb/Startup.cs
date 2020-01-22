@@ -29,6 +29,7 @@ using puck.core.Concrete;
 using puck.core.Abstract;
 using puckweb.Data.Contexts;
 using puckweb.Data.Entities;
+using Microsoft.AspNetCore.Authentication.Cookies;
 
 namespace puckweb
 {
@@ -49,9 +50,25 @@ namespace puckweb
 
             if (Configuration.GetValue<bool?>("UseSQLServer") ?? false) {
                 services.AddEntityFrameworkSqlServer().AddDbContext<PuckContextSQLServer>(optionsLifetime:ServiceLifetime.Transient);
-                services.AddDefaultIdentity<PuckUser>(options => { options.SignIn.RequireConfirmedAccount = false; })
-                .AddRoles<PuckRole>()
-                .AddEntityFrameworkStores<PuckContextSQLServer>();
+                //services.AddDefaultIdentity<PuckUser>(options => { options.SignIn.RequireConfirmedAccount = false; })
+                services.AddAuthentication(o =>
+                {
+                    o.DefaultScheme = IdentityConstants.ApplicationScheme;
+                    o.DefaultSignInScheme = IdentityConstants.ExternalScheme;
+                }).AddIdentityCookies(o => {
+                    o.ApplicationCookie.Configure(x=> { x.EventsType = typeof(PuckCookieAuthenticationEvents); });
+                });
+
+                services.AddIdentityCore<PuckUser>(o =>
+                {
+                    o.Stores.MaxLengthForKeys = 128;
+                    o.SignIn.RequireConfirmedAccount = false;
+                })
+                    .AddDefaultUI()
+                    .AddDefaultTokenProviders()
+                    .AddRoles<PuckRole>()
+                    .AddEntityFrameworkStores<PuckContextSQLServer>();
+                services.AddScoped<SignInManager<PuckUser>>();
                 services.AddTransient<I_Puck_Context>(x=>x.GetService<PuckContextSQLServer>());
                 
                 //add front end db context and identity
@@ -112,12 +129,13 @@ namespace puckweb
                 .AddRazorRuntimeCompilation()
                 .AddJsonOptions(options => options.JsonSerializerOptions.PropertyNamingPolicy = null);
             services.AddRazorPages();
-            services.AddAuthentication().AddCookie(puck.core.Constants.Mvc.AuthenticationScheme, options=> {
-                options.LoginPath = "/puck/admin/in";
-                options.LogoutPath = "/puck/admin/out";
-                options.AccessDeniedPath= "/puck/admin/in";
-                options.ForwardAuthenticate = "Identity.Application";
-            });
+            services.AddAuthentication()
+                .AddCookie(puck.core.Constants.Mvc.AuthenticationScheme, options =>{
+                    options.LoginPath = "/puck/admin/in";
+                    options.LogoutPath = "/puck/admin/out";
+                    options.AccessDeniedPath = "/puck/admin/in";
+                    options.ForwardAuthenticate = IdentityConstants.ApplicationScheme;
+                });
             services.AddHttpContextAccessor();
             services.AddPuckServices(Env,Configuration);
 

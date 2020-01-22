@@ -869,21 +869,25 @@ namespace puck.core.Controllers
             return Json(path);
         }
         [Authorize(Roles = PuckRoles.Puck, AuthenticationSchemes = Mvc.AuthenticationScheme)]
-        public async Task<JsonResult> StartId()
+        public async Task<JsonResult> StartIds()
         {
             var user = await userManager.FindByNameAsync(User.Identity.Name);
-            return Json(user.PuckStartNodeId ?? Guid.Empty);
+            return Json(user.PuckStartNodeIds?.Split(',',StringSplitOptions.RemoveEmptyEntries) ?? new string[]{ Guid.Empty.ToString()});
         }
         [Authorize(Roles = PuckRoles.Puck, AuthenticationSchemes = Mvc.AuthenticationScheme)]
-        public async Task<JsonResult> StartPath()
+        public async Task<JsonResult> StartPaths()
         {
             var user = await userManager.FindByNameAsync(User.Identity.Name);
-            if (user.PuckStartNodeId.HasValue && user.PuckStartNodeId != Guid.Empty)
+            if (!string.IsNullOrEmpty(user.PuckStartNodeIds) && user.PuckStartNodeIds != Guid.Empty.ToString())
             {
-                var node = repo.GetPuckRevision().Where(x => x.Id == user.PuckStartNodeId && x.Current).FirstOrDefault();
-                if (node != null)
+                Guid[] startIds = user.PuckStartNodeIds.Split(',',StringSplitOptions.RemoveEmptyEntries).Select(x=>Guid.Parse(x)).ToArray();
+                var paths = string.Join(",", repo.GetPuckRevision().Where(x => startIds.Contains(x.Id) && x.Current)
+                    .ToList()
+                    .GroupBy(x => x.Id)
+                    .Select(x => x.First().Path));
+                if (!string.IsNullOrEmpty(paths))
                 {
-                    return Json(node.Path + "/");
+                    return Json(paths);
                 }
             }
             return Json("/");
@@ -1071,7 +1075,7 @@ namespace puck.core.Controllers
             return Json(new { success = true, message = "" });
         }
         [Authorize(Roles = PuckRoles.Puck, AuthenticationSchemes = Mvc.AuthenticationScheme)]
-        public ActionResult MinimumContentByParentId(Guid parentId = default(Guid),bool fullIndexContent=false)
+        public ActionResult MinimumContentByParentId(Guid parentId = default(Guid),bool fullIndexContent=false,bool filterAllowedContent=true)
         {
             //using path instead of p_path in the method sig means path won't be checked against user's start node - which we don't want for this method
             List<PuckRevision> resultsRev;
@@ -1157,7 +1161,41 @@ namespace puck.core.Controllers
                 }
                 publishedContent = publishedBaseModels.GroupById().ToDictionary(x => x.Key.ToString(), x => x.Value);
             }
-
+            var keysToRemove = new List<string>();
+            if (filterAllowedContent) {
+                var claims = User.Claims.Where(x => x.Type == Claims.PuckStartId).ToList();
+                if (claims != null && claims.Any()) {
+                    var paths = new List<string>();
+                    foreach (var claim in claims) {
+                        string path=null;
+                        if (cache.TryGetValue<string>($"puckpath{claim.Value}", out path))
+                        {
+                            paths.Add(path);
+                        }
+                        else {
+                            var startNode = repo.GetPuckRevision().Where(x => x.Id == Guid.Parse(claim.Value) && x.Current).FirstOrDefault();
+                            if (startNode != null) {
+                                cache.Set<string>($"puckpath{claim.Value}",startNode.Path);
+                                paths.Add(startNode.Path);
+                            }
+                        }
+                    }
+                    if (paths.Any())
+                    {
+                        foreach (var result in results)
+                        {
+                            foreach (var path in paths) {
+                                var node = result.Value.Values.First();
+                                if (!(path.StartsWith(node.Path + "/") || node.Path == path || node.Path.StartsWith(path+"/")))
+                                    keysToRemove.Add(result.Key);
+                            }
+                        }
+                    }
+                }
+            }
+            foreach (var key in keysToRemove) {
+                results.Remove(key);
+            }
             var jsonStr = JsonConvert.SerializeObject(new { current = results, published = publishedContent, children = haveChildren });
             return base.Content(jsonStr, "application/json");
         }

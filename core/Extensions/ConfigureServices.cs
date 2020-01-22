@@ -1,10 +1,13 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using puck.core.Abstract;
 using puck.core.Concrete;
+using puck.core.Entities;
 using puck.core.Helpers;
+using puck.core.Identity;
 using puck.core.Services;
 using puck.core.State;
 using System;
@@ -28,7 +31,8 @@ namespace puck.core.Extensions
             services.AddTransient<I_Log_Helper,LogHelper>();
             services.AddTransient<I_Content_Service,ContentService>();
             services.AddHostedService<Dispatcher>((IServiceProvider serviceProvider) => { return serviceProvider.GetService<I_Task_Dispatcher>() as Dispatcher; });
-
+            services.AddScoped<IUserClaimsPrincipalFactory<PuckUser>, PuckClaimsPrincipalFactory>();
+            services.AddScoped<PuckCookieAuthenticationEvents>();
         }
     }
 }

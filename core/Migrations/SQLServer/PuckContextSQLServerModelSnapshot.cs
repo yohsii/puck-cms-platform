@@ -423,8 +423,8 @@ namespace puck.core.Migrations.SQLServer
                     b.Property<DateTime?>("PuckLastLoginDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<Guid?>("PuckStartNodeId")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<string>("PuckStartNodeIds")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("PuckSurname")
                         .HasColumnType("nvarchar(max)");

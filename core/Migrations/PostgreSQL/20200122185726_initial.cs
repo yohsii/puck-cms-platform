@@ -1,7 +1,8 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore.Migrations;
+using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
-namespace puck.core.Migrations.SQLServer
+namespace puck.core.Migrations.PostgreSQL
 {
     public partial class initial : Migration
     {
@@ -44,7 +45,7 @@ namespace puck.core.Migrations.SQLServer
                     PuckFirstName = table.Column<string>(nullable: true),
                     PuckSurname = table.Column<string>(nullable: true),
                     PuckUserVariant = table.Column<string>(nullable: true),
-                    PuckStartNodeId = table.Column<Guid>(nullable: true)
+                    PuckStartNodeIds = table.Column<string>(nullable: true)
                 },
                 constraints: table =>
                 {
@@ -56,7 +57,7 @@ namespace puck.core.Migrations.SQLServer
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     ContentId = table.Column<Guid>(nullable: false),
                     Variant = table.Column<string>(maxLength: 10, nullable: true),
                     Action = table.Column<string>(maxLength: 256, nullable: true),
@@ -74,7 +75,7 @@ namespace puck.core.Migrations.SQLServer
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     ServerName = table.Column<string>(maxLength: 256, nullable: true),
                     Count = table.Column<int>(nullable: false),
                     InstructionKey = table.Column<string>(nullable: true),
@@ -91,7 +92,7 @@ namespace puck.core.Migrations.SQLServer
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     Name = table.Column<string>(maxLength: 256, nullable: true),
                     Key = table.Column<string>(maxLength: 2048, nullable: true),
                     Value = table.Column<string>(nullable: true),
@@ -108,7 +109,7 @@ namespace puck.core.Migrations.SQLServer
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     From = table.Column<string>(nullable: true),
                     To = table.Column<string>(nullable: true),
                     Type = table.Column<string>(nullable: true)
@@ -123,7 +124,7 @@ namespace puck.core.Migrations.SQLServer
                 columns: table => new
                 {
                     RevisionId = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     Id = table.Column<Guid>(nullable: false),
                     ParentId = table.Column<Guid>(nullable: false),
                     NodeName = table.Column<string>(nullable: false),
@@ -156,7 +157,7 @@ namespace puck.core.Migrations.SQLServer
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     Category = table.Column<string>(nullable: true),
                     Tag = table.Column<string>(nullable: true),
                     Count = table.Column<int>(nullable: false)
@@ -171,7 +172,7 @@ namespace puck.core.Migrations.SQLServer
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     RoleId = table.Column<string>(nullable: false),
                     ClaimType = table.Column<string>(nullable: true),
                     ClaimValue = table.Column<string>(nullable: true)
@@ -192,7 +193,7 @@ namespace puck.core.Migrations.SQLServer
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     UserId = table.Column<string>(nullable: false),
                     ClaimType = table.Column<string>(nullable: true),
                     ClaimValue = table.Column<string>(nullable: true)
@@ -281,8 +282,7 @@ namespace puck.core.Migrations.SQLServer
                 name: "RoleNameIndex",
                 table: "AspNetRoles",
                 column: "NormalizedName",
-                unique: true,
-                filter: "[NormalizedName] IS NOT NULL");
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetUserClaims_UserId",
@@ -308,8 +308,7 @@ namespace puck.core.Migrations.SQLServer
                 name: "UserNameIndex",
                 table: "AspNetUsers",
                 column: "NormalizedUserName",
-                unique: true,
-                filter: "[NormalizedUserName] IS NOT NULL");
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_PuckAudit_Action",

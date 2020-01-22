@@ -288,11 +288,11 @@ var getPath = function (id, f) {
 var getIdPath = function (id, f) {
     $.get("/puck/api/getidpath?id=" + id, f);
 };
-var getStartPath = function (f) {
-    $.get("/puck/api/startpath", f);
+var getStartPaths = function (f) {
+    $.get("/puck/api/startpaths", f);
 };
-var getStartId = function (f) {
-    $.get("/puck/api/startid", f);
+var getStartIds = function (f) {
+    $.get("/puck/api/startids", f);
 };
 var getSearchView = function (term, f, type, root) {
     $.get("/puck/api/searchview?q=" + term + "&type=" + type + "&root=" + root, f, "html");

@@ -38,6 +38,9 @@ namespace puck.core.Constants
         public const string MultiSelectList = "MultiSelectList";
         public const string ReadOnly = "PuckReadOnly";
     }
+    public static class Claims {
+        public const string PuckStartId = "PuckStartId";
+    }
     public static class Mvc {
         public const string AuthenticationScheme = "puck";
     }

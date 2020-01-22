@@ -18,8 +18,10 @@ var userRoles = [];
 var languages;
 var languageSortDictionary = [];
 var rootLocalisations = [];
-var startPath;
+var startPath = "/";
+var startPaths = [];
 var startId;
+var startIds;
 var emptyGuid = '00000000-0000-0000-0000-000000000000';
 var logHelper = new LogHelper();
 var currentCacheKey = "";
@@ -153,8 +155,8 @@ var showUserMarkup = function (username) {
                 userRoles = overlayEl.find("select[name=Roles]").val();
                 hideTopNav();
                 getUserLanguage(function (d) { defaultLanguage = d; });
-                startPath = data.startPath;
-                startId = data.startNodeId;
+                startPaths = data.startPaths;
+                startIds = (data.startNodeIds||"").split(",");
             }
             overlayClose();
         }, function (data) {
@@ -172,7 +174,7 @@ var drawUser = function (user,container) {
     el.find(".username").html(user.UserName);
     el.find(".email").html(user.Email);
     el.find(".roles").html(user.Roles.length + " roles");
-    el.find(".startpath").html(user.StartPath);
+    el.find(".startpath").html(user.StartPaths.split(",").join("<br/>"));
     el.find(".language").html(user.UserVariant);
     el.find(".lastlogin").html(user.LastLoginDateString);
     el.find("[data-username]").attr({"data-username":user.UserName});

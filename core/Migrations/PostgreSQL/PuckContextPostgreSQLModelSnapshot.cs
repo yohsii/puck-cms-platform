@@ -422,8 +422,8 @@ namespace puck.core.Migrations.PostgreSQL
                     b.Property<DateTime?>("PuckLastLoginDate")
                         .HasColumnType("timestamp without time zone");
 
-                    b.Property<Guid?>("PuckStartNodeId")
-                        .HasColumnType("uuid");
+                    b.Property<string>("PuckStartNodeIds")
+                        .HasColumnType("text");
 
                     b.Property<string>("PuckSurname")
                         .HasColumnType("text");

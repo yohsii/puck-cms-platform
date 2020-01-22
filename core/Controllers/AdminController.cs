@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Authorization;
 using puck.core.State;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace puck.core.Controllers
 {
@@ -27,8 +28,10 @@ namespace puck.core.Controllers
         RoleManager<PuckRole> roleManager;
         UserManager<PuckUser> userManager;
         SignInManager<PuckUser> signInManager;
-        //IAuthenticationManager authenticationManager;
-        public AdminController(I_Content_Indexer i, I_Content_Searcher s, I_Log l, I_Puck_Repository r,RoleManager<PuckRole> rm,UserManager<PuckUser> um, SignInManager<PuckUser> sm/*,IAuthenticationManager authenticationManager*/) {
+        IMemoryCache cache;
+        
+        public AdminController(I_Content_Indexer i, I_Content_Searcher s, I_Log l, I_Puck_Repository r,RoleManager<PuckRole> rm,UserManager<PuckUser> um, SignInManager<PuckUser> sm,IMemoryCache cache) {
+            this.cache = cache;
             this.indexer = i;
             this.searcher = s;
             this.log = l;
@@ -185,14 +188,15 @@ namespace puck.core.Controllers
                 puvm.Surname = pu.PuckSurname;
                 puvm.User = pu;
                 puvm.Roles = (await userManager.GetRolesAsync(pu)).ToList();
-                if (pu.PuckStartNodeId != Guid.Empty)
-                    puvm.StartNode = new List<PuckReference> { new PuckReference { Id = pu.PuckStartNodeId.Value } };
+                if (!string.IsNullOrEmpty(pu.PuckStartNodeIds))
+                    puvm.StartNodes = pu.PuckStartNodeIds.Split(',', StringSplitOptions.RemoveEmptyEntries).Select(x => new PuckReference { Id = Guid.Parse(x) }).ToList();
                 puvm.UserVariant = pu.PuckUserVariant;
-                puvm.StartPath = "/";
-                if (pu.PuckStartNodeId != Guid.Empty) {
-                    var node = repo.GetPuckRevision().FirstOrDefault(x=>x.Id==pu.PuckStartNodeId&&x.Current);
-                    if (node != null)
-                        puvm.StartPath = node.Path;
+                puvm.StartPaths = "/";
+                if (puvm.StartNodes!=null && puvm.StartNodes.Any()) {
+                    Guid[] startIds = puvm.StartNodes.Select(x => x.Id).ToArray();
+                    var nodes = repo.GetPuckRevision().Where(x => startIds.Contains(x.Id) && x.Current).ToList().GroupBy(x=>x.Id);
+                    if (nodes.Any())
+                        puvm.StartPaths = string.Join(",",nodes.Select(x=>x.First().Path));
                 }
                 model.Add(puvm);
             }
@@ -225,8 +229,11 @@ namespace puck.core.Controllers
                 //model.Password = usr.GetPassword();
                 //model.PasswordConfirm = model.Password;
                 model.Roles = (await userManager.GetRolesAsync(usr)).ToList();
-                if(usr.PuckStartNodeId!=Guid.Empty)
-                    model.StartNode = new List<PuckReference>{ new PuckReference { Id=usr.PuckStartNodeId.Value} };
+                if (!string.IsNullOrEmpty(usr.PuckStartNodeIds))
+                    model.StartNodes = usr.PuckStartNodeIds
+                        .Split(',',StringSplitOptions.RemoveEmptyEntries)
+                        .Select(x=>new PuckReference {Id=Guid.Parse(x) })
+                        .ToList();
                 model.UserVariant = usr.PuckUserVariant;
             }
             return View(model);
@@ -238,8 +245,8 @@ namespace puck.core.Controllers
         {
             bool success = false;
             string message = "";
-            string startPath = "/";
-            Guid startNodeId = Guid.Empty;
+            string startPaths = "/";
+            string startNodeIds = "";
             var model = new PuckUserViewModel();
             try
             {
@@ -256,7 +263,7 @@ namespace puck.core.Controllers
                         Email = user.Email,
                         UserName = user.UserName,
                         PuckUserVariant = user.UserVariant,
-                        PuckStartNodeId = user.StartNode?.FirstOrDefault()?.Id ?? Guid.Empty
+                        PuckStartNodeIds = user.StartNodes == null ? null : string.Join(",", user.StartNodes.Select(x => x.Id.ToString()))
                     };
                     var result = await userManager.CreateAsync(puser, user.Password);
                     if (!result.Succeeded) {
@@ -315,17 +322,20 @@ namespace puck.core.Controllers
                         await userManager.AddToRoleAsync(puser, PuckRoles.Puck);                        
                     }
                     
-                    if (user.StartNode == null || user.StartNode.Count == 0)
+                    if (user.StartNodes == null || user.StartNodes.Count == 0)
                     {
-                        puser.PuckStartNodeId = Guid.Empty;
+                        puser.PuckStartNodeIds = null;
                     }
                     else
                     {
-                        Guid picked_id = user.StartNode.First().Id;
-                        var revision = repo.GetPuckRevision().Where(x => x.Id == picked_id && x.Current).FirstOrDefault();
-                        if (revision != null)
-                            startPath = revision.Path + "/";
-                        puser.PuckStartNodeId = picked_id;
+                        Guid[] startIds = user.StartNodes.Select(x => x.Id).ToArray();
+                        var nodes = repo.GetPuckRevision().Where(x => startIds.Contains(x.Id) && x.Current).ToList().GroupBy(x => x.Id);
+                        if (nodes.Any())
+                        {
+                            startPaths = string.Join(",", nodes.Select(x => x.First().Path));
+                            startNodeIds = string.Join(",", nodes.Select(x => x.First().Id.ToString()));
+                        }
+                        puser.PuckStartNodeIds = string.Join(",", startIds.Select(x => x.ToString()));
                     }
                     if (!string.IsNullOrEmpty(user.UserVariant))
                     {
@@ -334,8 +344,6 @@ namespace puck.core.Controllers
                     puser.PuckFirstName = user.FirstName;
                     puser.PuckSurname = user.Surname;
                     await userManager.UpdateAsync(puser);
-
-                    startNodeId = puser.PuckStartNodeId.Value;
 
                     if (!string.IsNullOrEmpty(user.Password))
                     {
@@ -354,6 +362,7 @@ namespace puck.core.Controllers
                     {
                         success = true;
                     }
+                    cache.Set<bool?>($"renewPuckClaims{user.UserName}",true);
                 }
 
                 
@@ -363,10 +372,10 @@ namespace puck.core.Controllers
                 success = false;
                 message = ex.Message;
             }
-            return Json(new {success=success,message=message,startPath=startPath,startNodeId=startNodeId });
+            return Json(new {success=success,message=message,startPaths=startPaths,startNodeIds=startNodeIds });
         }
 
-        [Authorize(Roles =PuckRoles.Users,AuthenticationSchemes =Mvc.AuthenticationScheme)]
+        [Authorize(Roles =PuckRoles.Users,AuthenticationSchemes = Mvc.AuthenticationScheme)]
         public async Task<JsonResult> Delete(string username) {
             bool success = false;
             string message = "";

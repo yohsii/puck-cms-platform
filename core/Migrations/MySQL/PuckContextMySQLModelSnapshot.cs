@@ -412,8 +412,8 @@ namespace puck.core.Migrations.MySQL
                     b.Property<DateTime?>("PuckLastLoginDate")
                         .HasColumnType("datetime(6)");
 
-                    b.Property<Guid?>("PuckStartNodeId")
-                        .HasColumnType("char(36)");
+                    b.Property<string>("PuckStartNodeIds")
+                        .HasColumnType("longtext CHARACTER SET utf8mb4");
 
                     b.Property<string>("PuckSurname")
                         .HasColumnType("longtext CHARACTER SET utf8mb4");

@@ -411,7 +411,7 @@ namespace puck.core.Migrations.SQLite
                     b.Property<DateTime?>("PuckLastLoginDate")
                         .HasColumnType("TEXT");
 
-                    b.Property<Guid?>("PuckStartNodeId")
+                    b.Property<string>("PuckStartNodeIds")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("PuckSurname")

@@ -1021,13 +1021,15 @@ getVariants(function (data) {
         location.hash = "settings?path=/puck/settings/languages";
     }
 });
-getStartId(function (id) {
-    startId = id;
-    cleft.find("ul.content li:first").attr("data-id", id);
-    getStartPath(function (d) {
-        startPath = d;
-        cleft.find(".startpath").html(d);
-        $(".interfaces .tree_container ul.content .node").attr("data-children_path", startPath);
+getStartIds(function (ids) {
+    //startId = id;
+    startId = emptyGuid;
+    startIds = ids;
+    cleft.find("ul.content li:first").attr("data-id", startId);
+    getStartPaths(function (d) {
+        startPaths = d.split(",");
+        cleft.find(".startpath").html("/");
+        //$(".interfaces .tree_container ul.content .node").attr("data-children_path", startPaths);
     });
-    getDrawContent(id, undefined, true, undefined, true);
+    getDrawContent(startId, undefined, true, undefined, true);
 });

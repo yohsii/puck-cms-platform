@@ -10,7 +10,7 @@ namespace puck.core.Models.Admin
 {
     public class PuckUserViewModel
     {
-        public string StartPath { get; set; }
+        public string StartPaths { get; set; }
         public PuckUser User { get; set; }
         public DateTime? LastLoginDate { get; set; }
         public string LastLoginDateString { get; set; }
@@ -36,9 +36,9 @@ namespace puck.core.Models.Admin
         public string UserVariant { get; set;}
 
         [UIHint(puck.core.Constants.EditorTemplates.ContentPicker)]
-        [ContentPickerEditorSettings(MaxPick = 1)]
-        [Display(Name ="Start Node")]
-        public List<PuckReference> StartNode { get; set; }
+        [ContentPickerEditorSettings(MaxPick = 100)]
+        [Display(Name ="Start Nodes")]
+        public List<PuckReference> StartNodes { get; set; }
         
         [DataType(DataType.Password)]
         public string Password { get; set; }
