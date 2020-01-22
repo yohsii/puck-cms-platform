@@ -36,6 +36,7 @@ namespace puck.core.Constants
         public const string TextArea = "TextArea";
         public const string SelectList = "SelectList";
         public const string MultiSelectList = "MultiSelectList";
+        public const string ReadOnly = "PuckReadOnly";
     }
     public static class Mvc {
         public const string AuthenticationScheme = "puck";
