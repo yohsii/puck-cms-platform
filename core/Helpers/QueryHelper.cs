@@ -693,13 +693,13 @@ namespace puck.core.Helpers
             return this;
         }
 
-        public QueryHelper<TModel> WithinMiles(Expression<Func<TModel, object>> exp, double latitude, double longitude,int miles)
+        public QueryHelper<TModel> WithinMiles(Expression<Func<TModel, object>> exp, double longitude, double latitude, int miles)
         {
             var distDEG = DistanceUtils.Dist2Degrees(miles, DistanceUtils.EARTH_MEAN_RADIUS_MI);
             return GeoFilter(exp,longitude,latitude,distDEG);
         }
 
-        public QueryHelper<TModel> WithinKilometers(Expression<Func<TModel, object>> exp, double latitude, double longitude, int kilometers)
+        public QueryHelper<TModel> WithinKilometers(Expression<Func<TModel, object>> exp, double longitude, double latitude, int kilometers)
         {
             var distDEG = DistanceUtils.Dist2Degrees(kilometers, DistanceUtils.EARTH_MEAN_RADIUS_KM);
             return GeoFilter(exp, longitude, latitude, distDEG);

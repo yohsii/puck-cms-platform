@@ -364,11 +364,11 @@ namespace puck.core.Concrete
                         var strat = new RecursivePrefixTreeStrategy(grid, name);
 
                         //var strat = new PointVectorStrategy(ctx,name);
-                        var yxArr = p.Value.ToString().Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-                        if (yxArr.Length != 2) continue;
-                        double y;
+                        var xyArr = p.Value.ToString().Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                        if (xyArr.Length != 2) continue;
                         double x;
-                        if (!double.TryParse(yxArr[0], out y) || !double.TryParse(yxArr[1], out x))
+                        double y;
+                        if (!double.TryParse(xyArr[0], out x) || !double.TryParse(xyArr[1], out y))
                             continue;
                         var point = ctx.MakePoint(x, y);
                         //var point = ctx.ReadShape(p.Value.ToString());

@@ -15,7 +15,7 @@ namespace puck.core.Attributes.Transformers
         public async Task<GeoPosition> Transform(BaseModel m, string propertyName, string ukey, GeoPosition pos,Dictionary<string,object> dict)
         {
             if(pos.Longitude.HasValue && pos.Latitude.HasValue)
-                pos.LatLong = string.Concat(pos.Latitude, ",", pos.Longitude);
+                pos.LongLat = string.Concat(pos.Longitude, ",", pos.Latitude);
             return pos;
         }
     }

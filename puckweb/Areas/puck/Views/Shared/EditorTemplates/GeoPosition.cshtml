@@ -28,15 +28,14 @@
             <input type="button" value="Geocode">
         </div>
         <div class="map-canvas"></div>
-        <div class="fieldwrapper lat">
-            @Html.LabelFor(x => x.Latitude)
-            @Html.EditorFor(x => x.Latitude)
-        </div>
         <div class="fieldwrapper long">
             @Html.LabelFor(x => x.Longitude)
             @Html.EditorFor(x => x.Longitude)
+        </div><div class="fieldwrapper lat">
+            @Html.LabelFor(x => x.Latitude)
+            @Html.EditorFor(x => x.Latitude)
         </div>
-        @Html.HiddenFor(x => x.LatLong,new { id=""})
+        @Html.HiddenFor(x => x.LongLat, new { id = "" })
 
         <script>
         onAfterDom(function () {

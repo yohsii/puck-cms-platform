@@ -5,9 +5,9 @@
 
     Layout = "/views/shared/_layout.cshtml";
     ViewBag.Title = "Homepage";
-    var qh = new QueryHelper<Section>();
-    qh.CurrentLanguage();
-    qh.ExplicitType();
+    var qh = new QueryHelper<Section>()
+        .CurrentLanguage()
+        .ExplicitType();
     var sections = qh.GetAll();
     @qh.ToString()
     <br />
@@ -19,9 +19,9 @@
     @("search for '" + searchQuery + "' count: " + sresults.Count)
     <br />
     var geoQuery = new QueryHelper<Page>();
-    geoQuery.WithinMiles(x => x.Location, 51.5171, 0.1062, 10);
+    geoQuery.WithinMiles(x => x.Location.LongLat, -0.1277582, 51.5073509, 10);
     var georesults = geoQuery.GetAll();
-    @("search for locations within 10miles of London(51.5171,0.1062): " + georesults.Count)
+    @("search for locations within 10miles of London(-0.1277582,51.5073509): " + georesults.Count)
 
 }
 
@@ -29,7 +29,7 @@
 
 <h3>Carousel Items</h3>
 <div>
-    @foreach (var imageModel in Model.CarouselItems.GetAll<ImageVM>())
+    @foreach (var imageModel in Model.CarouselItems?.GetAll<ImageVM>()??new List<ImageVM>())
     {
         <img width="700" alt="@imageModel.Image.Description" src="@imageModel.Image.Path" />
     }
