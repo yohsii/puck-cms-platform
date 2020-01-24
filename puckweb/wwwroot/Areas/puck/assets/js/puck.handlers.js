@@ -247,8 +247,10 @@ $(document).on("click",".node-dropdown a,.template-dropdown a",function () {
             break;
         case "delete":
             var doDelete = function (id, variant) {
+                msg(0, "deleting");
                 setDelete(id, function (data) {
                     if (data.success === true) {
+                        msg(true, "content deleted");
                         if (variant == "" || variant == undefined) {
                             node.remove();
                         } else {
