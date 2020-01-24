@@ -174,7 +174,7 @@ var drawUser = function (user,container) {
     el.find(".username").html(user.UserName);
     el.find(".email").html(user.Email);
     el.find(".roles").html(user.Roles.length + " roles");
-    el.find(".startpath").html(user.StartPaths.split(",").join("<br/>"));
+    el.find(".startpaths").html(user.StartPaths.split(",").join("<br/>"));
     el.find(".language").html(user.UserVariant);
     el.find(".lastlogin").html(user.LastLoginDateString);
     el.find("[data-username]").attr({"data-username":user.UserName});

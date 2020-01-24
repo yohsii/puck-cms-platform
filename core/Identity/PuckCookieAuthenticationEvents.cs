@@ -26,11 +26,11 @@ public class PuckCookieAuthenticationEvents : CookieAuthenticationEvents
             return;
         }
 
-        var claims = context.Principal.FindAll(Claims.PuckStartId);
+        var claims = context.Principal.FindAll(Claims.PuckStartId)?.ToList();
         if (claims != null && claims.Any()) {
-            foreach (var claim in claims)
+            for(var i=0;i<claims.Count;i++)
             {
-                ((ClaimsIdentity)context.Principal.Identity).RemoveClaim(claim);
+                ((ClaimsIdentity)context.Principal.Identity).RemoveClaim(claims[i]);
             }
         }
 

@@ -35,7 +35,6 @@ namespace puck.core.Extensions
             services.AddTransient<I_Log_Helper,LogHelper>();
             services.AddTransient<I_Content_Service,ContentService>();
             services.AddHostedService<Dispatcher>((IServiceProvider serviceProvider) => { return serviceProvider.GetService<I_Task_Dispatcher>() as Dispatcher; });
-            services.AddScoped<IUserClaimsPrincipalFactory<PuckUser>, PuckClaimsPrincipalFactory>();
             services.AddScoped<PuckCookieAuthenticationEvents>();
 
             //services.AddDefaultIdentity<PuckUser>(options => { options.SignIn.RequireConfirmedAccount = false; })
@@ -131,6 +130,7 @@ namespace puck.core.Extensions
 
             services.AddScoped<SignInManager<PuckUser>>();
             services.AddScoped<SignInManager<TUser>>();
+            services.AddScoped<IUserClaimsPrincipalFactory<PuckUser>, PuckClaimsPrincipalFactory>();
         }
     }
 }
