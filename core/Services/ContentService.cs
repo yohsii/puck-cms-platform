@@ -1568,7 +1568,14 @@ namespace puck.core.Services
                         }
 
                         //prune old revisions
-                        revisions.OrderByDescending(x => x.RevisionId).Skip(PuckCache.MaxRevisions).ToList().ForEach(x => repo.DeletePuckRevision(x));
+                        revisions
+                            .Where(x => !x.IsPublishedRevision)
+                            .OrderByDescending(x => x.RevisionId)
+                            .Skip(PuckCache.MaxRevisions)
+                            .Select(x => new PuckRevision { RevisionId = x.RevisionId })
+                            .ToList()
+                            .ForEach(x => repo.DeletePuckRevision(x));
+
                         var shouldUpdateDomainMappings = false;
                         var shouldUpdatePathLocaleMappings = false;
                         //if first time node saved and is root node - set locale for path
