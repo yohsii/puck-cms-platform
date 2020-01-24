@@ -1175,7 +1175,7 @@ namespace puck.core.Controllers
                         else {
                             var startNode = repo.GetPuckRevision().Where(x => x.Id == Guid.Parse(claim.Value) && x.Current).FirstOrDefault();
                             if (startNode != null) {
-                                cache.Set<string>($"puckpath{claim.Value}",startNode.Path);
+                                cache.Set<string>($"puckpath{claim.Value}",startNode.Path,TimeSpan.FromMinutes(60));
                                 paths.Add(startNode.Path);
                             }
                         }
