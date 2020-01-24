@@ -1371,6 +1371,7 @@ namespace puck.core.Services
                     {
                         if (nameChanged || parentChanged || original == null)
                         {
+                            cache.Remove($"puckpath{mod.Id.ToString()}");
                             currentVariantsDb = repo.CurrentRevisionVariants(mod.Id, mod.Variant).ToList();
                             publishedVariantsDb = repo.PublishedRevisionVariants(mod.Id, mod.Variant).ToList();
                             var hasNoPublishedVariants = publishedVariantsDb.Count == 0;
