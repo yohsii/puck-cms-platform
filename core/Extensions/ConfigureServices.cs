@@ -13,14 +13,15 @@ using puck.core.State;
 using System;
 using System.Collections.Generic;
 using System.Text;
-using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Authentication.Cookies;
 
 namespace puck.core.Extensions
 {
     public static class ConfigureServices
     {
-        public static void AddPuckServices<TUser,TRole,TDbContext>(this IServiceCollection services,IHostEnvironment env,IConfiguration config, ServiceLifetime lifetime
-            ,string loginPath=null,string logoutPath=null,string accessDeniedPath=null,bool addIdentityUI = false)
+        public static void AddPuckServices<TUser,TRole,TDbContext>(this IServiceCollection services,IHostEnvironment env,IConfiguration config, ServiceLifetime dbContextLifetime
+            , Action<CookieAuthenticationOptions> configureCookieAuthenticationOptions = null,Action<IdentityOptions> configureIdentityOptions=null
+            ,Action<IdentityBuilder> configureIdentityBuilder=null)
             where TDbContext : DbContext where TUser : IdentityUser where TRole: IdentityRole {
             PuckCache.ContentRootPath = env.ContentRootPath;
             var logger = new Logger();
@@ -45,9 +46,7 @@ namespace puck.core.Extensions
             }).AddIdentityCookies(o => {
                 o.ApplicationCookie.Configure(x => { 
                     x.EventsType = typeof(PuckCookieAuthenticationEvents);
-                    if (!string.IsNullOrEmpty(loginPath)) x.LoginPath = loginPath;
-                    if (!string.IsNullOrEmpty(logoutPath)) x.LogoutPath = logoutPath;
-                    if (!string.IsNullOrEmpty(accessDeniedPath)) x.AccessDeniedPath = accessDeniedPath;
+                    configureCookieAuthenticationOptions?.Invoke(x);
                 });
             });
 
@@ -68,20 +67,28 @@ namespace puck.core.Extensions
                 identityBuilder.AddEntityFrameworkStores<PuckContextSQLServer>();
                 services.AddTransient<I_Puck_Context>(x => x.GetService<PuckContextSQLServer>());
                 //add front end db context and identity
-                services.AddDbContext<TDbContext>(x => x.UseSqlServer(config.GetConnectionString("SQLServer")), optionsLifetime: lifetime);
-                services.AddIdentityCore<TUser>(options => { options.SignIn.RequireConfirmedAccount = false; })
-                .AddRoles<TRole>()
-                .AddEntityFrameworkStores<TDbContext>();
+                services.AddDbContext<TDbContext>(x => x.UseSqlServer(config.GetConnectionString("SQLServer")), optionsLifetime: dbContextLifetime);
+                var identBuilder = services.AddIdentityCore<TUser>(options => { 
+                    options.SignIn.RequireConfirmedAccount = false;
+                    configureIdentityOptions?.Invoke(options);
+                })
+                    .AddRoles<TRole>()
+                    .AddEntityFrameworkStores<TDbContext>();
+                configureIdentityBuilder?.Invoke(identBuilder);
             }else if (config.GetValue<bool?>("UsePostgreSQL") ?? false)
             {
                 services.AddEntityFrameworkNpgsql().AddDbContext<PuckContextPostgreSQL>(optionsLifetime: ServiceLifetime.Transient);
                 identityBuilder.AddEntityFrameworkStores<PuckContextPostgreSQL>();
                 services.AddTransient<I_Puck_Context>(x => x.GetService<PuckContextPostgreSQL>());
                 //add front end db context and identity
-                services.AddDbContext<TDbContext>(x => x.UseNpgsql(config.GetConnectionString("PostgreSQL")), optionsLifetime: lifetime);
-                services.AddIdentityCore<TUser>(options => { options.SignIn.RequireConfirmedAccount = false; })
-                .AddRoles<TRole>()
-                .AddEntityFrameworkStores<TDbContext>();
+                services.AddDbContext<TDbContext>(x => x.UseNpgsql(config.GetConnectionString("PostgreSQL")), optionsLifetime: dbContextLifetime);
+                var identBuilder = services.AddIdentityCore<TUser>(options => {
+                    options.SignIn.RequireConfirmedAccount = false;
+                    configureIdentityOptions?.Invoke(options);
+                })
+                    .AddRoles<TRole>()
+                    .AddEntityFrameworkStores<TDbContext>();
+                configureIdentityBuilder?.Invoke(identBuilder);
             }
             else if (config.GetValue<bool?>("UseMySQL") ?? false)
             {
@@ -89,10 +96,14 @@ namespace puck.core.Extensions
                 identityBuilder.AddEntityFrameworkStores<PuckContextMySQL>();
                 services.AddTransient<I_Puck_Context>(x => x.GetService<PuckContextMySQL>());
                 //add front end db context and identity
-                services.AddDbContext<TDbContext>(x => x.UseMySql(config.GetConnectionString("MySQL")), optionsLifetime: lifetime);
-                services.AddIdentityCore<TUser>(options => { options.SignIn.RequireConfirmedAccount = false; })
-                .AddRoles<TRole>()
-                .AddEntityFrameworkStores<TDbContext>();
+                services.AddDbContext<TDbContext>(x => x.UseMySql(config.GetConnectionString("MySQL")), optionsLifetime: dbContextLifetime);
+                var identBuilder = services.AddIdentityCore<TUser>(options => {
+                    options.SignIn.RequireConfirmedAccount = false;
+                    configureIdentityOptions?.Invoke(options);
+                })
+                    .AddRoles<TRole>()
+                    .AddEntityFrameworkStores<TDbContext>();
+                configureIdentityBuilder?.Invoke(identBuilder);
             }
             else if (config.GetValue<bool?>("UseSQLite") ?? false)
             {
@@ -100,10 +111,14 @@ namespace puck.core.Extensions
                 identityBuilder.AddEntityFrameworkStores<PuckContextSQLite>();
                 services.AddTransient<I_Puck_Context>(x => x.GetService<PuckContextSQLite>());
                 //add front end db context and identity
-                services.AddDbContext<TDbContext>(x => x.UseMySql(config.GetConnectionString("MySQL")), optionsLifetime: lifetime);
-                services.AddIdentityCore<TUser>(options => { options.SignIn.RequireConfirmedAccount = false; })
-                .AddRoles<TRole>()
-                .AddEntityFrameworkStores<TDbContext>();
+                services.AddDbContext<TDbContext>(x => x.UseMySql(config.GetConnectionString("MySQL")), optionsLifetime: dbContextLifetime);
+                var identBuilder = services.AddIdentityCore<TUser>(options => {
+                    options.SignIn.RequireConfirmedAccount = false;
+                    configureIdentityOptions?.Invoke(options);
+                })
+                    .AddRoles<TRole>()
+                    .AddEntityFrameworkStores<TDbContext>();
+                configureIdentityBuilder?.Invoke(identBuilder);
             }
 
             services.AddAuthentication()

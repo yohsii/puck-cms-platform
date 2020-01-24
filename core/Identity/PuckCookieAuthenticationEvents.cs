@@ -20,10 +20,11 @@ public class PuckCookieAuthenticationEvents : CookieAuthenticationEvents
 
     public override async Task ValidatePrincipal(CookieValidatePrincipalContext context)
     {
-        await SecurityStampValidator.ValidatePrincipalAsync(context);
-        
         if (!(cache.Get<bool?>($"renewPuckClaims{context.Principal.Identity.Name}") ?? false))
+        {
+            await SecurityStampValidator.ValidatePrincipalAsync(context);
             return;
+        }
 
         var claims = context.Principal.FindAll(Claims.PuckStartId);
         if (claims != null && claims.Any()) {
@@ -44,5 +45,7 @@ public class PuckCookieAuthenticationEvents : CookieAuthenticationEvents
         context.ShouldRenew = true;
         
         cache.Remove($"renewPuckClaims{context.Principal.Identity.Name}");
+
+        await SecurityStampValidator.ValidatePrincipalAsync(context);
     }
 }
