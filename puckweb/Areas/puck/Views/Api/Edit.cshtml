@@ -1,21 +1,39 @@
 ﻿@model puck.core.Base.BaseModel
 
 @{
-    Layout=null;
-    ViewBag.Level0Type = Model.GetType();
+    Layout = null;
+    ViewBag.Level0Type = Model?.GetType();
     ViewBag.Model = Model;
 }
-@if(ViewBag.TypeMissing){
-    <p class="text-center mt-3">Type "@ViewBag.MissingType" is missing, cannot load the edit page.</p>
-}else{
-    <div class="content_edit_page">
-    @using (Html.BeginForm("Edit", "Api", new {p_type=Model.GetType().Name,p_path=ViewContext.HttpContext.Request.Query["p_path"].ToString() }, FormMethod.Post))
+@if (ViewBag.Unauthorized != null && ViewBag.Unauthorized == true)
+{
+    <script>
+        msg(false, "you are not authorized to edit this page");
+    </script>
+}
+else if (Model == null)
+{
+    <script>
+        msg(false, "page doesn't exist");
+    </script>
+}
+else
+{
+    if (ViewBag.TypeMissing)
     {
-        @Html.EditorForModel()
-    
-        <button title="preview" class="content_preview content_btns"><i class="fas fa-eye"></i></button>
-        <button title="update" class="content_update content_btns"><i class="fas fa-edit"></i></button>
-        <button title="publish" class="content_publish content_btns"><i class="fas fa-check-square"></i></button>
+        <p class="text-center mt-3">Type "@ViewBag.MissingType" is missing, cannot load the edit page.</p>
     }
-    </div>
+    else
+    {
+        <div class="content_edit_page">
+            @using (Html.BeginForm("Edit", "Api", new { p_type = Model.GetType().Name, p_path = ViewContext.HttpContext.Request.Query["p_path"].ToString() }, FormMethod.Post))
+            {
+                @Html.EditorForModel()
+
+                <button title="preview" class="content_preview content_btns"><i class="fas fa-eye"></i></button>
+                <button title="update" class="content_update content_btns"><i class="fas fa-edit"></i></button>
+                <button title="publish" class="content_publish content_btns"><i class="fas fa-check-square"></i></button>
+            }
+        </div>
+    }
 }

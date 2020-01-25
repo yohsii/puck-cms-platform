@@ -724,12 +724,13 @@ var draw = function (data, el, sortable, renderVariantLinks) {
         var elnode = $("<li/>").addClass("node");
         var disabled = true;
         for (var i = 0; i < startPaths.length; i++) {
-            if (node.Path.indexOf(startPaths[i]) == 0)
+            if ((node.Path+"/").indexOf(startPaths[i]+"/") == 0)
                 disabled = false;
         }
-        if (disabled)
+        if (disabled) {
             elnode.addClass("disabled");
-        elnode.data("disabled",true);
+            elnode.data("disabled", true);
+        }
         var elinner = $("<div class=\"inner\" style=\"text-indent:" + textIndent + "px\"/>");
         elnode.append(elinner);
         if (hasUnpublished)

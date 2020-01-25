@@ -1480,6 +1480,44 @@ namespace puck.core.Controllers
         [Authorize(Roles = PuckRoles.Edit, AuthenticationSchemes = Mvc.AuthenticationScheme)]
         public ActionResult Edit(string p_type, Guid? parentId, Guid? contentId, string p_variant = "", string p_fromVariant = "", string p_path = "/")
         {
+            bool CheckAuthorized(string modelPath) {
+                var claims = User.Claims.Where(x => x.Type == Claims.PuckStartId).ToList();
+                if (claims != null && claims.Any())
+                {
+                    var paths = new List<string>();
+                    foreach (var claim in claims)
+                    {
+                        string path = null;
+                        if (cache.TryGetValue<string>($"puckpath{claim.Value}", out path))
+                        {
+                            paths.Add(path);
+                        }
+                        else
+                        {
+                            var startNode = repo.GetPuckRevision().Where(x => x.Id == Guid.Parse(claim.Value) && x.Current).FirstOrDefault();
+                            if (startNode != null)
+                            {
+                                cache.Set<string>($"puckpath{claim.Value}", startNode.Path, TimeSpan.FromMinutes(60));
+                                paths.Add(startNode.Path);
+                            }
+                        }
+                    }
+                    if (paths.Any())
+                    {
+                        var authorized = false;
+                        foreach (var path in paths)
+                        {
+                            if ((modelPath + "/").StartsWith(path + "/"))
+                                authorized = true;
+                        }
+                        if (!authorized)
+                        {
+                            return false;
+                        }
+                    }
+                }
+                return true;
+            }
             if (p_variant == "null" || string.IsNullOrEmpty(p_variant))
                 p_variant = PuckCache.SystemVariant;
             object model = null;
@@ -1495,6 +1533,10 @@ namespace puck.core.Controllers
                 if (contentId == null)
                 {
                     var parentPath = contentService.GetLiveOrCurrentPath(parentId.Value) ?? "";
+                    if (!CheckAuthorized(parentPath)) {
+                        ViewBag.Unauthorized = true;
+                        return View(new BaseModel());
+                    }
                     var basemodel = (BaseModel)model;
                     basemodel.ParentId = parentId.Value;
                     basemodel.Path = "";
@@ -1524,6 +1566,11 @@ namespace puck.core.Controllers
             if (results.Count > 0)
             {
                 var result = results.FirstOrDefault();
+                if (!CheckAuthorized(result.Path))
+                {
+                    ViewBag.Unauthorized = true;
+                    return View(new BaseModel());
+                }
                 if (ApiHelper.GetTypeFromName(result.Type) == null)
                 {
                     ViewBag.TypeMissing = true;
@@ -1574,7 +1621,7 @@ namespace puck.core.Controllers
             }
             ViewBag.ShouldBindListEditor = true;
             ViewBag.IsPrepopulated = false;
-            ViewBag.Level0Type = model.GetType();
+            ViewBag.Level0Type = model?.GetType();
             return View(model);
         }
 
@@ -1649,6 +1696,49 @@ namespace puck.core.Controllers
                     //ObjectDumper.BindImages(model, int.MaxValue, Request.Form.Files);
                     //ObjectDumper.Transform(model, int.MaxValue);
                     var mod = model as BaseModel;
+
+                    var pathOrParentPath = mod.Path;
+
+                    if (string.IsNullOrEmpty(pathOrParentPath)) {
+                        pathOrParentPath = contentService.GetLiveOrCurrentPath(mod.ParentId);
+                    }
+                    var claims = User.Claims.Where(x => x.Type == Claims.PuckStartId).ToList();
+                    if (claims != null && claims.Any())
+                    {
+                        var paths = new List<string>();
+                        foreach (var claim in claims)
+                        {
+                            string _path = null;
+                            if (cache.TryGetValue<string>($"puckpath{claim.Value}", out path))
+                            {
+                                paths.Add(_path);
+                            }
+                            else
+                            {
+                                var startNode = repo.GetPuckRevision().Where(x => x.Id == Guid.Parse(claim.Value) && x.Current).FirstOrDefault();
+                                if (startNode != null)
+                                {
+                                    cache.Set<string>($"puckpath{claim.Value}", startNode.Path, TimeSpan.FromMinutes(60));
+                                    paths.Add(startNode.Path);
+                                }
+                            }
+                        }
+                        if (paths.Any())
+                        {
+                            var authorized = false;
+                            foreach (var _path in paths)
+                            {
+                                if ((pathOrParentPath + "/").StartsWith(_path + "/"))
+                                    authorized = true;
+                            }
+                            if (!authorized)
+                            {
+                                throw new Exception("you are not authorized to edit this content");
+                            }
+                        }
+                    }
+
+
                     path = mod.Path;
                     id = mod.Id;
                     parentId = mod.ParentId;
