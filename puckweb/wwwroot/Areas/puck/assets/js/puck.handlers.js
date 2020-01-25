@@ -5,6 +5,11 @@ $(document).ajaxError(function (event, jqxhr, settings, thrownError) {
         msg(false, "You are no longer logged in. <a style=\"background:#fff;\" target=\"_target\" href=\"/puck/admin/in\">Login</a> again to continue working", true, undefined, 60000);
         $(".submitLoader").remove();
         $(".content_btns").removeAttr("disabled");
+        cleft.find(".loader:visible").each(function () {
+            var el = $(this);
+            var expand = el.parent().find(".expand").removeClass("fa-chevron-down").addClass("fa-chevron-right").show();
+            el.hide();
+        });
     }
 });
 //tabs

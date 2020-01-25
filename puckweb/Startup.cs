@@ -59,13 +59,13 @@ namespace puckweb
             services.AddHttpContextAccessor();
             
             if (Configuration.GetValue<bool?>("UseSQLServer") ?? false)
-                services.AddPuckServices<User, Role, DbContextSQLServer>(Env, Configuration, ServiceLifetime.Transient);
+                services.AddPuckServices<User, Role, DbContextSQLServer>(Env, Configuration, ServiceLifetime.Scoped);
             else if (Configuration.GetValue<bool?>("UsePostgreSQL") ?? false)
-                services.AddPuckServices<User, Role, DbContextPostgreSQL>(Env, Configuration, ServiceLifetime.Transient);
+                services.AddPuckServices<User, Role, DbContextPostgreSQL>(Env, Configuration, ServiceLifetime.Scoped);
             else if (Configuration.GetValue<bool?>("UseMySQL") ?? false)
-                services.AddPuckServices<User, Role, DbContextMySQL>(Env, Configuration, ServiceLifetime.Transient);
+                services.AddPuckServices<User, Role, DbContextMySQL>(Env, Configuration, ServiceLifetime.Scoped);
             else if (Configuration.GetValue<bool?>("UseSQLite") ?? false)
-                services.AddPuckServices<User, Role, DbContextSQLite>(Env, Configuration, ServiceLifetime.Transient);
+                services.AddPuckServices<User, Role, DbContextSQLite>(Env, Configuration, ServiceLifetime.Scoped);
 
             PhysicalFileSystemProvider PhysicalProviderFactory(IServiceProvider provider)
             {
