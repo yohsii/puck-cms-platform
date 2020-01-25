@@ -245,7 +245,7 @@ namespace puck.core.Controllers
         {
             bool success = false;
             string message = "";
-            string startPaths = "/";
+            string startPaths = "";
             string startNodeIds = "";
             var model = new PuckUserViewModel();
             try

@@ -156,8 +156,8 @@ var showUserMarkup = function (username) {
                 userRoles = overlayEl.find("select[name=Roles]").val();
                 hideTopNav();
                 getUserLanguage(function (d) { defaultLanguage = d; });
-                startPaths = data.startPaths;
-                startIds = (data.startNodeIds||"").split(",");
+                startPaths = !data.startPaths ? [] : data.startPaths.split(",");
+                startIds = !data.startNodeIds ? [] : data.startNodeIds.split(",");
             }
             overlayClose();
         }, function (data) {
