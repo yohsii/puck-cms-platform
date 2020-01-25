@@ -666,6 +666,7 @@ var drawTemplates = function (data, el, sortable) {
 }
 
 var getDrawContent = function (id, el, sortable, f, renderVariantLinks, _startPaths) {
+    sortable = sortable && userRoles.contains("_sort");
     var validStartPaths = [];
     if (_startPaths != undefined) {
         for (var i = 0; i < _startPaths.length; i++) {
