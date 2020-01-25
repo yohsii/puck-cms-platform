@@ -1705,7 +1705,7 @@ namespace puck.core.Controllers
                     var pathOrParentPath = mod.Path;
 
                     if (string.IsNullOrEmpty(pathOrParentPath)) {
-                        pathOrParentPath = contentService.GetLiveOrCurrentPath(mod.ParentId);
+                        pathOrParentPath = contentService.GetLiveOrCurrentPath(mod.ParentId) +"/" + ApiHelper.Slugify(mod.NodeName);
                     }
                     var claims = User.Claims.Where(x => x.Type == Claims.PuckStartId).ToList();
                     if (claims != null && claims.Any())
