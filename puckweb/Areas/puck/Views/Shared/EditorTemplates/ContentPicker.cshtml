@@ -152,7 +152,9 @@
                         var el = selected_container.find(".selected_node[data-id='" + res[i].Id + "']");
                         el.attr("data-nodename", res[i].NodeName);
                         el.find(".nname").html(res[i].NodeName);
+                        el.addClass("exists");
                     }
+                    selected_container.find(".selected_node:not(.exists) .nname").html("- could not find this node, possibly deleted -");
                 });
             }
             loadData();
