@@ -1,10 +1,12 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Caching.Memory;
+using puck.core.Abstract;
 using puck.core.Constants;
 using puck.core.Entities;
 
@@ -12,10 +14,12 @@ public class PuckCookieAuthenticationEvents : CookieAuthenticationEvents
 {
     private readonly UserManager<PuckUser> userManager;
     private readonly IMemoryCache cache;
-    public PuckCookieAuthenticationEvents(UserManager<PuckUser> userManager,IMemoryCache cache)
+    private readonly I_Puck_Repository repo;
+    public PuckCookieAuthenticationEvents(UserManager<PuckUser> userManager,IMemoryCache cache,I_Puck_Repository repo)
     {
         this.userManager = userManager;
         this.cache = cache;
+        this.repo = repo;
     }
 
     public override async Task ValidatePrincipal(CookieValidatePrincipalContext context)
@@ -39,8 +43,10 @@ public class PuckCookieAuthenticationEvents : CookieAuthenticationEvents
         var user = await userManager.FindByNameAsync(context.Principal.Identity.Name);
 
         if (user != null && !string.IsNullOrEmpty(user.PuckStartNodeIds)) {
-            foreach (var startNodeId in user.PuckStartNodeIds.Split(',', System.StringSplitOptions.RemoveEmptyEntries)) {
-                ((ClaimsIdentity)context.Principal.Identity).AddClaim(new Claim(Claims.PuckStartId,startNodeId));
+            var ids = user.PuckStartNodeIds.Split(',', System.StringSplitOptions.RemoveEmptyEntries).Select(x=>Guid.Parse(x));
+            var validIds = repo.GetPuckRevision().Where(x => ids.Contains(x.Id) && x.Current).Select(x => x.Id).Distinct().ToList();
+            foreach (var startNodeId in validIds) {
+                ((ClaimsIdentity)context.Principal.Identity).AddClaim(new Claim(Claims.PuckStartId,startNodeId.ToString()));
             }
         }
         context.ReplacePrincipal(context.Principal);
