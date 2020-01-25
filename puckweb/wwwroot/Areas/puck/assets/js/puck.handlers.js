@@ -1061,11 +1061,12 @@ var initTree = function (firstRun) {
                 cleft.find(".startpath").html("/");
             }
             if (!firstRun && startPathsChanged) {
-                cleft.find(".node[data-id=" + emptyGuid + "]").remove();
+                cleft.find(".node[data-id=" + emptyGuid + "] > ul").remove();
             }
             getDrawContent(startId, undefined, true, function () { loadTreePaths(startPaths); }, true);
         }
     });
+    setTimeout(initTree,10000);
 }
 var loadTreePaths = function (pathsArr, cont) {
     cont = cont || cleft.find("ul.content");
