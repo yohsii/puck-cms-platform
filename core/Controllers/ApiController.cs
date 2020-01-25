@@ -1481,48 +1481,48 @@ namespace puck.core.Controllers
             mod.Type = p_type;
             return View("Edit", model);
         }
-
-        [Authorize(Roles = PuckRoles.Edit, AuthenticationSchemes = Mvc.AuthenticationScheme)]
-        public ActionResult Edit(string p_type, Guid? parentId, Guid? contentId, string p_variant = "", string p_fromVariant = "", string p_path = "/")
+        private bool CheckAuthorized(string modelPath)
         {
-            bool CheckAuthorized(string modelPath) {
-                var claims = User.Claims.Where(x => x.Type == Claims.PuckStartId).ToList();
-                if (claims != null && claims.Any())
+            var claims = User.Claims.Where(x => x.Type == Claims.PuckStartId).ToList();
+            if (claims != null && claims.Any())
+            {
+                var paths = new List<string>();
+                foreach (var claim in claims)
                 {
-                    var paths = new List<string>();
-                    foreach (var claim in claims)
+                    string path = null;
+                    if (cache.TryGetValue<string>($"puckpath{claim.Value}", out path))
                     {
-                        string path = null;
-                        if (cache.TryGetValue<string>($"puckpath{claim.Value}", out path))
-                        {
-                            paths.Add(path);
-                        }
-                        else
-                        {
-                            var startNode = repo.GetPuckRevision().Where(x => x.Id == Guid.Parse(claim.Value) && x.Current).FirstOrDefault();
-                            if (startNode != null)
-                            {
-                                cache.Set<string>($"puckpath{claim.Value}", startNode.Path, TimeSpan.FromMinutes(60));
-                                paths.Add(startNode.Path);
-                            }
-                        }
+                        paths.Add(path);
                     }
-                    if (paths.Any())
+                    else
                     {
-                        var authorized = false;
-                        foreach (var path in paths)
+                        var startNode = repo.GetPuckRevision().Where(x => x.Id == Guid.Parse(claim.Value) && x.Current).FirstOrDefault();
+                        if (startNode != null)
                         {
-                            if ((modelPath + "/").StartsWith(path + "/"))
-                                authorized = true;
-                        }
-                        if (!authorized)
-                        {
-                            return false;
+                            cache.Set<string>($"puckpath{claim.Value}", startNode.Path, TimeSpan.FromMinutes(60));
+                            paths.Add(startNode.Path);
                         }
                     }
                 }
-                return true;
+                if (paths.Any())
+                {
+                    var authorized = false;
+                    foreach (var path in paths)
+                    {
+                        if ((modelPath + "/").StartsWith(path + "/"))
+                            authorized = true;
+                    }
+                    if (!authorized)
+                    {
+                        return false;
+                    }
+                }
             }
+            return true;
+        }
+        [Authorize(Roles = PuckRoles.Edit, AuthenticationSchemes = Mvc.AuthenticationScheme)]
+        public ActionResult Edit(string p_type, Guid? parentId, Guid? contentId, string p_variant = "", string p_fromVariant = "", string p_path = "/")
+        {
             if (p_variant == "null" || string.IsNullOrEmpty(p_variant))
                 p_variant = PuckCache.SystemVariant;
             object model = null;
@@ -1707,43 +1707,9 @@ namespace puck.core.Controllers
                     if (string.IsNullOrEmpty(pathOrParentPath)) {
                         pathOrParentPath = contentService.GetLiveOrCurrentPath(mod.ParentId) +"/" + ApiHelper.Slugify(mod.NodeName);
                     }
-                    var claims = User.Claims.Where(x => x.Type == Claims.PuckStartId).ToList();
-                    if (claims != null && claims.Any())
-                    {
-                        var paths = new List<string>();
-                        foreach (var claim in claims)
-                        {
-                            string _path = null;
-                            if (cache.TryGetValue<string>($"puckpath{claim.Value}", out _path))
-                            {
-                                paths.Add(_path);
-                            }
-                            else
-                            {
-                                var startNode = repo.GetPuckRevision().Where(x => x.Id == Guid.Parse(claim.Value) && x.Current).FirstOrDefault();
-                                if (startNode != null)
-                                {
-                                    cache.Set<string>($"puckpath{claim.Value}", startNode.Path, TimeSpan.FromMinutes(60));
-                                    paths.Add(startNode.Path);
-                                }
-                            }
-                        }
-                        if (paths.Any())
-                        {
-                            var authorized = false;
-                            foreach (var _path in paths)
-                            {
-                                if ((pathOrParentPath + "/").StartsWith(_path + "/"))
-                                    authorized = true;
-                            }
-                            if (!authorized)
-                            {
-                                throw new Exception("you are not authorized to edit this content");
-                            }
-                        }
+                    if (!CheckAuthorized(pathOrParentPath)){
+                        throw new Exception("you are not authorized to edit this content");
                     }
-
-
                     path = mod.Path;
                     id = mod.Id;
                     parentId = mod.ParentId;
