@@ -731,6 +731,8 @@ cleft.find("ul.content").on("click", "li.node span.nodename", function () {
     if (!canChangeMainContent())
         return false;
     var node = $(this).parents(".node:first");
+    if (node.data("disabled"))
+        return;
     var path = node.attr("data-path");
     var rootPath = path.indexOf("/", 1) > -1 ? path.substr(0, path.indexOf("/", 1)) : path;
     var variants = node.attr("data-variants").split(",");
@@ -1053,8 +1055,8 @@ var initTree = function (firstRun) {
             }
         }
 
-        startPaths = _startPaths;
-        startIds = _startIds;
+        startPaths = _startPaths.slice(0);
+        startIds = _startIds.slice(0);
         if (firstRun || startPathsChanged) {
             if (firstRun) {
                 cleft.find("ul.content li:first").attr("data-id", startId);
@@ -1063,18 +1065,20 @@ var initTree = function (firstRun) {
             if (!firstRun && startPathsChanged) {
                 cleft.find(".node[data-id=" + emptyGuid + "] > ul").remove();
             }
-            getDrawContent(startId, undefined, true, function () { loadTreePaths(startPaths); }, true);
+            getDrawContent(startId, undefined, true, function () { loadTreePaths(_startPaths); }, true);
         }
     });
     setTimeout(initTree,10000);
 }
-var loadTreePaths = function (pathsArr, cont) {
+var loadTreePaths = function (pathsArr, cont, afterDrawContent, renderVariantLinks) {
+    if (renderVariantLinks == undefined) renderVariantLinks = true;
+    afterDrawContent = afterDrawContent || function () { };
     cont = cont || cleft.find("ul.content");
     if (pathsArr.length == 0) return;
     var firstPath = pathsArr.splice(0, 1)[0];
-    loadTreePath(firstPath, function () { loadTreePaths(pathsArr); },cont);
+    loadTreePath(firstPath, function () { loadTreePaths(pathsArr); }, cont, afterDrawContent,renderVariantLinks);
 }
-var loadTreePath = function (path,f,cont) {
+var loadTreePath = function (path,f,cont,afterDrawContent,renderVariantLinks) {
     var pathSegments = path.split("/");
     var doLoadPath = function (segments,level) {
         if (segments.length >= level) {
@@ -1085,7 +1089,7 @@ var loadTreePath = function (path,f,cont) {
                 if (node.find(".node").length > 0) {
                     doLoadPath(segments, level + 1);
                 } else {
-                    getDrawContent(node.attr("data-id"), undefined, true, function () { doLoadPath(segments, level + 1); }, true);
+                    getDrawContent(node.attr("data-id"), node, true, function () { if (afterDrawContent) afterDrawContent(); doLoadPath(segments, level + 1); }, renderVariantLinks);
                 }
             } else {
                 if (f) f();

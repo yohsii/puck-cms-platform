@@ -722,30 +722,39 @@ var draw = function (data, el, sortable, renderVariantLinks) {
         else
             node = data[p][variants[0]];
         var elnode = $("<li/>").addClass("node");
+        var disabled = true;
+        for (var i = 0; i < startPaths.length; i++) {
+            if (node.Path.indexOf(startPaths[i]) == 0)
+                disabled = false;
+        }
+        if (disabled)
+            elnode.addClass("disabled");
+        elnode.data("disabled",true);
         var elinner = $("<div class=\"inner\" style=\"text-indent:" + textIndent + "px\"/>");
         elnode.append(elinner);
         if (hasUnpublished)
             elnode.addClass("unpublished");
         elinner.append($("<i class=\"fas fa-search icon_search\"></i>"));
-        elinner.append($("<i class=\"puck_icon\"></i>"))
+        elinner.append($("<i class=\"puck_icon\"></i>"));
         elinner.append($("<img/>").attr({"class":"loader", "src": "/areas/puck/assets/img/tree-loader.gif" }).hide());
         elinner.append($("<i class=\"fas fa-chevron-right expand\"></i>"))
-        elinner.append($("<i class=\"fas fa-cog menu\"></i>"))
-            .append("<span class='nodename'>" + node.NodeName + (!renderVariantLinks ? "&nbsp;" : "") + "</span>");
+        if(!disabled)
+            elinner.append($("<i class=\"fas fa-cog menu\"></i>"));
+        elinner.append("<span class='nodename'>" + node.NodeName + ((!renderVariantLinks||disabled) ? "&nbsp;" : "") + "</span>");
         var elVariants = $("<div class=\"variants d-inline\"/>");
         elinner.append(elVariants);
         var hasPublished = false;
         var hasUnpublished = false;
         for (var i = 0; i < variants.length; i++) {
             var a = $('<a title="' + variantNames[variants[i]] +'" class="variantLink" href="#content?id=' + node.Id + '&variant=' + variants[i] + '"/>');
-            var vel = $("<span title=\"" + variantNames[variants[i]] + "\" class=\"variant\"/>").attr("data-variant", variants[i]).html(variants[i] + (!renderVariantLinks ? "&nbsp;" : ""));
+            var vel = $("<span title=\"" + variantNames[variants[i]] + "\" class=\"variant\"/>").attr("data-variant", variants[i]).html(variants[i] + ((!renderVariantLinks||disabled) ? "&nbsp;" : ""));
             if (publishedContent[node.Id] != undefined && publishedContent[node.Id][variants[i]] != undefined) {
                 vel.addClass("published");
                 hasPublished = true;
             } else {
                 hasUnpublished = true;
             }
-            if (renderVariantLinks) {
+            if (renderVariantLinks && !disabled) {
                 a.append(vel);
                 elVariants.append(a);
             } else elVariants.append(vel);
@@ -763,28 +772,30 @@ var draw = function (data, el, sortable, renderVariantLinks) {
                     trigger.addClass("has-unpublished");
                 elinner.append(trigger);
                 trigger.attr({ "title": "Variants", "data-content": elVariants.html(), "data-toggle": "popover" });
-                trigger.popover({
-                    html: true,
-                    placement: "bottom",
-                    container: elinner
-                });
-                trigger.on('shown.bs.popover', function () {
-                    elinner.find(".popover .variant").each(function () {
-                        var el = $(this);
-                        var variant = el.html().replace("&nbsp;", "");
-                        el.attr("data-variant", variant);
-                        el.html(variantNames[variant]);
-                        if (elinner.find(".variants .variant.selected[data-variant='" + variant + "']").length > 0)
-                            el.addClass("selected");
+                if (!disabled) {
+                    trigger.popover({
+                        html: true,
+                        placement: "bottom",
+                        container: elinner
                     });
-                    $(document).on("click.popover", function (e) {
-                        trigger.popover('hide');
-                        $(document).off("click.popover");
+                    trigger.on('shown.bs.popover', function () {
+                        elinner.find(".popover .variant").each(function () {
+                            var el = $(this);
+                            var variant = el.html().replace("&nbsp;", "");
+                            el.attr("data-variant", variant);
+                            el.html(variantNames[variant]);
+                            if (elinner.find(".variants .variant.selected[data-variant='" + variant + "']").length > 0)
+                                el.addClass("selected");
+                        });
+                        $(document).on("click.popover", function (e) {
+                            trigger.popover('hide');
+                            $(document).off("click.popover");
+                        });
+                        var scrollParent = el.parents(".scrollContainer:first");
+                        scrollParent.scrollLeft(10);//trigger re-positioning of bootstrap popover to fit within boundary
+                        scrollParent.scrollLeft(0);
                     });
-                    var scrollParent = el.parents(".scrollContainer:first");
-                    scrollParent.scrollLeft(10);//trigger re-positioning of bootstrap popover to fit within boundary
-                    scrollParent.scrollLeft(0);
-                });
+                }
             }
             setupVariantsPopover(elVariants, elinner, hasPublished, hasUnpublished);
         }

@@ -45,7 +45,7 @@
         <button type="button" class="btn btn-light addItem"><i class="fas fa-plus"></i></button>
     </div>
     <ul class="nodisplay contentTree nomenu">
-        <li class="node" data-children_path="/"></li>
+        <li class="node" data-id="00000000-0000-0000-0000-000000000000" data-path="/" data-children_path="/"></li>
     </ul>
     <div class="selected_content">
         @if (Model != null)
@@ -175,25 +175,33 @@
                 overlayEl = overlay(tree, 400, undefined, undefined, "Content Picker", true);
                 el = overlayEl.find(".node:first");
                 getDrawContent(_startId, el, false, function () {
-                    selected_container.find(".selected_node").each(function () {
-                        var selected = $(this);
-                        overlayEl.find(".node[data-id='" + selected.attr("data-id") + "']").addClass("selected");
-                        overlayEl.find(".node[data-id='" + selected.attr("data-id") + "'] .variants:first .variant[data-variant='"+selected.attr("data-variant")+"']").addClass("selected");
-                    });
                     if (overlayEl.find(".node").length == 1) {
                         overlayEl.find("ul.contentTree").before($("<p/>").html("there is no content to select."));
                     }
-                    el.find(".node").each(function () {
-                        var n = $(this);
-                        if (allowedTypes.length > 0 && !allowedTypes.includes(n.attr("data-type"))) {
-                            n.addClass("disallowed");
-                        }
-                    });
+                    var afterDrawContent = function () {
+                        selected_container.find(".selected_node").each(function () {
+                            var selected = $(this);
+                            overlayEl.find(".node[data-id='" + selected.attr("data-id") + "']").addClass("selected");
+                            overlayEl.find(".node[data-id='" + selected.attr("data-id") + "'] .variants:first .variant[data-variant='" + selected.attr("data-variant") + "']").addClass("selected");
+                        });
+
+                        el.find(".node").each(function () {
+                            var n = $(this);
+                            if (allowedTypes.length > 0 && !allowedTypes.includes(n.attr("data-type"))) {
+                                n.addClass("disallowed");
+                            }
+                        });
+                    }
+                    afterDrawContent();
+                    loadTreePaths(window.startPaths.slice(0), el.parents("ul:first"), afterDrawContent,false);
                 }, false);
                 overlayEl.on("click", ".node span", function (e) {
                     var clicked = $(this);
                     var node = clicked.parents(".node:first");
-
+                    if (node.data("disabled")) {
+                        msg(undefined,"you are not authorized to select this node");
+                        return;
+                    }
                     if (node.hasClass("disallowed")) {
                         msg(undefined,"this selection is disallowed. type is \"" + node.attr("data-type") + "\" and allowed types are \""+allowedTypes.join(",")+"\"");
                         return;

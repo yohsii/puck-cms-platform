@@ -217,10 +217,10 @@ ul.contentTree span.nodename {
 ul.contentTree ul {
     /*margin-left: 10px !important;*/
 }
-ul.contentTree .node.disallowed > .inner > span.nodename {
-    background: rgba(204, 204, 204, 0.9) !important;
-    cursor: not-allowed !important;
-}
+    ul.contentTree .node.disallowed > .inner > span.nodename, ul.contentTree .node.disabled > .inner > span.nodename, ul.content .node.disabled > .inner > span.nodename {
+        background: rgba(204, 204, 204, 0.9) !important;
+        cursor: not-allowed !important;
+    }
 ul.contentTree .node.selected>.inner>span.nodename{
     background: #ccffcc;
 }
