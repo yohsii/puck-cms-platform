@@ -181,7 +181,7 @@
                 for (var i = 0; i < res.length; i++) {
                     _startPaths.push(res[i].Path);
                 }
-                var _startPathsCopy = _startPaths.length > 0 ? _startPaths.slice(0) : window.startPaths.slice(0);
+                
                 container.find(".addItem").unbind().click(function (e) {
                     if (selected_container.find(".selected_node").length >= maxPick) {
                         msg(undefined, "you cannot select any more, max selection is set to " + maxPick, undefined, undefined);
@@ -190,7 +190,7 @@
                     var tree = container.find("ul.contentTree").clone().removeClass("nodisplay");
                     overlayEl = overlay(tree, 400, undefined, undefined, "Content Picker", true);
                     el = overlayEl.find(".node:first");
-
+                    var _startPathsCopy = _startPaths.length > 0 ? _startPaths.slice(0) : window.startPaths.slice(0);
                     getDrawContent(emptyGuid, el, false, function () {
                         if (overlayEl.find(".node").length == 1) {
                             overlayEl.find("ul.contentTree").before($("<p/>").html("there is no content to select."));
@@ -296,6 +296,7 @@
                                 descendants.hide();
                             }
                         } else {
+                            var _startPathsCopy = _startPaths.length > 0 ? _startPaths.slice(0) : window.startPaths.slice(0);
                             getDrawContent(node.attr("data-id"), node, false, function () {
                                 node.find(".loader").hide();
                                 node.find("i.expand:first").show();
