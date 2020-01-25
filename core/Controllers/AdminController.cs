@@ -295,7 +295,7 @@ namespace puck.core.Controllers
                         puser.UserName = user.UserName;
                     }
                     user.Roles = user.Roles ?? new List<string>();
-                    var roles = (await userManager.GetRolesAsync(puser)).ToList();
+                    var roles = (await userManager.GetRolesAsync(puser)).Where(x=>x.StartsWith("_")).ToList();
                     List<string> rolesToAdd = new List<string>();
                     List<string> rolesToRemove = new List<string>();
                     //get roles to remove
