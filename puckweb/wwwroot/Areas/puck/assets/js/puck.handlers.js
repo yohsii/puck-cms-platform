@@ -12,6 +12,19 @@ $(document).ajaxError(function (event, jqxhr, settings, thrownError) {
         });
     }
 });
+$(window).off("keyup.overlay").on("keyup.overlay", function (e) {
+    if (e.keyCode == 27) {
+        var removed = false;
+        while (overlays.length && removed == false){
+            var overlay = overlays.shift();
+            if (!overlay.hasClass("removed")) {
+                removed = true;
+                overlay.addClass("removed");
+                overlay.remove();
+            }
+        }
+    }
+});
 //tabs
 $(document).on("click", ".editor-field .nav-tabs li a", function (e) {
     e.preventDefault();
