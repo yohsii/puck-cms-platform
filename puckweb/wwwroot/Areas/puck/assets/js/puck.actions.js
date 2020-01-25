@@ -665,7 +665,8 @@ var drawTemplates = function (data, el, sortable) {
     el.append(toAppend);
 }
 
-var getDrawContent = function (id, el, sortable, f, renderVariantLinks) {
+var getDrawContent = function (id, el, sortable, f, renderVariantLinks, _startPaths) {
+    _startPaths = _startPaths || startPaths;
     renderVariantLinks = renderVariantLinks || false;
     if (el == undefined) {
         el = cleft.find(".node[data-id='" + id + "']");
@@ -689,7 +690,7 @@ var getDrawContent = function (id, el, sortable, f, renderVariantLinks) {
         for (var i = 0; i < data.children.length; i++) {
             haveChildren[data.children[i]] = true;
         }
-        draw(data.current, el, sortable, renderVariantLinks);
+        draw(data.current, el, sortable, renderVariantLinks, _startPaths);
         el.find(".node").each(function () {
             var n = $(this);
             if (!haveChildren[n.attr("data-id")]) {
@@ -702,7 +703,7 @@ var getDrawContent = function (id, el, sortable, f, renderVariantLinks) {
             f();
     });
 }
-var draw = function (data, el, sortable, renderVariantLinks) {
+var draw = function (data, el, sortable, renderVariantLinks,_startPaths) {
     renderVariantLinks = renderVariantLinks || false;
     var str = "";
     var toAppend = $("<ul/>");
@@ -723,9 +724,9 @@ var draw = function (data, el, sortable, renderVariantLinks) {
         else
             node = data[p][variants[0]];
         var elnode = $("<li/>").addClass("node");
-        var disabled = startPaths.length>0;
-        for (var i = 0; i < startPaths.length; i++) {
-            if ((node.Path+"/").indexOf(startPaths[i]+"/") == 0)
+        var disabled = _startPaths.length>0;
+        for (var i = 0; i < _startPaths.length; i++) {
+            if ((node.Path+"/").indexOf(_startPaths[i]+"/") == 0)
                 disabled = false;
         }
         if (disabled) {
@@ -1592,25 +1593,26 @@ var initTree = function (firstRun) {
     setTimeout(initTree, 10000);
 }
 var loadTreePaths = function (pathsArr, cont, afterDrawContent, renderVariantLinks) {
+    var _startPaths = pathsArr.slice(0);
     if (renderVariantLinks == undefined) renderVariantLinks = true;
     afterDrawContent = afterDrawContent || function () { };
     cont = cont || cleft.find("ul.content");
     if (pathsArr.length == 0) return;
     var firstPath = pathsArr.splice(0, 1)[0];
-    loadTreePath(firstPath, function () { loadTreePaths(pathsArr, cont, afterDrawContent, renderVariantLinks); }, cont, afterDrawContent, renderVariantLinks);
+    loadTreePath(firstPath, function () { loadTreePaths(pathsArr, cont, afterDrawContent, renderVariantLinks,_startPaths); }, cont, afterDrawContent, renderVariantLinks,_startPaths);
 }
-var loadTreePath = function (path, f, cont, afterDrawContent, renderVariantLinks) {
+var loadTreePath = function (path, f, cont, afterDrawContent, renderVariantLinks,_startPaths) {
     var pathSegments = path.split("/");
     var doLoadPath = function (segments, level) {
         if (segments.length >= level) {
             var path = segments.slice(0, level).join("/") || "/";
             var node = cont.find(".node[data-path='" + path + "']:first");
             if (node.length > 0) {
-                node.find(".expand").removeClass("fa-chevron-right").addClass("fa-chevron-down");
+                node.find(".expand:first").removeClass("fa-chevron-right").addClass("fa-chevron-down");
                 if (node.find(".node").length > 0) {
                     doLoadPath(segments, level + 1);
                 } else {
-                    getDrawContent(node.attr("data-id"), node, true, function () { if (afterDrawContent) afterDrawContent(); doLoadPath(segments, level + 1); }, renderVariantLinks);
+                    getDrawContent(node.attr("data-id"), node, true, function () { if (afterDrawContent) afterDrawContent(); doLoadPath(segments, level + 1); }, renderVariantLinks,_startPaths);
                 }
             } else {
                 if (f) f();

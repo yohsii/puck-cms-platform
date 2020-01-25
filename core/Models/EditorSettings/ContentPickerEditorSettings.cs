@@ -30,12 +30,12 @@ namespace puck.core.Models.EditorSettings
 
         [UIHint(puck.core.Constants.EditorTemplates.ContentPicker)]
         [Display(Name="Start Path")]
-        [Attributes.ContentPickerEditorSettings(MaxPick =1)]
-        public List<PuckReference> StartPath { get; set; }
+        [Attributes.ContentPickerEditorSettings(MaxPick = 100)]
+        public List<PuckReference> StartPaths { get; set; }
         
-        [HiddenInput(DisplayValue =false)]
-        [Display(Name = "Start Path Id")]
-        public string StartPathId { get; set; }
+        [UIHint("PuckHiddenNull")]
+        [Display(Name = "Start Path Ids")]
+        public string[] StartPathIds { get; set; }
 
         [Display(Name ="Allowed Types",Description ="Comma-separated")]
         public string AllowedTypes { get; set; }

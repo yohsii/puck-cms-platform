@@ -7,12 +7,12 @@ namespace puck.core.Abstract.EditorSettings
 {
     public interface I_Content_Picker_Settings
     {
-        string StartPathId { get; set; }
+        string[] StartPathIds { get; set; }
         int MaxPick { get; set; }
         //string SelectionType { get; set; }
         bool AllowUnpublished { get; set; }
         //bool AllowDuplicates { get; set; }
-        List<PuckReference> StartPath { get; set; }
+        List<PuckReference> StartPaths { get; set; }
         public string AllowedTypes { get; set; }
         public Type[] Types { get; set; }
     }

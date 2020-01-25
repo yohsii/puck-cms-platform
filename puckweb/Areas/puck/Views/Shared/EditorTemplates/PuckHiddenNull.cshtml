@@ -1,0 +1,12 @@
+﻿@model Object
+
+@{
+    var guid = Guid.NewGuid();
+}
+<div data-guid="@guid.ToString()"></div>
+
+<script>
+    onAfterDom(function () {
+        $("div[data-guid=@guid.ToString()]").parents(".fieldwrapper:first").hide();
+    });
+</script>

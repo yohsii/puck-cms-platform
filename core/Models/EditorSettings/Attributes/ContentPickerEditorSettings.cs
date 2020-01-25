@@ -14,12 +14,12 @@ namespace puck.core.Models.EditorSettings.Attributes
     [Display(Name = "Content Picker Editor Settings")]
     public class ContentPickerEditorSettingsAttribute: Attribute, I_Content_Picker_Settings
     {
-        public string StartPathId { get; set; }
+        public string[] StartPathIds { get; set; }
         public int MaxPick { get; set; }
         //public string SelectionType { get; set; }
         public bool AllowUnpublished { get; set; }
         //public bool AllowDuplicates { get; set; }
-        public List<PuckReference> StartPath { get; set; }
+        public List<PuckReference> StartPaths { get; set; }
         public string AllowedTypes { get; set; }
         public Type[] Types { get; set; }
     }

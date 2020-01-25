@@ -1092,7 +1092,7 @@ namespace puck.core.Controllers
             return Json(new { success = true, message = "" });
         }
         [Authorize(Roles = PuckRoles.Puck, AuthenticationSchemes = Mvc.AuthenticationScheme)]
-        public ActionResult MinimumContentByParentId(Guid parentId = default(Guid),bool fullIndexContent=false,bool filterAllowedContent=true)
+        public ActionResult MinimumContentByParentId(Guid parentId = default(Guid), bool fullIndexContent = false, bool filterAllowedContent = true, bool filterIndexContent = false)
         {
             //using path instead of p_path in the method sig means path won't be checked against user's start node - which we don't want for this method
             List<PuckRevision> resultsRev;
@@ -1215,6 +1215,8 @@ namespace puck.core.Controllers
             }
             foreach (var key in keysToRemove) {
                 results.Remove(key);
+                if(filterIndexContent)
+                    publishedContent.Remove(key);
             }
             var jsonStr = JsonConvert.SerializeObject(new { current = results, published = publishedContent, children = haveChildren });
             return base.Content(jsonStr, "application/json");

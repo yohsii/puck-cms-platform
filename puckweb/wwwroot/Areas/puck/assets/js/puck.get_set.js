@@ -275,9 +275,11 @@ var getContentByParentId = function (parentId, f, cast) {
     if (cast == undefined) cast = true;
     $.get("/puck/api/contentbyparentid?cast="+cast+"&parentid=" + parentId, f);
 }
-var getMinimumContentByParentId = function (parentId, f, fullIndexContent) {
+var getMinimumContentByParentId = function (parentId, f, fullIndexContent, filterIndexContent) {
+    if (filterIndexContent == undefined)
+        filterIndexContent = false;
     fullIndexContent = fullIndexContent || false;
-    $.get("/puck/api/minimumcontentbyparentid?parentid=" + parentId + "&fullIndexContent=" + fullIndexContent, f);
+    $.get("/puck/api/minimumcontentbyparentid?parentid=" + parentId + "&fullIndexContent=" + fullIndexContent + "&filterIndexContent=" + filterIndexContent, f);
 }
 var getTemplates = function (path, f) {
     $.get("/puck/task/templates?path=" + path, f);
