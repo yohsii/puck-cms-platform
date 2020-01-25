@@ -72,6 +72,7 @@ namespace puck.core.State
         public static bool TransformListElements = true;
         public static string SystemVariant = "en-GB";
         public static Uri FirstRequestUrl = null;
+        //public static int PuckAuthCookieExpireMinutes = 1440;
         public static bool JustSeeded { get; set; } = false;
         public static bool IsRepublishingEntireSite { get; set; }
         public static bool ShouldSync { get; set; }
