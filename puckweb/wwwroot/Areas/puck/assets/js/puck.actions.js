@@ -666,6 +666,22 @@ var drawTemplates = function (data, el, sortable) {
 }
 
 var getDrawContent = function (id, el, sortable, f, renderVariantLinks, _startPaths) {
+    var validStartPaths = [];
+    if (_startPaths != undefined) {
+        for (var i = 0; i < _startPaths.length; i++) {
+            var valid = false;
+            for (var j = 0; j < startPaths.length; j++) {
+                if ((_startPaths[i]+"/").indexOf(startPaths[j]+"/")==0)
+                    valid = true;
+            }
+            if (valid)
+                validStartPaths.push(_startPaths[i]);
+        }
+        if (validStartPaths.length > 0)
+            _startPaths = validStartPaths;
+        else
+            _startPaths = startPaths;
+    }
     _startPaths = _startPaths || startPaths;
     renderVariantLinks = renderVariantLinks || false;
     if (el == undefined) {
