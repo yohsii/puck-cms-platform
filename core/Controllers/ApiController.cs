@@ -1709,7 +1709,7 @@ namespace puck.core.Controllers
                         foreach (var claim in claims)
                         {
                             string _path = null;
-                            if (cache.TryGetValue<string>($"puckpath{claim.Value}", out path))
+                            if (cache.TryGetValue<string>($"puckpath{claim.Value}", out _path))
                             {
                                 paths.Add(_path);
                             }
