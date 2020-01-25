@@ -875,22 +875,39 @@ namespace puck.core.Controllers
             return Json(user.PuckStartNodeIds?.Split(',',StringSplitOptions.RemoveEmptyEntries) ?? new string[]{ Guid.Empty.ToString()});
         }
         [Authorize(Roles = PuckRoles.Puck, AuthenticationSchemes = Mvc.AuthenticationScheme)]
-        public async Task<JsonResult> StartPaths()
-        {
+        public async Task<List<KeyValuePair<Guid,string>>> CheckClaims() {
             var user = await userManager.FindByNameAsync(User.Identity.Name);
-            if (!string.IsNullOrEmpty(user.PuckStartNodeIds) && user.PuckStartNodeIds != Guid.Empty.ToString())
-            {
-                Guid[] startIds = user.PuckStartNodeIds.Split(',',StringSplitOptions.RemoveEmptyEntries).Select(x=>Guid.Parse(x)).ToArray();
-                var paths = string.Join(",", repo.GetPuckRevision().Where(x => startIds.Contains(x.Id) && x.Current)
-                    .ToList()
-                    .GroupBy(x => x.Id)
-                    .Select(x => x.First().Path));
-                if (!string.IsNullOrEmpty(paths))
-                {
-                    return Json(paths);
+            var startIds = (user.PuckStartNodeIds?.Split(',', StringSplitOptions.RemoveEmptyEntries)?.ToList() ?? new List<string>())
+                .Select(x=>Guid.Parse(x));
+            var validStartIdsAndPaths = repo.GetPuckRevision()
+                .Where(x => x.Current && startIds.Contains(x.Id))
+                .Select(x => new KeyValuePair<Guid,string>(x.Id,x.Path))
+                .ToList()
+                .GroupBy(x=>x.Key)
+                .Select(x=>x.First())
+                .ToList();
+
+            var validStartIds = validStartIdsAndPaths.Select(x => x.Key).ToList();
+
+            var claims = User.Claims.Where(x => x.Type == Claims.PuckStartId).ToList();
+            if (validStartIds.Any() && (claims == null || !claims.Any() || validStartIds.Count!=claims.Count)) {
+                cache.Set<bool?>($"renewPuckClaims{User.Identity.Name}", true);
+                return validStartIdsAndPaths;
+            }
+            foreach (var claim in claims) {
+                if (!validStartIds.Contains(Guid.Parse(claim.Value))) {
+                    cache.Set<bool?>($"renewPuckClaims{User.Identity.Name}", true);
+                    return validStartIdsAndPaths;
                 }
             }
-            return Json("/");
+            return validStartIdsAndPaths;
+        }
+
+        [Authorize(Roles = PuckRoles.Puck, AuthenticationSchemes = Mvc.AuthenticationScheme)]
+        public async Task<JsonResult> StartPaths()
+        {
+            var validStartIdsAndPaths = await CheckClaims();
+            return Json(validStartIdsAndPaths);
         }
         [Authorize(Roles = PuckRoles.Puck, AuthenticationSchemes = Mvc.AuthenticationScheme)]
         public ActionResult SearchTypes(string root)

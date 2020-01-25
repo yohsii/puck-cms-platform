@@ -1023,15 +1023,77 @@ getVariants(function (data) {
         location.hash = "settings?path=/puck/settings/languages";
     }
 });
-getStartIds(function (ids) {
-    //startId = id;
-    startId = emptyGuid;
-    startIds = ids;
-    cleft.find("ul.content li:first").attr("data-id", startId);
-    getStartPaths(function (d) {
-        startPaths = d.split(",");
-        cleft.find(".startpath").html("/");
-        //$(".interfaces .tree_container ul.content .node").attr("data-children_path", startPaths);
+var initTree = function (firstRun) {
+    getStartPaths(function (idsAndPaths) {
+        startId = emptyGuid;
+        var _startIds = [];
+        var _startPaths = [];
+        for (var i = 0; i < idsAndPaths.length;i++) {
+            var entry = idsAndPaths[i];
+            _startIds.push(entry.Key);
+            _startPaths.push(entry.Value);
+        }
+        var startPathsChanged = false;
+        if (startPaths.length != _startPaths.length)
+            startPathsChanged = true;
+        if (!startPathsChanged) {
+            for (var i = 0; i < _startPaths.length; i++) {
+                if (startPaths.indexOf(_startPaths[i]) == -1) {
+                    startPathsChanged = true;
+                    break;
+                }
+            }
+        }
+        if (!startPathsChanged) {
+            for (var i = 0; i < startPaths.length; i++) {
+                if (_startPaths.indexOf(startPaths[i]) == -1) {
+                    startPathsChanged = true;
+                    break;
+                }
+            }
+        }
+
+        startPaths = _startPaths;
+        startIds = _startIds;
+        if (firstRun || startPathsChanged) {
+            if (firstRun) {
+                cleft.find("ul.content li:first").attr("data-id", startId);
+                cleft.find(".startpath").html("/");
+            }
+            if (!firstRun && startPathsChanged) {
+                cleft.find(".node[data-id=" + emptyGuid + "]").remove();
+            }
+            getDrawContent(startId, undefined, true, function () { loadTreePaths(startPaths); }, true);
+        }
     });
-    getDrawContent(startId, undefined, true, undefined, true);
-});
+}
+var loadTreePaths = function (pathsArr, cont) {
+    cont = cont || cleft.find("ul.content");
+    if (pathsArr.length == 0) return;
+    var firstPath = pathsArr.splice(0, 1)[0];
+    loadTreePath(firstPath, function () { loadTreePaths(pathsArr); },cont);
+}
+var loadTreePath = function (path,f,cont) {
+    var pathSegments = path.split("/");
+    var doLoadPath = function (segments,level) {
+        if (segments.length >= level) {
+            var path = segments.slice(0, level).join("/") || "/";
+            var node = cont.find(".node[data-path='" + path + "']:first");
+            if (node.length > 0) {
+                node.find(".expand").removeClass("fa-chevron-right").addClass("fa-chevron-down");
+                if (node.find(".node").length > 0) {
+                    doLoadPath(segments, level + 1);
+                } else {
+                    getDrawContent(node.attr("data-id"), undefined, true, function () { doLoadPath(segments, level + 1); }, true);
+                }
+            } else {
+                if (f) f();
+            }
+        } else {
+            if (f)
+                f();
+        }
+    }
+    doLoadPath(pathSegments,0);
+}
+initTree(true);
