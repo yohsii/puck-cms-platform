@@ -722,7 +722,7 @@ var draw = function (data, el, sortable, renderVariantLinks) {
         else
             node = data[p][variants[0]];
         var elnode = $("<li/>").addClass("node");
-        var disabled = true;
+        var disabled = startPaths.length>0;
         for (var i = 0; i < startPaths.length; i++) {
             if ((node.Path+"/").indexOf(startPaths[i]+"/") == 0)
                 disabled = false;

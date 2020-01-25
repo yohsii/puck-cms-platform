@@ -26,6 +26,8 @@ public class PuckCookieAuthenticationEvents : CookieAuthenticationEvents
             return;
         }
 
+        cache.Remove($"renewPuckClaims{context.Principal.Identity.Name}");
+        
         var claims = context.Principal.FindAll(Claims.PuckStartId)?.ToList();
         if (claims != null && claims.Any()) {
             for(var i=0;i<claims.Count;i++)
@@ -44,8 +46,6 @@ public class PuckCookieAuthenticationEvents : CookieAuthenticationEvents
         context.ReplacePrincipal(context.Principal);
         context.ShouldRenew = true;
         
-        cache.Remove($"renewPuckClaims{context.Principal.Identity.Name}");
-
         await SecurityStampValidator.ValidatePrincipalAsync(context);
     }
 }
