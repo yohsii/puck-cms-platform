@@ -1591,7 +1591,7 @@ var loadTreePaths = function (pathsArr, cont, afterDrawContent, renderVariantLin
     cont = cont || cleft.find("ul.content");
     if (pathsArr.length == 0) return;
     var firstPath = pathsArr.splice(0, 1)[0];
-    loadTreePath(firstPath, function () { loadTreePaths(pathsArr); }, cont, afterDrawContent, renderVariantLinks);
+    loadTreePath(firstPath, function () { loadTreePaths(pathsArr, cont, afterDrawContent, renderVariantLinks); }, cont, afterDrawContent, renderVariantLinks);
 }
 var loadTreePath = function (path, f, cont, afterDrawContent, renderVariantLinks) {
     var pathSegments = path.split("/");
