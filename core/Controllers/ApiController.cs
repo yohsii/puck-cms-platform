@@ -1201,11 +1201,14 @@ namespace puck.core.Controllers
                     {
                         foreach (var result in results)
                         {
+                            var allowed = false;
                             foreach (var path in paths) {
                                 var node = result.Value.Values.First();
-                                if (!(path.StartsWith(node.Path + "/") || node.Path == path || node.Path.StartsWith(path+"/")))
-                                    keysToRemove.Add(result.Key);
+                                if (path.StartsWith(node.Path + "/") || node.Path == path || node.Path.StartsWith(path + "/"))
+                                    allowed = true;
                             }
+                            if(!allowed)
+                                keysToRemove.Add(result.Key);
                         }
                     }
                 }
