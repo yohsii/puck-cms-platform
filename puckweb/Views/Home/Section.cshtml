@@ -14,8 +14,7 @@
     var descendants = Model.Descendants<Page>();
     
     var qh = new QueryHelper<BaseModel>();
-    qh.And().Range(x => x.Updated, 20130712112820,20130712112833, true, true);
-    //qh.And().Range(x => x.Updated, new DateTime(2013, 7, 12, 11, 28, 20), new DateTime(2013, 7, 12, 11, 28, 33), true, true);
+    qh.And().Range(x => x.Updated, new DateTime(2013, 7, 12, 11, 28, 20), DateTime.Now, true, true);
     var results = qh.GetAll();
     <br/>
     <h6 class="font-weight-light">@("range query 1")</h6>

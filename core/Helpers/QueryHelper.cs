@@ -406,7 +406,7 @@ namespace puck.core.Helpers
             {
                 if (typeof(TModel) == typeof(BaseModel)) {
                     if(publishedContentOnly)
-                        this.And().Field(x => x.Published, "true");
+                        this.And().Field(x => x.Published, true);
                 }
                 else
                 {
@@ -417,7 +417,7 @@ namespace puck.core.Helpers
                     }
                     this.Must().Group(innerQ);//.And().Field(x => x.Published, "true");
                     if (publishedContentOnly)
-                        this.And().Field(x => x.Published, "true");
+                        this.And().Field(x => x.Published, true);
                 }
                 //this.And().Field(x => x.TypeChain, typeof(TModel).Name.Wrap()).And().Field(x => x.Published, "true");
             }
@@ -495,7 +495,7 @@ namespace puck.core.Helpers
             return this;
         }
         
-        public QueryHelper<TModel> Range(Expression<Func<TModel, object>> exp,string start,string end,bool inclusiveStart,bool inclusiveEnd)
+        public QueryHelper<TModel> Range(Expression<Func<TModel, string>> exp,string start,string end,bool inclusiveStart,bool inclusiveEnd)
         {
             string key=getName(exp.Body.ToString());
             string openTag = inclusiveStart ? "[" : "{";
@@ -503,161 +503,198 @@ namespace puck.core.Helpers
             query += string.Concat(key,":" , openTag ,start," TO ",end,closeTag," ");
             return this;
         }
-        public QueryHelper<TModel> Range(Expression<Func<TModel, object>> exp, string start, string end, bool inclusiveStart)
+        public QueryHelper<TModel> Range(Expression<Func<TModel, string>> exp, string start, string end, bool inclusiveStart)
         {
             return this.Range(exp,start,end,inclusiveStart,true);
         }
-        public QueryHelper<TModel> Range(Expression<Func<TModel, object>> exp, string start, string end)
+        public QueryHelper<TModel> Range(Expression<Func<TModel, string>> exp, string start, string end)
         {
-            return this.Range(exp, start, end, true,true);
+            return this.Range(exp, start, end, true, true);
+        }
+        public QueryHelper<TModel> Range(Expression<Func<TModel, DateTime>> exp, string start, string end, bool inclusiveStart, bool inclusiveEnd)
+        {
+            string key = getName(exp.Body.ToString());
+            string openTag = inclusiveStart ? "[" : "{";
+            string closeTag = inclusiveEnd ? "]" : "}";
+            query += string.Concat(key, ":", openTag, start, " TO ", end, closeTag, " ");
+            return this;
+        }
+        public QueryHelper<TModel> Range(Expression<Func<TModel, DateTime>> exp, string start, string end, bool inclusiveStart)
+        {
+            return this.Range(exp, start, end, inclusiveStart, true);
         }
         
-        public QueryHelper<TModel> Range(Expression<Func<TModel, object>> exp, int start, int end, bool inclusiveStart, bool inclusiveEnd)
+        public QueryHelper<TModel> Range(Expression<Func<TModel, DateTime>> exp, string start, string end)
         {
-            return this.Range(exp,start.ToString(),end.ToString(),inclusiveStart,inclusiveEnd);
+            return this.Range(exp, start, end, true, true);
         }
-        public QueryHelper<TModel> Range(Expression<Func<TModel, object>> exp, int start, int end, bool inclusiveStart)
+        public QueryHelper<TModel> Range(Expression<Func<TModel, int>> exp, int start, int end, bool inclusiveStart, bool inclusiveEnd)
         {
-            return this.Range(exp, start.ToString(), end.ToString(), inclusiveStart, true);
+            string key = getName(exp.Body.ToString());
+            string openTag = inclusiveStart ? "[" : "{";
+            string closeTag = inclusiveEnd ? "]" : "}";
+            query += string.Concat(key, ":", openTag, start, " TO ", end, closeTag, " ");
+            return this;
         }
-        public QueryHelper<TModel> Range(Expression<Func<TModel, object>> exp, int start, int end)
+        public QueryHelper<TModel> Range(Expression<Func<TModel, int>> exp, int start, int end, bool inclusiveStart)
         {
-            return this.Range(exp, start.ToString(), end.ToString(), true,true);
+            return this.Range(exp, start, end, inclusiveStart, true);
         }
-        public QueryHelper<TModel> Range(Expression<Func<TModel, object>> exp, long start, long end, bool inclusiveStart, bool inclusiveEnd)
+        public QueryHelper<TModel> Range(Expression<Func<TModel, int>> exp, int start, int end)
         {
-            return this.Range(exp, start.ToString(), end.ToString(), inclusiveStart, inclusiveEnd);
+            return this.Range(exp, start, end, true, true);
         }
-        public QueryHelper<TModel> Range(Expression<Func<TModel, object>> exp, long start, long end, bool inclusiveStart)
+        public QueryHelper<TModel> Range(Expression<Func<TModel, long>> exp, long start, long end, bool inclusiveStart, bool inclusiveEnd)
         {
-            return this.Range(exp, start.ToString(), end.ToString(), inclusiveStart, true);
+            string key = getName(exp.Body.ToString());
+            string openTag = inclusiveStart ? "[" : "{";
+            string closeTag = inclusiveEnd ? "]" : "}";
+            query += string.Concat(key, ":", openTag, start, " TO ", end, closeTag, " ");
+            return this;
         }
-        public QueryHelper<TModel> Range(Expression<Func<TModel, object>> exp, long start, long end)
+        public QueryHelper<TModel> Range(Expression<Func<TModel, long>> exp, long start, long end, bool inclusiveStart)
         {
-            return this.Range(exp, start.ToString(), end.ToString(), true, true);
+            return this.Range(exp, start, end, inclusiveStart, true);
         }
-        public QueryHelper<TModel> Range(Expression<Func<TModel, object>> exp, float start, float end, bool inclusiveStart, bool inclusiveEnd)
+        public QueryHelper<TModel> Range(Expression<Func<TModel, long>> exp, long start, long end)
         {
-            return this.Range(exp, start.ToString(), end.ToString(), inclusiveStart, inclusiveEnd);
+            return this.Range(exp, start, end, true, true);
         }
-        public QueryHelper<TModel> Range(Expression<Func<TModel, object>> exp, float start, float end, bool inclusiveStart)
+        public QueryHelper<TModel> Range(Expression<Func<TModel, float>> exp, float start, float end, bool inclusiveStart, bool inclusiveEnd)
         {
-            return this.Range(exp, start.ToString(), end.ToString(), inclusiveStart, true);
+            string key = getName(exp.Body.ToString());
+            string openTag = inclusiveStart ? "[" : "{";
+            string closeTag = inclusiveEnd ? "]" : "}";
+            query += string.Concat(key, ":", openTag, start, " TO ", end, closeTag, " ");
+            return this;
         }
-        public QueryHelper<TModel> Range(Expression<Func<TModel, object>> exp, float start, float end)
+        public QueryHelper<TModel> Range(Expression<Func<TModel, float>> exp, float start, float end, bool inclusiveStart)
         {
-            return this.Range(exp, start.ToString(), end.ToString(), true, true);
+            return this.Range(exp, start, end, inclusiveStart, true);
+        }
+        public QueryHelper<TModel> Range(Expression<Func<TModel, float>> exp, float start, float end)
+        {
+            return this.Range(exp, start, end, true, true);
         }
 
-        public QueryHelper<TModel> Range(Expression<Func<TModel, object>> exp, double start, double end, bool inclusiveStart, bool inclusiveEnd)
+        public QueryHelper<TModel> Range(Expression<Func<TModel, double>> exp, double start, double end, bool inclusiveStart, bool inclusiveEnd)
         {
-            return this.Range(exp, start.ToString(), end.ToString(), inclusiveStart, inclusiveEnd);
+            string key = getName(exp.Body.ToString());
+            string openTag = inclusiveStart ? "[" : "{";
+            string closeTag = inclusiveEnd ? "]" : "}";
+            query += string.Concat(key, ":", openTag, start, " TO ", end, closeTag, " ");
+            return this;
         }
-        public QueryHelper<TModel> Range(Expression<Func<TModel, object>> exp, double start, double end, bool inclusiveStart)
+        public QueryHelper<TModel> Range(Expression<Func<TModel, double>> exp, double start, double end, bool inclusiveStart)
         {
-            return this.Range(exp, start.ToString(), end.ToString(), inclusiveStart, true);
+            return this.Range(exp, start, end, inclusiveStart, true);
         }
-        public QueryHelper<TModel> Range(Expression<Func<TModel, object>> exp, double start, double end)
+        public QueryHelper<TModel> Range(Expression<Func<TModel, double>> exp, double start, double end)
         {
-            return this.Range(exp, start.ToString(), end.ToString(), true, true);
+            return this.Range(exp, start, end, true, true);
         }
-        public QueryHelper<TModel> Range(Expression<Func<TModel, object>> exp, DateTime start, DateTime end, bool inclusiveStart, bool inclusiveEnd)
+        public QueryHelper<TModel> Range(Expression<Func<TModel, DateTime>> exp, DateTime start, DateTime end, bool inclusiveStart, bool inclusiveEnd)
         {
-            return this.Range(exp, start.ToString(dateFormat), end.ToString(dateFormat), inclusiveStart, inclusiveEnd);            
+            string key = getName(exp.Body.ToString());
+            string openTag = inclusiveStart ? "[" : "{";
+            string closeTag = inclusiveEnd ? "]" : "}";
+            query += string.Concat(key, ":", openTag, start.ToString(dateFormat), " TO ", end.ToString(dateFormat), closeTag, " ");
+            return this;
         }
-        public QueryHelper<TModel> Range(Expression<Func<TModel, object>> exp, DateTime start, DateTime end, bool inclusiveStart)
+        public QueryHelper<TModel> Range(Expression<Func<TModel, DateTime>> exp, DateTime start, DateTime end, bool inclusiveStart)
         {
-            return this.Range(exp, start.ToString(dateFormat), end.ToString(dateFormat), inclusiveStart, true);
+            return this.Range(exp, start, end, inclusiveStart, true);
         }
-        public QueryHelper<TModel> Range(Expression<Func<TModel, object>> exp, DateTime start, DateTime end)
+        public QueryHelper<TModel> Range(Expression<Func<TModel, DateTime>> exp, DateTime start, DateTime end)
         {
-            return this.Range(exp, start.ToString(dateFormat), end.ToString(dateFormat), true,true);
+            return this.Range(exp, start, end, true, true);
         }
+        
         //extended range
-        public QueryHelper<TModel> GreaterThanEqualTo(Expression<Func<TModel, object>> exp, DateTime start)
+        public QueryHelper<TModel> GreaterThanEqualTo(Expression<Func<TModel, DateTime>> exp, DateTime start)
         {
-            return this.Range(exp, start.ToString(dateFormat), DateTime.MaxValue.ToString(dateFormat), true, true);
+            return this.Range(exp, start, DateTime.MaxValue, true, true);
         }
-        public QueryHelper<TModel> LessThanEqualTo(Expression<Func<TModel, object>> exp, DateTime end)
+        public QueryHelper<TModel> LessThanEqualTo(Expression<Func<TModel, DateTime>> exp, DateTime end)
         {
-            return this.Range(exp, DateTime.MinValue.ToString(dateFormat), end.ToString(dateFormat), true, true);
-        }
-
-        public QueryHelper<TModel> GreaterThanEqualTo(Expression<Func<TModel, object>> exp, int start)
-        {
-            return this.Range(exp, start.ToString(), int.MaxValue.ToString(), true, true);
-        }
-        public QueryHelper<TModel> LessThanEqualTo(Expression<Func<TModel, object>> exp, int end)
-        {
-            return this.Range(exp, int.MinValue.ToString(), end.ToString(), true, true);
+            return this.Range(exp, DateTime.MinValue, end, true, true);
         }
 
-        public QueryHelper<TModel> GreaterThanEqualTo(Expression<Func<TModel, object>> exp, long start)
+        public QueryHelper<TModel> GreaterThanEqualTo(Expression<Func<TModel, int>> exp, int start)
         {
-            return this.Range(exp, start.ToString(), long.MaxValue.ToString(), true, true);
+            return this.Range(exp, start, int.MaxValue, true, true);
         }
-        public QueryHelper<TModel> LessThanEqualTo(Expression<Func<TModel, object>> exp, long end)
+        public QueryHelper<TModel> LessThanEqualTo(Expression<Func<TModel, int>> exp, int end)
         {
-            return this.Range(exp, long.MinValue.ToString(), end.ToString(), true, true);
-        }
-        public QueryHelper<TModel> GreaterThanEqualTo(Expression<Func<TModel, object>> exp, float start)
-        {
-            return this.Range(exp, start.ToString(), float.MaxValue.ToString(), true, true);
-        }
-        public QueryHelper<TModel> LessThanEqualTo(Expression<Func<TModel, object>> exp, float end)
-        {
-            return this.Range(exp, float.MinValue.ToString(), end.ToString(), true, true);
-        }
-        public QueryHelper<TModel> GreaterThanEqualTo(Expression<Func<TModel, object>> exp, double start)
-        {
-            return this.Range(exp, start.ToString(), double.MaxValue.ToString(), true, true);
-        }
-        public QueryHelper<TModel> LessThanEqualTo(Expression<Func<TModel, object>> exp, double end)
-        {
-            return this.Range(exp, double.MinValue.ToString(), end.ToString(), true, true);
+            return this.Range(exp, int.MinValue, end, true, true);
         }
 
-        public QueryHelper<TModel> GreaterThan(Expression<Func<TModel, object>> exp, DateTime start)
+        public QueryHelper<TModel> GreaterThanEqualTo(Expression<Func<TModel, long>> exp, long start)
         {
-            return this.Range(exp, start.ToString(dateFormat), DateTime.MaxValue.ToString(dateFormat), false, true);
+            return this.Range(exp, start, long.MaxValue, true, true);
         }
-        public QueryHelper<TModel> LessThan(Expression<Func<TModel, object>> exp, DateTime end)
+        public QueryHelper<TModel> LessThanEqualTo(Expression<Func<TModel, long>> exp, long end)
         {
-            return this.Range(exp, DateTime.MinValue.ToString(dateFormat), end.ToString(dateFormat), true, false);
+            return this.Range(exp, long.MinValue, end, true, true);
+        }
+        public QueryHelper<TModel> GreaterThanEqualTo(Expression<Func<TModel, float>> exp, float start)
+        {
+            return this.Range(exp, start, float.MaxValue, true, true);
+        }
+        public QueryHelper<TModel> LessThanEqualTo(Expression<Func<TModel, float>> exp, float end)
+        {
+            return this.Range(exp, float.MinValue, end, true, true);
+        }
+        public QueryHelper<TModel> GreaterThanEqualTo(Expression<Func<TModel, double>> exp, double start)
+        {
+            return this.Range(exp, start, double.MaxValue, true, true);
+        }
+        public QueryHelper<TModel> LessThanEqualTo(Expression<Func<TModel, double>> exp, double end)
+        {
+            return this.Range(exp, double.MinValue, end, true, true);
         }
 
-        public QueryHelper<TModel> GreaterThan(Expression<Func<TModel, object>> exp, int start)
+        public QueryHelper<TModel> GreaterThan(Expression<Func<TModel, DateTime>> exp, DateTime start)
         {
-            return this.Range(exp, start.ToString(), int.MaxValue.ToString(), false, true);
+            return this.Range(exp, start, DateTime.MaxValue, false, true);
         }
-        public QueryHelper<TModel> LessThan(Expression<Func<TModel, object>> exp, int end)
+        public QueryHelper<TModel> LessThan(Expression<Func<TModel, DateTime>> exp, DateTime end)
         {
-            return this.Range(exp, int.MinValue.ToString(), end.ToString(), true, false);
+            return this.Range(exp, DateTime.MinValue, end, true, false);
         }
 
-        public QueryHelper<TModel> GreaterThan(Expression<Func<TModel, object>> exp, long start)
+        public QueryHelper<TModel> GreaterThan(Expression<Func<TModel, int>> exp, int start)
         {
-            return this.Range(exp, start.ToString(), long.MaxValue.ToString(), false, true);
+            return this.Range(exp, start, int.MaxValue, false, true);
         }
-        public QueryHelper<TModel> LessThan(Expression<Func<TModel, object>> exp, long end)
+        public QueryHelper<TModel> LessThan(Expression<Func<TModel, int>> exp, int end)
         {
-            return this.Range(exp, long.MinValue.ToString(), end.ToString(), true, false);
+            return this.Range(exp, int.MinValue, end, true, false);
         }
-        public QueryHelper<TModel> GreaterThan(Expression<Func<TModel, object>> exp, float start)
+
+        public QueryHelper<TModel> GreaterThan(Expression<Func<TModel, long>> exp, long start)
         {
-            return this.Range(exp, start.ToString(), float.MaxValue.ToString(), false, true);
+            return this.Range(exp, start, long.MaxValue, false, true);
         }
-        public QueryHelper<TModel> LessThan(Expression<Func<TModel, object>> exp, float end)
+        public QueryHelper<TModel> LessThan(Expression<Func<TModel, long>> exp, long end)
         {
-            return this.Range(exp, float.MinValue.ToString(), end.ToString(), true, false);
+            return this.Range(exp, long.MinValue, end, true, false);
         }
-        public QueryHelper<TModel> GreaterThan(Expression<Func<TModel, object>> exp, double start)
+        public QueryHelper<TModel> GreaterThan(Expression<Func<TModel, float>> exp, float start)
         {
-            return this.Range(exp, start.ToString(), double.MaxValue.ToString(), false, true);
+            return this.Range(exp, start, float.MaxValue, false, true);
         }
-        public QueryHelper<TModel> LessThan(Expression<Func<TModel, object>> exp, double end)
+        public QueryHelper<TModel> LessThan(Expression<Func<TModel, float>> exp, float end)
         {
-            return this.Range(exp, double.MinValue.ToString(), end.ToString(), true, false);
+            return this.Range(exp, float.MinValue, end, true, false);
+        }
+        public QueryHelper<TModel> GreaterThan(Expression<Func<TModel, double>> exp, double start)
+        {
+            return this.Range(exp, start, double.MaxValue, false, true);
+        }
+        public QueryHelper<TModel> LessThan(Expression<Func<TModel, double>> exp, double end)
+        {
+            return this.Range(exp, double.MinValue, end, true, false);
         }
         
         private QueryHelper<TModel> GeoFilter(Expression<Func<TModel, object>> exp, double longitude, double latitude, double distDEG)
@@ -699,10 +736,96 @@ namespace puck.core.Helpers
             return this;
         }
         
-        public QueryHelper<TModel> Field<T>(Expression<Func<T, object>> exp, object value)
+        //public QueryHelper<TModel> Field<T>(Expression<Func<T, object>> exp, object value)
+        //{
+        //    string key = getName(exp.Body.ToString());
+        //    return this.Field(key,value);
+        //}
+
+        public QueryHelper<TModel> Field<T>(Expression<Func<T, bool>> exp, bool value)
         {
             string key = getName(exp.Body.ToString());
-            return this.Field(key,value);
+            query += string.Concat(key, ":", value.ToString(), " ");
+            return this;
+        }
+        public QueryHelper<TModel> Field<T>(Expression<Func<T, IEnumerable<string>>> exp, string value)
+        {
+            string key = getName(exp.Body.ToString());
+            return this.Field(key, value);
+        }
+        public QueryHelper<TModel> Field<T>(Expression<Func<T, IEnumerable<int>>> exp, int value)
+        {
+            string key = getName(exp.Body.ToString());
+            return this.Field(key, value);
+        }
+        public QueryHelper<TModel> Field<T>(Expression<Func<T, IEnumerable<long>>> exp, long value)
+        {
+            string key = getName(exp.Body.ToString());
+            return this.Field(key, value);
+        }
+        public QueryHelper<TModel> Field<T>(Expression<Func<T, IEnumerable<float>>> exp, float value)
+        {
+            string key = getName(exp.Body.ToString());
+            return this.Field(key, value);
+        }
+        public QueryHelper<TModel> Field<T>(Expression<Func<T, IEnumerable<double>>> exp, double value)
+        {
+            string key = getName(exp.Body.ToString());
+            return this.Field(key, value);
+        }
+        public QueryHelper<TModel> Field<T>(Expression<Func<T, string>> exp, string value)
+        {
+            string key = getName(exp.Body.ToString());
+            query += string.Concat(key, ":", value, " ");
+            return this;
+        }
+
+        public QueryHelper<TModel> Field<T>(Expression<Func<T, Guid>> exp, Guid value)
+        {
+            string key = getName(exp.Body.ToString());
+            return this.Field(key, value);
+        }
+
+        public QueryHelper<TModel> Field<T>(Expression<Func<T, DateTime>> exp, DateTime value)
+        {
+            string key = getName(exp.Body.ToString());
+            return this.Field(key, value.ToString(dateFormat));
+        }
+
+        public QueryHelper<TModel> Field(Expression<Func<TModel, DateTime>> exp, DateTime value)
+        {
+            string key = getName(exp.Body.ToString());
+            return this.Field(key, value.ToString(dateFormat));
+        }
+
+        public QueryHelper<TModel> Field<T>(Expression<Func<T, Guid>> exp, string value)
+        {
+            string key = getName(exp.Body.ToString());
+            return this.Field(key, value);
+        }
+
+        public QueryHelper<TModel> Field<T>(Expression<Func<T, int>> exp, int value)
+        {
+            string key = getName(exp.Body.ToString());
+            return this.Field(key, value);
+        }
+
+        public QueryHelper<TModel> Field<T>(Expression<Func<T, double>> exp, double value)
+        {
+            string key = getName(exp.Body.ToString());
+            return this.Field(key, value);
+        }
+
+        public QueryHelper<TModel> Field<T>(Expression<Func<T, float>> exp, float value)
+        {
+            string key = getName(exp.Body.ToString());
+            return this.Field(key, value);
+        }
+
+        public QueryHelper<TModel> Field<T>(Expression<Func<T, long>> exp, long value)
+        {
+            string key = getName(exp.Body.ToString());
+            return this.Field(key, value);
         }
 
         public QueryHelper<TModel> Field(string key, object value)
@@ -710,43 +833,78 @@ namespace puck.core.Helpers
             query += string.Concat(key, ":", value.ToString()," ");
             return this;
         }
-        public QueryHelper<TModel> Field(Expression<Func<TModel, object>> exp, bool value)
+        public QueryHelper<TModel> Field(Expression<Func<TModel, bool>> exp, bool value)
         {
             string key = getName(exp.Body.ToString());
             query += string.Concat(key, ":", value.ToString(), " ");
             return this;
         }
-
-        public QueryHelper<TModel> Field(Expression<Func<TModel, object>> exp, string value)
+        public QueryHelper<TModel> Field(Expression<Func<TModel, IEnumerable<string>>> exp, string value)
+        {
+            string key = getName(exp.Body.ToString());
+            return this.Field(key, value);
+        }
+        public QueryHelper<TModel> Field(Expression<Func<TModel, IEnumerable<int>>> exp, int value)
+        {
+            string key = getName(exp.Body.ToString());
+            return this.Field(key, value);
+        }
+        public QueryHelper<TModel> Field(Expression<Func<TModel, IEnumerable<long>>> exp, long value)
+        {
+            string key = getName(exp.Body.ToString());
+            return this.Field(key, value);
+        }
+        public QueryHelper<TModel> Field(Expression<Func<TModel, IEnumerable<float>>> exp, float value)
+        {
+            string key = getName(exp.Body.ToString());
+            return this.Field(key, value);
+        }
+        public QueryHelper<TModel> Field(Expression<Func<TModel, IEnumerable<double>>> exp, double value)
+        {
+            string key = getName(exp.Body.ToString());
+            return this.Field(key, value);
+        }
+        public QueryHelper<TModel> Field(Expression<Func<TModel, string>> exp, string value)
         {
             string key = getName(exp.Body.ToString());
             query += string.Concat(key , ":",  value," ");
             return this;
         }
 
-        public QueryHelper<TModel> Field(Expression<Func<TModel, object>> exp, Guid value)
+        public QueryHelper<TModel> Field(Expression<Func<TModel, Guid>> exp, Guid value)
         {
-            return this.Field(exp, value.ToString());
+            string key = getName(exp.Body.ToString());
+            return this.Field(key, value);
         }
 
-        public QueryHelper<TModel> Field(Expression<Func<TModel, object>> exp, int ivalue)
+        public QueryHelper<TModel> Field(Expression<Func<TModel, Guid>> exp, string value)
         {
-            return this.Field(exp,ivalue.ToString());
+            string key = getName(exp.Body.ToString());
+            return this.Field(key, value);
         }
 
-        public QueryHelper<TModel> Field(Expression<Func<TModel, object>> exp, double dvalue)
+        public QueryHelper<TModel> Field(Expression<Func<TModel, int>> exp, int value)
         {
-            return this.Field(exp, dvalue.ToString());
+            string key = getName(exp.Body.ToString());
+            return this.Field(key, value);
         }
 
-        public QueryHelper<TModel> Field(Expression<Func<TModel, object>> exp, float fvalue)
+        public QueryHelper<TModel> Field(Expression<Func<TModel, double>> exp, double value)
         {
-            return this.Field(exp, fvalue.ToString());
+            string key = getName(exp.Body.ToString());
+            return this.Field(key, value);
         }
 
-        public QueryHelper<TModel> Field(Expression<Func<TModel, object>> exp, long lvalue)
+        public QueryHelper<TModel> Field(Expression<Func<TModel, float>> exp, float value)
         {
-            return this.Field(exp, lvalue.ToString());
+            string key = getName(exp.Body.ToString());
+            return this.Field(key, value);
+        }
+
+        public QueryHelper<TModel> Field(Expression<Func<TModel, long>> exp, long value)
+        {
+            string key = getName(exp.Body.ToString());
+            return this.Field(key, value);
         }
         public QueryHelper<TModel> Path(string value)
         {
