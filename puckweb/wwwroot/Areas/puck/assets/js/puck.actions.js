@@ -1637,7 +1637,8 @@ var loadTreePath = function (path, f, cont, afterDrawContent, renderVariantLinks
             var path = segments.slice(0, level).join("/") || "/";
             var node = cont.find(".node[data-path='" + path + "']:first");
             if (node.length > 0) {
-                node.find(".expand:first").removeClass("fa-chevron-right").addClass("fa-chevron-down");
+                if (node.attr("data-id") != emptyGuid)
+                    node.find(".expand:first").removeClass("fa-chevron-right").addClass("fa-chevron-down");
                 if (node.find(".node").length > 0) {
                     doLoadPath(segments, level + 1);
                 } else {
