@@ -698,10 +698,16 @@ namespace puck.core.Helpers
             query+=") ";
             return this;
         }
-
-        public QueryHelper<TModel> Field(string key, string value)
+        
+        public QueryHelper<TModel> Field<T>(Expression<Func<T, object>> exp, object value)
         {
-            query += string.Concat(key, ":", value," ");
+            string key = getName(exp.Body.ToString());
+            return this.Field(key,value);
+        }
+
+        public QueryHelper<TModel> Field(string key, object value)
+        {
+            query += string.Concat(key, ":", value.ToString()," ");
             return this;
         }
         public QueryHelper<TModel> Field(Expression<Func<TModel, object>> exp, bool value)

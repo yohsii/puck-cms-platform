@@ -871,7 +871,7 @@ namespace puck.core.Concrete
         public IList<T> Get<T>(int limit)
         {
             EnsureSearcher();
-            var t = new Term(FieldKeys.PuckTypeChain, typeof(T).FullName);
+            var t = new Term(FieldKeys.PuckType, typeof(T).Name);
             var q = new TermQuery(t);
             var hits = Searcher.Search(q, limit).ScoreDocs;
             var results = new List<T>();
