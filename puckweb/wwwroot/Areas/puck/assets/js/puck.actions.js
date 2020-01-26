@@ -755,7 +755,8 @@ var draw = function (data, el, sortable, renderVariantLinks,_startPaths) {
         if (hasUnpublished)
             elnode.addClass("unpublished");
         elinner.append($("<i class=\"fas fa-search icon_search\"></i>"));
-        elinner.append($("<i class=\"puck_icon\"></i>"));
+        var customClasses = window.treeIconClasses? (window.treeIconClasses[node.Type] || "") : "";
+        elinner.append($("<i class=\"puck_icon " + customClasses +"\"></i>"));
         elinner.append($("<img/>").attr({"class":"loader", "src": "/areas/puck/assets/img/tree-loader.gif" }).hide());
         elinner.append($("<i class=\"fas fa-chevron-right expand\"></i>"))
         if(!disabled)

@@ -1135,6 +1135,9 @@ background-color: #c7d1d6;
     .leftarea .left_content i {
         font-size: 16px !important;
     }
+.leftarea .left_content i.puck_icon {
+    
+}
 .leftarea .dropdown-menu i {
     position: relative;
     top: -4px;
@@ -1405,20 +1408,22 @@ div.settings div.redirects label i.choose-page {
         padding: 0 2px;
         margin: 0 2px;
     }
-
-    .puck_icon {
-        display: none;
-        display: inline-block;
-        width: 14px;
-        height: 14px;
-        margin-top: -3px;
-        line-height: 14px;
-        vertical-align: text-top;
-        background-image: url("../img/glyphicons-halflings.png");
+.leftarea .left_content i.puck_icon {
+    min-width: 8px!important;
+}
+.puck_icon {
+    display: inline-block;
+    height: 14px;
+    margin-top: -3px;
+    margin-right: 3px;
+    line-height: 14px;
+    vertical-align: text-top;
+    /*background-image: url("../img/glyphicons-halflings.png");
         background-position: 14px 14px;
         background-repeat: no-repeat;
         background-position: -24px -24px;
-    }
+        */
+}
     /* css for timepicker */
     .ui-timepicker-div .ui-widget-header {
         margin-bottom: 8px;
