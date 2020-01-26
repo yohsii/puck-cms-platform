@@ -8,6 +8,7 @@ using puckweb.Data.Entities;
 
 namespace puckweb.Data.Contexts
 {
+    /*add your custom entities for your tables to this db context*/
     public class ApplicationDbContext : IdentityDbContext<User, Role, string
         , IdentityUserClaim<string>, UserRole, IdentityUserLogin<string>
         , IdentityRoleClaim<string>, IdentityUserToken<string>>

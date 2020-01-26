@@ -9,6 +9,7 @@ using puckweb.Data.Entities;
 
 namespace puckweb.Data.Contexts
 {
+    /*don't add your entities to this db context, add them to ApplicationDbContext. if targeting PostgreSQL, use this db context for your migrations*/
     public class DbContextPostgreSQL : ApplicationDbContext
     {
         public DbContextPostgreSQL(IConfiguration config)

@@ -9,6 +9,7 @@ using puckweb.Data.Entities;
 
 namespace puckweb.Data.Contexts
 {
+    /*don't add your entities to this db context, add them to ApplicationDbContext. if targeting SQLite, use this db context for your migrations*/
     public class DbContextSQLite : ApplicationDbContext
     {
         public DbContextSQLite(IConfiguration config)
