@@ -811,7 +811,7 @@ namespace puck.core.Services
             string notes = "";
             //remove from index
             var qh = new QueryHelper<BaseModel>(prependTypeTerm: false);
-            qh.ID(id);
+            qh.Id(id);
             if (!string.IsNullOrEmpty(variant))
                 qh.And().Field(x => x.Variant, variant);
             var toDelete = qh.GetAll();
@@ -828,7 +828,7 @@ namespace puck.core.Services
                 }
             }
             var deleteQuery = new QueryHelper<BaseModel>(prependTypeTerm: false);
-            var innerQ = deleteQuery.New().ID(id);
+            var innerQ = deleteQuery.New().Id(id);
             if (!string.IsNullOrEmpty(variant))
                 innerQ.And().Field(x => x.Variant, variant);
             deleteQuery.Group(
@@ -1623,7 +1623,7 @@ namespace puck.core.Services
                         var qh = new QueryHelper<BaseModel>(publishedContentOnly:!alwaysUpdatePath);
                         //get current indexed node with same ID and VARIANT
                         var currentMod = qh.And().Field(x => x.Variant, mod.Variant)
-                            .ID(mod.Id)
+                            .Id(mod.Id)
                             .GetNoCast();
                         //if parent changed, we index regardless of if the model being saved is set to publish or not. moves are always published immediately
                         if (parentChanged)

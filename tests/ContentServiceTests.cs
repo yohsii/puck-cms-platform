@@ -346,7 +346,7 @@ namespace puck.tests
 
             Folder getContentFromIndex(Guid id, string variant) {
                 var qh = new QueryHelper<Folder>(prependTypeTerm:false);
-                var result = qh.ID(id).Variant(variant).GetAllNoCast().FirstOrDefault();
+                var result = qh.Id(id).Variant(variant).GetAllNoCast().FirstOrDefault();
                 return result;
             }
             

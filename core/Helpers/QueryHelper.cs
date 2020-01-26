@@ -95,7 +95,7 @@ namespace puck.core.Helpers
             var qh = new QueryHelper<T>();
             var qhinner1 = qh.New();
             foreach (var p in pp) {
-                var qhinner2 = qhinner1.New().ID(p.Id);
+                var qhinner2 = qhinner1.New().Id(p.Id);
                 if (!string.IsNullOrEmpty(p.Variant))
                     qhinner2.Variant(p.Variant.ToLower());
                 qhinner1.Group(
@@ -130,7 +130,7 @@ namespace puck.core.Helpers
             if (pp == null)
                 return new List<T>();
             var qh = new QueryHelper<T>();
-            qh.ID(pp.Id);
+            qh.Id(pp.Id);
             if (!string.IsNullOrEmpty(pp.Variant))
                 qh.Variant(pp.Variant);
             if (noCast)
@@ -251,22 +251,6 @@ namespace puck.core.Helpers
                 return qh.GetAll();
         }
         
-        public static Dictionary<string, Dictionary<string, T>> GroupByID<T>(this List<T> items) where T : BaseModel
-        {
-            var d = new Dictionary<string, Dictionary<string, T>>();
-            items.GroupBy(x => x.Id).ToList().ForEach(x =>
-            {
-                d.Add(x.Key.ToString(), new Dictionary<string, T>());
-                x.ToList().ForEach(y => d[x.Key.ToString()][y.Variant] = y);
-            });
-            return d;
-        }
-        /*
-        public static void Delete<T>(this List<T> toDelete) where T:BaseModel {
-            var indexer = PuckCache.PuckIndexer;
-            indexer.Delete(toDelete);
-        }
-        */
         public static Dictionary<string, Dictionary<string, T>> GroupByPath<T>(this List<T> items) where T : BaseModel
         {
             var d = new Dictionary<string, Dictionary<string, T>>();
@@ -967,7 +951,7 @@ namespace puck.core.Helpers
             return this;
         }
 
-        public QueryHelper<TModel> ID(string value,bool must=true)
+        public QueryHelper<TModel> Id(string value,bool must=true)
         {
             TrimAnd();
             string key = FieldKeys.ID;
@@ -975,9 +959,9 @@ namespace puck.core.Helpers
             return this;
         }
 
-        public QueryHelper<TModel> ID(Guid value,bool must=true)
+        public QueryHelper<TModel> Id(Guid value,bool must=true)
         {
-            return this.ID(value.ToString(),must);
+            return this.Id(value.ToString(),must);
         }
 
         public QueryHelper<TModel> Directory(string value) {
