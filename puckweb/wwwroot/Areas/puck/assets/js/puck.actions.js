@@ -980,6 +980,7 @@ var displayMarkup = function (parentId, type, variant, fromVariant,contentId,con
             afterDom();
             container.show();
             container.find(".fieldtabs:first").click();
+            container.find(".tab-pane:first").addClass("active");
             setChangeTracker();
             if (cleft.find(".node[data-id='" + contentId + "']").length > 0)
                 highlightSelectedNodeById(contentId);
