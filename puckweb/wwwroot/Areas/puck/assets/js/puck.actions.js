@@ -990,6 +990,9 @@ var displayMarkup = function (parentId, type, variant, fromVariant,contentId,con
                         highlightSelectedNodeByIdPath(d);
                     });
             }
+            setTimeout(function () {
+                $(document).trigger("puckEditFormLoaded", [container]);
+            }, 100);
         }
         //get field groups and build tabs
         var tabPrefix = container.attr("data-tabPrefix");
