@@ -836,7 +836,7 @@ var draw = function (data, el, sortable, renderVariantLinks,_startPaths) {
     }
     el.find("ul").remove();
     el.append(toAppend);
-    if (sortable) {
+    if (sortable && !disabled) {
         toAppend.sortable({
             cursorAt: { top: 0, left: 0 },
             axis:"y",
