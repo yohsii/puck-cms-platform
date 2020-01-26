@@ -862,11 +862,12 @@ div.settings {
         right: 0px;
     }
 
-    .content_btns {
-        border: none;
-        background-color: #fff;
-        padding: 1px;
-    }
+.content_btns {
+    border: none;
+    background-color: #fff;
+    padding: 3px;
+    font-size: 15px;
+}
 
     .content_btns[disabled=disabled] {
         opacity: 0.1;
