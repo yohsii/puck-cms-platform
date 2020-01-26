@@ -675,7 +675,7 @@ var getDrawContent = function (id, el, sortable, f, renderVariantLinks, _startPa
                 if ((_startPaths[i]+"/").indexOf(startPaths[j]+"/")==0)
                     valid = true;
             }
-            if (valid)
+            if (valid || startPaths.length==0)
                 validStartPaths.push(_startPaths[i]);
         }
         if (validStartPaths.length > 0)
