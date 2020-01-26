@@ -1150,14 +1150,20 @@ var highlightSelectedNodeByIdPath = function (idPath) {
     var doGet = function () {
         var id = ids.splice(0, 1)[0];
         var node = cleft.find(".node[data-id='" + id + "']");
-        node.find("i.expand:first").removeClass("fa-chevron-right").addClass("fa-chevron-down");
-        getDrawContent(id, node, true, function () {
+        if (node.attr("data-id") != emptyGuid)
+            node.find("i.expand:first").removeClass("fa-chevron-right").addClass("fa-chevron-down");
+        var afterGet = function () {
             if (ids.length > 0) {
                 doGet();
             }
             else
                 highlightSelectedNodeById(lastId);
-        },true);    
+        }
+        if (node.find(".node").length == 0) {
+            getDrawContent(id, node, true, function () {
+                afterGet();
+            }, true);
+        } else afterGet();    
     }
     doGet();
 };
