@@ -210,7 +210,7 @@
                             });
                         }
                         afterDrawContent();
-                        loadTreePaths(_startPathsCopy, el.parents("ul:first"), afterDrawContent, false);
+                        loadTreePaths(_startPathsCopy, el.parents("ul:first"), afterDrawContent, false,false);
                     }, false, _startPathsCopy);
                     overlayEl.on("click", ".node span", function (e) {
                         var clicked = $(this);
