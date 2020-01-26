@@ -1,33 +1,51 @@
 ﻿@using Page = puckweb.ViewModels.Page;
 @model puckweb.ViewModels.Section
+
+<h5>NOTE: this template is only here to show different examples of querying, feel free to modify or delete</h5>
+
 @{
     /*NOTE: this template is only here to show different examples of querying, feel free to delete*/
     Layout = "/views/shared/_Layout.cshtml";
     ViewBag.Title = "Section";
-    var pages = Model.Children<Page>();
+    
+    <h1 class="font-weight-light">@Model.Title</h1>
+
+    var children = Model.Children<Page>();
     var descendants = Model.Descendants<Page>();
     
     var qh = new QueryHelper<BaseModel>();
     qh.And().Range(x => x.Updated, 20130712112820,20130712112833, true, true);
     //qh.And().Range(x => x.Updated, new DateTime(2013, 7, 12, 11, 28, 20), new DateTime(2013, 7, 12, 11, 28, 33), true, true);
     var results = qh.GetAll();
-    @("rangequery:"+results.Count);
-    <br />
+    <br/>
+    <h6 class="font-weight-light">@("range query 1")</h6>
+    <code>@qh.ToString()</code>
+    <br/>
+    <h6 class="font-weight-light">@($"{results.Count} result(s)")</h6>
+    
     var qh2 = new QueryHelper<BaseModel>();
     var res2= qh2.And().GreaterThanEqualTo(x=>x.SortOrder,0).Sort(x=>x.Updated,true).GetAll(500,1);
     //var res2 = qh2.And().Range(x=>x.SortOrder,1,3,true,true).GetAll();
     //var res2 = qh2.And().Field(x => x.SortOrder, 1).GetAll();
-    @("rangequery2:"+res2.Count +"|total:"+qh2.TotalHits)
-    @qh2.ToString()
+    <br/>
+    <h6 class="font-weight-light">@("range query 2")</h6>
+    <code>@qh2.ToString()</code>
+    <br/>
+    <h6 class="font-weight-light">@($"{qh2.TotalHits} result(s)")</h6>
     <br />
 }    
 
-@("children:"+pages.Count)
-@("descendants"+descendants.Count)
+<h6 class="font-weight-light">@($"children: {children.Count}")</h6>
+<h6 class="font-weight-light">@($"descendants: {descendants.Count}")</h6>
 
-<h2>Section - @Model.Title</h2>
-@foreach (var p in pages) { 
-    <h1>@p.Title</h1>
+<br/>
+
+@if (children.Any()) { 
+    <h3 class="font-weight-light">Children</h3>
+}
+
+@foreach (var p in children) { 
+    <h2 class="font-weight-light">@p.Title</h2>
     <time>@p.Updated</time>
     @if (!string.IsNullOrEmpty(p.Image?.Path))
     {
