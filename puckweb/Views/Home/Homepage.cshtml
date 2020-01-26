@@ -6,6 +6,9 @@
 @{
     Layout = "/views/shared/_Layout.cshtml";
     ViewBag.Title = "Homepage";
+
+    <h1 class="font-weight-normal">@Model.Title</h1>
+
     //one way of getting Section viewmodels
     var qh = new QueryHelper<Section>()
         .DescendantsOf(Model)
@@ -16,9 +19,10 @@
     var sections = qh.GetAll();
     //another way of getting Section viewmodels
     var sections2 = Model.Descendants<Section>();
-    @qh.ToString()
+    <h6 class="font-weight-light">Section Query:</h6>
+    <code>@qh.ToString()</code>
     <br />
-    @("section count: " + sections.Count)
+    <h6 class="font-weight-light">@($"section: {sections.Count} result(s)")</h6>
     <br />
     var searchQuery = "brexit";
     var search = new QueryHelper<Page>()
@@ -26,47 +30,54 @@
         .And().Field(x => x.MainContent, searchQuery)
         .CurrentLanguage();
     var sresults = search.GetAll();
-    @("search for '" + searchQuery + "' count: " + sresults.Count)
+    <h6 class="font-weight-light">@($"search for '{searchQuery}': {sresults.Count} result(s)")</h6>
     <br />
     var geoQuery = new QueryHelper<Page>()
         .WithinMiles(x => x.Location.LongLat, -0.1277582, 51.5073509, 10)
         .SortByDistanceFromPoint(x => x.Location.LongLat, -0.127782, 51.5073509, desc: false);
 
     var georesults = geoQuery.GetAll();
-    @("search for locations within 10miles of London(-0.1277582,51.5073509): " + georesults.Count)
+    <h6 class="font-weight-light">@($"search for locations within 10miles of London(-0.1277582,51.5073509): {georesults.Count} result(s)")</h6>
 
-}
+    var images = Model?.ImageGallery?.GetAll<ImageVM>() ?? new List<ImageVM>();
 
-<div>
-    @Html.Raw(geoQuery.ToString())
-</div>
+    if(images.Any()){
+        <br/>
+        <h3 class="font-weight-light">Image Gallery</h3>
+        <div>
+        @foreach (var imageModel in images)
+        {
+            //if crop alias not found, full size image will be returned
+            <img alt="@imageModel.Image.Description" src="@imageModel.Image.GetCropUrl("hero")" />
+        }
+        </div>
+    }
+    
+    if(sections.Any()){
+        <br/>
+        <h3 class="font-weight-light">Sections:</h3>
+    }    
 
-<h2>@Model.Title</h2>
-
-<h3>Image Gallery</h3>
-<div>
-    @foreach (var imageModel in Model?.ImageGallery?.GetAll<ImageVM>() ?? new List<ImageVM>())
+    foreach (var s in sections)
     {
-        //if crop alias not found, full size image will be returned
-        <img alt="@imageModel.Image.Description" src="@imageModel.Image.GetCropUrl("hero")" />
+        <h2 class="font-weight-normal">@s.Title</h2>
+        <div>
+            @Html.Raw(s.MainContent)
+        </div>
+        <div><a href="@s.Url()">more</a></div>
     }
 
-</div>
-@foreach (var s in sections)
-{
-    <h1>@s.Title</h1>
-    <div>
-        @Html.Raw(s.MainContent)
-    </div>
-    <div><a href="@s.Url()">more</a></div>
-}
+    if(sresults.Any()){
+        <br/>
+        <h3 class="font-weight-light">Search Results for "@searchQuery"</h3>
+        @foreach (var r in sresults)
+        {
+            <h2 class="font-weight-light">@r.Title</h2>
+            <div>
+                @Html.Raw(r.MainContent.Highlight(searchQuery))
+            </div>
+        }
+    }
 
-<h3>Search Results for "@searchQuery"</h3>
-@foreach (var r in sresults)
-{
-    <h1>@r.Title</h1>
-    <div>
-        @Html.Raw(r.MainContent.Highlight(searchQuery))
-    </div>
-}
 
+}
