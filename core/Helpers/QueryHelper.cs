@@ -753,6 +753,16 @@ namespace puck.core.Helpers
             string key = getName(exp.Body.ToString());
             return this.Field(key, value);
         }
+        public QueryHelper<TModel> Field<T>(Expression<Func<T, IEnumerable<Guid>>> exp, Guid value)
+        {
+            string key = getName(exp.Body.ToString());
+            return this.Field(key, value);
+        }
+        public QueryHelper<TModel> Field<T>(Expression<Func<T, IEnumerable<Guid>>> exp, string value)
+        {
+            string key = getName(exp.Body.ToString());
+            return this.Field(key, value);
+        }
         public QueryHelper<TModel> Field<T>(Expression<Func<T, IEnumerable<int>>> exp, int value)
         {
             string key = getName(exp.Body.ToString());
@@ -840,6 +850,16 @@ namespace puck.core.Helpers
             return this;
         }
         public QueryHelper<TModel> Field(Expression<Func<TModel, IEnumerable<string>>> exp, string value)
+        {
+            string key = getName(exp.Body.ToString());
+            return this.Field(key, value);
+        }
+        public QueryHelper<TModel> Field(Expression<Func<TModel, IEnumerable<Guid>>> exp, Guid value)
+        {
+            string key = getName(exp.Body.ToString());
+            return this.Field(key, value);
+        }
+        public QueryHelper<TModel> Field(Expression<Func<TModel, IEnumerable<Guid>>> exp, string value)
         {
             string key = getName(exp.Body.ToString());
             return this.Field(key, value);
