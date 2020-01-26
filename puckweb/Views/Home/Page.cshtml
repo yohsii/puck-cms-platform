@@ -1,28 +1,33 @@
-﻿@using Page=puckweb.ViewModels.Page;
+﻿@using Page = puckweb.ViewModels.Page;
 @model puckweb.ViewModels.Page
+
+<h5>NOTE: this template is only here to show different examples of querying, feel free to modify or delete</h5>
+
 @{
     /*NOTE: this template is only here to show different examples of querying, feel free to delete*/
     Layout = "/views/shared/_Layout.cshtml";
     ViewBag.Title = "Page";
 
+    <h1 class="font-weight-light">@Model.Title</h1>
+
     var variants = Model.Variants<Page>();
     var siblings = Model.Siblings<Page>();
     var parent = Model.Parent<Page>();
     var ancestors = Model.Ancestors<Page>();
-    
-    @("variants:"+variants.Count)
-    @("siblings:"+siblings.Count)
-    @("parent:"+parent.Count)
-    @("ancestors:"+ancestors.Count)
+    <br/>
+    <h6 class="font-weight-light">@($"variants: {variants.Count}")</h6>
+    <h6 class="font-weight-light">@($"siblings: {siblings.Count}")</h6>
+    <h6 class="font-weight-light">@($"parent: {parent.Count}")</h6>
+    <h6 class="font-weight-light">@($"ancestors: {ancestors.Count}")</h6>
 }
-
-<h2>@Model.Title</h2>
+<br/>
+<h3 class="font-weight-light">Main Content</h3>
 <div>
     @Html.Raw(Model.MainContent)
 </div>
 <div>
     @if (!string.IsNullOrEmpty(Model.Image?.Path))
     {
-    <img alt="@Model.Title" src="@Model.Image?.Path" />
+        <img alt="@Model.Title" src="@Model.Image?.Path" />
     }
 </div>
