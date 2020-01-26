@@ -26,14 +26,17 @@ namespace puck.core.Controllers
     public class BaseController : Controller
     {
 
-        public IActionResult Puck(string variant=null)
+        public IActionResult Puck(string path = null, string variant=null)
         {
             try
             {
                 StateHelper.SetFirstRequestUrl();
                 SyncIfNecessary();
+
                 var uri = Request.GetUri();
-                string path = uri.AbsolutePath.ToLower().TrimEnd('/');
+                
+                if(string.IsNullOrEmpty(path))
+                    path = uri.AbsolutePath.ToLower().TrimEnd('/');
 
                 var dmode = this.GetDisplayModeId();
                 
