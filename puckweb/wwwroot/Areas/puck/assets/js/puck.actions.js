@@ -993,6 +993,14 @@ var displayMarkup = function (parentId, type, variant, fromVariant,contentId,con
             setTimeout(function () {
                 $(document).trigger("puckEditFormLoaded", [container]);
             }, 100);
+
+            if (tabId) {
+                container.find("[href='#" + tabId + "']").click();
+            }
+            if (scroll) {
+                container.parents(".scrollContainer:first").scrollTop(scroll);
+            }
+
         }
         //get field groups and build tabs
         var tabPrefix = container.attr("data-tabPrefix");
@@ -1133,13 +1141,6 @@ var displayMarkup = function (parentId, type, variant, fromVariant,contentId,con
             var img = $("<img src='/areas/puck/assets/img/tree-loader.gif'/>").addClass("submitLoader");
             container.find(".content_edit_page form").append(img);
         });
-
-        if (tabId) {
-            container.find("[href='#" + tabId + "']").click();
-        }
-        if (scroll) {
-            container.parents(".scrollContainer:first").scrollTop(scroll);
-        }
 
     }, fromVariant, contentId);
 }
