@@ -662,7 +662,8 @@ $(document).on("click",".node-dropdown a,.template-dropdown a",function () {
                 overlayEl.find("button").click(function () {
                     var newType = overlayEl.find("select").val();
                     getChangeTypeMappingDialog(node.attr("data-id"), newType, function (mappingMarkup) {
-                        var overlayEl=overlay(mappingMarkup, 500, 250, undefined, "Change Type");
+                        overlayClose();
+                        var overlayEl = overlay(mappingMarkup, 500, 250, undefined, "Change Type");
                         wireForm(overlayEl.find("form"), function (d) {
                             msg(true, "type changed");
                             displayMarkup(null, node.attr("data-type"), variants[0], undefined, node.attr("data-id"));
