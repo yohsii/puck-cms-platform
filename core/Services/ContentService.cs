@@ -1207,13 +1207,13 @@ namespace puck.core.Services
         {
             int rowsAffected = 0;
 
-            var sql = $"update PuckRevision set [Path] = @newPath + substring([Path], len(@oldPath)+1,8000) where [Path] LIKE @likeStr";
+            var sql = $"update PuckRevision set [Path] = @newPath + substring([Path], len(@oldPath)+1,8000) where [Path] LIKE @likeStr and ([Current]=1 or [IsPublishedRevision]=1)";
             if (repo.Context.Database.IsSqlite())
-                sql = $"update PuckRevision set [Path] = @newPath || substr([Path], length(@oldPath)+1,8000) where [Path] LIKE @likeStr";
+                sql = $"update PuckRevision set [Path] = @newPath || substr([Path], length(@oldPath)+1,8000) where [Path] LIKE @likeStr and ([Current]=1 or [IsPublishedRevision]=1)";
             if (repo.Context.Database.IsNpgsql())
-                sql = $"update \"PuckRevision\" set \"Path\" = @newPath || substr(\"Path\", length(@oldPath)+1,8000) where \"Path\" LIKE @likeStr";
+                sql = $"update \"PuckRevision\" set \"Path\" = @newPath || substr(\"Path\", length(@oldPath)+1,8000) where \"Path\" LIKE @likeStr and (\"Current\" = true or \"IsPublishedRevision\" = true)";
             else if (repo.Context.Database.IsMySql())
-                sql = $"update `PuckRevision` set `Path` = @newPath || substr(`Path`, length(@oldPath)+1,8000) where `Path` LIKE @likeStr";
+                sql = $"update `PuckRevision` set `Path` = @newPath || substr(`Path`, length(@oldPath)+1,8000) where `Path` LIKE @likeStr and (`Current` = 1 or `IsPublishedRevision` = 1)";
 
             var parameters = new List<DbParameter>();
             parameters.Add(CreateParameter("@oldPath", oldPath));
@@ -1226,13 +1226,13 @@ namespace puck.core.Services
         public int UpdateDescendantIdPaths(string oldPath, string newPath)
         {
             int rowsAffected = 0;
-            var sql = $"update PuckRevision set [IdPath] = @newPath + substring([IdPath], len(@oldPath)+1,8000) where [IdPath] LIKE @likeStr";
+            var sql = $"update PuckRevision set [IdPath] = @newPath + substring([IdPath], len(@oldPath)+1,8000) where [IdPath] LIKE @likeStr and ([Current]=1 or [IsPublishedRevision]=1)";
             if (repo.Context.Database.IsSqlite())
-                sql = $"update PuckRevision set [IdPath] = @newPath || substr([IdPath], length(@oldPath)+1,8000) where [IdPath] LIKE @likeStr";
+                sql = $"update PuckRevision set [IdPath] = @newPath || substr([IdPath], length(@oldPath)+1,8000) where [IdPath] LIKE @likeStr and ([Current]=1 or [IsPublishedRevision]=1)";
             if (repo.Context.Database.IsNpgsql())
-                sql = $"update \"PuckRevision\" set \"IdPath\" = @newPath || substr(\"IdPath\", length(@oldPath)+1,8000) where \"IdPath\" LIKE @likeStr";
+                sql = $"update \"PuckRevision\" set \"IdPath\" = @newPath || substr(\"IdPath\", length(@oldPath)+1,8000) where \"IdPath\" LIKE @likeStr and (\"Current\"=true or \"IsPublishedRevision\"=true)";
             if (repo.Context.Database.IsMySql())
-                sql = $"update `PuckRevision` set `IdPath` = @newPath || substr(`IdPath`, length(@oldPath)+1,8000) where `IdPath` LIKE @likeStr";
+                sql = $"update `PuckRevision` set `IdPath` = @newPath || substr(`IdPath`, length(@oldPath)+1,8000) where `IdPath` LIKE @likeStr and (`Current`=1 or `IsPublishedRevision`=1)";
 
             var parameters = new List<DbParameter>();
             parameters.Add(CreateParameter("@oldPath", oldPath));
