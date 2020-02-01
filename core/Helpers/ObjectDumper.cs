@@ -390,9 +390,10 @@ namespace puck.core.Helpers
 
         private void WriteObject_(string prefix,string ukey, object element,PropertyInfo listProperty=null,object elementParent=null)
         {
+            var elementType = element?.GetType();
             if (element == null) { 
             
-            }else if (element is ValueType || element is string)
+            }else if ((element is ValueType || element is string) && !(elementType.IsGenericType && elementType.GetGenericTypeDefinition()==typeof(KeyValuePair<,>)))
             {
                 var fo = new FlattenedObject
                 {
