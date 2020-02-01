@@ -186,7 +186,7 @@ namespace puck.core.Helpers
             dumper.topElement = element as BaseModel;
             dumper.dict = new Dictionary<string, object>();
             dumper.allowedTransformers = allowedTransformers;
-            var attributes = element.GetType().GetCustomAttributes(false).ToList();
+            var attributes = element.GetType().GetCustomAttributes(true).ToList();
             element = await DoTransform(attributes,element.GetType(),element,"","",element,dumper.dict,dumper.allowedTransformers,allowMultiple:true);
             //transform the rest of the model
             await dumper.Transform("","", element);
@@ -322,7 +322,7 @@ namespace puck.core.Helpers
                             var _item = item;
                             if (PuckCache.TransformListElements && _item != null && !( _item is string) && !(_item is ValueType)) {
                                 //transform
-                                var attributes = _item.GetType().GetCustomAttributes(false).ToList();
+                                var attributes = _item.GetType().GetCustomAttributes(true).ToList();
                                 var newValue = await DoTransform(attributes,_item.GetType(), topElement, prefix.TrimEnd('.'), ukey.TrimEnd('.') + "[" + i + "]", _item, dict, allowedTransformers: allowedTransformers,allowMultiple:true);
                                 if (newValue != _item)
                                     _item = newValue;
@@ -367,8 +367,8 @@ namespace puck.core.Helpers
                                     if (value != null && !fieldsToIgnore.Contains(propertyName.TrimEnd('.')))
                                     {
                                         //transform
-                                        var attributes = p.GetCustomAttributes(false).ToList();
-                                        attributes.AddRange(p.PropertyType.GetCustomAttributes(false));
+                                        var attributes = p.GetCustomAttributes(true).ToList();
+                                        attributes.AddRange(p.PropertyType.GetCustomAttributes(true));
                                         var newValue = await DoTransform(attributes,t,topElement,propertyName,ukey+p.Name,value,dict,allowedTransformers:allowedTransformers,allowMultiple:true);
                                         if(newValue!=value && (newValue == null || newValue.GetType() == value.GetType()))
                                             p.SetValue(element, newValue, null);
@@ -402,7 +402,7 @@ namespace puck.core.Helpers
                     Key = prefix.TrimEnd('.'),
                     Value = element,
                     Type = element == null ? (element is string ? typeof(String) : null) : element.GetType(),
-                    ParentListAttributes = listProperty == null ? new object[] { } : listProperty.GetCustomAttributes(false)
+                    ParentListAttributes = listProperty == null ? new object[] { } : listProperty.GetCustomAttributes(true)
                 };
                 result.Add(fo);
             }
@@ -465,7 +465,7 @@ namespace puck.core.Helpers
                                         Key = prefix + p.Name,
                                         Value = value,
                                         Type = ApiHelper.GetType(p.PropertyType.AssemblyQualifiedName),
-                                        Attributes = p.GetCustomAttributes(false)
+                                        Attributes = p.GetCustomAttributes(true)
                                     });
                                 }
                             }
@@ -551,7 +551,7 @@ namespace puck.core.Helpers
                                     Key = prefix+m.Name
                                     ,Value = f != null ? f.GetValue(element) : p.GetValue(element, null)!=null?p.GetValue(element, null):null
                                     ,Type = f != null ? ApiHelper.GetType(f.FieldType.AssemblyQualifiedName) : ApiHelper.GetType(p.PropertyType.AssemblyQualifiedName)
-                                    ,Attributes = m.GetCustomAttributes(false)
+                                    ,Attributes = m.GetCustomAttributes(true)
                                 });                                
                             }
                             else

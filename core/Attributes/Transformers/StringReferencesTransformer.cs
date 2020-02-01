@@ -11,7 +11,7 @@ using puck.core.Models;
 
 namespace puck.core.Attributes.Transformers
 {
-    [AttributeUsage(AttributeTargets.Class|AttributeTargets.Property)]
+    [AttributeUsage(AttributeTargets.Class|AttributeTargets.Property,Inherited =true,AllowMultiple =true)]
     public class StringReferencesTransformer : Attribute, I_Property_Transformer<object, object>
     {
         private static Regex aHrefRegex = new Regex("<a\\s+(?:[^>]*?\\s+)?(?:href='(?<href>.*?)')|(?:href=\"(?<href>.*?)\")[^>]*>", RegexOptions.Compiled | RegexOptions.IgnoreCase);
