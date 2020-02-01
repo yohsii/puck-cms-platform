@@ -377,6 +377,136 @@ namespace puck.core.Services
 
             return rowsAffected;
         }
+
+        public int UpdateDescendantHasNoPublishedRevisionByPath(string path, bool value, List<string> descendantVariants)
+        {
+            int rowsAffected = 0;
+
+            var sql = $"update PuckRevision set [HasNoPublishedRevision] = @value where [Path] LIKE @likeStr and ([Current] = 1 or [IsPublishedRevision] = 1)";
+            if (descendantVariants.Any())
+            {
+                sql += " and (";
+                for (var i = 0; i < descendantVariants.Count; i++)
+                {
+                    var variant = descendantVariants[i];
+                    if (i > 0)
+                        sql += " or ";
+                    sql += $"[Variant] = @variant" + i;
+                }
+                sql += ") ";
+            }
+            if (repo.Context.Database.IsNpgsql())
+            {
+                sql = $"update \"PuckRevision\" set \"HasNoPublishedRevision\" = @value where \"Path\" LIKE @likeStr and (\"Current\" = true or \"IsPublishedRevision\" = true)";
+                if (descendantVariants.Any())
+                {
+                    sql += " and (";
+                    for (var i = 0; i < descendantVariants.Count; i++)
+                    {
+                        var variant = descendantVariants[i];
+                        if (i > 0)
+                            sql += " or ";
+                        sql += $"\"Variant\" = @variant" + i;
+                    }
+                    sql += ")";
+                }
+
+            }
+            else if (repo.Context.Database.IsMySql())
+            {
+                sql = $"update `PuckRevision` set `HasNoPublishedRevision` = @value where `Path` LIKE @likeStr and (`Current` = 1 or `IsPublishedRevision` = 1)";
+                if (descendantVariants.Any())
+                {
+                    sql += " and (";
+                    for (var i = 0; i < descendantVariants.Count; i++)
+                    {
+                        var variant = descendantVariants[i];
+                        if (i > 0)
+                            sql += " or ";
+                        sql += $"`Variant` = @variant" + i;
+                    }
+                    sql += ")";
+                }
+
+            }
+
+            List<DbParameter> parameters = new List<DbParameter>();
+            parameters.Add(CreateParameter("@value", value));
+            parameters.Add(CreateParameter("@likeStr", path + "%"));
+            for (var i = 0; i < descendantVariants.Count; i++)
+            {
+                parameters.Add(CreateParameter($"@variant{i}", descendantVariants[i]));
+            }
+            rowsAffected = repo.Context.Database.ExecuteSqlRaw(sql, parameters);
+
+            return rowsAffected;
+        }
+
+        public int UpdateDescendantIsPublishedRevisionByPath(string path, bool value, bool addWhereIsCurrentClause, List<string> descendantVariants)
+        {
+            int rowsAffected = 0;
+            var sql = $"update PuckRevision set [Published] = @value , [IsPublishedRevision] = @value where [Path] LIKE @likeStr and [IsPublishedRevision] != @value";
+            if (addWhereIsCurrentClause)
+                sql += " and [Current] = 1";
+            if (descendantVariants.Any())
+            {
+                sql += " and (";
+                for (var i = 0; i < descendantVariants.Count; i++)
+                {
+                    var variant = descendantVariants[i];
+                    if (i > 0)
+                        sql += " or ";
+                    sql += $"[Variant] = @variant" + i;
+                }
+                sql += ")";
+            }
+            if (repo.Context.Database.IsNpgsql())
+            {
+                sql = $"update \"PuckRevision\" set \"Published\" = @value , \"IsPublishedRevision\" = @value where \"Path\" LIKE @likeStr and \"IsPublishedRevision\" != @value";
+                if (addWhereIsCurrentClause)
+                    sql += " and \"Current\" = true";
+                if (descendantVariants.Any())
+                {
+                    sql += " and (";
+                    for (var i = 0; i < descendantVariants.Count; i++)
+                    {
+                        var variant = descendantVariants[i];
+                        if (i > 0)
+                            sql += " or ";
+                        sql += $"\"Variant\" = @variant" + i;
+                    }
+                    sql += ")";
+                }
+            }
+            else if (repo.Context.Database.IsMySql())
+            {
+                sql = $"update `PuckRevision` set `Published` = @value , `IsPublishedRevision` = @value where `Path` LIKE @likeStr and `IsPublishedRevision` != @value";
+                if (addWhereIsCurrentClause)
+                    sql += " and `Current` = 1";
+                if (descendantVariants.Any())
+                {
+                    sql += " and (";
+                    for (var i = 0; i < descendantVariants.Count; i++)
+                    {
+                        var variant = descendantVariants[i];
+                        if (i > 0)
+                            sql += " or ";
+                        sql += $"`Variant` = @variant" + i;
+                    }
+                    sql += ")";
+                }
+            }
+            var parameters = new List<DbParameter>();
+            parameters.Add(CreateParameter("@value", value));
+            parameters.Add(CreateParameter("@likeStr", path + "%"));
+            for (var i = 0; i < descendantVariants.Count; i++)
+            {
+                parameters.Add(CreateParameter("@variant" + i, descendantVariants[i]));
+            }
+            rowsAffected = repo.Context.Database.ExecuteSqlRaw(sql, parameters);
+            return rowsAffected;
+        }
+
         public int UpdateDescendantIsPublishedRevision(string path, bool value, bool addWhereIsCurrentClause, List<string> descendantVariants)
         {
             int rowsAffected = 0;
@@ -478,7 +608,7 @@ namespace puck.core.Services
                 if (descendantVariants.Any())
                 {
                     var descendantVariantsLowerCase = descendantVariants.Select(x => x.ToLower()).ToList();
-                    var descendantRevisions = repo.PublishedOrCurrentDescendants(publishedOrCurrentRevisions.FirstOrDefault().IdPath).Where(x => descendantVariantsLowerCase.Contains(x.Variant)).ToList();
+                    var descendantRevisions = repo.PublishedOrCurrentDescendantsByPath(publishedOrCurrentRevisions.FirstOrDefault().Path).Where(x => descendantVariantsLowerCase.Contains(x.Variant)).ToList();
                     var descendantModels = descendantRevisions.Select(x => x.ToBaseModel()).ToList();
                     toIndex.AddRange(descendantModels);
                     if (descendantModels.Any())
@@ -540,7 +670,7 @@ namespace puck.core.Services
                 {
                     var mod = currentRevision.ToBaseModel();
                     mod.Published = true;
-                    var saveResult = await SaveContent(mod, shouldIndex: false, makeRevision: false, userName: userName);
+                    var saveResult = await SaveContent(mod, shouldIndex: false, makeRevision: true, userName: userName);
                     toIndex.AddRange(saveResult.ItemsToIndex);
                 }
 
@@ -548,14 +678,18 @@ namespace puck.core.Services
                 string notes = "";
                 if (descendantVariants.Any())
                 {
-                    //set descendants to have HasNoPublishedRevision set to false
-                    affected = UpdateDescendantHasNoPublishedRevision(currentRevisions.FirstOrDefault().IdPath + ",", false, descendantVariants);
-                    //set descendants to have IsPublishedRevision set to false
-                    affected = UpdateDescendantIsPublishedRevision(currentRevisions.FirstOrDefault().IdPath + ",", false, false, descendantVariants);
-                    //set current descendants to have IsPublishedRevision set to true, since we're publishing Current descendants
-                    affected = UpdateDescendantIsPublishedRevision(currentRevisions.FirstOrDefault().IdPath + ",", true, true, descendantVariants);
+                    using (var transaction = repo.Context.Database.BeginTransaction())
+                    {
+                        //set descendants to have HasNoPublishedRevision set to false
+                        affected = UpdateDescendantHasNoPublishedRevisionByPath(currentRevisions.FirstOrDefault().Path + "/", false, descendantVariants);
+                        //set descendants to have IsPublishedRevision set to false
+                        affected = UpdateDescendantIsPublishedRevisionByPath(currentRevisions.FirstOrDefault().Path + "/", false, false, descendantVariants);
+                        //set current descendants to have IsPublishedRevision set to true, since we're publishing Current descendants
+                        affected = UpdateDescendantIsPublishedRevisionByPath(currentRevisions.FirstOrDefault().Path + "/", true, true, descendantVariants);
+                        transaction.Commit();
+                    }
                     var descendantVariantsLowerCase = descendantVariants.Select(x => x.ToLower()).ToList();
-                    var descendantRevisions = repo.CurrentRevisionDescendants(currentRevisions.FirstOrDefault().IdPath).Where(x => descendantVariantsLowerCase.Contains(x.Variant)).ToList();
+                    var descendantRevisions = repo.CurrentRevisionDescendantsByPath(currentRevisions.FirstOrDefault().Path).Where(x => descendantVariantsLowerCase.Contains(x.Variant)).ToList();
                     var descendantModels = descendantRevisions.Select(x => x.ToBaseModel()).ToList();
                     toIndex.AddRange(descendantModels);
                     if (descendantModels.Any())
@@ -688,8 +822,8 @@ namespace puck.core.Services
                     currentRevision.IsPublishedRevision = false;
                     currentRevision.HasNoPublishedRevision = true;
                     currentRevision.Published = false;
-                    
-                    int _affected = UpdateHasNoPublishedRevisionAndIsPublishedRevision(currentRevision.Id, currentRevision.Variant, true, false);
+
+                    int _affected = 0;/// UpdateHasNoPublishedRevisionAndIsPublishedRevision(currentRevision.Id, currentRevision.Variant, true, false);
 
                     if (!currentRevision.IsPublishedRevision && publishedRevision != null && !currentRevision.Path.ToLower().Equals(publishedRevision.Path.ToLower()))
                     {
@@ -726,12 +860,16 @@ namespace puck.core.Services
                 var notes = "";
                 if (descendantVariants.Any())
                 {
-                    //set descendants to have HasNoPublishedRevision set to true
-                    affected = UpdateDescendantHasNoPublishedRevision(currentRevisions.FirstOrDefault().IdPath + ",", true, descendantVariants);
-                    //set descendants to have IsPublishedRevision set to false
-                    affected = UpdateDescendantIsPublishedRevision(currentRevisions.FirstOrDefault().IdPath + ",", false, false, descendantVariants);
+                    using (var transaction = repo.Context.Database.BeginTransaction())
+                    {
+                        //set descendants to have HasNoPublishedRevision set to true
+                        affected = UpdateDescendantHasNoPublishedRevisionByPath(currentRevisions.FirstOrDefault().Path + "/", true, descendantVariants);
+                        //set descendants to have IsPublishedRevision set to false
+                        affected = UpdateDescendantIsPublishedRevisionByPath(currentRevisions.FirstOrDefault().Path + "/", false, false, descendantVariants);
+                        transaction.Commit();
+                    }
                     var descendantVariantsLowerCase = descendantVariants.Select(x => x.ToLower()).ToList();
-                    var descendantRevisions = repo.CurrentRevisionDescendants(currentRevisions.FirstOrDefault().IdPath).Where(x => descendantVariantsLowerCase.Contains(x.Variant)).ToList();
+                    var descendantRevisions = repo.CurrentRevisionDescendantsByPath(currentRevisions.FirstOrDefault().Path).Where(x => descendantVariantsLowerCase.Contains(x.Variant)).ToList();
                     var descendantModels = descendantRevisions.Select(x => x.ToBaseModel()).ToList();
                     toIndex.AddRange(descendantModels);
                     if (descendantModels.Any())
@@ -865,7 +1003,7 @@ namespace puck.core.Services
                         if (repoVariants.Count == 0 || string.IsNullOrEmpty(variant))
                         {
                             addRepoDescendants = true;
-                            descendants = repo.CurrentRevisionDescendants(repoItems.First().IdPath).ToList();
+                            descendants = repo.CurrentRevisionDescendantsByPath(repoItems.First().Path).ToList();
                             repoItems.AddRange(descendants);
                             if (descendants.Any())
                                 notes += $", {descendants.Count} descendant items also deleted";
@@ -1267,7 +1405,12 @@ namespace puck.core.Services
 
                 //check this is an update or create
                 var original = repo.CurrentRevision(mod.Id, mod.Variant);
-                var publishedRevision = repo.PublishedRevision(mod.Id, mod.Variant);
+                PuckRevision publishedRevision;
+                if (original != null && original.IsPublishedRevision)
+                    publishedRevision = original;
+                else
+                    publishedRevision = repo.PublishedRevision(mod.Id, mod.Variant);
+
                 //could be published revision, or even a published variant
                 var publishedRevisionOrVariant = repo.PublishedRevisions(mod.Id).OrderByDescending(x => x.Updated).FirstOrDefault();
                 //var toIndex = new List<BaseModel>();
@@ -1437,7 +1580,7 @@ namespace puck.core.Services
                                 affected = UpdateDescendantPaths(currentRevisionPath + "/", mod.Path + "/");
                                 UpdatePathRelatedMeta(currentRevisionPath, mod.Path, save: false);
                             }
-                            var descendants = repo.PublishedOrCurrentDescendants(idPath).ToList().Select(x => x.ToBaseModel()).ToList();
+                            var descendants = repo.PublishedOrCurrentDescendantsByPath(mod.Path).ToList().Select(x => x.ToBaseModel()).ToList();
                             var variantsToIndex = new List<BaseModel>();
                             variantsToIndex.AddRange(currentVariantsDb.Select(x => x.ToBaseModel()).ToList());
                             variantsToIndex.AddRange(publishedVariantsDb.Select(x => x.ToBaseModel()).ToList());
@@ -1541,8 +1684,12 @@ namespace puck.core.Services
                             {
                                 revision.IsPublishedRevision = false;
                                 revision.HasNoPublishedRevision = true;
+                                if (original != null) {
+                                    original.IsPublishedRevision = false;
+                                    original.HasNoPublishedRevision = true;
+                                }
                                 //revisions.ForEach(x => x.HasNoPublishedRevision = true);
-                                int _affected = UpdateHasNoPublishedRevisionAndIsPublishedRevision(mod.Id, mod.Variant, true, null);
+                                //int _affected = UpdateHasNoPublishedRevisionAndIsPublishedRevision(mod.Id, mod.Variant, true, null);
                                 isUnpublished = true;
                                 //indexer.Delete(mod);
                                 //var deleteQuery = new QueryHelper<BaseModel>(prependTypeTerm: false);
@@ -1560,8 +1707,31 @@ namespace puck.core.Services
                             //if this revision or any previous revisions have a published revision, HasNoPublishedRevision must be false
                             revision.HasNoPublishedRevision = false;
                             //revisions.ForEach(x => x.HasNoPublishedRevision = false);
-                            int? isPublishedIgnoreRevisionId = makeRevision ? (int?)null : revision.RevisionId;
-                            int _affected = UpdateHasNoPublishedRevisionAndIsPublishedRevision(mod.Id, mod.Variant, false, false, isPublishedRevisionIgnoreRevisionId: isPublishedIgnoreRevisionId);
+                            if (makeRevision)
+                            {
+                                if (original != null)
+                                {
+                                    original.IsPublishedRevision = false;
+                                    original.HasNoPublishedRevision = false;
+                                }
+                                if (publishedRevision != null)
+                                {
+                                    publishedRevision.IsPublishedRevision = false;
+                                    publishedRevision.HasNoPublishedRevision = false;
+                                }
+                            }
+                            else {
+                                if (publishedRevision != null) {
+                                    publishedRevision.IsPublishedRevision = false;
+                                    publishedRevision.HasNoPublishedRevision = false;
+                                }
+                                if (original != null) {
+                                    original.IsPublishedRevision = true;
+                                    original.HasNoPublishedRevision = false;
+                                }
+                            }
+                            //int? isPublishedIgnoreRevisionId = makeRevision ? (int?)null : revision.RevisionId;
+                            //int _affected = UpdateHasNoPublishedRevisionAndIsPublishedRevision(mod.Id, mod.Variant, false, false, isPublishedRevisionIgnoreRevisionId: isPublishedIgnoreRevisionId);
                         }
                         else if (publishedRevision == null)
                         {
@@ -2015,7 +2185,7 @@ namespace puck.core.Services
                 var descendants = new List<PuckRevision>();
                 if (includeDescendants)
                 {
-                    descendants = repo.CurrentRevisionDescendants(revisionsToCopy.First().IdPath).ToList();
+                    descendants = repo.CurrentRevisionDescendantsByPath(revisionsToCopy.First().Path).ToList();
                     if (descendants.Any())
                         notes = $"{descendants.Count} descendant items also copied";
                 }
@@ -2106,7 +2276,7 @@ namespace puck.core.Services
             var descendants = new List<PuckRevision>();
             if (includeDescendants)
             {
-                descendants = repo.CurrentRevisionDescendants(revisionsToCopy.First().IdPath).ToList();
+                descendants = repo.CurrentRevisionDescendantsByPath(revisionsToCopy.First().Path).ToList();
                 if (descendants.Any())
                     notes = $"{descendants.Count} descendant items also copied";
             }

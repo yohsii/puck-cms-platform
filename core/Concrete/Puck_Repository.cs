@@ -244,6 +244,28 @@ namespace puck.core.Concrete
             return results;
         }
         */
+        public IQueryable<PuckRevision> CurrentRevisionDescendantsByPath(string path)
+        {
+            path = path += "/";
+            var results = repo.PuckRevision
+                .Where(x => x.Path.StartsWith(path.ToLower()) && x.Current);
+            return results;
+        }
+        public IQueryable<PuckRevision> PublishedDescendantsByPath(string path)
+        {
+            path = path += "/";
+            var results = repo.PuckRevision
+                .Where(x => x.Path.StartsWith(path.ToLower()) && x.IsPublishedRevision);
+            return results;
+        }
+        public IQueryable<PuckRevision> PublishedOrCurrentDescendantsByPath(string path)
+        {
+            path = path += "/";
+            var results = repo.PuckRevision
+                .Where(x => x.Path.StartsWith(path.ToLower()) && ((x.Current && x.HasNoPublishedRevision) || x.IsPublishedRevision));
+            return results;
+        }
+
         public IQueryable<PuckRevision> CurrentRevisionDescendants(string idPath)
         {
             idPath = idPath += ",";
