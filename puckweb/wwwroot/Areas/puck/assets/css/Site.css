@@ -435,7 +435,6 @@ ul.contentTree .node.selected>.inner>span.nodename{
     display: block;
     margin-top: 5px;
 }
-}
 
 div.settings {
     padding-top: 0px;
@@ -1004,15 +1003,15 @@ div.settings {
     cursor: pointer;
 }
 
-}
-    .node.unpublished > .inner {
-        background: #ffeeee;
-    }
 
-    .listeditor .expand {
-        margin: 0px 0px 0px 10px;
-        padding: 3px;
-    }
+.node.unpublished > .inner {
+    background: #ffeeee;
+}
+
+.listeditor .expand {
+    margin: 0px 0px 0px 10px;
+    padding: 3px;
+}
 
     .puckpicker {
         padding: 20px;
