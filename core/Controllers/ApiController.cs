@@ -1836,6 +1836,7 @@ namespace puck.core.Controllers
                     rnode.SortOrder = current.FirstOrDefault().SortOrder;
                     rnode.ParentId = current.FirstOrDefault().ParentId;
                     rnode.HasChildren = current.FirstOrDefault().HasChildren;
+                    rnode.HasNoPublishedRevision = current.FirstOrDefault().HasNoPublishedRevision;
                     //rnode.Type = current.FirstOrDefault().Type;
                     //rnode.TypeChain = current.FirstOrDefault().TypeChain;
                 }
