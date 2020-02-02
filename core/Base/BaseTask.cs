@@ -21,6 +21,8 @@ namespace puck.core.Base
             this.IntervalSeconds = 60;
         }
 
+        protected IServiceProvider ServiceProvider { get { return PuckCache.ServiceProvider; } }
+
         [HiddenInput(DisplayValue=false)]
         public int Id { get; set; }
         public string Name { get; set; }
