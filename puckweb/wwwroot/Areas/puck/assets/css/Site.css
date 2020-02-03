@@ -644,22 +644,22 @@ div.settings {
     clear: both;
 }
 
-    .content .translations {
-        height: 20px;
-    }
+.content .translations {
+    height: 20px;
+}
 
-        .content .translations li {
-            float: left;
-            margin-left: 8px;
-        }
+.content .translations li {
+    float: left;
+    margin-left: 8px;
+}
 
-            .content .translations li.unpublished, .content .translations li.unpublished a {
-                background-color: #ffeeee;
-            }
+.content .translations li.unpublished, .content .translations li.unpublished a {
+    background-color: #ffeeee;
+}
 
-    .content .content_edit_page .puckpicker {
-        padding: 0px;
-    }
+.content .content_edit_page .puckpicker {
+    padding: 0px;
+}
 .sync_dialog span.cancel {
     padding-top: 5px;
     display: inline-block;
