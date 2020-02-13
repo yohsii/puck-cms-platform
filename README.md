@@ -34,5 +34,5 @@ it's fast, with queries avoiding the database and instead using Lucene. it's als
 - [task api](https://github.com/yohsii/puck-core/wiki/Background-tasks) - supports one-off and recurring background custom tasks with editable parameters
 - scheduled publish
 - [sync](https://github.com/yohsii/puck-core/wiki/Syncing-content-between-different-databases) content between databases (e.g. staging to production)
-- [References](https://github.com/yohsii/puck-core/wiki/Keeping-references-between-pages-to-track-dependencies-of-content) between related content are kept, so you have an idea about which pages or images are dependant on others
+- [references](https://github.com/yohsii/puck-core/wiki/Keeping-references-between-pages-to-track-dependencies-of-content) between related content are kept, so you have an idea about which pages or images are dependant on others
 - supports sql server, sqlite, mysql, postgresql
