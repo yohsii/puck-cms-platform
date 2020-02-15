@@ -23,7 +23,7 @@ it's fast, with queries avoiding the database and instead using Lucene. it's als
 - [full text search](https://github.com/yohsii/puck-core/wiki/Querying-for-content) - data storage is lucene based and you can set analyzers and field settings (analyze,store,ignore,keep casing) per property in your model
 - [spatial search](https://github.com/yohsii/puck-core/wiki/Querying-for-content#geo-queries)
 - [image cropping](https://www.youtube.com/watch?v=jlPDws8L_FE&t=1s)
-- user permissions to grant/deny permissions to particular actions and limit access to content based on a start path
+- user permissions to grant/deny permissions to particular actions and limit access to content based on start paths
 - hooks - you can [transform](https://github.com/yohsii/puck-core/wiki/Handling-Images-and-Files-with-property-Transformers) data before it is indexed using attributes to modify how a field is indexed and how it is stored
 - supports [conditional template switching](https://github.com/yohsii/puck-core/wiki/Display-Modes) (display modes were removed from asp.net core but this works in the same way)
 - redirects - you can manage both 301/302 redirect mappings
@@ -34,4 +34,5 @@ it's fast, with queries avoiding the database and instead using Lucene. it's als
 - [task api](https://github.com/yohsii/puck-core/wiki/Background-tasks) - supports one-off and recurring background custom tasks with editable parameters
 - scheduled publish
 - [sync](https://github.com/yohsii/puck-core/wiki/Syncing-content-between-different-databases) content between databases (e.g. staging to production)
+- [references](https://github.com/yohsii/puck-core/wiki/Keeping-references-between-pages-to-track-dependencies-of-content) between related content are kept, so you have an idea about which pages or images are dependant on others
 - supports sql server, sqlite, mysql, postgresql
