@@ -43,7 +43,7 @@ namespace puck.core.PuckLucene
                     double longitude;
                     double latitude;
                     int distance;
-                    if (parameters.Length == 5 && double.TryParse(parameters[1],out longitude) && double.TryParse(parameters[2],out latitude) && int.TryParse(parameters[3],out distance)) {
+                    if (parameters.Length == 5 && double.TryParse(parameters[1].Trim(),out longitude) && double.TryParse(parameters[2].Trim(),out latitude) && int.TryParse(parameters[3].Trim(),out distance)) {
                         var qh = new QueryHelper<T>();
                         double radius;
                         
@@ -53,15 +53,15 @@ namespace puck.core.PuckLucene
                             radius = DistanceUtils.EARTH_MEAN_RADIUS_MI;
 
                         var distDEG = DistanceUtils.Dist2Degrees(distance,radius);
-                        qh.GeoFilter(parameters[0],longitude,latitude,distance);
+                        qh.GeoFilter(parameters[0].Trim(),longitude,latitude,distance);
                         this.filter = qh.GetFilter();
                         if (parameters[4] == "asc")
                         {
-                            qh.SortByDistanceFromPoint(parameters[0], longitude, latitude, desc: false);
+                            qh.SortByDistanceFromPoint(parameters[0].Trim(), longitude, latitude, desc: false);
                             sort = qh.GetSort();
                         }
                         else if(parameters[4]=="desc"){
-                            qh.SortByDistanceFromPoint(parameters[0], longitude, latitude, desc: true);
+                            qh.SortByDistanceFromPoint(parameters[0].Trim(), longitude, latitude, desc: true);
                             sort = qh.GetSort();
                         }
                     }
