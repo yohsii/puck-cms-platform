@@ -88,7 +88,7 @@ namespace puck.core.State
         public static Dictionary<string, int> TypeOutputCache { get; set; }
         public static Dictionary<string, string> TypeOutputCacheVaryByQueryString { get; set; } = new Dictionary<string, string>();
         public static Dictionary<string, Type> IGeneratedToModel { get; set; }
-        public static Dictionary<string, Dictionary<string, string>> TypeFields { get; set; }
+        public static Dictionary<string, Dictionary<string, Type>> TypeFields { get; set; }
         public static Dictionary<string,List<Type>> ModelDerivedModels { get; set; }
         //map model type fullname to asssembly qualified name
         public static Dictionary<string, string> ModelNameToAQN { get; set; }
@@ -108,6 +108,6 @@ namespace puck.core.State
         public static I_Log PuckLog { get { return ServiceProvider.GetService<I_Log>(); } }
         public static List<Analyzer> Analyzers { get; set; }
         public static Dictionary<Type, Analyzer> AnalyzerForModel { get; set; }
-
+        public static Dictionary<Type, Dictionary<string, Analyzer>> AnalyzerDictionaryForModel { get; set; } = new Dictionary<Type, Dictionary<string, Analyzer>>();
     }
 }

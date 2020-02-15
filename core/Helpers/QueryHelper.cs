@@ -26,6 +26,7 @@ using Lucene.Net.Spatial.Prefix.Tree;
 using Lucene.Net.Spatial.Prefix;
 using Microsoft.AspNetCore.Localization;
 using puck.core.Controllers;
+using Lucene.Net.Analysis;
 
 namespace puck.core.Helpers
 {
@@ -282,6 +283,8 @@ namespace puck.core.Helpers
         int totalHits = 0;
         Sort sort = null;
         List<SortField> sorts = null;
+        Dictionary<string, Type> FieldTypeMappings { get; set; } = null;
+        Dictionary<string, Analyzer> FieldAnalyzerMappings { get; set; } = null;
         public int TotalHits { get { return totalHits; } }
         static string namePattern = @"(?:[A-Za-z0-9]*\()?[A-Za-z0-9]\.([A-Za-z0-9.]*)";
         static string nameArrayPattern = @"\.get_Item\(\d\)";
@@ -422,6 +425,17 @@ namespace puck.core.Helpers
                 //this.And().Field(x => x.TypeChain, typeof(TModel).Name.Wrap()).And().Field(x => x.Published, "true");
             }
         }
+        protected void SetFieldTypeMapping(string field,Type t) {
+            if (FieldTypeMappings == null)
+                FieldTypeMappings = new Dictionary<string, Type>();
+            FieldTypeMappings[field] = t;
+        }
+        protected void SetFieldAnalyzerMapping(string field, Analyzer a)
+        {
+            if (FieldAnalyzerMappings == null)
+                FieldAnalyzerMappings = new Dictionary<string, Analyzer>();
+            FieldAnalyzerMappings[field] = a;
+        }
         public void SetQuery(string query) {
             this.query = query;
         }
@@ -467,20 +481,20 @@ namespace puck.core.Helpers
             string key = getName(exp.Body.ToString());
             if (sortFieldType==null){
                 sortFieldType = SortFieldType.STRING;
-                string fieldTypeName = PuckCache.TypeFields[typeof(TModel).AssemblyQualifiedName][key];
-                if (fieldTypeName.Equals(typeof(int).AssemblyQualifiedName))
+                Type fieldType = PuckCache.TypeFields[typeof(TModel).AssemblyQualifiedName][key];
+                if (fieldType.Equals(typeof(int)))
                 {
                     sortFieldType = SortFieldType.INT32;
                 }
-                else if (fieldTypeName.Equals(typeof(long).AssemblyQualifiedName))
+                else if (fieldType.Equals(typeof(long)))
                 {
                     sortFieldType = SortFieldType.INT64;
                 }
-                else if (fieldTypeName.Equals(typeof(float).AssemblyQualifiedName))
+                else if (fieldType.Equals(typeof(float)))
                 {
                     sortFieldType = SortFieldType.SINGLE;
                 }
-                else if (fieldTypeName.Equals(typeof(double).AssemblyQualifiedName))
+                else if (fieldType.Equals(typeof(double)))
                 {
                     sortFieldType = SortFieldType.DOUBLE;
                 }
@@ -773,6 +787,7 @@ namespace puck.core.Helpers
         public QueryHelper<TModel> Range<T>(Expression<Func<T, int>> exp, int start, int end, bool inclusiveStart, bool inclusiveEnd)
         {
             string key = getName(exp.Body.ToString());
+            SetFieldTypeMapping(key,typeof(int));
             string openTag = inclusiveStart ? "[" : "{";
             string closeTag = inclusiveEnd ? "]" : "}";
             query += string.Concat(key, ":", openTag, start, " TO ", end, closeTag, " ");
@@ -789,6 +804,7 @@ namespace puck.core.Helpers
         public QueryHelper<TModel> Range<T>(Expression<Func<T, long>> exp, long start, long end, bool inclusiveStart, bool inclusiveEnd)
         {
             string key = getName(exp.Body.ToString());
+            SetFieldTypeMapping(key, typeof(long));
             string openTag = inclusiveStart ? "[" : "{";
             string closeTag = inclusiveEnd ? "]" : "}";
             query += string.Concat(key, ":", openTag, start, " TO ", end, closeTag, " ");
@@ -805,6 +821,7 @@ namespace puck.core.Helpers
         public QueryHelper<TModel> Range<T>(Expression<Func<T, float>> exp, float start, float end, bool inclusiveStart, bool inclusiveEnd)
         {
             string key = getName(exp.Body.ToString());
+            SetFieldTypeMapping(key, typeof(float));
             string openTag = inclusiveStart ? "[" : "{";
             string closeTag = inclusiveEnd ? "]" : "}";
             query += string.Concat(key, ":", openTag, start, " TO ", end, closeTag, " ");
@@ -822,6 +839,7 @@ namespace puck.core.Helpers
         public QueryHelper<TModel> Range<T>(Expression<Func<T, double>> exp, double start, double end, bool inclusiveStart, bool inclusiveEnd)
         {
             string key = getName(exp.Body.ToString());
+            SetFieldTypeMapping(key, typeof(double));
             string openTag = inclusiveStart ? "[" : "{";
             string closeTag = inclusiveEnd ? "]" : "}";
             query += string.Concat(key, ":", openTag, start, " TO ", end, closeTag, " ");
@@ -889,6 +907,7 @@ namespace puck.core.Helpers
         public QueryHelper<TModel> Range<T>(Expression<Func<T, IEnumerable<int>>> exp, int start, int end, bool inclusiveStart, bool inclusiveEnd)
         {
             string key = getName(exp.Body.ToString());
+            SetFieldTypeMapping(key, typeof(int));
             string openTag = inclusiveStart ? "[" : "{";
             string closeTag = inclusiveEnd ? "]" : "}";
             query += string.Concat(key, ":", openTag, start, " TO ", end, closeTag, " ");
@@ -905,6 +924,7 @@ namespace puck.core.Helpers
         public QueryHelper<TModel> Range<T>(Expression<Func<T, IEnumerable<long>>> exp, long start, long end, bool inclusiveStart, bool inclusiveEnd)
         {
             string key = getName(exp.Body.ToString());
+            SetFieldTypeMapping(key, typeof(long));
             string openTag = inclusiveStart ? "[" : "{";
             string closeTag = inclusiveEnd ? "]" : "}";
             query += string.Concat(key, ":", openTag, start, " TO ", end, closeTag, " ");
@@ -921,6 +941,7 @@ namespace puck.core.Helpers
         public QueryHelper<TModel> Range<T>(Expression<Func<T, IEnumerable<float>>> exp, float start, float end, bool inclusiveStart, bool inclusiveEnd)
         {
             string key = getName(exp.Body.ToString());
+            SetFieldTypeMapping(key, typeof(float));
             string openTag = inclusiveStart ? "[" : "{";
             string closeTag = inclusiveEnd ? "]" : "}";
             query += string.Concat(key, ":", openTag, start, " TO ", end, closeTag, " ");
@@ -938,6 +959,7 @@ namespace puck.core.Helpers
         public QueryHelper<TModel> Range<T>(Expression<Func<T, IEnumerable<double>>> exp, double start, double end, bool inclusiveStart, bool inclusiveEnd)
         {
             string key = getName(exp.Body.ToString());
+            SetFieldTypeMapping(key, typeof(double));
             string openTag = inclusiveStart ? "[" : "{";
             string closeTag = inclusiveEnd ? "]" : "}";
             query += string.Concat(key, ":", openTag, start, " TO ", end, closeTag, " ");
@@ -1391,19 +1413,31 @@ namespace puck.core.Helpers
             query += string.Concat(key, ":", value.ToString(), " ");
             return this;
         }
-        public QueryHelper<TModel> Field<T>(Expression<Func<T, IEnumerable<string>>> exp, string value)
+        public QueryHelper<TModel> Field<T>(Expression<Func<T, IEnumerable<string>>> exp, string value,Analyzer analyzer=null)
         {
             string key = getName(exp.Body.ToString());
+            if (analyzer != null)
+            {
+                SetFieldAnalyzerMapping(key, analyzer);
+            }
             return this.Field(key, value);
         }
-        public QueryHelper<TModel> Field<T>(Expression<Func<T, IEnumerable<Guid>>> exp, Guid value)
+        public QueryHelper<TModel> Field<T>(Expression<Func<T, IEnumerable<Guid>>> exp, Guid value,Analyzer analyzer=null)
         {
             string key = getName(exp.Body.ToString());
+            if (analyzer != null)
+            {
+                SetFieldAnalyzerMapping(key, analyzer);
+            }
             return this.Field(key, value);
         }
-        public QueryHelper<TModel> Field<T>(Expression<Func<T, IEnumerable<Guid>>> exp, string value)
+        public QueryHelper<TModel> Field<T>(Expression<Func<T, IEnumerable<Guid>>> exp, string value,Analyzer analyzer=null)
         {
             string key = getName(exp.Body.ToString());
+            if (analyzer != null)
+            {
+                SetFieldAnalyzerMapping(key, analyzer);
+            }
             return this.Field(key, value);
         }
         public QueryHelper<TModel> Field<T>(Expression<Func<T, IEnumerable<DateTime>>> exp, DateTime value)
@@ -1415,37 +1449,52 @@ namespace puck.core.Helpers
         public QueryHelper<TModel> Field<T>(Expression<Func<T, IEnumerable<int>>> exp, int value)
         {
             string key = getName(exp.Body.ToString());
+            SetFieldTypeMapping(key, typeof(int));
             return this.Field(key, value);
         }
         public QueryHelper<TModel> Field<T>(Expression<Func<T, IEnumerable<long>>> exp, long value)
         {
             string key = getName(exp.Body.ToString());
+            SetFieldTypeMapping(key, typeof(long));
             return this.Field(key, value);
         }
         public QueryHelper<TModel> Field<T>(Expression<Func<T, IEnumerable<float>>> exp, float value)
         {
             string key = getName(exp.Body.ToString());
+            SetFieldTypeMapping(key, typeof(float));
             return this.Field(key, value);
         }
         public QueryHelper<TModel> Field<T>(Expression<Func<T, IEnumerable<double>>> exp, double value)
         {
             string key = getName(exp.Body.ToString());
+            SetFieldTypeMapping(key, typeof(double));
             return this.Field(key, value);
         }
-        public QueryHelper<TModel> Field<T>(Expression<Func<T, string>> exp, string value)
+        public QueryHelper<TModel> Field<T>(Expression<Func<T, string>> exp, string value, Analyzer analyzer = null)
         {
             string key = getName(exp.Body.ToString());
+            if (analyzer != null) {
+                SetFieldAnalyzerMapping(key, analyzer);
+            }
             query += string.Concat(key, ":", value, " ");
             return this;
         }
-        public QueryHelper<TModel> Field<T>(Expression<Func<T, Guid>> exp, Guid value)
+        public QueryHelper<TModel> Field<T>(Expression<Func<T, Guid>> exp, Guid value,Analyzer analyzer=null)
         {
             string key = getName(exp.Body.ToString());
+            if (analyzer != null)
+            {
+                SetFieldAnalyzerMapping(key, analyzer);
+            }
             return this.Field(key, value);
         }
-        public QueryHelper<TModel> Field<T>(Expression<Func<T, Guid>> exp, string value)
+        public QueryHelper<TModel> Field<T>(Expression<Func<T, Guid>> exp, string value,Analyzer analyzer=null)
         {
             string key = getName(exp.Body.ToString());
+            if (analyzer != null)
+            {
+                SetFieldAnalyzerMapping(key, analyzer);
+            }
             return this.Field(key, value);
         }
         public QueryHelper<TModel> Field<T>(Expression<Func<T, DateTime>> exp, DateTime value)
@@ -1457,24 +1506,28 @@ namespace puck.core.Helpers
         public QueryHelper<TModel> Field<T>(Expression<Func<T, int>> exp, int value)
         {
             string key = getName(exp.Body.ToString());
+            SetFieldTypeMapping(key, typeof(int));
             return this.Field(key, value);
         }
 
         public QueryHelper<TModel> Field<T>(Expression<Func<T, double>> exp, double value)
         {
             string key = getName(exp.Body.ToString());
+            SetFieldTypeMapping(key, typeof(double));
             return this.Field(key, value);
         }
 
         public QueryHelper<TModel> Field<T>(Expression<Func<T, float>> exp, float value)
         {
             string key = getName(exp.Body.ToString());
+            SetFieldTypeMapping(key, typeof(float));
             return this.Field(key, value);
         }
 
         public QueryHelper<TModel> Field<T>(Expression<Func<T, long>> exp, long value)
         {
             string key = getName(exp.Body.ToString());
+            SetFieldTypeMapping(key, typeof(long));
             return this.Field(key, value);
         }
 
@@ -1865,25 +1918,25 @@ namespace puck.core.Helpers
         //query executors
         public List<TModel> GetAll(int limit=500,int skip = 0)
         {
-            var result = searcher.Query<TModel>(query,filter,sort,out totalHits,limit,skip).ToList();
+            var result = searcher.Query<TModel>(query,filter,sort,out totalHits,limit,skip,fieldTypeMappings:FieldTypeMappings,fieldAnalyzerMappings:FieldAnalyzerMappings).ToList();
             return result;
         }
 
         public List<TModel> GetAllNoCast(int limit=500,int skip = 0,Type typeOverride=null,bool fallBackToBaseModel=false)
         {
-            var result = searcher.QueryNoCast<TModel>(query,filter,sort,out totalHits,limit,skip,typeOverride:typeOverride,fallBackToBaseModel:fallBackToBaseModel).ToList();
+            var result = searcher.QueryNoCast<TModel>(query,filter,sort,out totalHits,limit,skip,typeOverride:typeOverride,fallBackToBaseModel:fallBackToBaseModel, fieldTypeMappings: FieldTypeMappings,fieldAnalyzerMappings:FieldAnalyzerMappings).ToList();
             return result;
         }
 
         public TModel Get()
         {
-            var result = searcher.Query<TModel>(query,filter,sort,out totalHits,1,0).FirstOrDefault();
+            var result = searcher.Query<TModel>(query,filter,sort,out totalHits,1,0, fieldTypeMappings: FieldTypeMappings,fieldAnalyzerMappings:FieldAnalyzerMappings).FirstOrDefault();
             return result;
         }
 
         public TModel GetNoCast()
         {
-            var result = searcher.QueryNoCast<TModel>(query, filter, sort, out totalHits, 1, 0).FirstOrDefault();
+            var result = searcher.QueryNoCast<TModel>(query, filter, sort, out totalHits, 1, 0, fieldTypeMappings: FieldTypeMappings,fieldAnalyzerMappings:FieldAnalyzerMappings).FirstOrDefault();
             return result;
         }
     }

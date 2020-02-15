@@ -403,11 +403,11 @@ namespace puck.core.Helpers
 
                     var dmp = ObjectDumper.Write(instance, int.MaxValue);
                     var analyzers = new Dictionary<string, Analyzer>();
-                    PuckCache.TypeFields[t.AssemblyQualifiedName] = new Dictionary<string, string>();
+                    PuckCache.TypeFields[t.AssemblyQualifiedName] = new Dictionary<string, Type>();
                     foreach (var p in dmp)
                     {
                         if (!PuckCache.TypeFields[t.AssemblyQualifiedName].ContainsKey(p.Key))
-                            PuckCache.TypeFields[t.AssemblyQualifiedName].Add(p.Key, p.Type.AssemblyQualifiedName);
+                            PuckCache.TypeFields[t.AssemblyQualifiedName].Add(p.Key, p.Type);
                         if (p.Analyzer == null)
                             continue;
                         if (!panalyzers.Any(x => x.GetType() == p.Analyzer.GetType()))
@@ -418,6 +418,7 @@ namespace puck.core.Helpers
                     }
                     var pfAnalyzer = new PerFieldAnalyzerWrapper(new StandardAnalyzer(Lucene.Net.Util.LuceneVersion.LUCENE_48), analyzers);
                     analyzerForModel.Add(t, pfAnalyzer);
+                    PuckCache.AnalyzerDictionaryForModel[t] = analyzers;
                 }
                 PuckCache.Analyzers = panalyzers;
                 PuckCache.AnalyzerForModel = analyzerForModel;

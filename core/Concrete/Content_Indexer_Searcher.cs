@@ -38,6 +38,7 @@ using Lucene.Net.Store.Azure;
 using Microsoft.Azure.Storage;
 using Microsoft.Extensions.Hosting;
 using System.Threading;
+using Lucene.Net.Analysis.Miscellaneous;
 
 namespace puck.core.Concrete
 {
@@ -788,11 +789,22 @@ namespace puck.core.Concrete
             int total;
             return QueryNoCast<T>(qstr, null, null, out total);
         }
-        public IList<T> QueryNoCast<T>(string qstr, Filter filter, Sort sort, out int total, int limit = 500, int skip = 0, Type typeOverride = null, bool fallBackToBaseModel = false) where T : BaseModel
+        public IList<T> QueryNoCast<T>(string qstr, Filter filter, Sort sort, out int total, int limit = 500, int skip = 0, Type typeOverride = null, bool fallBackToBaseModel = false,Dictionary<string,Type> fieldTypeMappings=null, Dictionary<string, Analyzer> fieldAnalyzerMappings = null) where T : BaseModel
         {
             EnsureSearcher();
             var analyzer = PuckCache.AnalyzerForModel[typeof(T)];
-            var parser = new PuckQueryParser<T>(LuceneVersion.LUCENE_48, FieldKeys.PuckDefaultField, analyzer);
+            if (fieldAnalyzerMappings != null)
+            {
+                foreach (var entry in PuckCache.AnalyzerDictionaryForModel[typeof(T)])
+                {
+                    if (!fieldAnalyzerMappings.ContainsKey(entry.Key))
+                    {
+                        fieldAnalyzerMappings.Add(entry.Key, entry.Value);
+                    }
+                }
+                analyzer = new PerFieldAnalyzerWrapper(StandardAnalyzer, fieldAnalyzerMappings);
+            }
+            var parser = new PuckQueryParser<T>(LuceneVersion.LUCENE_48, FieldKeys.PuckDefaultField, analyzer,fieldTypeMappings:fieldTypeMappings);
             var q = parser.Parse(qstr);
             TopDocs docs;
             if (sort == null)
@@ -840,11 +852,19 @@ namespace puck.core.Concrete
             Searcher?.Search(new MatchAllDocsQuery(), totalHitsCollector);
             return totalHitsCollector.TotalHits;
         }
-        public IList<T> Query<T>(string qstr, Filter filter, Sort sort, out int total, int limit = 500, int skip = 0) where T : BaseModel
+        public IList<T> Query<T>(string qstr, Filter filter, Sort sort, out int total, int limit = 500, int skip = 0,Dictionary<string,Type> fieldTypeMappings=null,Dictionary<string,Analyzer> fieldAnalyzerMappings=null) where T : BaseModel
         {
             EnsureSearcher();
             var analyzer = PuckCache.AnalyzerForModel[typeof(T)];
-            var parser = new PuckQueryParser<T>(LuceneVersion.LUCENE_48, FieldKeys.PuckDefaultField, analyzer);
+            if (fieldAnalyzerMappings != null) {
+                foreach (var entry in PuckCache.AnalyzerDictionaryForModel[typeof(T)]) {
+                    if (!fieldAnalyzerMappings.ContainsKey(entry.Key)) {
+                        fieldAnalyzerMappings.Add(entry.Key,entry.Value);
+                    }
+                }
+                analyzer = new PerFieldAnalyzerWrapper(StandardAnalyzer,fieldAnalyzerMappings);
+            }
+            var parser = new PuckQueryParser<T>(LuceneVersion.LUCENE_48, FieldKeys.PuckDefaultField, analyzer,fieldTypeMappings:fieldTypeMappings);
             var q = parser.Parse(qstr);
             TopDocs docs;
             if (sort == null)

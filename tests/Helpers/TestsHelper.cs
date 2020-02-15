@@ -47,7 +47,7 @@ namespace puck.tests.Helpers
         {
             var panalyzers = new List<Analyzer>();
             var analyzerForModel = new Dictionary<Type, Analyzer>();
-            PuckCache.TypeFields = new Dictionary<string, Dictionary<string, string>>();
+            PuckCache.TypeFields = new Dictionary<string, Dictionary<string, Type>>();
             foreach (var t in testModelTypes)
             {
                 var instance = ApiHelper.CreateInstance(t);
@@ -62,11 +62,11 @@ namespace puck.tests.Helpers
 
                 var dmp = ObjectDumper.Write(instance, int.MaxValue);
                 var analyzers = new Dictionary<string, Analyzer>();
-                PuckCache.TypeFields[t.AssemblyQualifiedName] = new Dictionary<string, string>();
+                PuckCache.TypeFields[t.AssemblyQualifiedName] = new Dictionary<string, Type>();
                 foreach (var p in dmp)
                 {
                     if (!PuckCache.TypeFields[t.AssemblyQualifiedName].ContainsKey(p.Key))
-                        PuckCache.TypeFields[t.AssemblyQualifiedName].Add(p.Key, p.Type.AssemblyQualifiedName);
+                        PuckCache.TypeFields[t.AssemblyQualifiedName].Add(p.Key, p.Type);
                     if (p.Analyzer == null)
                         continue;
                     if (!panalyzers.Any(x => x.GetType() == p.Analyzer.GetType()))

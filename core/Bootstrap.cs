@@ -54,7 +54,7 @@ namespace puck.core
             StateHelper.UpdateRedirectMappings();
             PuckCache.Analyzers = new List<Lucene.Net.Analysis.Analyzer>();
             PuckCache.AnalyzerForModel = new Dictionary<Type,Lucene.Net.Analysis.Analyzer>();
-            PuckCache.TypeFields = new Dictionary<string, Dictionary<string,string>>();
+            PuckCache.TypeFields = new Dictionary<string, Dictionary<string,Type>>();
             PuckCache.ModelNameToAQN = new Dictionary<string, string>();
             //sets mapping between type fullname and assembly qualified name for all models
             StateHelper.UpdateAQNMappings();
