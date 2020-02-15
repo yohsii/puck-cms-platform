@@ -1337,6 +1337,7 @@ namespace puck.core.Helpers
 
         public QueryHelper<TModel> WithinMiles(Expression<Func<TModel, string>> exp, double longitude, double latitude, int miles)
         {
+            TrimAnd();
             string name = getName(exp.Body.ToString());
             var distDEG = DistanceUtils.Dist2Degrees(miles, DistanceUtils.EARTH_MEAN_RADIUS_MI);
             return GeoFilter(name,longitude,latitude,distDEG);
@@ -1344,6 +1345,7 @@ namespace puck.core.Helpers
 
         public QueryHelper<TModel> WithinKilometers(Expression<Func<TModel, string>> exp, double longitude, double latitude, int kilometers)
         {
+            TrimAnd();
             string name = getName(exp.Body.ToString());
             var distDEG = DistanceUtils.Dist2Degrees(kilometers, DistanceUtils.EARTH_MEAN_RADIUS_KM);
             return GeoFilter(name, longitude, latitude, distDEG);
@@ -1351,6 +1353,7 @@ namespace puck.core.Helpers
 
         public QueryHelper<TModel> WithinMiles<T>(Expression<Func<T, string>> exp, double longitude, double latitude, int miles)
         {
+            TrimAnd();
             string name = getName(exp.Body.ToString());
             var distDEG = DistanceUtils.Dist2Degrees(miles, DistanceUtils.EARTH_MEAN_RADIUS_MI);
             return GeoFilter(name, longitude, latitude, distDEG);
@@ -1358,6 +1361,7 @@ namespace puck.core.Helpers
 
         public QueryHelper<TModel> WithinKilometers<T>(Expression<Func<T, string>> exp, double longitude, double latitude, int kilometers)
         {
+            TrimAnd();
             string name = getName(exp.Body.ToString());
             var distDEG = DistanceUtils.Dist2Degrees(kilometers, DistanceUtils.EARTH_MEAN_RADIUS_KM);
             return GeoFilter(name, longitude, latitude, distDEG);
