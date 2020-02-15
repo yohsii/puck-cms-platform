@@ -277,13 +277,19 @@ namespace puck.core.Helpers
     public class QueryHelper<TModel> where TModel : BaseModel
     {
         public static I_Content_Searcher searcher = PuckCache.PuckSearcher;
-        public static SpatialContext ctx = SpatialContext.GEO;
-        public Lucene.Net.Search.Filter filter;
+        protected static SpatialContext ctx = SpatialContext.GEO;
+        protected Lucene.Net.Search.Filter filter;
         //query builders append to this string
         string query = "";
         int totalHits = 0;
-        Sort sort = null;
-        List<SortField> sorts = null;
+        protected Sort sort = null;
+        protected List<SortField> sorts = null;
+        public Sort GetSort() {
+            return sort;
+        }
+        public Filter GetFilter() {
+            return filter;
+        }
         Dictionary<string, Type> FieldTypeMappings { get; set; } = null;
         Dictionary<string, Analyzer> FieldAnalyzerMappings { get; set; } = null;
         public int TotalHits { get { return totalHits; } }
@@ -445,7 +451,7 @@ namespace puck.core.Helpers
         }
 
         //query builders
-        private QueryHelper<TModel> SortByDistanceFromPoint(string key, double longitude, double latitude, bool desc = false)
+        public QueryHelper<TModel> SortByDistanceFromPoint(string key, double longitude, double latitude, bool desc = false)
         {
             if (sort == null)
             {
@@ -483,6 +489,9 @@ namespace puck.core.Helpers
             {
                 sortFieldType = SortFieldType.STRING;
                 Type fieldType = PuckCache.TypeFields[typeof(TModel).AssemblyQualifiedName][key];
+                
+                if (fieldType == null) return this;
+
                 if (fieldType.Equals(typeof(int))|| fieldType.Equals(typeof(int?)))
                 {
                     sortFieldType = SortFieldType.INT32;
@@ -1378,7 +1387,7 @@ namespace puck.core.Helpers
         //end ienumerable extended range
 
         //geo
-        private QueryHelper<TModel> GeoFilter(string name, double longitude, double latitude, double distDEG)
+        public QueryHelper<TModel> GeoFilter(string name, double longitude, double latitude, double distDEG)
         {
             //name = name.IndexOf('.') > -1 ? name.Substring(0, name.LastIndexOf('.')) : name;
             SpatialOperation op = SpatialOperation.Intersects;

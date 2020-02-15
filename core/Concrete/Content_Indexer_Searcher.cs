@@ -806,6 +806,22 @@ namespace puck.core.Concrete
             }
             var parser = new PuckQueryParser<T>(LuceneVersion.LUCENE_48, FieldKeys.PuckDefaultField, analyzer,fieldTypeMappings:fieldTypeMappings);
             var q = parser.Parse(qstr);
+
+            if (parser.filter != null)
+                filter = parser.filter;
+
+            if (parser.sort != null) {
+                if (sort == null)
+                    sort = parser.sort;
+                else {
+                    List<SortField> sorts = new List<SortField>();
+                    sorts.AddRange(sort.GetSort());
+                    sorts.AddRange(parser.sort.GetSort());
+                    var _sort = new Sort(sorts.ToArray());
+                    sort = _sort;
+                }
+            }
+
             TopDocs docs;
             if (sort == null)
                 docs = Searcher.Search(q, filter, limit);
@@ -866,6 +882,24 @@ namespace puck.core.Concrete
             }
             var parser = new PuckQueryParser<T>(LuceneVersion.LUCENE_48, FieldKeys.PuckDefaultField, analyzer,fieldTypeMappings:fieldTypeMappings);
             var q = parser.Parse(qstr);
+
+            if (parser.filter != null)
+                filter = parser.filter;
+
+            if (parser.sort != null)
+            {
+                if (sort == null)
+                    sort = parser.sort;
+                else
+                {
+                    List<SortField> sorts = new List<SortField>();
+                    sorts.AddRange(sort.GetSort());
+                    sorts.AddRange(parser.sort.GetSort());
+                    var _sort = new Sort(sorts.ToArray());
+                    sort = _sort;
+                }
+            }
+
             TopDocs docs;
             if (sort == null)
                 docs = Searcher.Search(q, filter, limit);
