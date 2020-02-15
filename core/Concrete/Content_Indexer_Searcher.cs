@@ -815,8 +815,8 @@ namespace puck.core.Concrete
                     sort = parser.sort;
                 else {
                     List<SortField> sorts = new List<SortField>();
-                    sorts.AddRange(sort.GetSort());
                     sorts.AddRange(parser.sort.GetSort());
+                    sorts.AddRange(sort.GetSort());
                     var _sort = new Sort(sorts.ToArray());
                     sort = _sort;
                 }
@@ -893,8 +893,8 @@ namespace puck.core.Concrete
                 else
                 {
                     List<SortField> sorts = new List<SortField>();
-                    sorts.AddRange(sort.GetSort());
                     sorts.AddRange(parser.sort.GetSort());
+                    sorts.AddRange(sort.GetSort());
                     var _sort = new Sort(sorts.ToArray());
                     sort = _sort;
                 }

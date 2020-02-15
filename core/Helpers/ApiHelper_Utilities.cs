@@ -106,6 +106,12 @@ namespace puck.core.Helpers
         {
             return FindDerivedClasses(typeof(I_Puck_Editor_Settings)).ToList();
         }
+        public static List<Type> GetModelTypes(bool inclusive = false)
+        {
+            var excluded = new List<Type>() { typeof(PuckRevision) };
+            var result = FindDerivedClasses(typeof(BaseModel), excluded, inclusive).ToList();
+            return result;
+        }
         public static Type GetType(string assemblyQualifiedName)
         {
             var result = Type.GetType(assemblyQualifiedName);

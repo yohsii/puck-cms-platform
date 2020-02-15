@@ -446,6 +446,11 @@ namespace puck.core.Helpers
         public void SetQuery(string query) {
             this.query = query;
         }
+
+        public void AppendQuery(string query)
+        {
+            this.query = this.query.Trim() + " " + query;
+        }
         public QueryHelper<TModel> New() {
             return new QueryHelper<TModel>(prependTypeTerm: false);
         }
@@ -548,6 +553,9 @@ namespace puck.core.Helpers
         {
             this.AddSort(key, descending: descending, sortFieldType: sortFieldType);
             return this;
+        }
+        protected QueryHelper<TModel> SortByField(string key,bool descending=false) {
+            return this.Sort(key, descending, sortFieldType: null);
         }
         public void Clear() {
             query = "+" + this.Field(FieldKeys.PuckTypeChain, typeof(TModel).Name.Wrap()) + " ";

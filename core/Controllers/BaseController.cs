@@ -20,6 +20,7 @@ using puck.core.Models;
 using System.Diagnostics;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.ResponseCaching;
+using System.Reflection;
 
 namespace puck.core.Controllers
 {
@@ -247,6 +248,48 @@ namespace puck.core.Controllers
                 PuckCache.PuckLog.Log(model.Exception);
 
             return View(PuckCache.Path500,model);
+        }
+
+        protected List<object> Query(List<QueryModel> queries) {
+            var result = new List<object>();
+
+            if (queries == null)
+                return result;
+
+            var models = ApiHelper.GetModelTypes();
+
+            foreach (var query in queries) {
+                var type = models.Where(x => x.Name == query?.Type).FirstOrDefault();
+                if (type == null) continue;
+
+                var qht = typeof(QueryHelper<>);
+                var typeArgs = new Type[] { type};
+                var gtype = qht.MakeGenericType(typeArgs);
+                
+                var qho = Activator.CreateInstance(gtype,new object[] {true,true });
+                
+                if (!string.IsNullOrEmpty(query.Sorts)) {
+                    var miSort = gtype.GetMethod("SortByField", BindingFlags.Instance | BindingFlags.NonPublic,Type.DefaultBinder,new Type[]{typeof(string),typeof(bool)},null);
+                    foreach (var sort in query.Sorts.Split(',', StringSplitOptions.RemoveEmptyEntries)) {
+                        var sortParams = sort.Split(":",StringSplitOptions.RemoveEmptyEntries);
+                        if (sortParams.Length == 0) continue;
+                        var desc = sortParams[1] == "desc";
+                        miSort.Invoke(qho,new object[] { sortParams[0], desc });
+                    }
+                }
+                if (!string.IsNullOrEmpty(query.Query))
+                {
+                    var miAppendQuery = gtype.GetMethod("AppendQuery");
+                    miAppendQuery.Invoke(qho,new object[] {query.Query });
+                }
+                var miQueryNoCast = gtype.GetMethod("GetAllNoCast");
+                var qresult = miQueryNoCast.Invoke(qho,new object[] {query.Take,query.Skip,null,null });
+
+                result.Add(qresult);
+
+            }
+
+            return result;
         }
 
     }
