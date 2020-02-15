@@ -504,12 +504,11 @@ namespace puck.core.Helpers
             sort.SetSort(sorts.ToArray());
             return this;
         }
-        public QueryHelper<TModel> Sort<T>(Expression<Func<T, object>> exp, bool descending = false, SortFieldType? sortFieldType = null)
+        public QueryHelper<TModel> Sort<T,TPropertyType>(Expression<Func<T, TPropertyType>> exp, bool descending = false, SortFieldType? sortFieldType = null)
         {
             string key = getName(exp.Body.ToString());
-            var body = exp.Body as MemberExpression;
-            var propInfo = (PropertyInfo)body.Member;
-            var fieldType = propInfo.PropertyType;
+
+            var fieldType = typeof(TPropertyType);
             sortFieldType = SortFieldType.STRING;
             if (fieldType.Equals(typeof(int))||fieldType.Equals(typeof(int?)))
             {
