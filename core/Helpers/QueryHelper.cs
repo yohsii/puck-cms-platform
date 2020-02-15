@@ -27,6 +27,7 @@ using Lucene.Net.Spatial.Prefix;
 using Microsoft.AspNetCore.Localization;
 using puck.core.Controllers;
 using Lucene.Net.Analysis;
+using System.Reflection;
 
 namespace puck.core.Helpers
 {
@@ -471,36 +472,73 @@ namespace puck.core.Helpers
             string key = getName(exp.Body.ToString());
             return this.SortByDistanceFromPoint(key, longitude, latitude, desc: desc);
         }
-        public QueryHelper<TModel> Sort(Expression<Func<TModel, object>> exp, bool descending=false,SortFieldType? sortFieldType=null)
+        protected QueryHelper<TModel> AddSort(string key, bool descending = false, SortFieldType? sortFieldType = null)
         {
             if (sort == null)
             {
                 sort = new Sort();
                 sorts = new List<SortField>();
             }
-            string key = getName(exp.Body.ToString());
-            if (sortFieldType==null){
+            if (sortFieldType == null)
+            {
                 sortFieldType = SortFieldType.STRING;
                 Type fieldType = PuckCache.TypeFields[typeof(TModel).AssemblyQualifiedName][key];
-                if (fieldType.Equals(typeof(int)))
+                if (fieldType.Equals(typeof(int))|| fieldType.Equals(typeof(int?)))
                 {
                     sortFieldType = SortFieldType.INT32;
                 }
-                else if (fieldType.Equals(typeof(long)))
+                else if (fieldType.Equals(typeof(long))|| fieldType.Equals(typeof(long?)))
                 {
                     sortFieldType = SortFieldType.INT64;
                 }
-                else if (fieldType.Equals(typeof(float)))
+                else if (fieldType.Equals(typeof(float))|| fieldType.Equals(typeof(float?)))
                 {
                     sortFieldType = SortFieldType.SINGLE;
                 }
-                else if (fieldType.Equals(typeof(double)))
+                else if (fieldType.Equals(typeof(double))|| fieldType.Equals(typeof(double?)))
                 {
                     sortFieldType = SortFieldType.DOUBLE;
                 }
             }
-            sorts.Add(new SortField(key,sortFieldType.Value,descending));
+            sorts.Add(new SortField(key, sortFieldType.Value, descending));
             sort.SetSort(sorts.ToArray());
+            return this;
+        }
+        public QueryHelper<TModel> Sort<T>(Expression<Func<T, object>> exp, bool descending = false, SortFieldType? sortFieldType = null)
+        {
+            string key = getName(exp.Body.ToString());
+            var body = exp.Body as MemberExpression;
+            var propInfo = (PropertyInfo)body.Member;
+            var fieldType = propInfo.PropertyType;
+            sortFieldType = SortFieldType.STRING;
+            if (fieldType.Equals(typeof(int))||fieldType.Equals(typeof(int?)))
+            {
+                sortFieldType = SortFieldType.INT32;
+            }
+            else if (fieldType.Equals(typeof(long))|| fieldType.Equals(typeof(long?)))
+            {
+                sortFieldType = SortFieldType.INT64;
+            }
+            else if (fieldType.Equals(typeof(float))|| fieldType.Equals(typeof(float?)))
+            {
+                sortFieldType = SortFieldType.SINGLE;
+            }
+            else if (fieldType.Equals(typeof(double)) || fieldType.Equals(typeof(double?)))
+            {
+                sortFieldType = SortFieldType.DOUBLE;
+            }
+            this.AddSort(key, descending: descending, sortFieldType: sortFieldType);
+            return this;
+        }
+        public QueryHelper<TModel> Sort(Expression<Func<TModel, object>> exp, bool descending=false,SortFieldType? sortFieldType=null)
+        {
+            string key = getName(exp.Body.ToString());
+            this.AddSort(key, descending: descending, sortFieldType: sortFieldType);
+            return this;
+        }
+        public QueryHelper<TModel> Sort(string key, bool descending = false, SortFieldType? sortFieldType = null)
+        {
+            this.AddSort(key, descending: descending, sortFieldType: sortFieldType);
             return this;
         }
         public void Clear() {
