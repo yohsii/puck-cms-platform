@@ -379,6 +379,7 @@ namespace puck.core.Helpers
                     if (PuckCache.ModelNameToAQN.ContainsKey(t.Name))
                         throw new Exception($"there is more than one ViewModel with the name:{t.Name}. ViewModel names must be unique!");
                     PuckCache.ModelNameToAQN[t.Name] = t.AssemblyQualifiedName;
+                    PuckCache.ModelNameToType[t.Name] = t;
                 }
             }
         }

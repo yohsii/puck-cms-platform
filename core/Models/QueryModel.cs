@@ -8,6 +8,7 @@ namespace puck.core.Models
     {
         public string Type { get; set; }
         public string Query { get; set; }
+        public List<List<string>> Include { get; set; }
         public string Sorts { get; set; }
         public int Skip { get; set; }
         public int Take { get; set; }

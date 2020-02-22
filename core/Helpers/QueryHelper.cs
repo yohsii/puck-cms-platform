@@ -28,6 +28,7 @@ using Microsoft.AspNetCore.Localization;
 using puck.core.Controllers;
 using Lucene.Net.Analysis;
 using System.Reflection;
+using System.Dynamic;
 
 namespace puck.core.Helpers
 {
@@ -1979,6 +1980,12 @@ namespace puck.core.Helpers
         public List<TModel> GetAllNoCast(int limit=500,int skip = 0,Type typeOverride=null,bool fallBackToBaseModel=false)
         {
             var result = searcher.QueryNoCast<TModel>(query,filter,sort,out totalHits,limit,skip,typeOverride:typeOverride,fallBackToBaseModel:fallBackToBaseModel, fieldTypeMappings: FieldTypeMappings,fieldAnalyzerMappings:FieldAnalyzerMappings).ToList();
+            return result;
+        }
+
+        public List<ExpandoObject> GetAllExpando(int limit = 500, int skip = 0)
+        {
+            var result = searcher.Query<ExpandoObject,BaseModel>(query, filter, sort, out totalHits, limit, skip, fieldTypeMappings: FieldTypeMappings, fieldAnalyzerMappings: FieldAnalyzerMappings).ToList();
             return result;
         }
 

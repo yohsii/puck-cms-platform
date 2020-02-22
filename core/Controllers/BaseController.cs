@@ -21,6 +21,7 @@ using System.Diagnostics;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.ResponseCaching;
 using System.Reflection;
+using System.Dynamic;
 
 namespace puck.core.Controllers
 {
@@ -250,13 +251,95 @@ namespace puck.core.Controllers
             return View(PuckCache.Path500,model);
         }
 
-        protected List<object> Query(List<QueryModel> queries) {
-            var result = new List<object>();
-
+        protected List<List<ExpandoObject>> Query(List<QueryModel> queries,string cacheKey=null,int cacheMinutes=0) {
+            var result = new List<List<ExpandoObject>>();
+            
             if (queries == null)
                 return result;
 
+            if (!string.IsNullOrEmpty(cacheKey)) {
+                object o=null;
+                if (PuckCache.Cache.TryGetValue(cacheKey, out o))
+                {
+                    var _res = o as List<List<ExpandoObject>>;
+                    if(_res!=null)
+                        return _res;
+                }
+            }
+
             var models = ApiHelper.GetModelTypes();
+
+            void DoIncludes(List<ExpandoObject> results, List<string> includes, int includesIndex = 0)
+            {
+                if (includesIndex > includes.Count - 1) return;
+                var include = includes[includesIndex];
+                var properties = include.Split(".", StringSplitOptions.RemoveEmptyEntries);
+                foreach (var item in results)
+                {
+                    object currentProp = item;
+                    object _setProp = null;
+                    string _setPropName = string.Empty;
+                    var i = 0;
+                    foreach(var prop in properties)
+                    {
+                        if (ApiHelper.ExpandoHasProperty(currentProp as ExpandoObject, prop))
+                        {
+                            var obj = ApiHelper.GetExpandoProperty(currentProp as ExpandoObject, prop);
+                            var objType = obj.GetType();
+                            if (objType.Equals(typeof(ExpandoObject)) || (i==properties.Length-1 && objType.Equals(typeof(List<Object>))))
+                            {
+                                _setProp = currentProp;
+                                _setPropName = prop;
+                                currentProp = obj;
+                                i++;
+                            }
+                            else
+                            {
+                                currentProp = null;
+                                break;
+                            }
+                        }
+                        else
+                        {
+                            currentProp = null;
+                            break;
+                        }
+                    }
+
+                    if (currentProp != null && currentProp.GetType().Equals(typeof(List<object>)))
+                    {
+                        var lprop = currentProp as List<object>;
+                        if (lprop.Any() && lprop[0].GetType().Equals(typeof(ExpandoObject)))
+                        {
+                            var refQuery = new QueryHelper<BaseModel>();
+                            var qhinner1 = refQuery.New();
+                            var hasQuery = false;
+                            var j = 0;
+                            var sortOrder = new Dictionary<Guid, int>();
+                            foreach (var reference in lprop)
+                            {
+                                var eref = reference as ExpandoObject;
+                                Guid id;
+                                if (ApiHelper.ExpandoHasProperty(eref, "Id") && ApiHelper.ExpandoHasProperty(eref, "Variant") && Guid.TryParse(ApiHelper.GetExpandoProperty(eref, "Id").ToString(), out id)){
+                                    hasQuery = true;
+                                    var qhinner2 = qhinner1.New().Id(ApiHelper.GetExpandoProperty(eref, "Id").ToString());
+                                    qhinner2.Variant(ApiHelper.GetExpandoProperty(eref, "Variant").ToString().ToLower());
+                                    qhinner1.Group(
+                                        qhinner2
+                                    );
+                                    sortOrder[id] = j;
+                                }
+                                j++;
+                            }
+                            refQuery.And().Group(qhinner1);
+                            List<ExpandoObject> unsortedRefResult = refQuery.GetAllExpando(limit: int.MaxValue);
+                            var refResult = unsortedRefResult.OrderBy(x => sortOrder[Guid.Parse(ApiHelper.GetExpandoProperty(x, "Id").ToString())]).ToList();
+                            ApiHelper.SetExpandoProperty(_setProp as ExpandoObject, _setPropName, refResult);
+                            DoIncludes(refResult, includes, includesIndex: includesIndex + 1);
+                        }
+                    }
+                }
+            }
 
             foreach (var query in queries) {
                 var type = models.Where(x => x.Name == query?.Type).FirstOrDefault();
@@ -282,11 +365,22 @@ namespace puck.core.Controllers
                     var miAppendQuery = gtype.GetMethod("AppendQuery");
                     miAppendQuery.Invoke(qho,new object[] {query.Query });
                 }
-                var miQueryNoCast = gtype.GetMethod("GetAllNoCast");
-                var qresult = miQueryNoCast.Invoke(qho,new object[] {query.Take,query.Skip,null,null });
+                var miQueryNoCast = gtype.GetMethod("GetAllExpando");
+                var qresult = miQueryNoCast.Invoke(qho,new object[] {query.Take,query.Skip}) as List<ExpandoObject>;
 
+                if (query.Include != null)
+                {
+                    foreach (var includes in query.Include) {
+                        DoIncludes(qresult,includes,includesIndex: 0);
+                    }
+                }   
+                
                 result.Add(qresult);
 
+            }
+
+            if (!string.IsNullOrEmpty(cacheKey)) {
+                PuckCache.Cache.Set(cacheKey,result,TimeSpan.FromMinutes(cacheMinutes));
             }
 
             return result;

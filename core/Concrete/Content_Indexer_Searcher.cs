@@ -850,6 +850,11 @@ namespace puck.core.Concrete
             }
             return results;
         }
+        public IList<T> Query<T>(string qstr, Filter filter, Sort sort, out int total, int limit = 500, int skip = 0, Dictionary<string, Type> fieldTypeMappings = null, Dictionary<string, Analyzer> fieldAnalyzerMappings = null) where T : BaseModel
+        {
+            return Query<T,T>(qstr, filter, sort, out total, limit: limit, skip: skip, fieldTypeMappings: fieldTypeMappings, fieldAnalyzerMappings: fieldAnalyzerMappings);
+        }
+
         public IList<T> Query<T>(string qstr) where T : BaseModel
         {
             int total;
@@ -868,19 +873,19 @@ namespace puck.core.Concrete
             Searcher?.Search(new MatchAllDocsQuery(), totalHitsCollector);
             return totalHitsCollector.TotalHits;
         }
-        public IList<T> Query<T>(string qstr, Filter filter, Sort sort, out int total, int limit = 500, int skip = 0,Dictionary<string,Type> fieldTypeMappings=null,Dictionary<string,Analyzer> fieldAnalyzerMappings=null) where T : BaseModel
+        public IList<TReturnType> Query<TReturnType,TQueryType>(string qstr, Filter filter, Sort sort, out int total, int limit = 500, int skip = 0,Dictionary<string,Type> fieldTypeMappings=null,Dictionary<string,Analyzer> fieldAnalyzerMappings=null) where TQueryType : BaseModel
         {
             EnsureSearcher();
-            var analyzer = PuckCache.AnalyzerForModel[typeof(T)];
+            var analyzer = PuckCache.AnalyzerForModel[typeof(TQueryType)];
             if (fieldAnalyzerMappings != null) {
-                foreach (var entry in PuckCache.AnalyzerDictionaryForModel[typeof(T)]) {
+                foreach (var entry in PuckCache.AnalyzerDictionaryForModel[typeof(TQueryType)]) {
                     if (!fieldAnalyzerMappings.ContainsKey(entry.Key)) {
                         fieldAnalyzerMappings.Add(entry.Key,entry.Value);
                     }
                 }
                 analyzer = new PerFieldAnalyzerWrapper(StandardAnalyzer,fieldAnalyzerMappings);
             }
-            var parser = new PuckQueryParser<T>(LuceneVersion.LUCENE_48, FieldKeys.PuckDefaultField, analyzer,fieldTypeMappings:fieldTypeMappings);
+            var parser = new PuckQueryParser<TQueryType>(LuceneVersion.LUCENE_48, FieldKeys.PuckDefaultField, analyzer,fieldTypeMappings:fieldTypeMappings);
             var q = parser.Parse(qstr);
 
             if (parser.filter != null)
@@ -909,11 +914,11 @@ namespace puck.core.Concrete
                 docs = Searcher.Search(q, filter, limit, sort);
             }
             total = docs.TotalHits;
-            var results = new List<T>();
+            var results = new List<TReturnType>();
             for (var i = skip; i < docs.ScoreDocs.Count(); i++)
             {
                 var doc = Searcher.Doc(docs.ScoreDocs[i].Doc);
-                T result = JsonConvert.DeserializeObject<T>(doc.GetValues(FieldKeys.PuckValue)[0]);
+                TReturnType result = JsonConvert.DeserializeObject<TReturnType>(doc.GetValues(FieldKeys.PuckValue)[0]);
                 results.Add(result);
             }
             return results;

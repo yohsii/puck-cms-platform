@@ -15,6 +15,7 @@ using System.ComponentModel.DataAnnotations;
 using MailKit.Net.Smtp;
 using MimeKit;
 using Microsoft.Extensions.Configuration;
+using System.Dynamic;
 
 namespace puck.core.Helpers
 {
@@ -44,8 +45,8 @@ namespace puck.core.Helpers
             return p;
         }
         public static Type GetTypeFromName(string name,bool defaultToBaseModel=false) {
-            if (PuckCache.ModelNameToAQN.ContainsKey(name))
-                return ApiHelper.GetType(PuckCache.ModelNameToAQN[name]);
+            if (PuckCache.ModelNameToType.ContainsKey(name))
+                return PuckCache.ModelNameToType[name];
             if (defaultToBaseModel)
                 return typeof(BaseModel);
             return null;
@@ -136,6 +137,16 @@ namespace puck.core.Helpers
             //    }
             //}
             return result;
+        }
+        public static bool ExpandoHasProperty(ExpandoObject e,string propertyName) {
+            return ((IDictionary<string, object>)e).ContainsKey(propertyName);
+        }
+        public static Object GetExpandoProperty(ExpandoObject e,string propertyName) {
+            return ((IDictionary<string, object>)e)[propertyName];
+        }
+        public static void SetExpandoProperty(ExpandoObject e, string propertyName,object value)
+        {
+            ((IDictionary<string, object>)e)[propertyName]=value;
         }
         public static Type ConcreteType(Type t)
         {
