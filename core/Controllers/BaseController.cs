@@ -343,7 +343,10 @@ namespace puck.core.Controllers
 
             foreach (var query in queries) {
                 var type = models.Where(x => x.Name == query?.Type).FirstOrDefault();
-                if (type == null) continue;
+                if (type == null) {
+                    result.Add(new List<ExpandoObject>());
+                    continue;
+                }
 
                 var qht = typeof(QueryHelper<>);
                 var typeArgs = new Type[] { type};
