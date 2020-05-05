@@ -498,7 +498,7 @@ div.settings {
         }
 
     .overlay_screen ul.content.redirect .node span {
-        cursor: pointer;
+        cursor: move;
     }
 
     .settings div.submit {
@@ -1104,6 +1104,7 @@ div.settings {
 }
 .overlay_screen .tree_container.sort .node > .inner:hover {
     background-color: unset;
+    cursor: move;
 }
 
 .leftarea .left_content li:hover {
