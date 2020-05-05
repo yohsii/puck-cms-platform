@@ -274,38 +274,47 @@ namespace puck.core.Controllers
                 if (includesIndex > includes.Count - 1) return;
                 var include = includes[includesIndex];
                 var properties = include.Split(".", StringSplitOptions.RemoveEmptyEntries);
-                foreach (var item in results)
-                {
-                    object currentProp = item;
-                    object _setProp = null;
-                    string _setPropName = string.Empty;
-                    var i = 0;
-                    foreach(var prop in properties)
+                void GetProperty(object currentProp, object _setProp,string _setPropName,string[] properties,int i) {
+                    var prop = properties[i];
+                    
+                    if (ApiHelper.ExpandoHasProperty(currentProp as ExpandoObject, prop))
                     {
-                        if (ApiHelper.ExpandoHasProperty(currentProp as ExpandoObject, prop))
+                        var obj = ApiHelper.GetExpandoProperty(currentProp as ExpandoObject, prop);
+                        
+                        if (obj == null) return;
+
+                        var objType = obj.GetType();
+                        if (objType.Equals(typeof(ExpandoObject)))
                         {
-                            var obj = ApiHelper.GetExpandoProperty(currentProp as ExpandoObject, prop);
-                            var objType = obj.GetType();
-                            if (objType.Equals(typeof(ExpandoObject)) || (i==properties.Length-1 && objType.Equals(typeof(List<Object>))))
-                            {
-                                _setProp = currentProp;
-                                _setPropName = prop;
-                                currentProp = obj;
-                                i++;
-                            }
-                            else
-                            {
-                                currentProp = null;
-                                break;
-                            }
+                            _setProp = currentProp;
+                            _setPropName = prop;
+                            currentProp = obj;
+                            i++;
+                            GetProperty(currentProp,_setProp,_setPropName,properties,i);
                         }
-                        else
-                        {
-                            currentProp = null;
-                            break;
+                        else if (i == properties.Length - 1 && objType.Equals(typeof(List<Object>))) {
+                            //we have the List<PuckReference> property
+                            _setProp = currentProp;
+                            _setPropName = prop;
+                            currentProp = obj;
+                            i++;
+                            DoGetFromReferences(currentProp, _setProp, _setPropName);
+                        }
+                        else if (objType.Equals(typeof(List<Object>))) {
+                            _setProp = currentProp;
+                            _setPropName = prop;
+                            currentProp = obj;
+                            i++;
+                            var lprop = currentProp as List<object>;
+                            foreach (var o in lprop) {
+                                GetProperty(o,_setProp,_setPropName,properties,i);
+                            }
                         }
                     }
+                }
 
+                void DoGetFromReferences(object currentProp,object _setProp,string _setPropName)
+                {
                     if (currentProp != null && currentProp.GetType().Equals(typeof(List<object>)))
                     {
                         var lprop = currentProp as List<object>;
@@ -320,7 +329,8 @@ namespace puck.core.Controllers
                             {
                                 var eref = reference as ExpandoObject;
                                 Guid id;
-                                if (ApiHelper.ExpandoHasProperty(eref, "Id") && ApiHelper.ExpandoHasProperty(eref, "Variant") && Guid.TryParse(ApiHelper.GetExpandoProperty(eref, "Id").ToString(), out id)){
+                                if (ApiHelper.ExpandoHasProperty(eref, "Id") && ApiHelper.ExpandoHasProperty(eref, "Variant") && Guid.TryParse(ApiHelper.GetExpandoProperty(eref, "Id").ToString(), out id))
+                                {
                                     hasQuery = true;
                                     var qhinner2 = qhinner1.New().Id(ApiHelper.GetExpandoProperty(eref, "Id").ToString());
                                     qhinner2.Variant(ApiHelper.GetExpandoProperty(eref, "Variant").ToString().ToLower());
@@ -338,6 +348,11 @@ namespace puck.core.Controllers
                             DoIncludes(refResult, includes, includesIndex: includesIndex + 1);
                         }
                     }
+                }
+
+                foreach (var item in results)
+                {
+                    GetProperty(item,null,"",properties,0);
                 }
             }
 
