@@ -381,6 +381,37 @@ namespace puck.core.Helpers
                     PuckCache.ModelNameToAQN[t.Name] = t.AssemblyQualifiedName;
                     PuckCache.ModelNameToType[t.Name] = t;
                 }
+
+                var interfaces = ApiHelper.FindDerivedClasses(typeof(puck.core.Abstract.I_BaseModel)).Where(x => x.IsInterface).ToList();
+
+                var interfaceNameToType = new Dictionary<string, Tuple<Type, List<FlattenedObject>>>();
+
+                foreach (var _interface in interfaces) {
+                    var implementingTypes = ApiHelper.FindDerivedClasses(_interface).ToList();
+                    implementingTypes = implementingTypes.Where(x => typeof(BaseModel).IsAssignableFrom(x)).ToList();
+
+                    if (implementingTypes.Count == 0)
+                        continue;
+
+                    var instance = ApiHelper.CreateInstance(implementingTypes.First());
+                    try
+                    {
+                        ObjectDumper.SetPropertyValues(instance, setNullableFields: true);
+                    }
+                    catch (Exception ex)
+                    {
+                        PuckCache.PuckLog.Log(ex);
+                        continue;
+                    };
+
+                    var dmp = ObjectDumper.Write(instance, int.MaxValue);
+                    
+                    interfaceNameToType.Add(_interface.Name,new Tuple<Type, List<FlattenedObject>>(_interface,dmp));
+
+                }
+
+                PuckCache.InterfaceNameToType = interfaceNameToType;
+
             }
         }
         public static void UpdateAnalyzerMappings()

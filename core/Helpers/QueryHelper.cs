@@ -555,8 +555,32 @@ namespace puck.core.Helpers
             this.AddSort(key, descending: descending, sortFieldType: sortFieldType);
             return this;
         }
-        protected QueryHelper<TModel> SortByField(string key,bool descending=false) {
-            return this.Sort(key, descending, sortFieldType: null);
+        protected QueryHelper<TModel> SortByField(string key,bool descending=false,Type fieldType=null) {
+
+            SortFieldType? sortFieldType = null;
+
+            if (fieldType != null) {
+                sortFieldType = SortFieldType.STRING;
+                
+                if (fieldType.Equals(typeof(int)) || fieldType.Equals(typeof(int?)))
+                {
+                    sortFieldType = SortFieldType.INT32;
+                }
+                else if (fieldType.Equals(typeof(long)) || fieldType.Equals(typeof(long?)))
+                {
+                    sortFieldType = SortFieldType.INT64;
+                }
+                else if (fieldType.Equals(typeof(float)) || fieldType.Equals(typeof(float?)))
+                {
+                    sortFieldType = SortFieldType.SINGLE;
+                }
+                else if (fieldType.Equals(typeof(double)) || fieldType.Equals(typeof(double?)))
+                {
+                    sortFieldType = SortFieldType.DOUBLE;
+                }
+            }
+
+            return this.Sort(key, descending, sortFieldType: sortFieldType);
         }
         public void Clear() {
             query = "+" + this.Field(FieldKeys.PuckTypeChain, typeof(TModel).Name.Wrap()) + " ";
@@ -1983,9 +2007,9 @@ namespace puck.core.Helpers
             return result;
         }
 
-        public List<ExpandoObject> GetAllExpando(int limit = 500, int skip = 0)
+        public List<ExpandoObject> GetAllExpando(int limit = 500, int skip = 0,Dictionary<string,Type> fieldTypeMappings=null, Dictionary<string,Analyzer> fieldAnalyzerMappings=null)
         {
-            var result = searcher.Query<ExpandoObject,BaseModel>(query, filter, sort, out totalHits, limit, skip, fieldTypeMappings: FieldTypeMappings, fieldAnalyzerMappings: FieldAnalyzerMappings).ToList();
+            var result = searcher.Query<ExpandoObject,BaseModel>(query, filter, sort, out totalHits, limit, skip, fieldTypeMappings: fieldTypeMappings, fieldAnalyzerMappings: fieldAnalyzerMappings).ToList();
             return result;
         }
 

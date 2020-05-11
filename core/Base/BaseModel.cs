@@ -18,7 +18,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace puck.core.Base
 {
     [Display(Name="Base Model")]
-    public class BaseModel
+    public class BaseModel : I_BaseModel
     {
         public BaseModel() {
             Created = DateTime.Now;

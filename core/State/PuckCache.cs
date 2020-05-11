@@ -93,6 +93,7 @@ namespace puck.core.State
         //map model type fullname to asssembly qualified name
         public static Dictionary<string, string> ModelNameToAQN { get; set; }
         public static Dictionary<string, Type> ModelNameToType { get; set; } = new Dictionary<string, Type>();
+        public static Dictionary<string, Tuple<Type, List<FlattenedObject>>> InterfaceNameToType { get; set; } = new Dictionary<string, Tuple<Type, List<FlattenedObject>>>();
         public static Dictionary<string, CropInfo> CropSizes { get; set; }
         public static HashSet<string> OutputCacheExclusion { get; set; }
         public static IServiceProvider ServiceProvider { get; set; }

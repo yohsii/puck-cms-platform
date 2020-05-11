@@ -22,6 +22,7 @@ using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.ResponseCaching;
 using System.Reflection;
 using System.Dynamic;
+using Lucene.Net.Analysis;
 
 namespace puck.core.Controllers
 {
@@ -357,8 +358,13 @@ namespace puck.core.Controllers
             }
 
             foreach (var query in queries) {
-                var type = models.Where(x => x.Name == query?.Type).FirstOrDefault();
-                if (type == null) {
+                if (string.IsNullOrEmpty(query.Type))
+                {
+                    result.Add(new List<ExpandoObject>());
+                    continue;
+                }
+                Type type = null;
+                if (!PuckCache.ModelNameToType.TryGetValue(query.Type, out type)) {
                     result.Add(new List<ExpandoObject>());
                     continue;
                 }
@@ -368,14 +374,47 @@ namespace puck.core.Controllers
                 var gtype = qht.MakeGenericType(typeArgs);
                 
                 var qho = Activator.CreateInstance(gtype,new object[] {true,true });
+
+                var interfaceTypes = new List<Type>();
+                var interfaceProperties = new Dictionary<string, FlattenedObject>();
+
+                var fieldTypeMappings = new Dictionary<string, Type>();
+                var fieldAnalyzerMappings = new Dictionary<string, Analyzer>();
+
+                if (!string.IsNullOrEmpty(query.Implements)) {
+                    var interfaceNames = query.Implements.Split(',',StringSplitOptions.RemoveEmptyEntries);
+                    foreach (var interfaceName in interfaceNames) {
+                        Tuple<Type,List<FlattenedObject>> vals = null;
+                        if (PuckCache.InterfaceNameToType.TryGetValue(interfaceName, out vals)) {
+                            interfaceTypes.Add(vals.Item1);
+                            
+                            foreach (var flattenedObject in vals.Item2) {
+                                interfaceProperties[flattenedObject.Key] = flattenedObject;
+                                fieldTypeMappings[flattenedObject.Key] = flattenedObject.Type;
+                                fieldAnalyzerMappings[flattenedObject.Key] = flattenedObject.Analyzer;
+                            }
+                        }
+                    }
+
+                }
+
+                if (interfaceTypes.Any()) {
+                    var miImplements = gtype.GetMethod("Implements", BindingFlags.Public | BindingFlags.Instance, null, new[] { typeof(Type[]) }, null);
+                    miImplements.Invoke(qho, new object[] { interfaceTypes.ToArray() });
+                }
                 
                 if (!string.IsNullOrEmpty(query.Sorts)) {
-                    var miSort = gtype.GetMethod("SortByField", BindingFlags.Instance | BindingFlags.NonPublic,Type.DefaultBinder,new Type[]{typeof(string),typeof(bool)},null);
+                    var miSort = gtype.GetMethod("SortByField", BindingFlags.Instance | BindingFlags.NonPublic,Type.DefaultBinder,new Type[]{typeof(string),typeof(bool),typeof(Type)},null);
                     foreach (var sort in query.Sorts.Split(',', StringSplitOptions.RemoveEmptyEntries)) {
                         var sortParams = sort.Split(":",StringSplitOptions.RemoveEmptyEntries);
                         if (sortParams.Length == 0) continue;
                         var desc = sortParams[1] == "desc";
-                        miSort.Invoke(qho,new object[] { sortParams[0], desc });
+                        FlattenedObject flatObj = null;
+                        Type propType = null;
+                        if (interfaceProperties.TryGetValue(sortParams[0],out flatObj)) {
+                            propType = flatObj.Type;
+                        }
+                        miSort.Invoke(qho,new object[] { sortParams[0], desc, propType });
                     }
                 }
                 if (!string.IsNullOrEmpty(query.Query))
@@ -384,7 +423,7 @@ namespace puck.core.Controllers
                     miAppendQuery.Invoke(qho,new object[] {query.Query });
                 }
                 var miQueryNoCast = gtype.GetMethod("GetAllExpando");
-                var qresult = miQueryNoCast.Invoke(qho,new object[] {query.Take,query.Skip}) as List<ExpandoObject>;
+                var qresult = miQueryNoCast.Invoke(qho,new object[] {query.Take,query.Skip,fieldTypeMappings,fieldAnalyzerMappings}) as List<ExpandoObject>;
 
                 if (query.Include != null)
                 {
