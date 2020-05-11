@@ -391,7 +391,8 @@ namespace puck.core.Controllers
                             foreach (var flattenedObject in vals.Item2) {
                                 interfaceProperties[flattenedObject.Key] = flattenedObject;
                                 fieldTypeMappings[flattenedObject.Key] = flattenedObject.Type;
-                                fieldAnalyzerMappings[flattenedObject.Key] = flattenedObject.Analyzer;
+                                if(flattenedObject.Analyzer!=null)
+                                    fieldAnalyzerMappings[flattenedObject.Key] = flattenedObject.Analyzer;
                             }
                         }
                     }
