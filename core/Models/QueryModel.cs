@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Dynamic;
 using System.Text;
 
 namespace puck.core.Models
@@ -13,5 +14,10 @@ namespace puck.core.Models
         public int Skip { get; set; }
         public int Take { get; set; }
         public string Implements { get; set; }
+    }
+
+    public class QueryResult { 
+        public List<ExpandoObject> Results { get; set; }
+        public int Total { get; set; }
     }
 }

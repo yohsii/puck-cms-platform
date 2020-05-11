@@ -252,8 +252,8 @@ namespace puck.core.Controllers
             return View(PuckCache.Path500,model);
         }
 
-        protected List<List<ExpandoObject>> Query(List<QueryModel> queries,string cacheKey=null,int cacheMinutes=0) {
-            var result = new List<List<ExpandoObject>>();
+        protected List<QueryResult> Query(List<QueryModel> queries,string cacheKey=null,int cacheMinutes=0) {
+            var result = new List<QueryResult>();
             
             if (queries == null)
                 return result;
@@ -262,7 +262,7 @@ namespace puck.core.Controllers
                 object o=null;
                 if (PuckCache.Cache.TryGetValue(cacheKey, out o))
                 {
-                    var _res = o as List<List<ExpandoObject>>;
+                    var _res = o as List<QueryResult>;
                     if(_res!=null)
                         return _res;
                 }
@@ -360,12 +360,12 @@ namespace puck.core.Controllers
             foreach (var query in queries) {
                 if (string.IsNullOrEmpty(query.Type))
                 {
-                    result.Add(new List<ExpandoObject>());
+                    result.Add(new QueryResult {Total=0,Results=new List<ExpandoObject>() });
                     continue;
                 }
                 Type type = null;
                 if (!PuckCache.ModelNameToType.TryGetValue(query.Type, out type)) {
-                    result.Add(new List<ExpandoObject>());
+                    result.Add(new QueryResult { Total = 0, Results = new List<ExpandoObject>() });
                     continue;
                 }
 
@@ -430,10 +430,11 @@ namespace puck.core.Controllers
                     foreach (var includes in query.Include) {
                         DoIncludes(qresult,includes,includesIndex: 0);
                     }
-                }   
-                
-                result.Add(qresult);
+                }
 
+                var totalHitsPi = qho.GetType().GetProperty("TotalHits");
+
+                result.Add(new QueryResult {Total= (int)totalHitsPi.GetValue(qho), Results = qresult });
             }
 
             if (!string.IsNullOrEmpty(cacheKey)) {
