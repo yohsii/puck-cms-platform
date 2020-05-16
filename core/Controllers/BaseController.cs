@@ -433,6 +433,21 @@ namespace puck.core.Controllers
                     }
                 }
 
+                if (query.Fields != null && query.Fields.Any()) {
+                    for (var i=0;i<qresult.Count;i++)
+                    {
+                        var r = new ExpandoObject();
+                        foreach (var field in query.Fields)
+                        {
+                            if (((IDictionary<string, object>)qresult[i]).ContainsKey(field)){
+                                ((IDictionary<string, object>)r)[field] = ((IDictionary<string, object>)qresult[i])[field];
+                            }
+                        }
+                        qresult[i] = r;
+                    }
+                    
+                }
+
                 var totalHitsPi = qho.GetType().GetProperty("TotalHits");
 
                 result.Add(new QueryResult {Total= (int)totalHitsPi.GetValue(qho), Results = qresult });

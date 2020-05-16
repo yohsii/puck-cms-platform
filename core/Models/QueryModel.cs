@@ -14,6 +14,7 @@ namespace puck.core.Models
         public int Skip { get; set; }
         public int Take { get; set; }
         public string Implements { get; set; }
+        public List<string> Fields { get; set; }
     }
 
     public class QueryResult { 
