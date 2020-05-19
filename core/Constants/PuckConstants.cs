@@ -69,6 +69,52 @@ namespace puck.core.Constants
         public const string Audit = "_audit";
         public const string Sync = "_sync";
     }
+    public static class PuckUserGroups {
+        public static string[] Administrator = new string[] {
+            PuckRoles.Create,
+            PuckRoles.Edit,
+            PuckRoles.Delete,
+            PuckRoles.Republish,
+            PuckRoles.Publish,
+            PuckRoles.Unpublish,
+            PuckRoles.Revert,
+            PuckRoles.Sort,
+            PuckRoles.Move,
+            PuckRoles.Localisation,
+            PuckRoles.Domain,
+            PuckRoles.Cache,
+            PuckRoles.Notify,
+            PuckRoles.Settings,
+            PuckRoles.Tasks,
+            PuckRoles.Users,
+            PuckRoles.Puck,
+            PuckRoles.Copy,
+            PuckRoles.ChangeType,
+            PuckRoles.TimedPublish,
+            PuckRoles.Audit,
+            PuckRoles.Sync
+        };
+        public static string[] Editor = new string[] {
+            PuckRoles.Create,
+            PuckRoles.Edit,
+            PuckRoles.Delete,
+            PuckRoles.Republish,
+            PuckRoles.Publish,
+            PuckRoles.Unpublish,
+            PuckRoles.Revert,
+            PuckRoles.Sort,
+            PuckRoles.Move,
+            PuckRoles.Localisation,
+            PuckRoles.Cache,
+            PuckRoles.Notify,
+            PuckRoles.Puck,
+            PuckRoles.Copy,
+            PuckRoles.ChangeType,
+            PuckRoles.TimedPublish,
+            PuckRoles.Audit,
+            PuckRoles.Sync
+        };
+    }
     public static class FieldKeys
     {
         public const string Score = "score";
