@@ -168,6 +168,31 @@ var showUserMarkup = function (username) {
         });
     });
 }
+
+var showUserGroupMarkup = function (group) {
+    getUserGroupMarkup(group,function (d) {
+        var overlayEl = overlay(d, 580, undefined, undefined, "User Group");
+        wireForm(overlayEl.find("form"), function (data) {
+            if ($(".user_edit.settings").length>0) {
+                var groupName = overlayEl.find("input[name='Name']").val();
+                var groupRoles = overlayEl.find("select[name=Roles]").val();
+                if (!overlayEl.find(":input:hidden[name='Id']").val()) {
+                    var container = $(".user_edit.settings");
+                    container.find(".user-groups-list").append(
+                        '<li class="list-group-item" data-permissions="' + groupRoles.join(",") + '">' + groupName + '</li>'
+                    );
+                }
+            }
+            overlayEl.find(".overlay_close").click();
+        }, function (data) {
+            overlayEl.find(".msg").attr("tabindex", "0").show().html(data.message).focus();
+            overlayEl.find("button.update").removeAttr("disabled");
+        }, function () {
+            overlayEl.find("button.update").attr("disabled", "disabled");
+        });
+    });
+}
+
 var puckusers;
 var drawUser = function (user,container) {
     var el = cinterfaces.find(".usercard").clone();

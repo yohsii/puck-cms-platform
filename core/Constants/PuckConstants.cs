@@ -130,6 +130,7 @@ namespace puck.core.Constants
     }
     public static class DBNames
     {
+        public const string UserGroup = "usergroup";
         public const string PasswordResetToken = "passwordresettoken";
         public const string SyncId = "syncid";
         public const string TypeChain = "typechain";

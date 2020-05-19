@@ -228,6 +228,14 @@ namespace puck.core.Controllers
                 model.CurrentEmail = usr.Email;
                 //model.Password = usr.GetPassword();
                 //model.PasswordConfirm = model.Password;
+                /*var userGroupMetas = repo.GetPuckMeta().Where(x => x.Name == DBNames.UserGroup).ToList()
+                    .Select(x=>new PuckUserGroupViewModel { 
+                        Id=x.Id,
+                        Name=x.Key,
+                        Roles = x.Value?.Split(',',StringSplitOptions.RemoveEmptyEntries)?.ToList()
+                    }).ToList();
+                model.CurrentUserGroups = userGroupMetas ?? new List<PuckUserGroupViewModel>();
+                */
                 model.Roles = (await userManager.GetRolesAsync(usr)).ToList();
                 if (!string.IsNullOrEmpty(usr.PuckStartNodeIds))
                     model.StartNodes = usr.PuckStartNodeIds
@@ -373,6 +381,79 @@ namespace puck.core.Controllers
                 message = ex.Message;
             }
             return Json(new {success=success,message=message,startPaths=startPaths,startNodeIds=startNodeIds });
+        }
+
+        [Authorize(Roles = PuckRoles.Users, AuthenticationSchemes = Mvc.AuthenticationScheme)]
+        public async Task<ActionResult> EditUserGroup(string groupName = null)
+        {
+            var model = new PuckUserGroupViewModel();
+            ViewBag.Level0Type = typeof(PuckUserGroupViewModel);
+            if (!string.IsNullOrEmpty(groupName))
+            {
+                var meta = repo.GetPuckMeta().Where(x => x.Name == DBNames.UserGroup && x.Key == groupName).FirstOrDefault();
+                if (meta != null) {
+                    model.Name = meta.Key;
+                    model.Id = meta.Id;
+                    model.Roles = meta.Value?.Split(',',StringSplitOptions.RemoveEmptyEntries)?.ToList();
+                }
+            }
+            return View(model);
+        }
+
+        [HttpPost]
+        [Authorize(Roles = PuckRoles.Users, AuthenticationSchemes = Mvc.AuthenticationScheme)]
+        public async Task<JsonResult> EditUserGroup(PuckUserGroupViewModel userGroup, bool edit)
+        {
+            bool success = false;
+            string message = "";
+            
+            try
+            {
+                if (!ModelState.IsValid)
+                    throw new Exception("model invalid.");
+                if (!edit)
+                {
+                    //add puck meta
+                    var meta = new PuckMeta() { 
+                        Name=DBNames.UserGroup,
+                        Key=userGroup.Name,
+                        Value=string.Join(",",userGroup.Roles)
+                    };
+                    repo.AddPuckMeta(meta);
+                    repo.SaveChanges();
+                    success = true;
+                }
+                else
+                {
+                    //edit puck meta
+                    var meta = repo.GetPuckMeta().Where(x => x.Name == DBNames.UserGroup && x.Id == userGroup.Id).FirstOrDefault();
+
+                    if (meta != null)
+                    {
+                        meta.Name = userGroup.Name;
+                        meta.Value = string.Join(",", userGroup.Roles);
+                    }
+                    else {
+                        meta = new PuckMeta()
+                        {
+                            Name = DBNames.UserGroup,
+                            Key = userGroup.Name,
+                            Value = string.Join(",", userGroup.Roles)
+                        };
+                        repo.AddPuckMeta(meta);
+                    }
+                    repo.SaveChanges();
+                    success = true;
+                }
+
+            }
+            catch (Exception ex)
+            {
+                log.Log(ex);
+                success = false;
+                message = ex.Message;
+            }
+            return Json(new { success = success, message = message});
         }
 
         [Authorize(Roles =PuckRoles.Users,AuthenticationSchemes = Mvc.AuthenticationScheme)]

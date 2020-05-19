@@ -29,6 +29,8 @@ namespace puck.core.Models.Admin
         [Required]
         public string Surname { get; set; }
         
+        public List<PuckUserGroupViewModel> CurrentUserGroups { get; set; }
+
         [UIHint("SettingsUserGroups")]
         [Display(Name = "User Groups")]
         public string UserGroups { get; set; }
