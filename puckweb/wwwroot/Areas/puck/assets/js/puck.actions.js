@@ -192,9 +192,23 @@ var showUserGroupMarkup = function (group) {
                     roleNames.push(overlayEl.find("select[name='Roles'] option[value='"+groupRoles[i]+"']").html());
                 }
                 var container = $(".user_groups.settings");
-                var li = container.find("li[data-group-id='" + groupId + "']");
-                li.find(".title").html(groupName);
-                li.find(".roles").html(roleNames.join(","));
+
+                if (groupId) {
+                    var li = container.find("li[data-group-id='" + groupId + "']");
+                    li.find(".title").html(groupName);
+                    li.find(".roles").html(roleNames.join(","));
+                } else {
+                    container.find("ul").append(
+                        '<li class= "list-group-item" data-group-id="' + groupId + '" >'
+                        + '<h3 class="font-weight-light title">' + groupName + '</h3>'
+                        + '<div class="roles">'
+                        + roleNames.join(",")
+                        + '</div>'
+                        + '<button class="edit btn btn-link" data-group-name="' + groupName + '"><i class="fas fa-pencil-alt"></i>&nbsp;edit</button>'
+                        + '<button class="delete btn btn-link" data-group-name="' + groupName + '"><i class="fas fa-trash"></i>&nbsp;delete</button>'
+                        +'</li>'
+                    );
+                }
                 
             }
             overlayEl.find(".overlay_close").click();
@@ -210,11 +224,15 @@ var showUserGroupMarkup = function (group) {
 var showUserGroups = function () {
     getUserGroups(function (d) {
         var overlayEl = overlay(d, 580, undefined, undefined, "User Groups");
-        overlayEl.find("button.edit").click(function (e) {
+        overlayEl.on("click","button.create",function (e) {
+            var el = $(this);
+            showUserGroupMarkup("");
+        });
+        overlayEl.on("click","button.edit",function (e) {
             var el = $(this);
             showUserGroupMarkup(el.attr("data-group-name"));
         });
-        overlayEl.find("button.delete").click(function (e) {
+        overlayEl.on("click","button.delete",function (e) {
             var el = $(this);
             setDeleteUserGroup(el.attr("data-group-name"), function () {
                 el.parents("li:first").remove();
