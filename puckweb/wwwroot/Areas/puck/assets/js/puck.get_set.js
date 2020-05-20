@@ -236,7 +236,13 @@ var getUserMarkup = function (u, f) {
     $.get("/puck/admin/edit?username=" + u, f, "html");
 }
 var getUserGroupMarkup = function (g, f) {
-    $.get("/puck/admin/editusergroup?group="+g, f, "html");
+    $.get("/puck/admin/editusergroup?groupName="+g, f, "html");
+}
+var getUserGroups = function (f) {
+    $.get("/puck/admin/usergroups", f, "html");
+}
+var setDeleteUserGroup = function (n, f) {
+    $.get("/puck/admin/deleteusergroup?name=" + n, f);
 }
 var setDeleteUser = function (u, f) {
     $.get("/puck/admin/delete?username=" + u, f);

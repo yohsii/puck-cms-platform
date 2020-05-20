@@ -260,6 +260,9 @@ namespace puck.core.Controllers
             {
                 if (!ModelState.IsValid)
                     throw new Exception("model invalid.");
+                if (string.IsNullOrEmpty(user.UserGroups))
+                    throw new Exception("please select at least one user group");
+
                 if (!edit) {
                     if (string.IsNullOrEmpty(user.Password))
                         throw new Exception("please enter a password");
@@ -384,6 +387,38 @@ namespace puck.core.Controllers
         }
 
         [Authorize(Roles = PuckRoles.Users, AuthenticationSchemes = Mvc.AuthenticationScheme)]
+        public async Task<ActionResult> UserGroups()
+        {
+            var groups = repo.GetPuckMeta().Where(x => x.Name == DBNames.UserGroup).ToList();
+
+            var model = groups.Select(x => new PuckUserGroupViewModel { Id = x.Id, Name = x.Key, Roles = x.Value?.Split(',', StringSplitOptions.RemoveEmptyEntries)?.ToList() }).ToList();
+            return View(model);
+        }
+
+        [Authorize(Roles = PuckRoles.Users, AuthenticationSchemes = Mvc.AuthenticationScheme)]
+        public async Task<ActionResult> DeleteUserGroup(string name)
+        {
+            var success = false;
+            var message = string.Empty;
+            try
+            {
+                if (string.IsNullOrEmpty(name)) {
+                    throw new Exception("Name parameter cannot be empty");
+                }
+                var groups = repo.GetPuckMeta().Where(x => x.Name == DBNames.UserGroup && x.Key.ToLower().Equals(name.ToLower())).ToList();
+                groups.ForEach(x => repo.DeletePuckMeta(x));
+                repo.SaveChanges();
+
+                success = true;
+            } catch (Exception ex) {
+                log.Log(ex);
+                success = false;
+                message = ex.Message;
+            }
+            return Json(new { success = success, message = message });
+        }
+
+        [Authorize(Roles = PuckRoles.Users, AuthenticationSchemes = Mvc.AuthenticationScheme)]
         public async Task<ActionResult> EditUserGroup(string groupName = null)
         {
             var model = new PuckUserGroupViewModel();
@@ -413,6 +448,9 @@ namespace puck.core.Controllers
                     throw new Exception("model invalid.");
                 if (!edit)
                 {
+                    var existingMeta = repo.GetPuckMeta().Where(x => x.Name == DBNames.UserGroup && x.Name.ToLower() == (string.IsNullOrEmpty(userGroup.Name)?"":userGroup.Name).ToLower()).FirstOrDefault();
+                    if (existingMeta != null)
+                        throw new Exception("A group with that name already exists.");
                     //add puck meta
                     var meta = new PuckMeta() { 
                         Name=DBNames.UserGroup,
@@ -430,7 +468,7 @@ namespace puck.core.Controllers
 
                     if (meta != null)
                     {
-                        meta.Name = userGroup.Name;
+                        meta.Key = userGroup.Name;
                         meta.Value = string.Join(",", userGroup.Roles);
                     }
                     else {

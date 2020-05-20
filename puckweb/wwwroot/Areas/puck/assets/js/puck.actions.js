@@ -183,12 +183,42 @@ var showUserGroupMarkup = function (group) {
                     );
                 }
             }
+            if ($(".user_groups.settings").length > 0) {
+                var groupId = overlayEl.find("input[name='Id']").val();
+                var groupName = overlayEl.find("input[name='Name']").val();
+                var groupRoles = overlayEl.find("select[name=Roles]").val();
+                var roleNames = [];
+                for (var i = 0; i < groupRoles.length; i++) {
+                    roleNames.push(overlayEl.find("select[name='Roles'] option[value='"+groupRoles[i]+"']").html());
+                }
+                var container = $(".user_groups.settings");
+                var li = container.find("li[data-group-id='" + groupId + "']");
+                li.find(".title").html(groupName);
+                li.find(".roles").html(roleNames.join(","));
+                
+            }
             overlayEl.find(".overlay_close").click();
         }, function (data) {
             overlayEl.find(".msg").attr("tabindex", "0").show().html(data.message).focus();
             overlayEl.find("button.update").removeAttr("disabled");
         }, function () {
             overlayEl.find("button.update").attr("disabled", "disabled");
+        });
+    });
+}
+
+var showUserGroups = function () {
+    getUserGroups(function (d) {
+        var overlayEl = overlay(d, 580, undefined, undefined, "User Groups");
+        overlayEl.find("button.edit").click(function (e) {
+            var el = $(this);
+            showUserGroupMarkup(el.attr("data-group-name"));
+        });
+        overlayEl.find("button.delete").click(function (e) {
+            var el = $(this);
+            setDeleteUserGroup(el.attr("data-group-name"), function () {
+                el.parents("li:first").remove();
+            });
         });
     });
 }
@@ -219,6 +249,10 @@ var showUsers = function () {
         cright.find(".create").click(function (e) {
             e.preventDefault();
             showUserMarkup("");
+        });
+        cright.find(".groups").click(function (e) {
+            e.preventDefault();
+            showUserGroups();
         });
         var usersListContainer = cright.find(".row");
         usersContainer.find("input.usersearch").keyup(function (e) {

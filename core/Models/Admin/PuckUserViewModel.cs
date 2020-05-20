@@ -35,6 +35,7 @@ namespace puck.core.Models.Admin
         [Display(Name = "User Groups")]
         public string UserGroups { get; set; }
 
+        [Required]
         [UIHint("SettingsRoles")]
         [Display(Name = "Permissions")]
         public List<string> Roles { get; set; }

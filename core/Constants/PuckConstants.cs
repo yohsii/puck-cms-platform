@@ -68,7 +68,12 @@ namespace puck.core.Constants
         public const string TimedPublish = "_timedpublish";
         public const string Audit = "_audit";
         public const string Sync = "_sync";
+        public static Dictionary<string, string> NamesDictionary = new Dictionary<string, string> {{Create,"Create"},{Edit,"Edit"},{Delete,"Delete"},{Republish,"Re-publish"},{Publish,"Publish"}
+            ,{Unpublish,"Unpublish"},{Revert,"Revert"},{Sort,"Sort"},{Move,"Move" },{Localisation,"Localisation" },{Domain,"Domain" },{Cache,"Cache" },{Notify,"Notify" },{Settings,"Settings" }
+            ,{Tasks,"Tasks" },{Users,"Users" },{Puck,"Puck" },{Copy,"Copy" },{ChangeType,"Change Type" },{TimedPublish,"Timed Publish" },{Audit,"Audit" },{Sync,"Sync" }
+        };
     }
+    
     public static class PuckUserGroups {
         public static string[] Administrator = new string[] {
             PuckRoles.Create,
