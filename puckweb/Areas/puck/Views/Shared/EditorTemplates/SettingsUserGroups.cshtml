@@ -18,10 +18,10 @@
 <div class="d-inline" data-guid="@guid.ToString()">
     <a href="#" class="new-group btn btn-link mb-1">New Group</a>
     <ul class="user-groups-list flex-wrap list-group list-group-horizontal">
-        <li class="list-group-item" data-permissions="@string.Join(",",puck.core.Constants.PuckUserGroups.Administrator)">Administrator</li>
-        <li class="list-group-item" data-permissions="@string.Join(",",puck.core.Constants.PuckUserGroups.Editor)">Editor</li>
+        <li class="list-group-item @(value.Contains("Administrator,")?"active":"")" data-permissions="@string.Join(",",puck.core.Constants.PuckUserGroups.Administrator)">Administrator</li>
+        <li class="list-group-item @(value.Contains("Editor,")?"active":"")" data-permissions="@string.Join(",",puck.core.Constants.PuckUserGroups.Editor)">Editor</li>
         @foreach (var group in userGroups) { 
-            <li class="list-group-item" data-permissions="@string.Join(",",group.Roles)">@group.Name</li>
+            <li class="list-group-item @(value.Contains($"{group.Name},")?"active":"")" data-permissions="@string.Join(",",group.Roles)">@group.Name</li>
         }
     </ul>
 

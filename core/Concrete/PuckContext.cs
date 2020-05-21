@@ -62,6 +62,17 @@ namespace puck.core.Concrete
                 e.HasIndex(x => x.Variant);
                 e.HasIndex(x => x.UserName);
             });
+            builder.Entity<PuckWorkflowItem>(e => {
+                e.HasIndex(x => x.Complete);
+                e.HasIndex(x => x.CompleteDate);
+                e.HasIndex(x => x.ContentId);
+                e.HasIndex(x => x.Variant);
+                e.HasIndex(x => x.Group);
+                e.HasIndex(x => x.LockedBy);
+                e.HasIndex(x => x.LockedUntil);
+                e.HasIndex(x => x.Status);
+                e.HasIndex(x => x.Timestamp);
+            });
 
             builder.Entity<PuckUser>(b =>
             {
@@ -105,6 +116,7 @@ namespace puck.core.Concrete
         public DbSet<PuckAudit> PuckAudit { get; set; }
         public DbSet<PuckTag> PuckTag { get; set; }
         public DbSet<PuckRedirect> PuckRedirect { get; set; }
+        public DbSet<PuckWorkflowItem> PuckWorkflowItem { get; set; }
         //public DbSet<GeneratedModel> GeneratedModel { get; set; }
         //public DbSet<GeneratedProperty> GeneratedProperty { get; set; }
         //public DbSet<GeneratedAttribute> GeneratedAttribute { get; set; }

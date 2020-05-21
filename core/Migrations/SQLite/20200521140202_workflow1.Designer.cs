@@ -2,15 +2,17 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using puck.core.Concrete;
 
 namespace puck.core.Migrations.SQLite
 {
     [DbContext(typeof(PuckContextSQLite))]
-    partial class PuckContextSQLiteModelSnapshot : ModelSnapshot
+    [Migration("20200521140202_workflow1")]
+    partial class workflow1
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

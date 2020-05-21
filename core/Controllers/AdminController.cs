@@ -226,6 +226,7 @@ namespace puck.core.Controllers
                 model.UserName = userName;
                 model.Email = usr.Email;
                 model.CurrentEmail = usr.Email;
+                model.UserGroups = usr.PuckUserGroups;
                 //model.Password = usr.GetPassword();
                 //model.PasswordConfirm = model.Password;
                 /*var userGroupMetas = repo.GetPuckMeta().Where(x => x.Name == DBNames.UserGroup).ToList()
@@ -274,7 +275,8 @@ namespace puck.core.Controllers
                         Email = user.Email,
                         UserName = user.UserName,
                         PuckUserVariant = user.UserVariant,
-                        PuckStartNodeIds = user.StartNodes == null ? null : string.Join(",", user.StartNodes.Select(x => x.Id.ToString()))
+                        PuckStartNodeIds = user.StartNodes == null ? null : string.Join(",", user.StartNodes.Select(x => x.Id.ToString())),
+                        PuckUserGroups = user.UserGroups
                     };
                     var result = await userManager.CreateAsync(puser, user.Password);
                     if (!result.Succeeded) {
@@ -296,6 +298,8 @@ namespace puck.core.Controllers
                     var puser = await userManager.FindByEmailAsync(user.CurrentEmail);
                     if (puser == null)
                         throw new Exception("could not find user for edit");
+
+                    puser.PuckUserGroups = user.UserGroups;
 
                     if (!puser.Email.Equals(user.Email))
                     {
