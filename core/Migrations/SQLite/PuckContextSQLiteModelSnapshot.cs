@@ -479,6 +479,7 @@ namespace puck.core.Migrations.SQLite
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Group")
+                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<string>("LockedBy")
@@ -489,12 +490,15 @@ namespace puck.core.Migrations.SQLite
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Message")
+                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Name")
+                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Status")
+                        .IsRequired()
                         .HasColumnType("TEXT")
                         .HasMaxLength(256);
 
@@ -502,6 +506,7 @@ namespace puck.core.Migrations.SQLite
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Variant")
+                        .IsRequired()
                         .HasColumnType("TEXT")
                         .HasMaxLength(10);
 

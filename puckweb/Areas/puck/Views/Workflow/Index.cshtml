@@ -1,0 +1,57 @@
+﻿@model List<puck.core.Entities.PuckWorkflowItem>
+
+@{ 
+    var assignedItems = Model.Where(x => x.Assignees.Contains(User.Identity.Name)).ToList();
+
+    var groupedItems = Model.Where(x=>!assignedItems.Contains(x)).GroupBy(x => x.Group);
+
+}
+@if (assignedItems.Any() || groupedItems.Any())
+{
+<div class="workflow-container">
+
+    @if (assignedItems.Any())
+    {
+    <div class="workflow-group">
+        <h3 class="font-weight-light">Items assigned to you</h3>
+        @foreach (var assignedItem in assignedItems)
+        {
+            <div class="card w-100">
+                <div class="card-body">
+                    <h5 class="card-title">@ViewBag.Names[assignedItem.ContentId]</h5>
+                    <div class="badge badge-primary">@assignedItem.Status</div>
+                    @if (!string.IsNullOrEmpty(assignedItem.LockedBy)){
+                    <h6 class="card-subtitle mb-2 text-muted">Locked by - @assignedItem.LockedBy</h6>
+                    }
+                    <p class="card-text">@assignedItem.Message</p>
+                    <a href="#content?id=@assignedItem.ContentId&variant=@assignedItem.Variant" class="card-link view">View</a>
+                    <a href="#content?id=@assignedItem.ContentId&variant=@assignedItem.Variant" data-id="@assignedItem.ContentId" data-variant="@assignedItem.Variant" class="card-link lock">Lock and view</a>
+                </div>
+            </div>
+        }
+    </div>
+    }
+    @foreach (var group in groupedItems)
+    {
+    <div class="workflow-group">
+        <h3 class="font-weight-light">@group.Key</h3>
+        @foreach (var groupedItem in group)
+        {
+            <div class="card w-100">
+                <div class="card-body">
+                    <h5 class="card-title">@ViewBag.Names[groupedItem.ContentId]</h5>
+                    <div class="badge badge-primary">@groupedItem.Status</div>
+                    @if (!string.IsNullOrEmpty(groupedItem.LockedBy))
+                    {
+                        <h6 class="card-subtitle mb-2 text-muted">Locked by - @groupedItem.LockedBy</h6>
+                    }
+                    <p class="card-text">@groupedItem.Message</p>
+                    <a href="#content?id=@groupedItem.ContentId&variant=@groupedItem.Variant" class="card-link view">View</a>
+                    <a href="#content?id=@groupedItem.ContentId&variant=@groupedItem.Variant" data-id="@groupedItem.ContentId" data-variant="@groupedItem.Variant" class="card-link lock">Lock and view</a>
+                </div>
+            </div>
+        }
+    </div>
+    }
+</div>
+}

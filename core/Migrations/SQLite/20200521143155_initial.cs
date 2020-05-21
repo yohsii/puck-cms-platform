@@ -44,7 +44,8 @@ namespace puck.core.Migrations.SQLite
                     PuckFirstName = table.Column<string>(nullable: true),
                     PuckSurname = table.Column<string>(nullable: true),
                     PuckUserVariant = table.Column<string>(nullable: true),
-                    PuckStartNodeIds = table.Column<string>(nullable: true)
+                    PuckStartNodeIds = table.Column<string>(nullable: true),
+                    PuckUserGroups = table.Column<string>(nullable: true)
                 },
                 constraints: table =>
                 {
@@ -164,6 +165,31 @@ namespace puck.core.Migrations.SQLite
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_PuckTag", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "PuckWorkflowItem",
+                columns: table => new
+                {
+                    Id = table.Column<int>(nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    ContentId = table.Column<Guid>(nullable: false),
+                    Variant = table.Column<string>(maxLength: 10, nullable: false),
+                    Status = table.Column<string>(maxLength: 256, nullable: false),
+                    Name = table.Column<string>(nullable: false),
+                    Message = table.Column<string>(nullable: false),
+                    Group = table.Column<string>(nullable: false),
+                    Assignees = table.Column<string>(nullable: true),
+                    LockedBy = table.Column<string>(maxLength: 256, nullable: true),
+                    LockedUntil = table.Column<DateTime>(nullable: true),
+                    Complete = table.Column<bool>(nullable: false),
+                    CompleteDate = table.Column<DateTime>(nullable: true),
+                    Timestamp = table.Column<DateTime>(nullable: false),
+                    ViewedBy = table.Column<string>(nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_PuckWorkflowItem", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -378,6 +404,51 @@ namespace puck.core.Migrations.SQLite
                 name: "IX_PuckRevision_Variant",
                 table: "PuckRevision",
                 column: "Variant");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PuckWorkflowItem_Complete",
+                table: "PuckWorkflowItem",
+                column: "Complete");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PuckWorkflowItem_CompleteDate",
+                table: "PuckWorkflowItem",
+                column: "CompleteDate");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PuckWorkflowItem_ContentId",
+                table: "PuckWorkflowItem",
+                column: "ContentId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PuckWorkflowItem_Group",
+                table: "PuckWorkflowItem",
+                column: "Group");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PuckWorkflowItem_LockedBy",
+                table: "PuckWorkflowItem",
+                column: "LockedBy");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PuckWorkflowItem_LockedUntil",
+                table: "PuckWorkflowItem",
+                column: "LockedUntil");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PuckWorkflowItem_Status",
+                table: "PuckWorkflowItem",
+                column: "Status");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PuckWorkflowItem_Timestamp",
+                table: "PuckWorkflowItem",
+                column: "Timestamp");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PuckWorkflowItem_Variant",
+                table: "PuckWorkflowItem",
+                column: "Variant");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
@@ -414,6 +485,9 @@ namespace puck.core.Migrations.SQLite
 
             migrationBuilder.DropTable(
                 name: "PuckTag");
+
+            migrationBuilder.DropTable(
+                name: "PuckWorkflowItem");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");

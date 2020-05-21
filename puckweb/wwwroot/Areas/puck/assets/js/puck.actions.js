@@ -26,6 +26,7 @@ var overlays = [];
 var emptyGuid = '00000000-0000-0000-0000-000000000000';
 var logHelper = new LogHelper();
 var currentCacheKey = "";
+var workflowItems = [];
 var newTemplateFolder = function (p) {
     getTemplateFolderCreateDialog(function (d) {
         var overlayEl = overlay(d, 500, 300, undefined, "New Template Folder");

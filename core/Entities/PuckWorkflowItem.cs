@@ -14,13 +14,19 @@ namespace puck.core.Entities
         }
         [Key]
         public int Id { get; set; }
+        [Required]
         public Guid ContentId { get; set; }
         [MaxLength(10)]
+        [Required]
         public string Variant { get; set; }
         [MaxLength(256)]
+        [Required]
         public string Status { get; set; }
+        [Required]
         public string Name { get; set; }
+        [Required]
         public string Message { get; set; }
+        [Required]
         public string Group { get; set; }
         public string Assignees { get; set; }
         [Display(Name ="Locked By")]

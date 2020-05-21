@@ -5,6 +5,7 @@
     ViewBag.Level0Type = Model?.GetType();
     ViewBag.Model = Model;
 }
+
 @if (ViewBag.Unauthorized != null && ViewBag.Unauthorized == true)
 {
     <script>
@@ -25,6 +26,12 @@ else
     }
     else
     {
+        @if (ViewBag.WorkflowItem != null)
+        {
+            <script>
+                workflowItems[@Model.Id@Model.Variant] = @Newtonsoft.Json.JsonConvert.SerializeObject(ViewBag.WorkflowItem);
+            </script>
+        }
         <div class="content_edit_page">
             @using (Html.BeginForm("Edit", "Api", new { p_type = Model.GetType().Name, p_path = ViewContext.HttpContext.Request.Query["p_path"].ToString() }, FormMethod.Post))
             {

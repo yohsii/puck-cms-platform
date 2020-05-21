@@ -20,6 +20,7 @@ namespace puck.core.Abstract
         public DbSet<PuckAudit> PuckAudit { get; set; }
         public DbSet<PuckTag> PuckTag { get; set; }
         public DbSet<PuckRedirect> PuckRedirect { get; set; }
+        public DbSet<PuckWorkflowItem> PuckWorkflowItem { get; set; }
         public DbSet<PuckUser> Users { get; set; }
         public DbSet<IdentityUserClaim<string>> UserClaims {get;}
         public DbSet<IdentityUserLogin<string>> UserLogins { get; }
