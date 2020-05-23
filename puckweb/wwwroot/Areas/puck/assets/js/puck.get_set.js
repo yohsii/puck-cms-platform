@@ -317,3 +317,28 @@ var setRepublishEntireSite = function (f) {
 var getRepublishEntireSiteStatus = function (f) {
     $.get("/puck/api/GetRepublishEntireSiteStatus", f);
 }
+var getWorkflowItems = function (f) {
+    $.get("/puck/workflow/index", f, "html");
+}
+var addWorkflowItem = function (contentId, variant, status, name, message, group, type, assignees,f) {
+    var post_str = "ContentId=" + contentId + "&Variant=" + variant + "&Status=" + status + "&Name=" + name + "&Message=" + message + "&Group=" + group + "&Type=" + type + "&Assignees=" + assignees;
+    
+    $.ajax({
+        url: "/puck/workflow/create",
+        data: post_str,
+        traditional: true,
+        success: f,
+        type: "POST",
+        datatype: "json"
+    });
+}
+var completeWorkflowItem = function (contentId,variant,status,f) {
+    $.post("/puck/workflow/complete?contentId=" + contentId + "&variant=" + variant + "&status=" + status, f);
+}
+var lockWorkflowItem = function (contentId,variant,until,f) {
+    $.post("/puck/workflow/lock?contentId=" + contentId + "&variant=" + variant + "&until=" + until, f);
+}
+var unlockWorkflowItem = function (contentId, variant,f) {
+    $.post("/puck/workflow/unlock?contentId=" + contentId + "&variant=" + variant, f);
+}
+

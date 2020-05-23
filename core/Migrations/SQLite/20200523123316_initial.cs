@@ -179,6 +179,7 @@ namespace puck.core.Migrations.SQLite
                     Name = table.Column<string>(nullable: false),
                     Message = table.Column<string>(nullable: false),
                     Group = table.Column<string>(nullable: false),
+                    Type = table.Column<string>(nullable: false),
                     Assignees = table.Column<string>(nullable: true),
                     LockedBy = table.Column<string>(maxLength: 256, nullable: true),
                     LockedUntil = table.Column<DateTime>(nullable: true),

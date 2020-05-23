@@ -505,6 +505,10 @@ namespace puck.core.Migrations.SQLite
                     b.Property<DateTime>("Timestamp")
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("Variant")
                         .IsRequired()
                         .HasColumnType("TEXT")

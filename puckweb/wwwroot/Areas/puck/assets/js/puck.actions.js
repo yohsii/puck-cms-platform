@@ -27,6 +27,8 @@ var emptyGuid = '00000000-0000-0000-0000-000000000000';
 var logHelper = new LogHelper();
 var currentCacheKey = "";
 var workflowItems = [];
+var formDatas = [];
+var workflowComments = [];
 var newTemplateFolder = function (p) {
     getTemplateFolderCreateDialog(function (d) {
         var overlayEl = overlay(d, 500, 300, undefined, "New Template Folder");
@@ -314,6 +316,15 @@ var showUsers = function () {
         });
     });
 }
+
+var showWorkflowItems = function () {
+    cright.html("");
+    showLoader(cright);
+    getWorkflowItems(function (html) {
+        cright.html(html);
+    });
+}
+
 //var showUsers = function () {
 //    cright.html("");
 //    showLoader(cright);
@@ -648,22 +659,29 @@ var wireForm = function (form, success, fail,submit) {
             e.preventDefault();
             var values = form.serialize();
             var fd = new FormData(form.get(0));
-            $.ajax({
-                url: form.attr("action"),
-                data: fd,
-                processData: false,
-                contentType: false,
-                type: 'POST',
-                success: function (data) {
-                    if (data.success == true) {
-                        success(data);
-                    } else {
-                        fail(data);
+            
+            var doPost = function () {
+                $.ajax({
+                    url: form.attr("action"),
+                    data: fd,
+                    processData: false,
+                    contentType: false,
+                    type: 'POST',
+                    success: function (data) {
+                        if (data.success == true) {
+                            success(data);
+                        } else {
+                            fail(data);
+                        }
                     }
-                }
-            });
-            if (submit)
-                submit();
+                });
+            }
+            if (submit) {
+                if (!submit(fd))
+                    doPost();
+            } else {
+                doPost();
+            }
         } else {
             var err_el = cright.find(".input-validation-error:first");
             cright.find("[href='#" + err_el.parents(".tab-pane").attr("id") + "']").click();
@@ -964,12 +982,19 @@ var displayMarkup = function (parentId, type, variant, fromVariant,contentId,con
     //console.log(cinterfaces.find(".type_templates>div").length+" type templates");
     //cinterfaces.find(".type_templates>div").remove();
     showLoader(container);
+    var id;
+    var variant;
     getMarkup(parentId, type, variant, function (data) {
         container./*hide().*/html(data);
         if (!type) {
             type = container.find("input[name=Type]").val();
             if (!type) return;
         }
+
+        id = container.find("input[name=Id]").val();
+        variant = container.find("input[name=Variant]").val();
+
+        workflowComments[id + variant] = undefined;
 
         cinterfaces.find("div[data-type='" + type + "']").remove();
         //get template for listeditor
@@ -1057,6 +1082,7 @@ var displayMarkup = function (parentId, type, variant, fromVariant,contentId,con
         }
         var afterGrouping = function () {
             afterDom();
+            formDatas[id + variant] = new FormData(container.find("form").get(0));
             container.show();
             container.find(".fieldtabs:first").click();
             container.find(".tab-pane:first").addClass("active");
@@ -1179,13 +1205,13 @@ var displayMarkup = function (parentId, type, variant, fromVariant,contentId,con
         //publish btn
         if (userRoles.contains("_publish")) {
             container.find(".content_publish").click(function () {
-                container.find("input:hidden[name='Published']").val("true");
+                container.find("input:hidden[name='Published']").val("True");
             });
         } else { container.find(".content_publish").hide(); }
         //udpate btn
         if (userRoles.contains("_edit")) {
             container.find(".content_update").click(function () {
-                container.find("input:hidden[name='Published']").val("false");
+                container.find("input:hidden[name='Published']").val("False");
             });
         } else { container.find(".content_update").hide(); }
         //preview btn
@@ -1215,10 +1241,59 @@ var displayMarkup = function (parentId, type, variant, fromVariant,contentId,con
             container.find(".submitLoader").remove();
             container.find(".content_btns").removeAttr("disabled");
             msg(false, data.message,undefined,msgContainer);
-        }, function () {
-            container.find(".content_btns").attr({ disabled: "disabled" });
-            var img = $("<img src='/areas/puck/assets/img/tree-loader.gif'/>").addClass("submitLoader");
-            container.find(".content_edit_page form").append(img);
+        }, function (fd) {
+                if (window.workflows && isArray(workflows) && workflows[type] && isObject(workflows[type])) {
+                    var wfo = workflows[type];
+
+                    var userObject = { username: userName, userRoles: userRoles, userGroups: userGroups };
+                    var services = {
+                        add: function (status, message, group, assignees, f) { addWorkflowItem(id, variant, status, "none", message, group, type, assignees, f || function () { }); },
+                        complete: function (status, f) { completeWorkflowItem(id, variant, status || "complete", f || function () { }); },
+                        msg: msg
+                    };
+                    var isPublished = container.find("input[name='Published']").val() == "True";
+                    var workflowItem = workflowItems[id + variant];
+                    var startingState = formDatas[id + variant];
+                    var currentState = fd;
+
+                    if (!workflowComments[id + variant] && wfo.comment && isFunction(wfo.comment)) {
+                        var commentDialogTitle = wfo.comment(workflowItem, userObject, startingState, currentState);
+                        if (commentDialogTitle && typeof commentDialogTitle=="string") {
+
+                            //create modal
+                            var modalEl = cinterfaces.find(".modal").clone();
+
+                            modalEl.find(".title").html(commentDialogTitle);
+                            modalEl.find("button").click(function (e) {
+                                var commentVal = modalEl.find("textarea").val();
+                                if (commentVal) {
+                                    modalEl.modal("hide");
+                                    workflowComments[id + variant] = commentVal;
+                                    container.find("form").submit();
+                                } else {
+                                    modalEl.find("textarea").addClass("input-validation-error");
+                                }
+                            });
+
+                            modalEl.modal({ keyboard: false, backdrop: "static" });
+                            
+                            //cancel form submit by returning true
+                            return true;
+                        }
+                    } else {
+                        var comment = workflowComments[id + variant];
+                        if (wfo.handler && isFunction(wfo.handler)) {
+                            var cancel = wfo.handler(isPublished,workflowItem,userObject,startingState,currentState,comment,services);
+                            if (cancel && typeof(cancel) == "boolean")
+                                return true;
+                        }
+                    }
+                }
+
+                container.find(".content_btns").attr({ disabled: "disabled" });
+                var img = $("<img src='/areas/puck/assets/img/tree-loader.gif'/>").addClass("submitLoader");
+                container.find(".content_edit_page form").append(img);
+
         });
 
     }, fromVariant, contentId);

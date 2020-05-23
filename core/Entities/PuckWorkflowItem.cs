@@ -28,6 +28,8 @@ namespace puck.core.Entities
         public string Message { get; set; }
         [Required]
         public string Group { get; set; }
+        [Required]
+        public string Type { get; set; }
         public string Assignees { get; set; }
         [Display(Name ="Locked By")]
         [MaxLength(256)]

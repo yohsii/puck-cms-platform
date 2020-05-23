@@ -9,7 +9,7 @@ using puck.core.Concrete;
 namespace puck.core.Migrations.SQLite
 {
     [DbContext(typeof(PuckContextSQLite))]
-    [Migration("20200521143155_initial")]
+    [Migration("20200523123316_initial")]
     partial class initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -505,6 +505,10 @@ namespace puck.core.Migrations.SQLite
                         .HasMaxLength(256);
 
                     b.Property<DateTime>("Timestamp")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Variant")

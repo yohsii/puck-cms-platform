@@ -70,7 +70,7 @@ namespace puck.core.Controllers
         public async Task<IActionResult> Create(PuckWorkflowItem model) {
             var success = false;
             var message = "";
-
+            bool lockTaken = false;
             try
             {
                 if (!ModelState.IsValid)
@@ -78,7 +78,8 @@ namespace puck.core.Controllers
                     message = string.Join(",", ModelState.Values.SelectMany(x => x.Errors).Select(x => x.ErrorMessage));
                     return Json(new { success = success, message = message });
                 }
-                await slock1.WaitAsync();
+                //await slock1.WaitAsync();
+                lockTaken = true;
 
                 var existingItems = repo.GetPuckWorkflowItem().Where(x => x.ContentId == model.ContentId && x.Variant == model.Variant && !x.Complete).ToList();
                 existingItems.ForEach(x => { x.Complete = true; x.CompleteDate = DateTime.Now; });
@@ -94,7 +95,8 @@ namespace puck.core.Controllers
                 log.Log(ex);
             }
             finally {
-                slock1.Release();
+                //if(lockTaken)
+                //    slock1.Release();
             }
 
             return Json(new {success=success,message=message });
@@ -102,7 +104,7 @@ namespace puck.core.Controllers
 
         [HttpPost]
         [Authorize(Roles = PuckRoles.Puck, AuthenticationSchemes = Mvc.AuthenticationScheme)]
-        public async Task<IActionResult> Complete(Guid contentId,string variant)
+        public async Task<IActionResult> Complete(Guid contentId,string variant,string status)
         {
             var success = false;
             var message = "";
@@ -110,7 +112,7 @@ namespace puck.core.Controllers
             try
             {
                 var existingItems = repo.GetPuckWorkflowItem().Where(x => x.ContentId == contentId && x.Variant == variant && !x.Complete).ToList();
-                existingItems.ForEach(x => { x.Complete = true; x.CompleteDate = DateTime.Now; });
+                existingItems.ForEach(x => { x.Complete = true; x.CompleteDate = DateTime.Now;x.Status = status; });
 
                 repo.SaveChanges();
 
@@ -125,13 +127,12 @@ namespace puck.core.Controllers
             return Json(new { success = success, message = message });
         }
 
-        [HttpPost]
         [Authorize(Roles = PuckRoles.Puck, AuthenticationSchemes = Mvc.AuthenticationScheme)]
         public async Task<IActionResult> Index()
         {
-            var user = await userManager.GetUserAsync(User);
+            var user = await userManager.FindByNameAsync(User.Identity.Name);
 
-            var userGroups = user.PuckUserGroups.Split(',', StringSplitOptions.RemoveEmptyEntries);
+            var userGroups = user.PuckUserGroups?.Split(',', StringSplitOptions.RemoveEmptyEntries)??new string[] { };
 
             var predicate = PredicateBuilder.New<PuckWorkflowItem>();
 
@@ -141,7 +142,9 @@ namespace puck.core.Controllers
 
             predicate.Or(x => x.Assignees.Contains(user.Email));
 
-            var model = repo.GetPuckWorkflowItem().AsExpandable().Where(predicate).ToList();
+            var model = repo.GetPuckWorkflowItem().AsExpandable().Where(predicate).Where(x=>!x.Complete).ToList();
+
+            model.AddRange(repo.GetPuckWorkflowItem().Where(x=>x.Complete).OrderByDescending(x=>x.CompleteDate).Take(10).ToList());
 
             var ids = model.Select(x => x.ContentId);
 
@@ -194,6 +197,32 @@ namespace puck.core.Controllers
 
                 repo.SaveChanges();
 
+                success = true;
+            }
+            catch (Exception ex)
+            {
+                message = ex.Message;
+                log.Log(ex);
+            }
+
+            return Json(new { success = success, message = message });
+        }
+
+        [HttpPost]
+        [Authorize(Roles = PuckRoles.Puck, AuthenticationSchemes = Mvc.AuthenticationScheme)]
+        public async Task<IActionResult> Unlock(Guid contentId, string variant)
+        {
+            var success = false;
+            var message = "";
+
+            try
+            {
+                var existingItems = repo.GetPuckWorkflowItem().Where(x => x.ContentId == contentId && x.Variant == variant).ToList();
+
+                existingItems.ForEach(x=> { x.LockedBy = string.Empty;x.LockedUntil = null; });
+
+                repo.SaveChanges();
+                
                 success = true;
             }
             catch (Exception ex)

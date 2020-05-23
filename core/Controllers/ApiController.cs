@@ -1609,7 +1609,7 @@ namespace puck.core.Controllers
                     baseModel.Revision = 0;
                     baseModel.CreatedBy = User.Identity.Name;
                     baseModel.LastEditedBy = baseModel.CreatedBy;
-                    wfi = repo.GetPuckWorkflowItem().Where(x => x.ContentId == baseModel.Id && x.Variant == baseModel.Variant && !x.Complete).FirstOrDefault();
+                    wfi = repo.GetPuckWorkflowItem().Where(x => x.ContentId == baseModel.Id && x.Variant == baseModel.Variant && !x.Complete).OrderByDescending(x=>x.Timestamp).FirstOrDefault();
                 }
                 else
                 {
@@ -1626,7 +1626,7 @@ namespace puck.core.Controllers
                         mod.LastEditedBy = mod.CreatedBy;
                         mod.Path = "";
                     }
-                    wfi = repo.GetPuckWorkflowItem().Where(x => x.ContentId == mod.Id && x.Variant == mod.Variant && !x.Complete).FirstOrDefault();
+                    wfi = repo.GetPuckWorkflowItem().Where(x => x.ContentId == mod.Id && x.Variant == mod.Variant && !x.Complete).OrderByDescending(x=>x.Timestamp).FirstOrDefault();
                 }
             }
             ViewBag.ShouldBindListEditor = true;

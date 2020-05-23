@@ -891,7 +891,7 @@ var handleHash = function (hash) {
         var dict = getHashValues(hash);
         if (dict["id"] == undefined || dict["variant"] == undefined) {
             cleft.show();
-            cright.html("");
+            showWorkflowItems();
             return;
         }
         displayMarkup(null, null, dict["variant"], undefined, dict["id"]);
@@ -1044,4 +1044,13 @@ getVariants(function (data) {
         location.hash = "settings?path=/puck/settings/languages";
     }
 });
+var isArray = function (arg) {
+    return Object.prototype.toString.call(arg) === '[object Array]';
+};
+var isFunction = function (arg) {
+    return arg && {}.toString.call(arg) === '[object Function]';
+};
+var isObject = function (arg) {
+    return typeof arg === 'object' && arg !== null && arg!==undefined;
+}
 initTree(true);

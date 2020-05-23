@@ -29,7 +29,7 @@ else
         @if (ViewBag.WorkflowItem != null)
         {
             <script>
-                workflowItems[@Model.Id@Model.Variant] = @Newtonsoft.Json.JsonConvert.SerializeObject(ViewBag.WorkflowItem);
+                workflowItems["@Model.Id@Model.Variant"] = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(ViewBag.WorkflowItem));
             </script>
         }
         <div class="content_edit_page">
