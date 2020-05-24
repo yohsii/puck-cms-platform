@@ -63,8 +63,4 @@
     <ProjectReference Include="..\AzureDirectory\AzureDirectory.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Migrations\SQLServer\" />
-  </ItemGroup>
-
 </Project>
