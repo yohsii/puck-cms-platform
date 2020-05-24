@@ -75,6 +75,11 @@ namespace puck.core.Controllers
             {
                 if (model != null)
                     model.AddedBy = User.Identity.Name;
+                if (ModelState.ContainsKey("AddedBy"))
+                {
+                    ModelState["AddedBy"].Errors.Clear();
+                    ModelState["AddedBy"].ValidationState = Microsoft.AspNetCore.Mvc.ModelBinding.ModelValidationState.Valid;
+                }
                 if (!ModelState.IsValid)
                 {
                     message = string.Join(",", ModelState.Values.SelectMany(x => x.Errors).Select(x => x.ErrorMessage));
