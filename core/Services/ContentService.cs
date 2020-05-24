@@ -2379,7 +2379,7 @@ namespace puck.core.Services
                 AddAuditEntry(startNodes.First().Id, startNodes.First().Variant, AuditActions.Move, "", userName);
             if (parentId.HasValue)
             {
-                var parentRevisions = repo.GetPuckRevision().Where(x => x.Id == parentId).ToList();
+                var parentRevisions = repo.GetPuckRevision().Where(x => x.Id == parentId && (x.Current||x.IsPublishedRevision)).ToList();
                 var hasChildren = repo.GetPuckRevision().Count(x => x.ParentId.Equals(parentId) && x.Current) > 0;
                 parentRevisions.ForEach(x => x.HasChildren = hasChildren);
                 repo.SaveChanges();
