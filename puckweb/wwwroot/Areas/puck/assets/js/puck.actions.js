@@ -1268,7 +1268,14 @@ var displayMarkup = function (parentId, type, variant, fromVariant,contentId,con
 
                     var userObject = { username: userName, userRoles: userRoles, userGroups: userGroups };
                     var services = {
-                        add: function (status, message, group, assignees, f) { addWorkflowItem(id, variant, status, "none", message, group, type, assignees, f || function () { }); },
+                        add: function (status, message, group, assignees, f) {
+                            addWorkflowItem(id, variant, status, "none", message, group, type, assignees, function (data) {
+                                setTimeout(function () {
+                                    workflowItems[id + variant] = data.workflowItem;
+                                },500);
+                                if (f) f();
+                            });
+                        },
                         complete: function (status, f) { completeWorkflowItem(id, variant, status || "complete", f || function () { }); },
                         msg: msg
                     };

@@ -94,6 +94,7 @@ namespace puck.core.Controllers
         public async Task<IActionResult> Create(PuckWorkflowItem model) {
             var success = false;
             var message = "";
+            PuckWorkflowItem wfi = null;
             bool lockTaken = false;
             try
             {
@@ -118,6 +119,8 @@ namespace puck.core.Controllers
                 repo.AddPuckWorkflowItem(model);
                 repo.SaveChanges();
 
+                wfi = model;
+
                 success = true;
             }
             catch (Exception ex)
@@ -130,7 +133,7 @@ namespace puck.core.Controllers
                 //    slock1.Release();
             }
 
-            return Json(new {success=success,message=message });
+            return Json(new {success=success,message=message,workflowItem=wfi });
         }
 
         [HttpPost]
