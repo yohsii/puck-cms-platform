@@ -1785,8 +1785,8 @@ namespace puck.core.Services
                         {
                             repo.CurrentRevisionVariants(mod.Id, mod.Variant).ToList().ForEach(x => x.HasChildren = hasChildren);
                         }
-                        if (parentVariants.Any(x => !x.HasChildren))
-                            parentVariants.ToList().ForEach(x => x.HasChildren = true);
+                        //if (parentVariants.Any(x => !x.HasChildren))
+                        parentVariants.Where(x=>!x.HasChildren).ToList().ForEach(x => x.HasChildren = true);
 
                         string auditAction = mod.Published ? AuditActions.Publish : AuditActions.Save;
                         if (original == null) auditAction = AuditActions.Create;
