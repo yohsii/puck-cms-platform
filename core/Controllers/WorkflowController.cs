@@ -73,6 +73,8 @@ namespace puck.core.Controllers
             bool lockTaken = false;
             try
             {
+                if (model != null)
+                    model.AddedBy = User.Identity.Name;
                 if (!ModelState.IsValid)
                 {
                     message = string.Join(",", ModelState.Values.SelectMany(x => x.Errors).Select(x => x.ErrorMessage));
@@ -112,7 +114,7 @@ namespace puck.core.Controllers
             try
             {
                 var existingItems = repo.GetPuckWorkflowItem().Where(x => x.ContentId == contentId && x.Variant == variant && !x.Complete).ToList();
-                existingItems.ForEach(x => { x.Complete = true; x.CompleteDate = DateTime.Now;x.Status = status; });
+                existingItems.ForEach(x => { x.Complete = true; x.CompleteDate = DateTime.Now;});
 
                 repo.SaveChanges();
 
@@ -223,6 +225,39 @@ namespace puck.core.Controllers
 
                 repo.SaveChanges();
                 
+                success = true;
+            }
+            catch (Exception ex)
+            {
+                message = ex.Message;
+                log.Log(ex);
+            }
+
+            return Json(new { success = success, message = message });
+        }
+
+        [HttpPost]
+        [Authorize(Roles = PuckRoles.Puck, AuthenticationSchemes = Mvc.AuthenticationScheme)]
+        public async Task<IActionResult> Rollback(Guid contentId, string variant)
+        {
+            var success = false;
+            var message = "";
+
+            try
+            {
+                var currentItems = repo.GetPuckWorkflowItem().Where(x => x.ContentId == contentId && x.Variant == variant && !x.Complete).ToList();
+
+                var lastComplete = repo.GetPuckWorkflowItem().Where(x => x.ContentId == contentId && x.Variant == variant && x.Complete).OrderByDescending(x => x.CompleteDate).FirstOrDefault();
+
+                currentItems.ForEach(x => { repo.DeletePuckWorkflowItem(x); });
+
+                if (lastComplete != null) {
+                    lastComplete.Complete = false;
+                    lastComplete.CompleteDate = null;
+                }
+
+                repo.SaveChanges();
+
                 success = true;
             }
             catch (Exception ex)

@@ -31,6 +31,12 @@ namespace puck.core.Entities
         [Required]
         public string Type { get; set; }
         public string Assignees { get; set; }
+        
+        [Required]
+        [Display(Name = "Added By")]
+        [MaxLength(256)]
+        public string AddedBy { get; set; }
+
         [Display(Name ="Locked By")]
         [MaxLength(256)]
         public string LockedBy { get; set; }

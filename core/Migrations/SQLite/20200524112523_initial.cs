@@ -181,6 +181,7 @@ namespace puck.core.Migrations.SQLite
                     Group = table.Column<string>(nullable: false),
                     Type = table.Column<string>(nullable: false),
                     Assignees = table.Column<string>(nullable: true),
+                    AddedBy = table.Column<string>(maxLength: 256, nullable: false),
                     LockedBy = table.Column<string>(maxLength: 256, nullable: true),
                     LockedUntil = table.Column<DateTime>(nullable: true),
                     Complete = table.Column<bool>(nullable: false),
@@ -405,6 +406,11 @@ namespace puck.core.Migrations.SQLite
                 name: "IX_PuckRevision_Variant",
                 table: "PuckRevision",
                 column: "Variant");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PuckWorkflowItem_AddedBy",
+                table: "PuckWorkflowItem",
+                column: "AddedBy");
 
             migrationBuilder.CreateIndex(
                 name: "IX_PuckWorkflowItem_Complete",

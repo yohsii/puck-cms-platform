@@ -9,7 +9,7 @@ using puck.core.Concrete;
 namespace puck.core.Migrations.SQLite
 {
     [DbContext(typeof(PuckContextSQLite))]
-    [Migration("20200523123316_initial")]
+    [Migration("20200524112523_initial")]
     partial class initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -468,6 +468,11 @@ namespace puck.core.Migrations.SQLite
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
+                    b.Property<string>("AddedBy")
+                        .IsRequired()
+                        .HasColumnType("TEXT")
+                        .HasMaxLength(256);
+
                     b.Property<string>("Assignees")
                         .HasColumnType("TEXT");
 
@@ -520,6 +525,8 @@ namespace puck.core.Migrations.SQLite
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("AddedBy");
 
                     b.HasIndex("Complete");
 

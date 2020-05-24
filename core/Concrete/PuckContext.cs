@@ -72,6 +72,7 @@ namespace puck.core.Concrete
                 e.HasIndex(x => x.LockedUntil);
                 e.HasIndex(x => x.Status);
                 e.HasIndex(x => x.Timestamp);
+                e.HasIndex(x => x.AddedBy);
             });
 
             builder.Entity<PuckUser>(b =>
