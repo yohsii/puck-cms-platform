@@ -142,7 +142,7 @@ namespace puck.core.Controllers
                 predicate = predicate.Or(x=>x.Group.Equals(group));
             }
 
-            predicate.Or(x => x.Assignees.Contains(user.Email));
+            predicate.Or(x => x.Assignees.Contains(user.UserName));
 
             var model = repo.GetPuckWorkflowItem().AsExpandable().Where(predicate).Where(x=>!x.Complete).ToList();
 

@@ -19,7 +19,7 @@
                 <h3 class="mt-3 font-weight-light">Items assigned to you</h3>
                 @foreach (var assignedItem in assignedItems)
                 {
-                    <div class="card w-100">
+                    <div class="card w-100 workflow-item incomplete" data-id="@assignedItem.Id">
                         <div class="card-body">
                             <h5 class="card-title">@ViewBag.Names[assignedItem.ContentId]</h5>
                             <div class="badge badge-primary">@assignedItem.Status</div>
@@ -41,7 +41,7 @@
                 <h3 class="mt-3 font-weight-light">@group.Key</h3>
                 @foreach (var groupedItem in group)
                 {
-                    <div class="card w-100">
+                    <div class="card w-100 workflow-item incomplete" data-id="@groupedItem.Id">
                         <div class="card-body">
                             <h5 class="card-title">@ViewBag.Names[groupedItem.ContentId]</h5>
                             <div class="badge badge-primary">@groupedItem.Status</div>

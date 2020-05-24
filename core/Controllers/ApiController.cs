@@ -136,8 +136,10 @@ namespace puck.core.Controllers
         }
         //[Authorize(Roles = PuckRoles.Puck, AuthenticationSchemes = "Identity.Application")]
         [Authorize(Roles = PuckRoles.Puck, AuthenticationSchemes = Mvc.AuthenticationScheme)]
-        public ActionResult Index()
+        public async Task<IActionResult> Index()
         {
+            var currentWorkflowItemId = await apiHelper.GetCurrentWorkflowItemId(User.Identity.Name);
+            ViewBag.CurrentWorkflowItemId = currentWorkflowItemId.Item1;
             return View();
         }
         [Authorize(Roles = PuckRoles.Puck, AuthenticationSchemes = Mvc.AuthenticationScheme)]

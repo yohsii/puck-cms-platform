@@ -52,7 +52,7 @@ namespace puck.core.Controllers
                         var ex = new Exception($"domain root not set, likely because there is no content. DOMAIN:{domain} - visit the backoffice to set up your site");
                         if (PuckCache.JustSeeded) {
                             PuckCache.JustSeeded = false;
-                            return Redirect("/puck#firstRun=true"); 
+                            return Redirect("/puck?hash=firstRun"); 
                         }
                         else
                             throw ex;

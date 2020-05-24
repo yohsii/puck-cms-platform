@@ -27,6 +27,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
+using LinqKit;
 
 namespace puck.core.Helpers
 {
@@ -50,6 +51,33 @@ namespace puck.core.Helpers
             this.logger = Logger;
             this.config = config;
         }
+
+        public async Task<Tuple<int,int>> GetCurrentWorkflowItemId(string username,int? since=null) {
+            var user = await userManager.FindByNameAsync(username);
+
+            var userGroups = user.PuckUserGroups?.Split(',', StringSplitOptions.RemoveEmptyEntries) ?? new string[] { };
+
+            var predicate = PredicateBuilder.New<PuckWorkflowItem>();
+
+            foreach (var group in userGroups)
+            {
+                predicate = predicate.Or(x => x.Group.Equals(group));
+            }
+
+            predicate.Or(x => x.Assignees.Contains(user.UserName));
+
+            var model = repo.GetPuckWorkflowItem().AsExpandable().Where(predicate).Where(x => !x.Complete);
+
+            if (since.HasValue)
+                model = model.Where(x => x.Id > since);
+
+            var count = model.Count();
+
+            int currentId = model.OrderByDescending(x => x.Timestamp).FirstOrDefault()?.Id ?? 0;
+
+            return new Tuple<int, int>(currentId,count);
+        }
+
         public string GetConnectionStringName() {
             var connectionStringName = "";
             if (config.GetValue<bool?>("UseSQLServer") ?? false)

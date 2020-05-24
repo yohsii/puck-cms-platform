@@ -980,6 +980,7 @@ $(window).load(function () {
 
     var hash = getQueryString("hash");
     //console.log("hashQs",hash);
+    
     if (!hash) {
         if (!location.hash)
             location.hash = "#content";
@@ -987,6 +988,8 @@ $(window).load(function () {
     }
     setTimeout(function () {
         location.hash = hash;
+        if (hash[0] != "#")
+            hash = "#" + hash;
         history.replaceState('','',"/puck"+hash);
     }, 500);
 });
