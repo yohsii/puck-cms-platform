@@ -1,0 +1,23 @@
+﻿@model List<puck.core.Models.Admin.PuckUserGroupViewModel>
+@{
+    Layout = null;
+    var guid = Guid.NewGuid();
+}
+    <div class="user_groups settings" data-guid="@guid">
+        <button class="create btn btn-link" ><i class="fas fa-plus"></i>&nbsp;new group</button>
+
+        <ul class="list-group">
+            @foreach (var group in Model)
+            {
+                <li class="list-group-item" data-group-id="@group.Id">
+                    <h3 class="font-weight-light title">@group.Name</h3>
+                    <div class="roles">
+                        @string.Join(',', group.Roles?.Select(x => puck.core.Constants.PuckRoles.NamesDictionary[x]))
+                    </div>
+                    <button class="edit btn btn-link" data-group-name="@group.Name"><i class="fas fa-pencil-alt"></i>&nbsp;edit</button>
+                    <button class="delete btn btn-link" data-group-name="@group.Name"><i class="fas fa-trash"></i>&nbsp;delete</button>
+                </li>
+            }
+        </ul>
+
+    </div>

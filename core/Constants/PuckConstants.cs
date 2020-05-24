@@ -68,6 +68,57 @@ namespace puck.core.Constants
         public const string TimedPublish = "_timedpublish";
         public const string Audit = "_audit";
         public const string Sync = "_sync";
+        public static Dictionary<string, string> NamesDictionary = new Dictionary<string, string> {{Create,"Create"},{Edit,"Edit"},{Delete,"Delete"},{Republish,"Re-publish"},{Publish,"Publish"}
+            ,{Unpublish,"Unpublish"},{Revert,"Revert"},{Sort,"Sort"},{Move,"Move" },{Localisation,"Localisation" },{Domain,"Domain" },{Cache,"Cache" },{Notify,"Notify" },{Settings,"Settings" }
+            ,{Tasks,"Tasks" },{Users,"Users" },{Puck,"Puck" },{Copy,"Copy" },{ChangeType,"Change Type" },{TimedPublish,"Timed Publish" },{Audit,"Audit" },{Sync,"Sync" }
+        };
+    }
+    
+    public static class PuckUserGroups {
+        public static string[] Administrator = new string[] {
+            PuckRoles.Create,
+            PuckRoles.Edit,
+            PuckRoles.Delete,
+            PuckRoles.Republish,
+            PuckRoles.Publish,
+            PuckRoles.Unpublish,
+            PuckRoles.Revert,
+            PuckRoles.Sort,
+            PuckRoles.Move,
+            PuckRoles.Localisation,
+            PuckRoles.Domain,
+            PuckRoles.Cache,
+            PuckRoles.Notify,
+            PuckRoles.Settings,
+            PuckRoles.Tasks,
+            PuckRoles.Users,
+            PuckRoles.Puck,
+            PuckRoles.Copy,
+            PuckRoles.ChangeType,
+            PuckRoles.TimedPublish,
+            PuckRoles.Audit,
+            PuckRoles.Sync
+        };
+        public static string[] Editor = new string[] {
+            PuckRoles.Create,
+            PuckRoles.Edit,
+            PuckRoles.Delete,
+            PuckRoles.Republish,
+            PuckRoles.Publish,
+            PuckRoles.Unpublish,
+            PuckRoles.Revert,
+            PuckRoles.Sort,
+            PuckRoles.Move,
+            PuckRoles.Localisation,
+            PuckRoles.Cache,
+            PuckRoles.Notify,
+            PuckRoles.Puck,
+            PuckRoles.Copy,
+            PuckRoles.ChangeType,
+            PuckRoles.TimedPublish,
+            PuckRoles.Audit,
+            PuckRoles.Sync
+        };
     }
     public static class FieldKeys
     {
@@ -84,6 +135,7 @@ namespace puck.core.Constants
     }
     public static class DBNames
     {
+        public const string UserGroup = "usergroup";
         public const string PasswordResetToken = "passwordresettoken";
         public const string SyncId = "syncid";
         public const string TypeChain = "typechain";

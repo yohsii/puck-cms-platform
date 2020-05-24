@@ -1,0 +1,37 @@
+﻿@model puck.core.Models.Admin.PuckUserGroupViewModel
+@{
+    Layout = null;
+    var guid = Guid.NewGuid();
+}
+<div class="user_edit settings" data-guid="@guid">
+    @using (Html.BeginForm("EditUserGroup", "admin", new { edit = Model.Id.HasValue.ToString() }, FormMethod.Post,null,new {autocomplete="off" }))
+    {
+        @Html.ValidationSummary(true)
+
+    <fieldset>
+        <legend>Puck User Group</legend>
+
+        @Html.EditorFor(x=>x.Id)
+
+        <div class="fieldwrapper">
+            @Html.LabelFor(x => x.Name)
+            @Html.TextBoxFor(x => x.Name)
+        </div>
+
+        <div class="fieldwrapper permissions">
+            @Html.LabelFor(x => x.Roles)
+            <span class="description">Hold down Ctrl (on windows) or Command (on mac), to select multiple permissions. Alternatively, click and drag if the permissions you want are listed one after the other.</span>
+            <br />
+            @Html.EditorFor(x => x.Roles)
+        </div>
+
+        
+    </fieldset>
+        <div>
+            <button class="btn btn-link update">update</button>
+        </div>
+    }    
+    <div class="msg">
+
+    </div>
+</div>

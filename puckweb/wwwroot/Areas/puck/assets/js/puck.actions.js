@@ -26,6 +26,10 @@ var overlays = [];
 var emptyGuid = '00000000-0000-0000-0000-000000000000';
 var logHelper = new LogHelper();
 var currentCacheKey = "";
+var workflowItems = [];
+var formDatas = [];
+var workflowComments = [];
+var contentLocks = [];
 var newTemplateFolder = function (p) {
     getTemplateFolderCreateDialog(function (d) {
         var overlayEl = overlay(d, 500, 300, undefined, "New Template Folder");
@@ -168,6 +172,79 @@ var showUserMarkup = function (username) {
         });
     });
 }
+
+var showUserGroupMarkup = function (group) {
+    getUserGroupMarkup(group,function (d) {
+        var overlayEl = overlay(d, 580, undefined, undefined, "User Group");
+        wireForm(overlayEl.find("form"), function (data) {
+            if ($(".user_edit.settings").length>0) {
+                var groupName = overlayEl.find("input[name='Name']").val();
+                var groupRoles = overlayEl.find("select[name=Roles]").val();
+                if (!overlayEl.find(":input:hidden[name='Id']").val()) {
+                    var container = $(".user_edit.settings");
+                    container.find(".user-groups-list").append(
+                        '<li class="list-group-item" data-permissions="' + groupRoles.join(",") + '">' + groupName + '</li>'
+                    );
+                }
+            }
+            if ($(".user_groups.settings").length > 0) {
+                var groupId = overlayEl.find("input[name='Id']").val();
+                var groupName = overlayEl.find("input[name='Name']").val();
+                var groupRoles = overlayEl.find("select[name=Roles]").val();
+                var roleNames = [];
+                for (var i = 0; i < groupRoles.length; i++) {
+                    roleNames.push(overlayEl.find("select[name='Roles'] option[value='"+groupRoles[i]+"']").html());
+                }
+                var container = $(".user_groups.settings");
+
+                if (groupId) {
+                    var li = container.find("li[data-group-id='" + groupId + "']");
+                    li.find(".title").html(groupName);
+                    li.find(".roles").html(roleNames.join(","));
+                } else {
+                    container.find("ul").append(
+                        '<li class= "list-group-item" data-group-id="' + groupId + '" >'
+                        + '<h3 class="font-weight-light title">' + groupName + '</h3>'
+                        + '<div class="roles">'
+                        + roleNames.join(",")
+                        + '</div>'
+                        + '<button class="edit btn btn-link" data-group-name="' + groupName + '"><i class="fas fa-pencil-alt"></i>&nbsp;edit</button>'
+                        + '<button class="delete btn btn-link" data-group-name="' + groupName + '"><i class="fas fa-trash"></i>&nbsp;delete</button>'
+                        +'</li>'
+                    );
+                }
+                
+            }
+            overlayEl.find(".overlay_close").click();
+        }, function (data) {
+            overlayEl.find(".msg").attr("tabindex", "0").show().html(data.message).focus();
+            overlayEl.find("button.update").removeAttr("disabled");
+        }, function () {
+            overlayEl.find("button.update").attr("disabled", "disabled");
+        });
+    });
+}
+
+var showUserGroups = function () {
+    getUserGroups(function (d) {
+        var overlayEl = overlay(d, 580, undefined, undefined, "User Groups");
+        overlayEl.on("click","button.create",function (e) {
+            var el = $(this);
+            showUserGroupMarkup("");
+        });
+        overlayEl.on("click","button.edit",function (e) {
+            var el = $(this);
+            showUserGroupMarkup(el.attr("data-group-name"));
+        });
+        overlayEl.on("click","button.delete",function (e) {
+            var el = $(this);
+            setDeleteUserGroup(el.attr("data-group-name"), function () {
+                el.parents("li:first").remove();
+            });
+        });
+    });
+}
+
 var puckusers;
 var drawUser = function (user,container) {
     var el = cinterfaces.find(".usercard").clone();
@@ -194,6 +271,10 @@ var showUsers = function () {
         cright.find(".create").click(function (e) {
             e.preventDefault();
             showUserMarkup("");
+        });
+        cright.find(".groups").click(function (e) {
+            e.preventDefault();
+            showUserGroups();
         });
         var usersListContainer = cright.find(".row");
         usersContainer.find("input.usersearch").keyup(function (e) {
@@ -236,6 +317,15 @@ var showUsers = function () {
         });
     });
 }
+
+var showWorkflowItems = function () {
+    cright.html("");
+    showLoader(cright);
+    getWorkflowItems(function (html) {
+        cright.html(html);
+    });
+}
+
 //var showUsers = function () {
 //    cright.html("");
 //    showLoader(cright);
@@ -570,22 +660,29 @@ var wireForm = function (form, success, fail,submit) {
             e.preventDefault();
             var values = form.serialize();
             var fd = new FormData(form.get(0));
-            $.ajax({
-                url: form.attr("action"),
-                data: fd,
-                processData: false,
-                contentType: false,
-                type: 'POST',
-                success: function (data) {
-                    if (data.success == true) {
-                        success(data);
-                    } else {
-                        fail(data);
+            
+            var doPost = function () {
+                $.ajax({
+                    url: form.attr("action"),
+                    data: fd,
+                    processData: false,
+                    contentType: false,
+                    type: 'POST',
+                    success: function (data) {
+                        if (data.success == true) {
+                            success(data);
+                        } else {
+                            fail(data);
+                        }
                     }
-                }
-            });
-            if (submit)
-                submit();
+                });
+            }
+            if (submit) {
+                if (!submit(fd))
+                    doPost();
+            } else {
+                doPost();
+            }
         } else {
             var err_el = cright.find(".input-validation-error:first");
             cright.find("[href='#" + err_el.parents(".tab-pane").attr("id") + "']").click();
@@ -886,12 +983,19 @@ var displayMarkup = function (parentId, type, variant, fromVariant,contentId,con
     //console.log(cinterfaces.find(".type_templates>div").length+" type templates");
     //cinterfaces.find(".type_templates>div").remove();
     showLoader(container);
+    var id;
+    var variant;
     getMarkup(parentId, type, variant, function (data) {
         container./*hide().*/html(data);
         if (!type) {
             type = container.find("input[name=Type]").val();
             if (!type) return;
         }
+
+        id = container.find("input[name=Id]").val();
+        variant = container.find("input[name=Variant]").val();
+
+        workflowComments[id + variant] = undefined;
 
         cinterfaces.find("div[data-type='" + type + "']").remove();
         //get template for listeditor
@@ -979,6 +1083,8 @@ var displayMarkup = function (parentId, type, variant, fromVariant,contentId,con
         }
         var afterGrouping = function () {
             afterDom();
+            container.find('[data-toggle="tooltip"]').tooltip();
+            formDatas[id + variant] = new FormData(container.find("form").get(0));
             container.show();
             container.find(".fieldtabs:first").click();
             container.find(".tab-pane:first").addClass("active");
@@ -1000,6 +1106,10 @@ var displayMarkup = function (parentId, type, variant, fromVariant,contentId,con
             }
             if (scroll) {
                 container.parents(".scrollContainer:first").scrollTop(scroll);
+            } else {
+                if (contentLocks[id + variant]) {
+                    container.find(".content_unlock").focus();
+                }
             }
 
         }
@@ -1101,13 +1211,13 @@ var displayMarkup = function (parentId, type, variant, fromVariant,contentId,con
         //publish btn
         if (userRoles.contains("_publish")) {
             container.find(".content_publish").click(function () {
-                container.find("input:hidden[name='Published']").val("true");
+                container.find("input:hidden[name='Published']").val("True");
             });
         } else { container.find(".content_publish").hide(); }
         //udpate btn
         if (userRoles.contains("_edit")) {
             container.find(".content_update").click(function () {
-                container.find("input:hidden[name='Published']").val("false");
+                container.find("input:hidden[name='Published']").val("False");
             });
         } else { container.find(".content_update").hide(); }
         //preview btn
@@ -1117,13 +1227,28 @@ var displayMarkup = function (parentId, type, variant, fromVariant,contentId,con
                 window.open("/puck/api/previewguid?id=" + contentId + "&variant=" + variant, "_blank");
             });
         } else { container.find(".content_preview").hide(); }
+        //unlock btn
+        if (contentLocks[id + variant]) {
+            
+            container.find(".content_unlock").click(function (e) {
+                e.preventDefault();
+                var el = $(this);
+                unlockWorkflowItem(id, variant, function () { });
+                el.hide();
+                msg(undefined,"content has been unlocked");
+            });
+            
+        }
 
         wireForm(container.find('form'), function (data) {
             var status = true;
             if (data.message && data.message.indexOf("queued") > -1) {
                 status = undefined;
             } else if (!data.message) {
-                data.message = "content updated";
+                data.message = "content updated.";
+            }
+            if (contentLocks[id + variant]) {
+                //data.message += ". consider unlocking this content";
             }
             msg(status, data.message, undefined, msgContainer);
             getDrawContent(data.parentId, undefined, true, function () {
@@ -1137,10 +1262,59 @@ var displayMarkup = function (parentId, type, variant, fromVariant,contentId,con
             container.find(".submitLoader").remove();
             container.find(".content_btns").removeAttr("disabled");
             msg(false, data.message,undefined,msgContainer);
-        }, function () {
-            container.find(".content_btns").attr({ disabled: "disabled" });
-            var img = $("<img src='/areas/puck/assets/img/tree-loader.gif'/>").addClass("submitLoader");
-            container.find(".content_edit_page form").append(img);
+        }, function (fd) {
+                if (window.workflows && isArray(workflows) && workflows[type] && isObject(workflows[type])) {
+                    var wfo = workflows[type];
+
+                    var userObject = { username: userName, userRoles: userRoles, userGroups: userGroups };
+                    var services = {
+                        add: function (status, message, group, assignees, f) { addWorkflowItem(id, variant, status, "none", message, group, type, assignees, f || function () { }); },
+                        complete: function (status, f) { completeWorkflowItem(id, variant, status || "complete", f || function () { }); },
+                        msg: msg
+                    };
+                    var isPublished = container.find("input[name='Published']").val() == "True";
+                    var workflowItem = workflowItems[id + variant];
+                    var startingState = formDatas[id + variant];
+                    var currentState = fd;
+
+                    if (!workflowComments[id + variant] && wfo.comment && isFunction(wfo.comment)) {
+                        var commentDialogTitle = wfo.comment(workflowItem, userObject, startingState, currentState);
+                        if (commentDialogTitle && typeof commentDialogTitle=="string") {
+
+                            //create modal
+                            var modalEl = cinterfaces.find(".modal").clone();
+
+                            modalEl.find(".title").html(commentDialogTitle);
+                            modalEl.find("button").click(function (e) {
+                                var commentVal = modalEl.find("textarea").val();
+                                if (commentVal) {
+                                    modalEl.modal("hide");
+                                    workflowComments[id + variant] = commentVal;
+                                    container.find("form").submit();
+                                } else {
+                                    modalEl.find("textarea").addClass("input-validation-error");
+                                }
+                            });
+
+                            modalEl.modal({ keyboard: false, backdrop: "static" });
+                            
+                            //cancel form submit by returning true
+                            return true;
+                        }
+                    } else {
+                        var comment = workflowComments[id + variant];
+                        if (wfo.handler && isFunction(wfo.handler)) {
+                            var cancel = wfo.handler(isPublished,workflowItem,userObject,startingState,currentState,comment,services);
+                            if (cancel && typeof(cancel) == "boolean")
+                                return true;
+                        }
+                    }
+                }
+
+                container.find(".content_btns").attr({ disabled: "disabled" });
+                var img = $("<img src='/areas/puck/assets/img/tree-loader.gif'/>").addClass("submitLoader");
+                container.find(".content_edit_page form").append(img);
+
         });
 
     }, fromVariant, contentId);
@@ -1654,6 +1828,16 @@ var loadTreePath = function (path, f, cont, afterDrawContent, renderVariantLinks
         }
     }
     doLoadPath(pathSegments, 0);
+}
+
+var showWorkflowNotifications = function () {
+    getWorkflowNotifications(workflowNotificationId, function (data) {
+        if (data.count > 0) {
+            workflowNotificationId = data.id;
+            $(".menutop a.content i").html('<div class="badge badge-danger">' + data.count + '</div>');
+        }
+        setTimeout(showWorkflowNotifications, 10000);
+    });
 }
 
 //getContentByParentId("", function (res) {

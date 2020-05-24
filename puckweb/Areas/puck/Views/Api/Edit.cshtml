@@ -4,7 +4,13 @@
     Layout = null;
     ViewBag.Level0Type = Model?.GetType();
     ViewBag.Model = Model;
+    puck.core.Entities.PuckWorkflowItem wfi = null;
+    if (ViewBag.WorkflowItem != null) {
+        wfi = ViewBag.WorkflowItem;
+    }
+    var locked = false;
 }
+
 @if (ViewBag.Unauthorized != null && ViewBag.Unauthorized == true)
 {
     <script>
@@ -25,15 +31,36 @@ else
     }
     else
     {
-        <div class="content_edit_page">
-            @using (Html.BeginForm("Edit", "Api", new { p_type = Model.GetType().Name, p_path = ViewContext.HttpContext.Request.Query["p_path"].ToString() }, FormMethod.Post))
-            {
-                @Html.EditorForModel()
+        @if (ViewBag.WorkflowItem != null)
+        {
+            <script>
+                workflowItems["@Model.Id@Model.Variant"] = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(ViewBag.WorkflowItem));
 
-                <button title="preview" class="content_preview content_btns"><i class="fas fa-eye"></i></button>
-                <button title="update" class="content_update content_btns"><i class="fas fa-edit"></i></button>
-                <button title="publish" class="content_publish content_btns"><i class="fas fa-check-square"></i></button>
-            }
-        </div>
+                @if (wfi != null && wfi.LockedUntil.HasValue && wfi.LockedUntil > DateTime.Now)
+                {
+                    locked = true;
+                    @Html.Raw($"contentLocks['{Model.Id}{Model.Variant}'] = true;")
+                }
+                else {
+                    @Html.Raw($"contentLocks['{Model.Id}{Model.Variant}'] = false;")
+                }
+            </script>
+        }
+<div class="content_edit_page">
+    @using (Html.BeginForm("Edit", "Api", new { p_type = Model.GetType().Name, p_path = ViewContext.HttpContext.Request.Query["p_path"].ToString() }, FormMethod.Post))
+    {
+        @Html.EditorForModel()
+        @if (wfi != null && wfi.LockedUntil.HasValue && wfi.LockedUntil > DateTime.Now && wfi.LockedBy==User.Identity.Name)
+        {
+        <button title="unlock" class="content_unlock content_btns" data-toggle="tooltip" data-placement="bottom" onkeyup="event.preventDefault()"><i class="fas fa-lock-open"></i></button>
+        }
+        <button title="preview" class="content_preview content_btns"><i class="fas fa-eye"></i></button>
+        if (!locked || (locked && wfi.LockedBy==User.Identity.Name))
+        {
+        <button title="update" class="content_update content_btns"><i class="fas fa-edit"></i></button>
+        <button title="publish" class="content_publish content_btns"><i class="fas fa-check-square"></i></button>
+        }
+    }
+</div>
     }
 }

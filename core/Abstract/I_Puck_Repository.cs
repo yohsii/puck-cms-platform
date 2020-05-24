@@ -26,6 +26,9 @@ namespace puck.core.Abstract
         IQueryable<PuckRedirect> GetPuckRedirect();
         void AddPuckRedirect(PuckRedirect pr);
         void DeletePuckRedirect(PuckRedirect pr);
+        IQueryable<PuckWorkflowItem> GetPuckWorkflowItem();
+        void AddPuckWorkflowItem(PuckWorkflowItem wfi);
+        void DeletePuckWorkflowItem(PuckWorkflowItem wfi);
         IQueryable<PuckInstruction> GetPuckInstruction();
         void AddPuckInstruction(PuckInstruction pi);
         void DeletePuckInstruction(PuckInstruction pi);

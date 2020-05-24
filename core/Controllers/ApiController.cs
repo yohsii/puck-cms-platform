@@ -136,8 +136,10 @@ namespace puck.core.Controllers
         }
         //[Authorize(Roles = PuckRoles.Puck, AuthenticationSchemes = "Identity.Application")]
         [Authorize(Roles = PuckRoles.Puck, AuthenticationSchemes = Mvc.AuthenticationScheme)]
-        public ActionResult Index()
+        public async Task<IActionResult> Index()
         {
+            var currentWorkflowItemId = await apiHelper.GetCurrentWorkflowItemId(User.Identity.Name);
+            ViewBag.CurrentWorkflowItemId = currentWorkflowItemId.Item1;
             return View();
         }
         [Authorize(Roles = PuckRoles.Puck, AuthenticationSchemes = Mvc.AuthenticationScheme)]
@@ -1567,7 +1569,9 @@ namespace puck.core.Controllers
                 results = repo.GetPuckRevision().Where(x => x.Id == contentId.Value && x.Variant.ToLower().Equals(p_variant.ToLower()) && x.Current).ToList();
             else
                 results = repo.GetPuckRevision().Where(x => x.Id == contentId.Value && x.Variant.ToLower().Equals(p_fromVariant.ToLower()) && x.Current).ToList();
-
+            
+            PuckWorkflowItem wfi = null;
+            
             if (results.Count > 0)
             {
                 var result = results.FirstOrDefault();
@@ -1585,6 +1589,7 @@ namespace puck.core.Controllers
                     ViewBag.Level0Type = typeof(BaseModel);
                     return View(new BaseModel());
                 }
+                
                 if (!string.IsNullOrEmpty(p_fromVariant) && p_fromVariant.Equals("none"))
                 {//create blank new translation of existing content
                     var modelType = ApiHelper.GetTypeFromName(result.Type);
@@ -1606,13 +1611,14 @@ namespace puck.core.Controllers
                     baseModel.Revision = 0;
                     baseModel.CreatedBy = User.Identity.Name;
                     baseModel.LastEditedBy = baseModel.CreatedBy;
+                    wfi = repo.GetPuckWorkflowItem().Where(x => x.ContentId == baseModel.Id && x.Variant == baseModel.Variant).OrderByDescending(x=>x.Timestamp).FirstOrDefault();
                 }
                 else
                 {
                     model = result.ToBaseModel();
+                    var mod = model as BaseModel;
                     if (!string.IsNullOrEmpty(p_fromVariant))
                     {
-                        var mod = model as BaseModel;
                         mod.Variant = p_variant;
                         mod.Created = DateTime.Now;
                         mod.Updated = DateTime.Now;
@@ -1622,11 +1628,13 @@ namespace puck.core.Controllers
                         mod.LastEditedBy = mod.CreatedBy;
                         mod.Path = "";
                     }
+                    wfi = repo.GetPuckWorkflowItem().Where(x => x.ContentId == mod.Id && x.Variant == mod.Variant).OrderByDescending(x=>x.Timestamp).FirstOrDefault();
                 }
             }
             ViewBag.ShouldBindListEditor = true;
             ViewBag.IsPrepopulated = false;
             ViewBag.Level0Type = model?.GetType();
+            ViewBag.WorkFlowItem = wfi;
             return View(model);
         }
 

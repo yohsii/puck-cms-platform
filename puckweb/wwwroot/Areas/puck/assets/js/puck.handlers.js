@@ -32,6 +32,13 @@ $(document).on("click", ".editor-field .nav-tabs li a", function (e) {
 $(document).on("click", ".puck-dropdown a", function (e) {
     //e.preventDefault();
 });
+$(document).on("click", ".menutop a.content", function (e) {
+    var el = $(this);
+    el.find(".badge").remove();
+    if (cright.find(".workflow-container").length > 0) {
+        showWorkflowItems();
+    }
+});
 //handle tabs without needing to set hrefs and ids
 $(document).off("click.tabs").on("click.tabs", ".editor-field .nav-tabs li", function () {
     var el = $(this);
@@ -891,7 +898,7 @@ var handleHash = function (hash) {
         var dict = getHashValues(hash);
         if (dict["id"] == undefined || dict["variant"] == undefined) {
             cleft.show();
-            cright.html("");
+            showWorkflowItems();
             return;
         }
         displayMarkup(null, null, dict["variant"], undefined, dict["id"]);
@@ -972,7 +979,7 @@ function getQueryString(name, url) {
 $(window).load(function () {
     setAreaHeights();
     loadCustomSections();
-
+    showWorkflowNotifications();
     //TODO: maybe add a column resizer
     //cleft.parent().append(
     //    $("<div/>").html("<i style=\"font-size:18px;\" class=\"fas fa-arrows-alt-h\"/>").addClass("colsResizer").css({ position: "absolute", left: (cleft.width()-0+13) + "px", top: "10px" })
@@ -980,6 +987,7 @@ $(window).load(function () {
 
     var hash = getQueryString("hash");
     //console.log("hashQs",hash);
+    
     if (!hash) {
         if (!location.hash)
             location.hash = "#content";
@@ -987,8 +995,11 @@ $(window).load(function () {
     }
     setTimeout(function () {
         location.hash = hash;
+        if (hash[0] != "#")
+            hash = "#" + hash;
         history.replaceState('','',"/puck"+hash);
     }, 500);
+
 });
 
 function touchHandler(event) {
@@ -1044,4 +1055,13 @@ getVariants(function (data) {
         location.hash = "settings?path=/puck/settings/languages";
     }
 });
+var isArray = function (arg) {
+    return Object.prototype.toString.call(arg) === '[object Array]';
+};
+var isFunction = function (arg) {
+    return arg && {}.toString.call(arg) === '[object Function]';
+};
+var isObject = function (arg) {
+    return typeof arg === 'object' && arg !== null && arg!==undefined;
+}
 initTree(true);

@@ -1,7 +1,12 @@
 ﻿@inject I_Api_Helper apiHelper;
+@inject Microsoft.AspNetCore.Identity.UserManager<puck.core.Entities.PuckUser> um;
 @{
     ViewBag.Title = "Puck";
-    
+    var user = await um.FindByNameAsync(User.Identity.Name);
+    ViewBag.User = user;
+    var userGroups = user.PuckUserGroups.Split(',', StringSplitOptions.RemoveEmptyEntries);
+
+    int workflowNotificationId = ViewBag.CurrentWorkflowItemId;
 }
 <h1 class="master">Puck</h1>
 
@@ -100,10 +105,39 @@
         </div>
     </div>
     <div class="hide interfaces">
+
+        <!-- workflows lock popover -->
+        <div class="lock-popover">
+            <a href="btn btn-link">10 mins</a>
+            <a href="btn btn-link">30 mins</a>
+            <a href="btn btn-link">1 hour</a>
+            <a href="btn btn-link">2 hours</a>
+            <a href="btn btn-link">5 hours</a>
+            <a href="btn btn-link">8 hours</a>
+        </div>
+
+        <!-- workflows comment Modal -->
+        <div class="modal fade" id="staticBackdrop" data-backdrop="static" tabindex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="staticBackdropLabel">Workflow comment</h5>
+                    </div>
+                    <div class="modal-body">
+                        <h3 class="font-weight-light title"></h3>
+                        <textarea class="w-100"></textarea>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary">submit</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div class="col-12 logsContainer">
             <div>date: <span class="date"></span></div>
             <div>machine: <span class="machineName"></span></div>
-            
+
             <div class="row">
                 <div class="col-3">
                     <input class="time" placeholder="time" />
@@ -140,6 +174,7 @@
         <div class="users-container">
             <div class="userstop">
                 <button class="create btn btn-link"><i class="fas fa-plus-circle"></i>&nbsp;new user</button>
+                <button class="groups btn btn-link"><i class="fas fa-object-group"></i>&nbsp;groups</button>
                 <input class="usersearch" type="text" placeholder="filter name" />
                 <button class="hide usersearch btn btn-link">search</button>
             </div>
@@ -161,7 +196,7 @@
                         <option value="">All</option>
                         @foreach (var m in apiHelper.AllModels())
                         {
-                        <option value="@m.AssemblyQualifiedName">@m.Name</option>
+                            <option value="@m.AssemblyQualifiedName">@m.Name</option>
                         }
                     </select>
                 </div>
@@ -201,7 +236,7 @@
                     <label>Variant</label>
                     <select name="variant"></select>
                 </div>
-                <br/>
+                <br />
                 <div class="descendantscontainer">
                     <label></label>
                     <select multiple name="descendants"></select>
@@ -266,6 +301,11 @@
     {
         @Html.Raw($"pathToLocale['{entry.Key}']='{entry.Value}';");
     }
+    var userGroups = [];
+    @for (var i = 0;i<userGroups.Length; i++) {
+        @Html.Raw("userGroups.push('"+userGroups[i]+"');");
+    }
+    var workflowNotificationId = @workflowNotificationId;
 </script>
 <script src="~/Areas/puck/assets/js/LogHelper.js"></script>
 <script src="~/areas/puck/assets/js/puck.get_set.js" type="text/javascript"></script>

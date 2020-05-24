@@ -28,7 +28,16 @@ namespace puck.core.Models.Admin
         public string FirstName { get; set; }
         [Required]
         public string Surname { get; set; }
+        
+        public List<PuckUserGroupViewModel> CurrentUserGroups { get; set; }
+
+        [UIHint("SettingsUserGroups")]
+        [Display(Name = "User Groups")]
+        public string UserGroups { get; set; }
+
+        [Required]
         [UIHint("SettingsRoles")]
+        [Display(Name = "Permissions")]
         public List<string> Roles { get; set; }
 
         [UIHint("SettingsUserVariant")]

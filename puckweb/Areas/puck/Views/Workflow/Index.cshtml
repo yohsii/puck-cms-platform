@@ -1,0 +1,141 @@
+﻿@model List<puck.core.Entities.PuckWorkflowItem>
+
+@{ 
+    Layout = null;
+
+    var assignedItems = Model.Where(x => ((x.Assignees??"")).Contains(User.Identity.Name)).ToList();
+
+    var groupedItems = Model.Where(x=>!assignedItems.Contains(x) && !x.Complete).GroupBy(x => x.Group);
+
+    var completeItems = Model.Where(x => x.Complete).ToList();
+}
+@if (assignedItems.Any() || groupedItems.Any())
+{
+    <div class="workflow-container">
+        <h1 class="font-weight-light">Workflow Items</h1>
+        @if (assignedItems.Any())
+        {
+            <div class="workflow-group">
+                <h3 class="mt-3 font-weight-light">Items assigned to you</h3>
+                @foreach (var assignedItem in assignedItems)
+                {
+                    <div class="card w-100 workflow-item incomplete" data-id="@assignedItem.Id">
+                        <div class="card-body">
+                            <h5 class="card-title">@ViewBag.Names[assignedItem.ContentId]</h5>
+                            <div class="badge badge-primary">@assignedItem.Status</div>
+                            @if (!string.IsNullOrEmpty(assignedItem.LockedBy) && assignedItem.LockedUntil.HasValue && assignedItem.LockedUntil > DateTime.Now)
+                            {
+                                <h6 class="card-subtitle mb-2 text-muted">Locked by - @assignedItem.LockedBy</h6>
+                            }
+                            <p class="card-text">@assignedItem.Message</p>
+                            <a href="#content?id=@assignedItem.ContentId&variant=@assignedItem.Variant" class="card-link view">View</a>
+                            @if (!(!string.IsNullOrEmpty(assignedItem.LockedBy) && assignedItem.LockedUntil.HasValue && assignedItem.LockedUntil > DateTime.Now))
+                            {
+                                <a href="#content?id=@assignedItem.ContentId&variant=@assignedItem.Variant" data-id="@assignedItem.ContentId" data-variant="@assignedItem.Variant" class="card-link lock">Lock and view</a>
+                            }
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+        @foreach (var group in groupedItems)
+        {
+            <div class="workflow-group">
+                <h3 class="mt-3 font-weight-light">@group.Key</h3>
+                @foreach (var groupedItem in group)
+                {
+                    <div class="card w-100 workflow-item incomplete" data-id="@groupedItem.Id">
+                        <div class="card-body">
+                            <h5 class="card-title">@ViewBag.Names[groupedItem.ContentId]</h5>
+                            <div class="badge badge-primary">@groupedItem.Status</div>
+                            @if (!string.IsNullOrEmpty(groupedItem.LockedBy) && groupedItem.LockedUntil.HasValue && groupedItem.LockedUntil > DateTime.Now)
+                            {
+                                <h6 class="mt-2 card-subtitle mb-2 text-muted">Locked by - @groupedItem.LockedBy</h6>
+                            }
+                            <p class="card-text">@groupedItem.Message</p>
+                            <a href="#content?id=@groupedItem.ContentId&variant=@groupedItem.Variant" class="card-link view">View</a>
+                            @if (!(!string.IsNullOrEmpty(groupedItem.LockedBy) && groupedItem.LockedUntil.HasValue && groupedItem.LockedUntil > DateTime.Now))
+                            {
+                                <a href="#content?id=@groupedItem.ContentId&variant=@groupedItem.Variant" data-id="@groupedItem.ContentId" data-variant="@groupedItem.Variant" class="card-link lock">Lock and view</a>
+                            }
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+        @if (completeItems.Any())
+        {
+            <div class="workflow-group">
+                <h3 class="mt-3 font-weight-light">Recently Complete Items</h3>
+                @foreach (var completeItem in completeItems)
+                {
+                    <div class="w-100">
+                        
+                        <h5 class="card-title">@ViewBag.Names[completeItem.ContentId] <span class="badge badge-primary">@completeItem.Status</span> <a href="#content?id=@completeItem.ContentId&variant=@completeItem.Variant" class="card-link view">View</a></h5>
+                        
+                    </div>
+                }
+            </div>
+
+        }
+    </div>
+}
+else { 
+    <h1 class="font-weight-light">0 Workflow Items</h1>
+}
+
+<script>
+    (function () {
+
+        cright.find("a.lock").each(function (i) {
+            var el = $(this);
+
+            var href = el.attr("href");
+            var id = el.attr("data-id");
+            var variant = el.attr("data-variant");
+
+            el.attr({ "title": "Lock for how long?", "data-content": cinterfaces.find(".lock-popover").clone().html(), "data-toggle": "popover" });
+
+            el.on('shown.bs.popover', function () {
+                el.find(".popover a").click(function (e) {
+                    e.preventDefault();
+                    var iel = $(this);
+                    var length = iel.html();
+
+                    lockWorkflowItem(id, variant, length, function () {
+                        location.hash = href;
+                    });
+                    
+                });
+                $(document).on("click.popover", function (e) {
+                    el.popover('hide');
+                    $(document).off("click.popover");
+                });
+                var scrollParent = el.parents(".scrollContainer:first");
+                scrollParent.scrollLeft(10);//trigger re-positioning of bootstrap popover to fit within boundary
+                scrollParent.scrollLeft(0);
+            });
+
+            el.popover({
+                html: true,
+                placement: "bottom",
+                container: el
+            });
+                
+        });
+        cright.find("a.lock").click(function (e) {
+            e.preventDefault();
+            var el = $(this);
+            el.popover({
+                html: true,
+                placement: "bottom",
+                container: el
+            });
+
+
+        });;
+
+
+
+    })();
+</script>

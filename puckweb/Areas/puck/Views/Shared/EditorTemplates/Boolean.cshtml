@@ -10,7 +10,7 @@ else if (ViewData.ModelMetadata.IsReadOnly)
 else
 {
     var guid = Guid.NewGuid();
-    <input data-guid="@guid.ToString()" type="checkbox" name="@ViewData.TemplateInfo.HtmlFieldPrefix" @(Model.HasValue && Model.Value?"checked":"") value="true"/>
+    <input data-guid="@guid.ToString()" type="checkbox" name="@ViewData.TemplateInfo.HtmlFieldPrefix" @(Model.HasValue && Model.Value?"checked":"") value="True"/>
     
     @*<script>
         onAfterDom(function () {

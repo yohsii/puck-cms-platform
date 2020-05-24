@@ -21,6 +21,7 @@ namespace puck.core.Entities
         [Display(Name="User Language")]
         public string PuckUserVariant { get; set;}
         public string PuckStartNodeIds { get; set; }
+        public string PuckUserGroups { get; set; }
 
         public virtual ICollection<PuckUserRole> Roles { get; } = new List<PuckUserRole>();
         public virtual ICollection<IdentityUserClaim<string>> Claims { get; } = new List<IdentityUserClaim<string>>();

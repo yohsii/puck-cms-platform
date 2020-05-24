@@ -417,6 +417,9 @@ namespace puck.core.Migrations.SQLite
                     b.Property<string>("PuckSurname")
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("PuckUserGroups")
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("PuckUserVariant")
                         .HasColumnType("TEXT");
 
@@ -455,6 +458,93 @@ namespace puck.core.Migrations.SQLite
                     b.HasIndex("RoleId");
 
                     b.ToTable("AspNetUserRoles");
+                });
+
+            modelBuilder.Entity("puck.core.Entities.PuckWorkflowItem", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("AddedBy")
+                        .IsRequired()
+                        .HasColumnType("TEXT")
+                        .HasMaxLength(256);
+
+                    b.Property<string>("Assignees")
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("Complete")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime?>("CompleteDate")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("ContentId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Group")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("LockedBy")
+                        .HasColumnType("TEXT")
+                        .HasMaxLength(256);
+
+                    b.Property<DateTime?>("LockedUntil")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("TEXT")
+                        .HasMaxLength(256);
+
+                    b.Property<DateTime>("Timestamp")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Variant")
+                        .IsRequired()
+                        .HasColumnType("TEXT")
+                        .HasMaxLength(10);
+
+                    b.Property<string>("ViewedBy")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AddedBy");
+
+                    b.HasIndex("Complete");
+
+                    b.HasIndex("CompleteDate");
+
+                    b.HasIndex("ContentId");
+
+                    b.HasIndex("Group");
+
+                    b.HasIndex("LockedBy");
+
+                    b.HasIndex("LockedUntil");
+
+                    b.HasIndex("Status");
+
+                    b.HasIndex("Timestamp");
+
+                    b.HasIndex("Variant");
+
+                    b.ToTable("PuckWorkflowItem");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

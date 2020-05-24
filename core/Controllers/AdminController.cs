@@ -226,8 +226,17 @@ namespace puck.core.Controllers
                 model.UserName = userName;
                 model.Email = usr.Email;
                 model.CurrentEmail = usr.Email;
+                model.UserGroups = usr.PuckUserGroups;
                 //model.Password = usr.GetPassword();
                 //model.PasswordConfirm = model.Password;
+                /*var userGroupMetas = repo.GetPuckMeta().Where(x => x.Name == DBNames.UserGroup).ToList()
+                    .Select(x=>new PuckUserGroupViewModel { 
+                        Id=x.Id,
+                        Name=x.Key,
+                        Roles = x.Value?.Split(',',StringSplitOptions.RemoveEmptyEntries)?.ToList()
+                    }).ToList();
+                model.CurrentUserGroups = userGroupMetas ?? new List<PuckUserGroupViewModel>();
+                */
                 model.Roles = (await userManager.GetRolesAsync(usr)).ToList();
                 if (!string.IsNullOrEmpty(usr.PuckStartNodeIds))
                     model.StartNodes = usr.PuckStartNodeIds
@@ -252,6 +261,9 @@ namespace puck.core.Controllers
             {
                 if (!ModelState.IsValid)
                     throw new Exception("model invalid.");
+                if (string.IsNullOrEmpty(user.UserGroups))
+                    throw new Exception("please select at least one user group");
+
                 if (!edit) {
                     if (string.IsNullOrEmpty(user.Password))
                         throw new Exception("please enter a password");
@@ -263,7 +275,8 @@ namespace puck.core.Controllers
                         Email = user.Email,
                         UserName = user.UserName,
                         PuckUserVariant = user.UserVariant,
-                        PuckStartNodeIds = user.StartNodes == null ? null : string.Join(",", user.StartNodes.Select(x => x.Id.ToString()))
+                        PuckStartNodeIds = user.StartNodes == null ? null : string.Join(",", user.StartNodes.Select(x => x.Id.ToString())),
+                        PuckUserGroups = user.UserGroups
                     };
                     var result = await userManager.CreateAsync(puser, user.Password);
                     if (!result.Succeeded) {
@@ -285,6 +298,8 @@ namespace puck.core.Controllers
                     var puser = await userManager.FindByEmailAsync(user.CurrentEmail);
                     if (puser == null)
                         throw new Exception("could not find user for edit");
+
+                    puser.PuckUserGroups = user.UserGroups;
 
                     if (!puser.Email.Equals(user.Email))
                     {
@@ -373,6 +388,114 @@ namespace puck.core.Controllers
                 message = ex.Message;
             }
             return Json(new {success=success,message=message,startPaths=startPaths,startNodeIds=startNodeIds });
+        }
+
+        [Authorize(Roles = PuckRoles.Users, AuthenticationSchemes = Mvc.AuthenticationScheme)]
+        public async Task<ActionResult> UserGroups()
+        {
+            var groups = repo.GetPuckMeta().Where(x => x.Name == DBNames.UserGroup).ToList();
+
+            var model = groups.Select(x => new PuckUserGroupViewModel { Id = x.Id, Name = x.Key, Roles = x.Value?.Split(',', StringSplitOptions.RemoveEmptyEntries)?.ToList() }).ToList();
+            return View(model);
+        }
+
+        [Authorize(Roles = PuckRoles.Users, AuthenticationSchemes = Mvc.AuthenticationScheme)]
+        public async Task<ActionResult> DeleteUserGroup(string name)
+        {
+            var success = false;
+            var message = string.Empty;
+            try
+            {
+                if (string.IsNullOrEmpty(name)) {
+                    throw new Exception("Name parameter cannot be empty");
+                }
+                var groups = repo.GetPuckMeta().Where(x => x.Name == DBNames.UserGroup && x.Key.ToLower().Equals(name.ToLower())).ToList();
+                groups.ForEach(x => repo.DeletePuckMeta(x));
+                repo.SaveChanges();
+
+                success = true;
+            } catch (Exception ex) {
+                log.Log(ex);
+                success = false;
+                message = ex.Message;
+            }
+            return Json(new { success = success, message = message });
+        }
+
+        [Authorize(Roles = PuckRoles.Users, AuthenticationSchemes = Mvc.AuthenticationScheme)]
+        public async Task<ActionResult> EditUserGroup(string groupName = null)
+        {
+            var model = new PuckUserGroupViewModel();
+            ViewBag.Level0Type = typeof(PuckUserGroupViewModel);
+            if (!string.IsNullOrEmpty(groupName))
+            {
+                var meta = repo.GetPuckMeta().Where(x => x.Name == DBNames.UserGroup && x.Key == groupName).FirstOrDefault();
+                if (meta != null) {
+                    model.Name = meta.Key;
+                    model.Id = meta.Id;
+                    model.Roles = meta.Value?.Split(',',StringSplitOptions.RemoveEmptyEntries)?.ToList();
+                }
+            }
+            return View(model);
+        }
+
+        [HttpPost]
+        [Authorize(Roles = PuckRoles.Users, AuthenticationSchemes = Mvc.AuthenticationScheme)]
+        public async Task<JsonResult> EditUserGroup(PuckUserGroupViewModel userGroup, bool edit)
+        {
+            bool success = false;
+            string message = "";
+            
+            try
+            {
+                if (!ModelState.IsValid)
+                    throw new Exception("model invalid.");
+                if (!edit)
+                {
+                    var existingMeta = repo.GetPuckMeta().Where(x => x.Name == DBNames.UserGroup && x.Name.ToLower() == (string.IsNullOrEmpty(userGroup.Name)?"":userGroup.Name).ToLower()).FirstOrDefault();
+                    if (existingMeta != null)
+                        throw new Exception("A group with that name already exists.");
+                    //add puck meta
+                    var meta = new PuckMeta() { 
+                        Name=DBNames.UserGroup,
+                        Key=userGroup.Name,
+                        Value=string.Join(",",userGroup.Roles)
+                    };
+                    repo.AddPuckMeta(meta);
+                    repo.SaveChanges();
+                    success = true;
+                }
+                else
+                {
+                    //edit puck meta
+                    var meta = repo.GetPuckMeta().Where(x => x.Name == DBNames.UserGroup && x.Id == userGroup.Id).FirstOrDefault();
+
+                    if (meta != null)
+                    {
+                        meta.Key = userGroup.Name;
+                        meta.Value = string.Join(",", userGroup.Roles);
+                    }
+                    else {
+                        meta = new PuckMeta()
+                        {
+                            Name = DBNames.UserGroup,
+                            Key = userGroup.Name,
+                            Value = string.Join(",", userGroup.Roles)
+                        };
+                        repo.AddPuckMeta(meta);
+                    }
+                    repo.SaveChanges();
+                    success = true;
+                }
+
+            }
+            catch (Exception ex)
+            {
+                log.Log(ex);
+                success = false;
+                message = ex.Message;
+            }
+            return Json(new { success = success, message = message});
         }
 
         [Authorize(Roles =PuckRoles.Users,AuthenticationSchemes = Mvc.AuthenticationScheme)]

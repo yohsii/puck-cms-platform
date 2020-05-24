@@ -1,0 +1,61 @@
+﻿@model String
+@inject I_Puck_Repository repo;
+@{
+    Layout = null;
+    var value = String.IsNullOrEmpty(Model) ? "" : Model;
+    var guid = Guid.NewGuid();
+
+    var userGroups = repo.GetPuckMeta().Where(x => x.Name == DBNames.UserGroup).ToList()
+        .Select(x=>new puck.core.Models.Admin.PuckUserGroupViewModel { 
+            Id=x.Id,
+            Name=x.Key,
+            Roles = x.Value?.Split(',',StringSplitOptions.RemoveEmptyEntries)?.ToList()
+        }).ToList();
+
+}
+
+@{
+<div class="d-inline" data-guid="@guid.ToString()">
+    <a href="#" class="new-group btn btn-link mb-1">New Group</a>
+    <ul class="user-groups-list flex-wrap list-group list-group-horizontal">
+        <li class="list-group-item @(value.Contains("Administrator,")?"active":"")" data-permissions="@string.Join(",",puck.core.Constants.PuckUserGroups.Administrator)">Administrator</li>
+        <li class="list-group-item @(value.Contains("Editor,")?"active":"")" data-permissions="@string.Join(",",puck.core.Constants.PuckUserGroups.Editor)">Editor</li>
+        @foreach (var group in userGroups) { 
+            <li class="list-group-item @(value.Contains($"{group.Name},")?"active":"")" data-permissions="@string.Join(",",group.Roles)">@group.Name</li>
+        }
+    </ul>
+
+    @Html.HiddenFor(x => x, new { @class = "usergroups" })
+</div>
+}
+<script>
+    (function () {
+        var container = $("[data-guid='@guid.ToString()']");
+
+        container.find("a.new-group").click(function (e) {
+            e.preventDefault();
+            showUserGroupMarkup("");
+        });
+
+        var setVal = function () {
+            var active = container.find("li.active");
+            var val = "";
+            active.each(function (i) {
+                val+=$(this).text()+",";
+            });
+            container.find("input:hidden").val(val);
+        };
+        container.find(".user-groups-list").on("click", "li", function (e) {
+            var el = $(this);
+            if (el.hasClass("active")) {
+                el.removeClass("active");
+                setVal();
+            } else {
+                el.addClass("active")
+                setVal();
+            }
+
+        });
+
+    })();
+</script>

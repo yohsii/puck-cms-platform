@@ -25,6 +25,20 @@ namespace puck.core.Concrete
         }
         public I_Puck_Context repo;
         public I_Puck_Context Context { get { return repo; } }
+        public IQueryable<PuckWorkflowItem> GetPuckWorkflowItem()
+        {
+            return repo.PuckWorkflowItem;
+        }
+
+        public void AddPuckWorkflowItem(PuckWorkflowItem wfi)
+        {
+            repo.PuckWorkflowItem.Add(wfi);
+        }
+
+        public void DeletePuckWorkflowItem(PuckWorkflowItem wfi)
+        {
+            repo.PuckWorkflowItem.Remove(wfi);
+        }
         public IQueryable<PuckRedirect> GetPuckRedirect()
         {
             return repo.PuckRedirect;

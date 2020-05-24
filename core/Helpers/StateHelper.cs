@@ -61,7 +61,7 @@ namespace puck.core.Helpers
                             var admin = await userManager.FindByEmailAsync(adminEmail);
                             if (admin == null)
                             {
-                                admin = new PuckUser { Email = adminEmail, UserName = adminEmail };
+                                admin = new PuckUser { Email = adminEmail, UserName = adminEmail,PuckUserGroups="Administrator," };
                                 var result = await userManager.CreateAsync(admin, adminPassword);
                                 if (!result.Succeeded)
                                 {

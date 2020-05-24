@@ -49,5 +49,6 @@ namespace puck.core.Abstract
         string UserVariant();
         List<Variant> Variants();
         List<FileInfo> Views(string[] excludePaths = null);
+        Task<Tuple<int, int>> GetCurrentWorkflowItemId(string username, int? since = null);
     }
 }

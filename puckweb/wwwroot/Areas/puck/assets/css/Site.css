@@ -843,6 +843,12 @@ div.settings {
         color: #ff3333;
     }
 
+    button.content_unlock {
+        position: absolute;
+        top: 1px;
+        right: 90px;
+    }
+
     button.content_preview {
         position: absolute;
         top: 1px;
