@@ -71,12 +71,13 @@ namespace puck.core.Controllers
         {
             var success = false;
             var message = "";
-            var result = 0;
+            var count = 0;
+            var id = 0;
             try
             {
                 var notifications = await apiHelper.GetCurrentWorkflowItemId(User.Identity.Name, since: since);
-
-                result = notifications.Item2;
+                id = notifications.Item1;
+                count = notifications.Item2;
 
                 success = true;
             }
@@ -85,7 +86,7 @@ namespace puck.core.Controllers
                 message = ex.Message;
                 log.Log(ex);
             }
-            return Json(new { success = success, message = message, result = result });
+            return Json(new { success = success, message = message, id = id, count=count });
         }
 
         [HttpPost]

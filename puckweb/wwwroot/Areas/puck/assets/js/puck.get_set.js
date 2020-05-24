@@ -341,4 +341,6 @@ var lockWorkflowItem = function (contentId,variant,until,f) {
 var unlockWorkflowItem = function (contentId, variant,f) {
     $.post("/puck/workflow/unlock?contentId=" + contentId + "&variant=" + variant, f);
 }
-
+var getWorkflowNotifications = function (since,f) {
+    $.get("/puck/workflow/notifications?since="+since, f);
+}

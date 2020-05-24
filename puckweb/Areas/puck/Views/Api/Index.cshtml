@@ -5,6 +5,8 @@
     var user = await um.FindByNameAsync(User.Identity.Name);
     ViewBag.User = user;
     var userGroups = user.PuckUserGroups.Split(',', StringSplitOptions.RemoveEmptyEntries);
+
+    int workflowNotificationId = ViewBag.CurrentWorkflowItemId;
 }
 <h1 class="master">Puck</h1>
 
@@ -301,8 +303,9 @@
     }
     var userGroups = [];
     @for (var i = 0;i<userGroups.Length; i++) {
-        @Html.Raw("userGroups.push('"+userGroups[i]+"')");
+        @Html.Raw("userGroups.push('"+userGroups[i]+"');");
     }
+    var workflowNotificationId = @workflowNotificationId;
 </script>
 <script src="~/Areas/puck/assets/js/LogHelper.js"></script>
 <script src="~/areas/puck/assets/js/puck.get_set.js" type="text/javascript"></script>

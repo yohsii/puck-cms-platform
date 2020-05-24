@@ -32,6 +32,13 @@ $(document).on("click", ".editor-field .nav-tabs li a", function (e) {
 $(document).on("click", ".puck-dropdown a", function (e) {
     //e.preventDefault();
 });
+$(document).on("click", ".menutop a.content", function (e) {
+    var el = $(this);
+    el.find(".badge").remove();
+    if (cright.find(".workflow-container").length > 0) {
+        showWorkflowItems();
+    }
+});
 //handle tabs without needing to set hrefs and ids
 $(document).off("click.tabs").on("click.tabs", ".editor-field .nav-tabs li", function () {
     var el = $(this);
@@ -972,7 +979,7 @@ function getQueryString(name, url) {
 $(window).load(function () {
     setAreaHeights();
     loadCustomSections();
-
+    showWorkflowNotifications();
     //TODO: maybe add a column resizer
     //cleft.parent().append(
     //    $("<div/>").html("<i style=\"font-size:18px;\" class=\"fas fa-arrows-alt-h\"/>").addClass("colsResizer").css({ position: "absolute", left: (cleft.width()-0+13) + "px", top: "10px" })
@@ -992,6 +999,7 @@ $(window).load(function () {
             hash = "#" + hash;
         history.replaceState('','',"/puck"+hash);
     }, 500);
+
 });
 
 function touchHandler(event) {

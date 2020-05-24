@@ -1099,7 +1099,13 @@ namespace puck.core.Services
                         nmeta.ForEach(x => { repo.DeletePuckMeta(x); });
                     }
                     repo.SaveChanges();
-                    
+
+                    var workflowItems = repo.GetPuckWorkflowItem().Where(x => x.ContentId == id);
+                    if (!string.IsNullOrEmpty(variant)) {
+                        workflowItems = workflowItems.Where(x => x.Variant == variant);
+                    }
+                    workflowItems.ToList().ForEach(x=> { repo.DeletePuckWorkflowItem(x); });
+
                     var instruction = new PuckInstruction() { InstructionKey = InstructionKeys.Delete, Count = 1, ServerName = ApiHelper.ServerName() };
                     instruction.InstructionDetail = deleteQuery.ToString();
                     repo.AddPuckInstruction(instruction);

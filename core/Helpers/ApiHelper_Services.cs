@@ -66,7 +66,7 @@ namespace puck.core.Helpers
 
             predicate.Or(x => x.Assignees.Contains(user.UserName));
 
-            var model = repo.GetPuckWorkflowItem().AsExpandable().Where(predicate).Where(x => !x.Complete);
+            var model = repo.GetPuckWorkflowItem().AsExpandable().Where(predicate).Where(x => !x.Complete && x.AddedBy!=username);
 
             if (since.HasValue)
                 model = model.Where(x => x.Id > since);

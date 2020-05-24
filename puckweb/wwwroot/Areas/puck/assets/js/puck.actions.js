@@ -1830,6 +1830,16 @@ var loadTreePath = function (path, f, cont, afterDrawContent, renderVariantLinks
     doLoadPath(pathSegments, 0);
 }
 
+var showWorkflowNotifications = function () {
+    getWorkflowNotifications(workflowNotificationId, function (data) {
+        if (data.count > 0) {
+            workflowNotificationId = data.id;
+            $(".menutop a.content i").html('<div class="badge badge-danger">' + data.count + '</div>');
+        }
+        setTimeout(showWorkflowNotifications, 10000);
+    });
+}
+
 //getContentByParentId("", function (res) {
 //    var ids = "";
 //    for (id in res.current) {
