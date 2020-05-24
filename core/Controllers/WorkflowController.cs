@@ -65,6 +65,29 @@ namespace puck.core.Controllers
             SyncIfNecessary();
         }
 
+        [HttpGet]
+        [Authorize(Roles = PuckRoles.Puck, AuthenticationSchemes = Mvc.AuthenticationScheme)]
+        public async Task<IActionResult> Notifications(int since)
+        {
+            var success = false;
+            var message = "";
+            var result = 0;
+            try
+            {
+                var notifications = await apiHelper.GetCurrentWorkflowItemId(User.Identity.Name, since: since);
+
+                result = notifications.Item2;
+
+                success = true;
+            }
+            catch (Exception ex)
+            {
+                message = ex.Message;
+                log.Log(ex);
+            }
+            return Json(new { success = success, message = message, result = result });
+        }
+
         [HttpPost]
         [Authorize(Roles = PuckRoles.Puck, AuthenticationSchemes = Mvc.AuthenticationScheme)]
         public async Task<IActionResult> Create(PuckWorkflowItem model) {

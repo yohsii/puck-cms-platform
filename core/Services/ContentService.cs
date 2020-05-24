@@ -1390,7 +1390,7 @@ namespace puck.core.Services
 
                 mod.Updated = DateTime.Now;
                 //get parent check published
-                var parentVariants = repo.GetPuckRevision().Where(x => x.Id == mod.ParentId && (x.IsPublishedRevision || (x.Current && x.HasNoPublishedRevision)));
+                var parentVariants = repo.GetPuckRevision().Where(x => x.Id == mod.ParentId && (x.IsPublishedRevision || x.Current));
                 var parentVariantsCount = parentVariants.Count();
                 if (mod.ParentId != Guid.Empty && parentVariantsCount == 0)
                     throw new NoParentExistsException("this is not a root node yet doesn't have a parent");
