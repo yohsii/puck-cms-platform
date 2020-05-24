@@ -102,9 +102,10 @@ else {
                     var iel = $(this);
                     var length = iel.html();
 
-                    lockWorkflowItem(id, variant, length);
-
-                    location.hash = href;
+                    lockWorkflowItem(id, variant, length, function () {
+                        location.hash = href;
+                    });
+                    
                 });
                 $(document).on("click.popover", function (e) {
                     el.popover('hide');

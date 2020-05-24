@@ -29,6 +29,7 @@ var currentCacheKey = "";
 var workflowItems = [];
 var formDatas = [];
 var workflowComments = [];
+var contentLocks = [];
 var newTemplateFolder = function (p) {
     getTemplateFolderCreateDialog(function (d) {
         var overlayEl = overlay(d, 500, 300, undefined, "New Template Folder");
@@ -1082,6 +1083,7 @@ var displayMarkup = function (parentId, type, variant, fromVariant,contentId,con
         }
         var afterGrouping = function () {
             afterDom();
+            container.find('[data-toggle="tooltip"]').tooltip();
             formDatas[id + variant] = new FormData(container.find("form").get(0));
             container.show();
             container.find(".fieldtabs:first").click();
@@ -1104,6 +1106,10 @@ var displayMarkup = function (parentId, type, variant, fromVariant,contentId,con
             }
             if (scroll) {
                 container.parents(".scrollContainer:first").scrollTop(scroll);
+            } else {
+                if (contentLocks[id + variant]) {
+                    container.find(".content_unlock").focus();
+                }
             }
 
         }
@@ -1221,13 +1227,28 @@ var displayMarkup = function (parentId, type, variant, fromVariant,contentId,con
                 window.open("/puck/api/previewguid?id=" + contentId + "&variant=" + variant, "_blank");
             });
         } else { container.find(".content_preview").hide(); }
+        //unlock btn
+        if (contentLocks[id + variant]) {
+            
+            container.find(".content_unlock").click(function (e) {
+                e.preventDefault();
+                var el = $(this);
+                unlockWorkflowItem(id, variant, function () { });
+                el.hide();
+                msg(undefined,"content has been unlocked");
+            });
+            
+        }
 
         wireForm(container.find('form'), function (data) {
             var status = true;
             if (data.message && data.message.indexOf("queued") > -1) {
                 status = undefined;
             } else if (!data.message) {
-                data.message = "content updated";
+                data.message = "content updated.";
+            }
+            if (contentLocks[id + variant]) {
+                //data.message += ". consider unlocking this content";
             }
             msg(status, data.message, undefined, msgContainer);
             getDrawContent(data.parentId, undefined, true, function () {
