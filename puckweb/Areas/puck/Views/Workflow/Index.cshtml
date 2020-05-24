@@ -23,13 +23,16 @@
                         <div class="card-body">
                             <h5 class="card-title">@ViewBag.Names[assignedItem.ContentId]</h5>
                             <div class="badge badge-primary">@assignedItem.Status</div>
-                            @if (!string.IsNullOrEmpty(assignedItem.LockedBy))
+                            @if (!string.IsNullOrEmpty(assignedItem.LockedBy) && assignedItem.LockedUntil.HasValue && assignedItem.LockedUntil > DateTime.Now)
                             {
                                 <h6 class="card-subtitle mb-2 text-muted">Locked by - @assignedItem.LockedBy</h6>
                             }
                             <p class="card-text">@assignedItem.Message</p>
                             <a href="#content?id=@assignedItem.ContentId&variant=@assignedItem.Variant" class="card-link view">View</a>
-                            <a href="#content?id=@assignedItem.ContentId&variant=@assignedItem.Variant" data-id="@assignedItem.ContentId" data-variant="@assignedItem.Variant" class="card-link lock">Lock and view</a>
+                            @if (!(!string.IsNullOrEmpty(assignedItem.LockedBy) && assignedItem.LockedUntil.HasValue && assignedItem.LockedUntil > DateTime.Now))
+                            {
+                                <a href="#content?id=@assignedItem.ContentId&variant=@assignedItem.Variant" data-id="@assignedItem.ContentId" data-variant="@assignedItem.Variant" class="card-link lock">Lock and view</a>
+                            }
                         </div>
                     </div>
                 }
@@ -45,13 +48,16 @@
                         <div class="card-body">
                             <h5 class="card-title">@ViewBag.Names[groupedItem.ContentId]</h5>
                             <div class="badge badge-primary">@groupedItem.Status</div>
-                            @if (!string.IsNullOrEmpty(groupedItem.LockedBy))
+                            @if (!string.IsNullOrEmpty(groupedItem.LockedBy) && groupedItem.LockedUntil.HasValue && groupedItem.LockedUntil > DateTime.Now)
                             {
-                                <h6 class="card-subtitle mb-2 text-muted">Locked by - @groupedItem.LockedBy</h6>
+                                <h6 class="mt-2 card-subtitle mb-2 text-muted">Locked by - @groupedItem.LockedBy</h6>
                             }
                             <p class="card-text">@groupedItem.Message</p>
                             <a href="#content?id=@groupedItem.ContentId&variant=@groupedItem.Variant" class="card-link view">View</a>
-                            <a href="#content?id=@groupedItem.ContentId&variant=@groupedItem.Variant" data-id="@groupedItem.ContentId" data-variant="@groupedItem.Variant" class="card-link lock">Lock and view</a>
+                            @if (!(!string.IsNullOrEmpty(groupedItem.LockedBy) && groupedItem.LockedUntil.HasValue && groupedItem.LockedUntil > DateTime.Now))
+                            {
+                                <a href="#content?id=@groupedItem.ContentId&variant=@groupedItem.Variant" data-id="@groupedItem.ContentId" data-variant="@groupedItem.Variant" class="card-link lock">Lock and view</a>
+                            }
                         </div>
                     </div>
                 }
@@ -77,3 +83,58 @@
 else { 
     <h1 class="font-weight-light">0 Workflow Items</h1>
 }
+
+<script>
+    (function () {
+
+        cright.find("a.lock").each(function (i) {
+            var el = $(this);
+
+            var href = el.attr("href");
+            var id = el.attr("data-id");
+            var variant = el.attr("data-variant");
+
+            el.attr({ "title": "Lock for how long?", "data-content": cinterfaces.find(".lock-popover").clone().html(), "data-toggle": "popover" });
+
+            el.on('shown.bs.popover', function () {
+                el.find(".popover a").click(function (e) {
+                    e.preventDefault();
+                    var iel = $(this);
+                    var length = iel.html();
+
+                    lockWorkflowItem(id, variant, length);
+
+                    location.hash = href;
+                });
+                $(document).on("click.popover", function (e) {
+                    el.popover('hide');
+                    $(document).off("click.popover");
+                });
+                var scrollParent = el.parents(".scrollContainer:first");
+                scrollParent.scrollLeft(10);//trigger re-positioning of bootstrap popover to fit within boundary
+                scrollParent.scrollLeft(0);
+            });
+
+            el.popover({
+                html: true,
+                placement: "bottom",
+                container: el
+            });
+                
+        });
+        cright.find("a.lock").click(function (e) {
+            e.preventDefault();
+            var el = $(this);
+            el.popover({
+                html: true,
+                placement: "bottom",
+                container: el
+            });
+
+
+        });;
+
+
+
+    })();
+</script>
