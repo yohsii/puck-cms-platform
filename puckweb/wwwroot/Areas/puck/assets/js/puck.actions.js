@@ -684,6 +684,18 @@ var wireForm = function (form, success, fail,submit) {
                 doPost();
             }
         } else {
+
+            if (cright.find(".editorContainer:hidden .input-validation-error").length > 0) {
+                var editorContainers = cright.find(".editorContainer:hidden .input-validation-error").parents(".editorContainer:first");
+                editorContainers.each(function (i) {
+                    var editorContainer = $(this);
+                    editorContainer.show();
+                    var expand = editorContainer.siblings(".titleContainer").find(".expand");
+                    expand.removeClass("fa-chevron-right");
+                    expand.addClass("fa-chevron-down");
+                });
+            }
+
             var err_el = cright.find(".input-validation-error:first");
             cright.find("[href='#" + err_el.parents(".tab-pane").attr("id") + "']").click();
             if (err_el.is(":visible")) {
