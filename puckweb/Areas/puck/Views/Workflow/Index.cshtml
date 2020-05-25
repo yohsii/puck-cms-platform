@@ -27,7 +27,7 @@
                             {
                                 <h6 class="card-subtitle mb-2 text-muted">Locked by - @assignedItem.LockedBy</h6>
                             }
-                            <p class="card-text">@assignedItem.Message</p>
+                            <p class="card-text">@Html.Raw(assignedItem.Message)</p>
                             <a href="#content?id=@assignedItem.ContentId&variant=@assignedItem.Variant" class="card-link view">View</a>
                             @if (!(!string.IsNullOrEmpty(assignedItem.LockedBy) && assignedItem.LockedUntil.HasValue && assignedItem.LockedUntil > DateTime.Now))
                             {
@@ -52,7 +52,7 @@
                             {
                                 <h6 class="mt-2 card-subtitle mb-2 text-muted">Locked by - @groupedItem.LockedBy</h6>
                             }
-                            <p class="card-text">@groupedItem.Message</p>
+                            <p class="card-text">@Html.Raw(groupedItem.Message)</p>
                             <a href="#content?id=@groupedItem.ContentId&variant=@groupedItem.Variant" class="card-link view">View</a>
                             @if (!(!string.IsNullOrEmpty(groupedItem.LockedBy) && groupedItem.LockedUntil.HasValue && groupedItem.LockedUntil > DateTime.Now))
                             {

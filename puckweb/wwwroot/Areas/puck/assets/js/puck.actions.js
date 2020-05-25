@@ -1283,7 +1283,7 @@ var displayMarkup = function (parentId, type, variant, fromVariant,contentId,con
                     var workflowItem = workflowItems[id + variant];
                     var startingState = formDatas[id + variant];
                     var currentState = fd;
-
+                    
                     if (!workflowComments[id + variant] && wfo.comment && isFunction(wfo.comment)) {
                         var commentDialogTitle = wfo.comment(workflowItem, userObject, startingState, currentState);
                         if (commentDialogTitle && typeof commentDialogTitle=="string") {

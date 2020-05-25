@@ -146,7 +146,7 @@ namespace puck.core.Controllers
             try
             {
                 var existingItems = repo.GetPuckWorkflowItem().Where(x => x.ContentId == contentId && x.Variant == variant && !x.Complete).ToList();
-                existingItems.ForEach(x => { x.Complete = true; x.CompleteDate = DateTime.Now;});
+                existingItems.ForEach(x => { x.Complete = true; x.CompleteDate = DateTime.Now;x.LockedBy = string.Empty;x.LockedUntil = null; });
 
                 repo.SaveChanges();
 
