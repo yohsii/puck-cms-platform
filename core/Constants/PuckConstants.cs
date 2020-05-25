@@ -98,7 +98,8 @@ namespace puck.core.Constants
             PuckRoles.ChangeType,
             PuckRoles.TimedPublish,
             PuckRoles.Audit,
-            PuckRoles.Sync
+            PuckRoles.Sync,
+            PuckRoles.WorkflowDelete
         };
         public static string[] Editor = new string[] {
             PuckRoles.Create,
