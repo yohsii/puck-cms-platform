@@ -21,6 +21,7 @@
                 {
                     <div class="card w-100 workflow-item incomplete" data-id="@assignedItem.Id">
                         <div class="card-body">
+                            <i data-id="@assignedItem.Id" class="fas fa-trash float-right delete"></i>
                             <h5 class="card-title">@ViewBag.Names[assignedItem.ContentId]</h5>
                             <div class="badge badge-primary">@assignedItem.Status</div>
                             @if (!string.IsNullOrEmpty(assignedItem.LockedBy) && assignedItem.LockedUntil.HasValue && assignedItem.LockedUntil > DateTime.Now)
@@ -46,6 +47,7 @@
                 {
                     <div class="card w-100 workflow-item incomplete" data-id="@groupedItem.Id">
                         <div class="card-body">
+                            <i data-id="@groupedItem.Id" class="fas fa-trash float-right hide delete"></i>
                             <h5 class="card-title">@ViewBag.Names[groupedItem.ContentId]</h5>
                             <div class="badge badge-primary">@groupedItem.Status</div>
                             @if (!string.IsNullOrEmpty(groupedItem.LockedBy) && groupedItem.LockedUntil.HasValue && groupedItem.LockedUntil > DateTime.Now)
@@ -133,9 +135,22 @@ else {
             });
 
 
-        });;
+        });
 
+        if (userRoles.includes("_workflowdelete")) {
+            cright.find(".delete").removeClass("hide");
+        }
 
+        cright.find(".delete").click(function (e) {
+            var el = $(this);
+
+            var id = el.attr("data-id");
+
+            deleteWorkflowItem(id, function () {
+                el.parents(".workflow-item").remove();
+            });
+
+        });
 
     })();
 </script>

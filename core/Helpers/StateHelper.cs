@@ -42,7 +42,7 @@ namespace puck.core.Helpers
                     
                     var roles = new List<string> {PuckRoles.Cache,PuckRoles.Create,PuckRoles.Delete,PuckRoles.Domain,PuckRoles.Edit,PuckRoles.Localisation
                         ,PuckRoles.Move,PuckRoles.Notify,PuckRoles.Publish,PuckRoles.Puck,PuckRoles.Revert,PuckRoles.Settings,PuckRoles.Sort,PuckRoles.Tasks
-                        ,PuckRoles.Unpublish,PuckRoles.Users,PuckRoles.Republish,PuckRoles.Copy,PuckRoles.ChangeType,PuckRoles.TimedPublish,PuckRoles.Audit,PuckRoles.Sync};
+                        ,PuckRoles.Unpublish,PuckRoles.Users,PuckRoles.Republish,PuckRoles.Copy,PuckRoles.ChangeType,PuckRoles.TimedPublish,PuckRoles.Audit,PuckRoles.Sync,PuckRoles.WorkflowDelete};
                     foreach (var roleName in roles)
                     {
                         if (!await roleManager.RoleExistsAsync(roleName))

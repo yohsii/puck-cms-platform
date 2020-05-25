@@ -344,3 +344,6 @@ var unlockWorkflowItem = function (contentId, variant,f) {
 var getWorkflowNotifications = function (since,f) {
     $.get("/puck/workflow/notifications?since="+since, f);
 }
+var deleteWorkflowItem = function (id,f) {
+    $.post("/puck/workflow/delete?id=" + id, f);
+}

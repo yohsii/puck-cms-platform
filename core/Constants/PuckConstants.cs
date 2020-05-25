@@ -68,9 +68,10 @@ namespace puck.core.Constants
         public const string TimedPublish = "_timedpublish";
         public const string Audit = "_audit";
         public const string Sync = "_sync";
+        public const string WorkflowDelete = "_workflowdelete";
         public static Dictionary<string, string> NamesDictionary = new Dictionary<string, string> {{Create,"Create"},{Edit,"Edit"},{Delete,"Delete"},{Republish,"Re-publish"},{Publish,"Publish"}
             ,{Unpublish,"Unpublish"},{Revert,"Revert"},{Sort,"Sort"},{Move,"Move" },{Localisation,"Localisation" },{Domain,"Domain" },{Cache,"Cache" },{Notify,"Notify" },{Settings,"Settings" }
-            ,{Tasks,"Tasks" },{Users,"Users" },{Puck,"Puck" },{Copy,"Copy" },{ChangeType,"Change Type" },{TimedPublish,"Timed Publish" },{Audit,"Audit" },{Sync,"Sync" }
+            ,{Tasks,"Tasks" },{Users,"Users" },{Puck,"Puck" },{Copy,"Copy" },{ChangeType,"Change Type" },{TimedPublish,"Timed Publish" },{Audit,"Audit" },{Sync,"Sync" },{WorkflowDelete,"Workflow Delete" }
         };
     }
     

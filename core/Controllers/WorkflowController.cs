@@ -301,5 +301,33 @@ namespace puck.core.Controllers
             return Json(new { success = success, message = message });
         }
 
+        [HttpPost]
+        [Authorize(Roles = PuckRoles.Puck, AuthenticationSchemes = Mvc.AuthenticationScheme)]
+        public async Task<IActionResult> Delete(int id)
+        {
+            var success = false;
+            var message = "";
+
+            try
+            {
+                var item = repo.GetPuckWorkflowItem().FirstOrDefault(x=>x.Id==id);
+
+                if (item != null)
+                {
+                    repo.DeletePuckWorkflowItem(item);
+                    repo.SaveChanges();
+                }
+
+                success = true;
+            }
+            catch (Exception ex)
+            {
+                message = ex.Message;
+                log.Log(ex);
+            }
+
+            return Json(new { success = success, message = message });
+        }
+
     }
 }
