@@ -30,6 +30,8 @@ var workflowItems = [];
 var formDatas = [];
 var workflowComments = [];
 var contentLocks = [];
+var latestWorkflowNotificationId = 0;
+
 var newTemplateFolder = function (p) {
     getTemplateFolderCreateDialog(function (d) {
         var overlayEl = overlay(d, 500, 300, undefined, "New Template Folder");
@@ -1852,7 +1854,7 @@ var loadTreePath = function (path, f, cont, afterDrawContent, renderVariantLinks
 var showWorkflowNotifications = function () {
     getWorkflowNotifications(workflowNotificationId, function (data) {
         if (data.count > 0) {
-            workflowNotificationId = data.id;
+            latestWorkflowNotificationId = data.id;
             $(".menutop a.content i").html('<div class="badge badge-danger">' + data.count + '</div>');
         }
         setTimeout(showWorkflowNotifications, 10000);

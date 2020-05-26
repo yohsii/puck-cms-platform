@@ -37,6 +37,8 @@ $(document).on("click", ".menutop a.content", function (e) {
     el.find(".badge").remove();
     if (cright.find(".workflow-container").length > 0) {
         showWorkflowItems();
+        if (latestWorkflowNotificationId)
+            workflowNotificationId = latestWorkflowNotificationId;
     }
 });
 //handle tabs without needing to set hrefs and ids
