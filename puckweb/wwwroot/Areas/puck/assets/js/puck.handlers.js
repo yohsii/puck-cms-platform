@@ -945,8 +945,13 @@ var handleHash = function (hash) {
             logHelper.showLog(machine,name);
         }
     } else {
-        if (window.puckCustomHashHandler)
-            puckCustomHashHandler(hash);
+        if (window.puckCustomHashHandler) {
+            try {
+                puckCustomHashHandler(hash);
+            } catch (ex) {
+                console.error(ex);
+            }
+        }
     }
 }
 var loadCustomSections = function () {
