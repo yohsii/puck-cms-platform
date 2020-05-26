@@ -226,12 +226,22 @@ namespace puck.core.Controllers
                         lockedUntil = DateTime.Now.AddHours(8);
                         break;
                 }
-                
-                existingItems.ForEach(x => { x.LockedUntil=lockedUntil; x.LockedBy = User.Identity.Name; });
+                var alreadyLocked = false;
+                existingItems.ForEach(x => {
+                    if (!(x.LockedUntil != null && x.LockedUntil > DateTime.Now && !string.IsNullOrEmpty(x.LockedBy) && x.LockedBy != User.Identity.Name))
+                    {
+                        x.LockedUntil = lockedUntil;
+                        x.LockedBy = User.Identity.Name;
+                    }
+                    else {
+                        alreadyLocked = true;
+                        message = $"content already locked by {x.LockedBy}";
+                    }
+                });
 
                 repo.SaveChanges();
 
-                success = true;
+                success = !alreadyLocked;
             }
             catch (Exception ex)
             {

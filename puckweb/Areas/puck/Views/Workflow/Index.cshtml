@@ -106,8 +106,12 @@ else {
                     var iel = $(this);
                     var length = iel.html();
 
-                    lockWorkflowItem(id, variant, length, function () {
-                        location.hash = href;
+                    lockWorkflowItem(id, variant, length, function (data) {
+                        if (data.success) {
+                            location.hash = href;
+                        } else {
+                            msg(false,data.message);
+                        }
                     });
                     
                 });
