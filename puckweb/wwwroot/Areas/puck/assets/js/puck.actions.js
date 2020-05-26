@@ -1299,7 +1299,12 @@ var displayMarkup = function (parentId, type, variant, fromVariant,contentId,con
                     var currentState = fd;
                     
                     if (!workflowComments[id + variant] && wfo.comment && isFunction(wfo.comment)) {
-                        var commentDialogTitle = wfo.comment(workflowItem, userObject, startingState, currentState);
+                        var commentDialogTitle = undefined;
+                        try {
+                            commentDialogTitle = wfo.comment(workflowItem, userObject, startingState, currentState);
+                        } catch (ex) {
+                            console.log(ex);
+                        }
                         if (commentDialogTitle && typeof commentDialogTitle=="string") {
 
                             //create modal
@@ -1325,7 +1330,12 @@ var displayMarkup = function (parentId, type, variant, fromVariant,contentId,con
                     } else {
                         var comment = workflowComments[id + variant];
                         if (wfo.handler && isFunction(wfo.handler)) {
-                            var cancel = wfo.handler(isPublished,workflowItem,userObject,startingState,currentState,comment,services);
+                            var cancel = false;
+                            try {
+                                cancel = wfo.handler(isPublished, workflowItem, userObject, startingState, currentState, comment, services);
+                            } catch(ex){
+                                console.error(ex);
+                            }
                             if (cancel && typeof(cancel) == "boolean")
                                 return true;
                         }
