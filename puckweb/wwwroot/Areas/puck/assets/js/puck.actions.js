@@ -1303,7 +1303,7 @@ var displayMarkup = function (parentId, type, variant, fromVariant,contentId,con
                         try {
                             commentDialogTitle = wfo.comment(workflowItem, userObject, startingState, currentState);
                         } catch (ex) {
-                            console.log(ex);
+                            console.error(ex);
                         }
                         if (commentDialogTitle && typeof commentDialogTitle=="string") {
 
