@@ -79,7 +79,7 @@ $("html").on("click", ".left_settings li button", function (e) {
     //showSettings(path);
 });
 //root new content button
-$(".create_default").show().click(function () { newContent(emptyGuid); });
+$(".create_default").show().click(function () { newContent(emptyGuid); location.hash = "#"; });
 //task list
 //$(".menutop .tasks").click(function (e) { e.preventDefault(); showTasks(); });
 //users
