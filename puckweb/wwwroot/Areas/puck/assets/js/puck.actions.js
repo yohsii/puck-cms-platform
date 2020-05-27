@@ -1098,6 +1098,9 @@ var displayMarkup = function (parentId, type, variant, fromVariant,contentId,con
         var afterGrouping = function () {
             afterDom();
             container.find('[data-toggle="tooltip"]').tooltip();
+            $("body").off("click.ttip").on("click.ttip", function (e) {
+                $("div.tooltip[role=tooltip]").remove();
+            });
             formDatas[id + variant] = new FormData(container.find("form").get(0));
             container.show();
             container.find(".fieldtabs:first").click();
