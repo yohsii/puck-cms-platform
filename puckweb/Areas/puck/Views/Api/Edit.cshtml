@@ -40,6 +40,10 @@ else
                 {
                     locked = true;
                     @Html.Raw($"contentLocks['{Model.Id}{Model.Variant}'] = true;")
+                    @if (wfi.LockedBy != User.Identity.Name)
+                    {
+                        @Html.Raw($"msg(undefined,\"content locked by {wfi.LockedBy} until {wfi.LockedUntil.Value.ToString("HH:mm:ss")}\");");
+                    }
                 }
                 else {
                     @Html.Raw($"contentLocks['{Model.Id}{Model.Variant}'] = false;")
