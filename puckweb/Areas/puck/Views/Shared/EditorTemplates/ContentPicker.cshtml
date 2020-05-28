@@ -43,43 +43,49 @@
         startIds.AddRange(settings.StartPaths.Select(x=>x.Id.ToString()));
     }
     var guid = Guid.NewGuid();
+    var validationDummyGuid = Guid.NewGuid();
 }
-<div data-guid="@guid.ToString()" class="editor_container puckpicker puckpicker_@ViewData.ModelMetadata.PropertyName puckpicker_@ViewData.TemplateInfo.HtmlFieldPrefix.Replace("[","_").Replace("]","_").Replace(".","_")">
-    <div style="display:none;" class="propName" data-propName="@ViewData.TemplateInfo.HtmlFieldPrefix"></div>
-    <div style="display:none;" class="containerTrigger"></div>
-    <div>
-        <button type="button" class="btn btn-light addItem"><i class="fas fa-plus"></i></button>
-    </div>
-    <ul class="nodisplay contentTree nomenu">
-        <li class="node" data-id="00000000-0000-0000-0000-000000000000" data-path="/" data-children_path="/"></li>
-    </ul>
-    <div class="selected_content">
-        @if (Model != null)
+    <div data-guid="@guid.ToString()" class="editor_container puckpicker puckpicker_@ViewData.ModelMetadata.PropertyName puckpicker_@ViewData.TemplateInfo.HtmlFieldPrefix.Replace("[","_").Replace("]","_").Replace(".","_")">
+        <div style="display:none;" class="propName" data-propName="@ViewData.TemplateInfo.HtmlFieldPrefix"></div>
+        <div style="display:none;" class="containerTrigger"></div>
+        @if (ViewData.ModelMetadata.IsRequired)
         {
-            foreach (var m in Model)
+        <span class="field-validation-valid" data-valmsg-for="v@(validationDummyGuid.ToString().Replace("-",""))" data-valmsg-replace="true"></span>
+        <input class="validationDummy" type="hidden" data-val="true" data-val-required="The @ViewData.TemplateInfo.HtmlFieldPrefix field is required." id="@validationDummyGuid.ToString()" name="v@(validationDummyGuid.ToString().Replace("-",""))" />
+        }
+        <div>
+            <button type="button" class="btn btn-light addItem"><i class="fas fa-plus"></i></button>
+        </div>
+        <ul class="nodisplay contentTree nomenu">
+            <li class="node" data-id="00000000-0000-0000-0000-000000000000" data-path="/" data-children_path="/"></li>
+        </ul>
+        <div class="selected_content">
+            @if (Model != null)
             {
-                if (!string.IsNullOrEmpty(m.Variant))
+                foreach (var m in Model)
                 {
-                    <div class="selected_node" data-nodename="" data-variant="@m.Variant" data-id="@m.Id">
-                        <i class="fas fa-sort puckPickerSortHandle mr-3"></i><span class="nname"></span> - <span class="v">@m.Variant</span>
-                        <a href="#content?id=@(m.Id)&variant=@(m.Variant)" class="view">View</a>
-                        &nbsp;<i class='fas fa-minus-circle'></i>
-                    </div>
-                    
-                }
-                else
-                {
-                    <div class="selected_node" data-variant="null" data-id="@m.Id">
-                        <i class="fas fa-sort puckPickerSortHandle mr-3"></i>
-                        <span class="nname"></span>&nbsp;
-                        <i class='fas fa-minus-circle'></i>
-                    </div>
-                    
+                    if (!string.IsNullOrEmpty(m.Variant))
+                    {
+                        <div class="selected_node" data-nodename="" data-variant="@m.Variant" data-id="@m.Id">
+                            <i class="fas fa-sort puckPickerSortHandle mr-3"></i><span class="nname"></span> - <span class="v">@m.Variant</span>
+                            <a href="#content?id=@(m.Id)&variant=@(m.Variant)" class="view">View</a>
+                            &nbsp;<i class='fas fa-minus-circle'></i>
+                        </div>
+
+                    }
+                    else
+                    {
+                        <div class="selected_node" data-variant="null" data-id="@m.Id">
+                            <i class="fas fa-sort puckPickerSortHandle mr-3"></i>
+                            <span class="nname"></span>&nbsp;
+                            <i class='fas fa-minus-circle'></i>
+                        </div>
+
+                    }
                 }
             }
-        }
+        </div>
     </div>
-</div>
 <script type="text/javascript">
     onAfterDom(function () {
         var guid = "@guid.ToString()";
@@ -91,6 +97,8 @@
         }
         
         var container = $("[data-guid='"+guid+"']");
+        var validationDummy = container.find(".validationDummy");
+        validationDummy.attr("data-val-required", "The " + container.parents(".fieldwrapper").find(".editor-label label").html() + " field is required.");
 
         var init = function (container) {
             var getPropName = function () {
@@ -127,8 +135,10 @@
             var allowDuplicates = false;@*"@settings.AllowDuplicates"=='True';*@
             var setValue = function () {
                 //console.log("container",container);
-                container.find("input:hidden").remove();
+                container.find("input:hidden:not(.validationDummy)").remove();
+                validationDummy.val("");
                 selected_container.find(".selected_node").each(function (i) {
+                    validationDummy.val("1");
                     var node = $(this);
                     container.append(
                         "<input type='hidden' name='" + getPropName() + "[" + i + "].Id' value='" + node.attr("data-id") + "'/>"

@@ -24,31 +24,38 @@
     //    tagsDictionary[settings.Category] = tags.Select(x => x.Tag).ToList();
     //}
     var tagList = new List<string>(); //tagsDictionary[settings.Category];
+    var validationDummyGuid = Guid.NewGuid();
 }
-<div data-guid="@guid.ToString()" data-editor="pucktags" class="editor_container pucktags pucktags_@ViewData.ModelMetadata.PropertyName pucktags_@ViewData.TemplateInfo.HtmlFieldPrefix.Replace("[","_").Replace("]","_").Replace(".","_")">
-    <div style="display:none;" class="propName" data-propName="@ViewData.TemplateInfo.HtmlFieldPrefix"></div>
-    <div style="display:none;" class="containerTrigger"></div>
-    <div style="display:none;" class="dataTags" data-tags=""></div>
-    <div class="selected_content">
-        @if (Model != null)
+    <div data-guid="@guid.ToString()" data-editor="pucktags" class="editor_container pucktags pucktags_@ViewData.ModelMetadata.PropertyName pucktags_@ViewData.TemplateInfo.HtmlFieldPrefix.Replace("[","_").Replace("]","_").Replace(".","_")">
+        <div style="display:none;" class="propName" data-propName="@ViewData.TemplateInfo.HtmlFieldPrefix"></div>
+        <div style="display:none;" class="containerTrigger"></div>
+        <div style="display:none;" class="dataTags" data-tags=""></div>
+        @if (ViewData.ModelMetadata.IsRequired)
         {
-            foreach (var m in Model.Where(x=>!string.IsNullOrEmpty(x)))
-            {
-                <div class="selected_node" data-category="@settings.Category" data-tag="@m" data-tagLowerCase="@m.ToLower().Trim()">
-                    <span>@m</span><i class="fas fa-trash"></i>
-                </div>
-            }
+            <span class="field-validation-valid" data-valmsg-for="v@(validationDummyGuid.ToString().Replace("-",""))" data-valmsg-replace="true"></span>
+            <input class="validationDummy" type="hidden" data-val="true" data-val-required="The @ViewData.TemplateInfo.HtmlFieldPrefix field is required." id="@validationDummyGuid.ToString()" name="v@(validationDummyGuid.ToString().Replace("-",""))" />
         }
-    </div>
-    <div class="entry_container ui-front">
-        <input placeholder="type here, press enter to add tag" class="tag_entry"/>
-    </div>
-    <div class="interfaces d-none">
-        <div class="selected_node" data-category="" data-tag="" data-tagLowerCase="">
-            <span></span><i class="fas fa-trash"></i>
+
+        <div class="selected_content">
+            @if (Model != null)
+            {
+                foreach (var m in Model.Where(x => !string.IsNullOrEmpty(x)))
+                {
+                    <div class="selected_node" data-category="@settings.Category" data-tag="@m" data-tagLowerCase="@m.ToLower().Trim()">
+                        <span>@m</span><i class="fas fa-trash"></i>
+                    </div>
+                }
+            }
+        </div>
+        <div class="entry_container ui-front">
+            <input placeholder="type here, press enter to add tag" class="tag_entry" />
+        </div>
+        <div class="interfaces d-none">
+            <div class="selected_node" data-category="" data-tag="" data-tagLowerCase="">
+                <span></span><i class="fas fa-trash"></i>
+            </div>
         </div>
     </div>
-</div>
 <script type="text/javascript">
     onAfterDom(function () {
         var guid = "@guid.ToString()";
@@ -59,6 +66,8 @@
             return str.replace(/\[/g, "_").replace(/\]/g, "_").replace(/\./g, "_");
         }
         var container = $("[data-guid='" + guid + "']");
+        var validationDummy = container.find(".validationDummy");
+        validationDummy.attr("data-val-required", "The " + container.parents(".fieldwrapper").find(".editor-label label").html() + " field is required.");
 
         var init = function (container) {
 
@@ -106,8 +115,10 @@
             ];
 
             var setValue = function () {
-                container.find("input:hidden:not(.tag_entry)").remove();
+                container.find("input:hidden:not(.tag_entry):not(.validationDummy)").remove();
+                validationDummy.val("");
                 selected_container.find(".selected_node").each(function (i) {
+                    validationDummy.val("1");
                     var node = $(this);
                     container.append(
                         "<input type='hidden' name='" + getPropName() + "[" + i + "]' value='" + node.attr("data-tag") + "'/>"

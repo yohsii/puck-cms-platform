@@ -7,53 +7,84 @@
     var displayAttribute = ViewData.ModelMetadata.GetPropertyAttribute<System.ComponentModel.DataAnnotations.DisplayAttribute>();
     var settings = this.PuckEditorSettings<puck.core.Models.EditorSettings.Attributes.ListEditorSettingsAttribute>(attributeOnly: true) 
         ?? new puck.core.Models.EditorSettings.Attributes.ListEditorSettingsAttribute();
+    var validationDummyGuid = Guid.NewGuid();
 }
-<div data-guid="@guid.ToString()" class="listeditor listeditor_@ViewData.TemplateInfo.HtmlFieldPrefix listeditor_@ViewData.TemplateInfo.HtmlFieldPrefix.Replace("[","_").Replace("]","_").Replace(".","_")">
-    <div style="display:none;" class="propName" data-propName="@ViewData.TemplateInfo.HtmlFieldPrefix"></div>
-    <div style="display:none;" class="nameQuery" data-query="@Html.Raw(displayAttribute?.ShortName??"")"></div>
-    <div class="addContainer">
-        <button type="button" class="btn-light btn"><i class="fas fa-plus"/></button>
-    </div>
-    <ul class="selected_content">
-        @if (Model != null)
+    <div data-guid="@guid.ToString()" class="listeditor listeditor_@ViewData.TemplateInfo.HtmlFieldPrefix listeditor_@ViewData.TemplateInfo.HtmlFieldPrefix.Replace("[","_").Replace("]","_").Replace(".","_")">
+        <div style="display:none;" class="propName" data-propName="@ViewData.TemplateInfo.HtmlFieldPrefix"></div>
+        <div style="display:none;" class="nameQuery" data-query="@Html.Raw(displayAttribute?.ShortName??"")"></div>
+        @if (ViewData.ModelMetadata.IsRequired)
         {
-            foreach(var m in Model)
-            {
-                string templateName = null;
-                if(!string.IsNullOrEmpty(settings.EditorTemplate)){
-                    templateName = settings.EditorTemplate;
-                } else if (m.GetType().Equals(typeof(string))) {
-                    templateName = "String";
-                }else if (m.GetType().Equals(typeof(Single)) || m.GetType().Equals(typeof(Single?))) {
-                    templateName = "Single";
-                }else if (m.GetType().Equals(typeof(Char))) {
-                    templateName = "Char";
-                }else if (m.GetType().Equals(typeof(Decimal))||m.GetType().Equals(typeof(Decimal?))) {
-                    templateName = "Decimal";
-                }else if (m.GetType().Equals(typeof(Double)) || m.GetType().Equals(typeof(Double?))) {
-                    templateName = "Double";
-                }else if (m.GetType().Equals(typeof(Int16))||m.GetType().Equals(typeof(Int16?))) {
-                    templateName = "Int16";
-                }else if (m.GetType().Equals(typeof(Int32))||m.GetType().Equals(typeof(Int32?))) {
-                    templateName = "Int32";
-                }else if (m.GetType().Equals(typeof(Int64)) || m.GetType().Equals(typeof(Int64?))) {
-                    templateName = "Int64";
-                }else if (m.GetType().Equals(typeof(bool)) || m.GetType().Equals(typeof(bool?))) {
-                    templateName = "Boolean";
-                }else if (m.GetType().Equals(typeof(DateTime)) || m.GetType().Equals(typeof(DateTime?))) {
-                    templateName = "DateTime";
-                }
-            <li class="itemContainer">
-                <div class="titleContainer"><i class="sortHandle fas fa-arrows-alt" /><i class="expand fas fa-chevron-down" /> <span>item @(count+1)</span> <i class="fas fa-minus-circle remove" /></div>
-                <div class="editorContainer">
-                    @Html.EditorFor(x=>m,templateName,$"[{count}]",null)
-                </div>                
-            </li>
-                count++;
-            }
+            <span class="field-validation-valid" data-valmsg-for="v@(validationDummyGuid.ToString().Replace("-",""))" data-valmsg-replace="true"></span>
         }
-    </ul>
-</div>
+        <div class="addContainer">
+            <button type="button" class="btn-light btn"><i class="fas fa-plus" /></button>
+        </div>
+        <ul class="selected_content">
+            @if (Model != null)
+            {
+                foreach (var m in Model)
+                {
+                    if (m == null) { continue; }
+                    string templateName = null;
+                    if (!string.IsNullOrEmpty(settings.EditorTemplate))
+                    {
+                        templateName = settings.EditorTemplate;
+                    }
+                    else if (m.GetType().Equals(typeof(string)))
+                    {
+                        templateName = "String";
+                    }
+                    else if (m.GetType().Equals(typeof(Single)) || m.GetType().Equals(typeof(Single?)))
+                    {
+                        templateName = "Single";
+                    }
+                    else if (m.GetType().Equals(typeof(Char)))
+                    {
+                        templateName = "Char";
+                    }
+                    else if (m.GetType().Equals(typeof(Decimal)) || m.GetType().Equals(typeof(Decimal?)))
+                    {
+                        templateName = "Decimal";
+                    }
+                    else if (m.GetType().Equals(typeof(Double)) || m.GetType().Equals(typeof(Double?)))
+                    {
+                        templateName = "Double";
+                    }
+                    else if (m.GetType().Equals(typeof(Int16)) || m.GetType().Equals(typeof(Int16?)))
+                    {
+                        templateName = "Int16";
+                    }
+                    else if (m.GetType().Equals(typeof(Int32)) || m.GetType().Equals(typeof(Int32?)))
+                    {
+                        templateName = "Int32";
+                    }
+                    else if (m.GetType().Equals(typeof(Int64)) || m.GetType().Equals(typeof(Int64?)))
+                    {
+                        templateName = "Int64";
+                    }
+                    else if (m.GetType().Equals(typeof(bool)) || m.GetType().Equals(typeof(bool?)))
+                    {
+                        templateName = "Boolean";
+                    }
+                    else if (m.GetType().Equals(typeof(DateTime)) || m.GetType().Equals(typeof(DateTime?)))
+                    {
+                        templateName = "DateTime";
+                    }
+                    <li class="itemContainer">
+                        <div class="titleContainer"><i class="sortHandle fas fa-arrows-alt" /><i class="expand fas fa-chevron-down" /> <span>item @(count + 1)</span> <i class="fas fa-minus-circle remove" /></div>
+                        <div class="editorContainer">
+                            @Html.EditorFor(x => m, templateName, $"[{count}]", null)
+                        </div>
+                    </li>
+                    count++;
+                }
+            }
+        </ul>
+        @if (ViewData.ModelMetadata.IsRequired)
+        {
+            <input class="validationDummy" type="hidden" data-val="true" value="@(count>0?"1":"")" data-val-required="The @ViewData.TemplateInfo.HtmlFieldPrefix field is required." id="@validationDummyGuid.ToString()" name="v@(validationDummyGuid.ToString().Replace("-",""))" />
+        }
+    </div>
 <script type="text/javascript">
     onAfterDom(function () {
         var guid = "@guid.ToString()";
@@ -71,6 +102,9 @@
         }
         var container = null;
         container = $("[data-guid='"+guid+"']");
+        var validationDummy = container.find(".validationDummy");
+        validationDummy.attr("data-val-required", "The " + container.parents(".fieldwrapper").find(".editor-label label").html() + " field is required.");
+
         //if (shouldBindListEditor)
         //    cright.find(".listeditor_" + escapePropname(propname));
         //else
@@ -103,6 +137,7 @@
                     if (window.debug)
                         debugger;
                     var el = $(this);
+                    el.parents(".listeditor:first").find(".validationDummy:first").val("1");
                     var _selected_container = el.parents(".listeditor:first").find(".selected_content:first");
                     var elToCopy = template.find(".listeditor_" + escapePropname(toZeroIndex(getPropName())) + " .itemContainer:first");
                     //console.log("el to copy", elToCopy);
@@ -190,6 +225,10 @@
                     var el = $(this);
                     var _selected_container = el.parents(".selected_content:first");
                     var container = el.parents(".itemContainer:first");
+                    var _index = _selected_container.find(">.itemContainer").length;
+                    if (_index == 1) {
+                        el.parents(".listeditor:first").find(".validationDummy:first").val("");
+                    }
                     container.remove();
                     setIndexesForInputs(_selected_container);
                 });

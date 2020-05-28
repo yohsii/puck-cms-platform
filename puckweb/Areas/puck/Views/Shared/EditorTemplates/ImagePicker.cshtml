@@ -24,74 +24,81 @@
         startId = settings.StartPath.First().Id;
     }
     var guid = Guid.NewGuid();
+    var validationDummyGuid = Guid.NewGuid();
 }
-<div data-guid="@guid.ToString()" class="editor_container puckimagepicker puckimagepicker_@ViewData.ModelMetadata.PropertyName puckimagepicker_@ViewData.TemplateInfo.HtmlFieldPrefix.Replace("[","_").Replace("]","_").Replace(".","_")">
-    <div style="display:none;" class="propName" data-propName="@ViewData.TemplateInfo.HtmlFieldPrefix"></div>
-    <div style="display:none;" class="containerTrigger"></div>
+    <div data-guid="@guid.ToString()" class="editor_container puckimagepicker puckimagepicker_@ViewData.ModelMetadata.PropertyName puckimagepicker_@ViewData.TemplateInfo.HtmlFieldPrefix.Replace("[","_").Replace("]","_").Replace(".","_")">
+        <div style="display:none;" class="propName" data-propName="@ViewData.TemplateInfo.HtmlFieldPrefix"></div>
+        <div style="display:none;" class="containerTrigger"></div>
 
-    <div class="col-md-12 puckImagePickerMsgContainer"></div>
-    <div class="row mb-1">
-        <div class="col-md-2">
-            <button type="button" class="btn btn-light addImage"><i class="fas fa-plus"></i></button>
-        </div>
-    </div>
-    <div class="row selected_content">
-        
-        @if (Model != null)
+        @if (ViewData.ModelMetadata.IsRequired)
         {
-            foreach (var m in Model)
+            <span class="field-validation-valid" data-valmsg-for="v@(validationDummyGuid.ToString().Replace("-",""))" data-valmsg-replace="true"></span>
+            <input class="validationDummy" type="hidden" data-val="true" data-val-required="The @ViewData.TemplateInfo.HtmlFieldPrefix field is required." id="@validationDummyGuid.ToString()" name="v@(validationDummyGuid.ToString().Replace("-",""))" />
+        }
+
+        <div class="col-md-12 puckImagePickerMsgContainer"></div>
+        <div class="row mb-1">
+            <div class="col-md-2">
+                <button type="button" class="btn btn-light addImage"><i class="fas fa-plus"></i></button>
+            </div>
+        </div>
+        <div class="row selected_content">
+
+            @if (Model != null)
             {
-                if (!string.IsNullOrEmpty(m.Variant))
+                foreach (var m in Model)
                 {
-                    <div data-id="@m.Id" data-variant="@m.Variant" data-nodename="" class="item col-md-4 col-lg-3">
-                        <div class="actionContainer">
-                            <i class="fas fa-pen view"></i>
-                            <i class="fas fa-trash remove"></i>
-                            <i class="fas fa-sort imagePickerSortHandle"></i>
+                    if (!string.IsNullOrEmpty(m.Variant))
+                    {
+                        <div data-id="@m.Id" data-variant="@m.Variant" data-nodename="" class="item col-md-4 col-lg-3">
+                            <div class="actionContainer">
+                                <i class="fas fa-pen view"></i>
+                                <i class="fas fa-trash remove"></i>
+                                <i class="fas fa-sort imagePickerSortHandle"></i>
+                            </div>
+                            <div class="imageContainer">
+                                <img src="" />
+                            </div>
+                            <div class="metaContainer">
+                                <span class="nodename"></span>
+                                - <span class="variant">@m.Variant</span>
+                            </div>
                         </div>
-                        <div class="imageContainer">
-                            <img src="" />
-                        </div>
-                        <div class="metaContainer">
-                            <span class="nodename"></span>
-                            - <span class="variant">@m.Variant</span>
-                        </div>
-                    </div>
+                    }
                 }
             }
-        }
-    </div>
-    <div class="interfaces">
-        <div class="imagePickerOverlayContainer">
-            <div class="searchContainer">
-                <input value="" type="text" class="searchBox" />
-                <button type="button" class="btn btn-light">search</button>
-            </div>
-            <div class="path"></div>
-            <div class="itemContainer row">
+        </div>
+        <div class="interfaces">
+            <div class="imagePickerOverlayContainer">
+                <div class="searchContainer">
+                    <input value="" type="text" class="searchBox" />
+                    <button type="button" class="btn btn-light">search</button>
+                </div>
+                <div class="path"></div>
+                <div class="itemContainer row">
 
+                </div>
+            </div>
+
+            <div class="item col-4">
+                <div class="actionContainer">
+                    <i class="fas fa-pen view"></i>
+                    <i class="fas fa-trash remove"></i>
+                    <i class="fas fa-sort imagePickerSortHandle"></i>
+                </div>
+                <div class="iconContainer">
+                    <i class="fas fa-file-alt"></i>
+                </div>
+                <div class="imageContainer">
+                    <img src="" />
+                </div>
+                <div class="metaContainer">
+                    <span class="nodename"></span>
+                    <span class="separator">-</span> <span class="variant"></span>
+                </div>
             </div>
         </div>
-
-        <div class="item col-4">
-            <div class="actionContainer">
-                <i class="fas fa-pen view"></i>
-                <i class="fas fa-trash remove"></i>
-                <i class="fas fa-sort imagePickerSortHandle"></i>
-            </div>
-            <div class="iconContainer">
-                <i class="fas fa-file-alt"></i>
-            </div>
-            <div class="imageContainer">
-                <img src="" />
-            </div>
-            <div class="metaContainer">
-                <span class="nodename"></span>
-                <span class="separator">-</span> <span class="variant"></span>
-            </div>
-        </div>
     </div>
-</div>
 <script type="text/javascript">
     onAfterDom(function () {
         var guid = "@guid.ToString()";
@@ -100,6 +107,8 @@
             return str.replace(/\[/g, "_").replace(/\]/g,"_").replace(/\./g,"_");
         }
         var container = $("[data-guid='"+guid+"']");
+        var validationDummy = container.find(".validationDummy");
+        validationDummy.attr("data-val-required", "The " + container.parents(".fieldwrapper").find(".editor-label label").html() + " field is required.");
 
         var init = function (container) {
             var getPropName = function () {
@@ -125,8 +134,10 @@
             var maxPick = "@settings.MaxPick";
             var setValue = function () {
                 //console.log("container",container);
-                container.find("input:hidden:not(.searchBox)").remove();
+                container.find("input:hidden:not(.searchBox):not(.validationDummy)").remove();
+                validationDummy.val("");
                 selected_container.find(".item").each(function (i) {
+                    validationDummy.val("1");
                     var node = $(this);
                     container.append(
                         "<input type='hidden' name='" + getPropName() + "[" + i + "].Id' value='" + node.attr("data-id") + "'/>"
