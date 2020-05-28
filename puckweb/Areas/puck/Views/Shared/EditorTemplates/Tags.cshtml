@@ -32,7 +32,7 @@
         <div style="display:none;" class="dataTags" data-tags=""></div>
         @if (ViewData.ModelMetadata.IsRequired)
         {
-            <span class="field-validation-valid" data-valmsg-for="v@(validationDummyGuid.ToString().Replace("-",""))" data-valmsg-replace="true"></span>
+            <span class="field-validation-valid validationDummySummary" data-valmsg-for="v@(validationDummyGuid.ToString().Replace("-",""))" data-valmsg-replace="true"></span>
             <input class="validationDummy" type="hidden" data-val="true" data-val-required="The @ViewData.TemplateInfo.HtmlFieldPrefix field is required." id="@validationDummyGuid.ToString()" name="v@(validationDummyGuid.ToString().Replace("-",""))" />
         }
 
@@ -66,10 +66,11 @@
             return str.replace(/\[/g, "_").replace(/\]/g, "_").replace(/\./g, "_");
         }
         var container = $("[data-guid='" + guid + "']");
-        var validationDummy = container.find(".validationDummy");
-        validationDummy.attr("data-val-required", "The " + container.parents(".fieldwrapper").find(".editor-label label").html() + " field is required.");
-
+        
         var init = function (container) {
+            var validationDummy = container.find(".validationDummy");
+            validationDummy.attr("data-val-required", "The " + container.parents(".fieldwrapper:first").find(".editor-label label").html() + " field is required.");
+            container.find(".validationDummySummary").attr("data-valmsg-for",validationDummy.attr("name"));
 
             var tagInput = container.find(".tag_entry");
             var interfaces = container.find(".interfaces");

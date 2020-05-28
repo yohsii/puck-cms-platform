@@ -14,7 +14,7 @@
         <div style="display:none;" class="nameQuery" data-query="@Html.Raw(displayAttribute?.ShortName??"")"></div>
         @if (ViewData.ModelMetadata.IsRequired)
         {
-            <span class="field-validation-valid" data-valmsg-for="v@(validationDummyGuid.ToString().Replace("-",""))" data-valmsg-replace="true"></span>
+            <span class="field-validation-valid validationDummySummary" data-valmsg-for="v@(validationDummyGuid.ToString().Replace("-",""))" data-valmsg-replace="true"></span>
         }
         <div class="addContainer">
             <button type="button" class="btn-light btn"><i class="fas fa-plus" /></button>
@@ -102,8 +102,9 @@
         }
         var container = null;
         container = $("[data-guid='"+guid+"']");
-        var validationDummy = container.find(".validationDummy");
-        validationDummy.attr("data-val-required", "The " + container.parents(".fieldwrapper").find(".editor-label label").html() + " field is required.");
+        var validationDummy = container.find(".validationDummy:last");
+        validationDummy.attr("data-val-required", "The " + container.parents(".fieldwrapper:first").find(".editor-label label").html() + " field is required.");
+        container.find(".validationDummySummary").attr("data-valmsg-for",validationDummy.attr("name"));
 
         //if (shouldBindListEditor)
         //    cright.find(".listeditor_" + escapePropname(propname));
@@ -137,13 +138,14 @@
                     if (window.debug)
                         debugger;
                     var el = $(this);
-                    el.parents(".listeditor:first").find(".validationDummy:first").val("1");
+                    el.parents(".listeditor:first").find(".validationDummy:last").val("1");
                     var _selected_container = el.parents(".listeditor:first").find(".selected_content:first");
                     var elToCopy = template.find(".listeditor_" + escapePropname(toZeroIndex(getPropName())) + " .itemContainer:first");
                     //console.log("el to copy", elToCopy);
                     var index = _selected_container.find(">.itemContainer").length;
                     var copy = elToCopy.clone(true, true);
                     copy.find("input[type=text][value=' ']").val("");
+                    copy.find(".validationDummy").val("");
                     copy.find(".listeditor .selected_content").each(function () {
                         $(this).empty();
                     });
@@ -159,7 +161,7 @@
                         var newName = name.replace(regex, _propName + "[" + index + "]");
                         div.attr("data-propName", newName).attr("data-touched", "true");
                     });
-                    copy.find(":input").each(function () {
+                    copy.find(":input:not(.validationDummy)").each(function () {
                         //debugger;
                         var input = $(this);
                         var name = input.attr("name") || "";
@@ -227,7 +229,7 @@
                     var container = el.parents(".itemContainer:first");
                     var _index = _selected_container.find(">.itemContainer").length;
                     if (_index == 1) {
-                        el.parents(".listeditor:first").find(".validationDummy:first").val("");
+                        el.parents(".listeditor:first").find(".validationDummy:last").val("");
                     }
                     container.remove();
                     setIndexesForInputs(_selected_container);
