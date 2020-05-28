@@ -7,6 +7,7 @@ var cright = $(".rightarea .content");
 var cinterfaces = $("body>.main>.interfaces");
 var cmsg = $(".top .message");
 var cidCounter = 0;
+var validationDummyCounter = 0;
 var searchType = '';
 var searchRoot = '';
 var searchTerm = '';
@@ -687,8 +688,8 @@ var wireForm = function (form, success, fail,submit) {
             }
         } else {
 
-            if (cright.find(".editorContainer:hidden .input-validation-error").length > 0) {
-                var editorContainers = cright.find(".editorContainer:hidden .input-validation-error").parents(".editorContainer:first");
+            if (form.find(".editorContainer:hidden .input-validation-error").length > 0) {
+                var editorContainers = form.find(".editorContainer:hidden .input-validation-error").parents(".editorContainer");
                 editorContainers.each(function (i) {
                     var editorContainer = $(this);
                     editorContainer.show();
@@ -698,8 +699,8 @@ var wireForm = function (form, success, fail,submit) {
                 });
             }
 
-            var err_el = cright.find(".input-validation-error:first");
-            cright.find("[href='#" + err_el.parents(".tab-pane").attr("id") + "']").click();
+            var err_el = form.find(".input-validation-error:first");
+            form.find("[href='#" + err_el.parents(".tab-pane").attr("id") + "']").click();
             if (err_el.is(":visible")) {
                 err_el.focus();
             } else {

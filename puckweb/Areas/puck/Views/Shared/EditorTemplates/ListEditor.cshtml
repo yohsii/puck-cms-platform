@@ -138,7 +138,14 @@
                     if (window.debug)
                         debugger;
                     var el = $(this);
-                    el.parents(".listeditor:first").find(".validationDummy:last").val("1");
+                    var validationDummy = el.parents(".listeditor:first").find(".validationDummy:last");
+                    if (validationDummy.length > 0) {
+                        validationDummy.val("1");
+                        validationDummyCounter++;
+                        if (((validationDummy.attr("name")||"").match(/_/g) || []).length < 2)
+                            validationDummy.attr("name", validationDummy.attr("name") + "_" + validationDummyCounter);
+                        el.parents(".listeditor:first").find(".validationDummySummary:first").attr("data-valmsg-for",validationDummy.attr("name"));
+                    }
                     var _selected_container = el.parents(".listeditor:first").find(".selected_content:first");
                     var elToCopy = template.find(".listeditor_" + escapePropname(toZeroIndex(getPropName())) + " .itemContainer:first");
                     //console.log("el to copy", elToCopy);
@@ -188,8 +195,7 @@
                     var form = _selected_container.parents("form:first");
                     form.removeData("validator");
                     form.removeData("unobtrusiveValidation");
-                    $.validator.unobtrusive.parse(form);
-
+                    
                     //trigger container update
                     copy.find(".containerTrigger").click();
 
@@ -198,6 +204,9 @@
                         var editorContainer = $(this);
                         editorContainer.trigger("puckListEditorUpdate",[editorContainer]);
                     });
+
+                    $.validator.unobtrusive.parse(form);
+
                 });
 
             });

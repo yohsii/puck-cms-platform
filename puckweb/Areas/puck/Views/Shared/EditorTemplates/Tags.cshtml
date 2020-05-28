@@ -69,6 +69,9 @@
         
         var init = function (container) {
             var validationDummy = container.find(".validationDummy");
+            validationDummyCounter++;
+            if (((validationDummy.attr("name")||"").match(/_/g) || []).length < 2)
+                validationDummy.attr("name", validationDummy.attr("name") + "_" + validationDummyCounter);
             validationDummy.attr("data-val-required", "The " + container.parents(".fieldwrapper:first").find(".editor-label label").html() + " field is required.");
             container.find(".validationDummySummary").attr("data-valmsg-for",validationDummy.attr("name"));
 
