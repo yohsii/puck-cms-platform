@@ -21,12 +21,12 @@ namespace Lucene.Net.Store.Azure
         private IndexOutput _indexOutput;
         private Mutex _fileMutex;
         private ICloudBlob _blob;
-        private readonly CRC32 _crc;
+        //private readonly CRC32 _crc;
         public Lucene.Net.Store.Directory CacheDirectory { get { return _azureDirectory.CacheDirectory; } }
 
         public AzureIndexOutput(AzureDirectory azureDirectory, ICloudBlob blob)
         {
-            _crc = new CRC32();
+            //_crc = new CRC32();
 
             _name = blob.Uri.Segments[blob.Uri.Segments.Length - 1];
 
