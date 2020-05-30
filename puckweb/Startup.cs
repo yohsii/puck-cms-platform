@@ -30,6 +30,7 @@ using puck.core.Abstract;
 using puckweb.Data.Contexts;
 using puckweb.Data.Entities;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using SixLabors.ImageSharp.Web.Providers.Azure;
 
 namespace puckweb
 {
@@ -69,7 +70,7 @@ namespace puckweb
 
             PhysicalFileSystemProvider PhysicalProviderFactory(IServiceProvider provider)
             {
-                var env = provider.GetRequiredService<Microsoft.AspNetCore.Hosting.IHostingEnvironment>();
+                var env = provider.GetRequiredService<Microsoft.AspNetCore.Hosting.IWebHostEnvironment>();
                 env.WebRootFileProvider = new PhysicalFileProvider(env.WebRootPath);
                 var p = new PhysicalFileSystemProvider(
                     env,
@@ -108,7 +109,7 @@ namespace puckweb
                     {
                         return new PhysicalFileSystemCache(
                             provider.GetRequiredService<IOptions<PhysicalFileSystemCacheOptions>>(),
-                            provider.GetRequiredService<Microsoft.AspNetCore.Hosting.IHostingEnvironment>(),
+                            provider.GetRequiredService<Microsoft.AspNetCore.Hosting.IWebHostEnvironment>(),
                             provider.GetRequiredService<IOptions<ImageSharpMiddlewareOptions>>(),
                             provider.GetRequiredService<FormatUtilities>());
                     })
@@ -116,8 +117,11 @@ namespace puckweb
                     .AddProvider(AzureProviderFactory)
                     .Configure<AzureBlobStorageImageProviderOptions>(options =>
                     {
-                        options.ConnectionString = Configuration.GetValue<string>("AzureBlobStorageConnectionString");
-                        options.ContainerName = Configuration.GetValue<string>("AzureImageTransformer_ContainerName");
+                        options.BlobContainers.Add(new AzureBlobContainerClientOptions
+                        {
+                            ConnectionString = Configuration.GetValue<string>("AzureBlobStorageConnectionString"),
+                            ContainerName = Configuration.GetValue<string>("AzureImageTransformer_ContainerName")
+                        });
                     })
                     .AddProvider(PhysicalProviderFactory)
                     .AddProcessor<CropWebProcessor>()
@@ -132,7 +136,7 @@ namespace puckweb
                     {
                         return new PhysicalFileSystemCache(
                             provider.GetRequiredService<IOptions<PhysicalFileSystemCacheOptions>>(),
-                            provider.GetRequiredService<Microsoft.AspNetCore.Hosting.IHostingEnvironment>(),
+                            provider.GetRequiredService<Microsoft.AspNetCore.Hosting.IWebHostEnvironment>(),
                             provider.GetRequiredService<IOptions<ImageSharpMiddlewareOptions>>(),
                             provider.GetRequiredService<FormatUtilities>());
                     })

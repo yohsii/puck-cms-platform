@@ -3,12 +3,13 @@
 
 using System.Collections.Generic;
 using Microsoft.Extensions.Logging;
+using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Processing;
 using SixLabors.ImageSharp.Processing.Processors.Transforms;
 using SixLabors.ImageSharp.Web;
 using SixLabors.ImageSharp.Web.Commands;
 using SixLabors.ImageSharp.Web.Processors;
-using SixLabors.Primitives;
+
 
 namespace puck.core.ImageSharp.WebProcessors
 {
