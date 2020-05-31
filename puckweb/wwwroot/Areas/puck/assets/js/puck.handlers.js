@@ -991,15 +991,29 @@ $(window).load(function () {
     //cleft.parent().append(
     //    $("<div/>").html("<i style=\"font-size:18px;\" class=\"fas fa-arrows-alt-h\"/>").addClass("colsResizer").css({ position: "absolute", left: (cleft.width()-0+13) + "px", top: "10px" })
     //);
+    var afterVariants = function (data) {
+        languages = data;
+        for (var i = 0; i < languages.length; i++) {
+            languageSortDictionary[languages[i].Key] = i + 1;
+        }
+        var hash = getQueryString("hash");
+        if (languages.length == 0) {
+            onAfterDom(function () {
+                msg(0, "take a moment to setup puck. at the very least, choose your languages!");
+            });
+            location.hash = "settings?path=/puck/settings/languages";
+        } else if (!hash&&!location.hash) {
+            location.hash = "#content";
+        }
+    };
 
     var hash = getQueryString("hash");
     //console.log("hashQs",hash);
     
-    if (!hash) {
-        if (!location.hash)
-            location.hash = "#content";
-        return;
-    }
+    getVariants(afterVariants);
+
+    if (!hash) return;
+
     setTimeout(function () {
         location.hash = hash;
         if (hash[0] != "#")
@@ -1050,18 +1064,7 @@ getUserRoles(function (d) {
         if (!userRoles.contains("_republish")) $(".republish_entire_site").hide();
     });
 });
-getVariants(function (data) {
-    languages = data;
-    for (var i = 0; i < languages.length; i++) {
-        languageSortDictionary[languages[i].Key] = i + 1;
-    }
-    if (languages.length == 0) {
-        onAfterDom(function () {
-            msg(0, "take a moment to setup puck. at the very least, choose your languages!");
-        });
-        location.hash = "settings?path=/puck/settings/languages";
-    }
-});
+
 var isArray = function (arg) {
     return Object.prototype.toString.call(arg) === '[object Array]';
 };
