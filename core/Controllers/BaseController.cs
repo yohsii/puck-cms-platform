@@ -28,14 +28,15 @@ namespace puck.core.Controllers
 {
     public class BaseController : Controller
     {
+        public BaseController() {
+            StateHelper.SetFirstRequestUrl();
+            SyncIfNecessary();
+        }
 
         public IActionResult Puck(string path = null, string variant=null)
         {
             try
             {
-                StateHelper.SetFirstRequestUrl();
-                SyncIfNecessary();
-
                 var uri = Request.GetUri();
                 
                 if(string.IsNullOrEmpty(path))
