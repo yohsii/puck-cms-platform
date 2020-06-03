@@ -37,3 +37,4 @@ it's fast, with queries avoiding the database and instead using Lucene. it's als
 - [sync](https://github.com/yohsii/puck-core/wiki/Syncing-content-between-different-databases) content between databases (e.g. staging to production)
 - [references](https://github.com/yohsii/puck-core/wiki/Keeping-references-between-pages-to-track-dependencies-of-content) between related content are kept, so you have an idea about which pages or images are dependant on others
 - supports sql server, sqlite, mysql, postgresql
+
