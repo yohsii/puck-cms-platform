@@ -258,7 +258,7 @@ $(document).on("click",".node-dropdown a,.template-dropdown a",function () {
                     if (d.success) {
                         $("ul.templates .node[data-path='" + from + "']").remove();
                         var tonode = $("ul.templates .node[data-path='" + to + "']");
-                        console.log({ el: tonode });
+                        //console.log({ el: tonode });
                         tonode.find(".expand:first").removeClass("fa-chevron-right").addClass("fa-chevron-down").css({ visibility: "visible" });
                         getDrawTemplates(to);
                     } else {
@@ -569,7 +569,7 @@ $(document).on("click",".node-dropdown a,.template-dropdown a",function () {
                         img.remove();
                         cleft.find(".node[data-id='" + fromId + "']").remove();
                         var tonode = cleft.find(".node[data-id='" + toId + "']");
-                        console.log({ el: tonode });
+                        //console.log({ el: tonode });
                         tonode.find(".expand:first").removeClass("fa-chevron-right").addClass("fa-chevron-down").css({ visibility: "visible" });
                         getDrawContent(toId, undefined, true, function () { },true);
                     } else {
@@ -616,7 +616,7 @@ $(document).on("click",".node-dropdown a,.template-dropdown a",function () {
                         copying = false;
                         img.remove();
                         var tonode = cleft.find(".node[data-id='" + toId + "']");
-                        console.log({ el: tonode });
+                        //console.log({ el: tonode });
                         if (tonode.length == 0) return;
                         tonode.find(".expand:first").removeClass("fa-chevron-right").addClass("fa-chevron-down").css({ visibility: "visible" });
                         getDrawContent(toId, undefined, true, function () { }, true);
