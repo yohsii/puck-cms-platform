@@ -1331,19 +1331,19 @@ var displayMarkup = function (parentId, type, variant, fromVariant,contentId,con
                             //cancel form submit by returning true
                             return true;
                         }
-                    } else {
-                        var comment = workflowComments[id + variant];
-                        if (wfo.handler && isFunction(wfo.handler)) {
-                            var cancel = false;
-                            try {
-                                cancel = wfo.handler(isPublished, workflowItem, userObject, startingState, currentState, comment, services);
-                            } catch(ex){
-                                console.error(ex);
-                            }
-                            if (cancel && typeof(cancel) == "boolean")
-                                return true;
+                    } 
+                    var comment = workflowComments[id + variant];
+                    if (wfo.handler && isFunction(wfo.handler)) {
+                        var cancel = false;
+                        try {
+                            cancel = wfo.handler(isPublished, workflowItem, userObject, startingState, currentState, comment, services);
+                        } catch(ex){
+                            console.error(ex);
                         }
+                        if (cancel && typeof(cancel) == "boolean")
+                            return true;
                     }
+                    
                 }
 
                 container.find(".content_btns").attr({ disabled: "disabled" });
