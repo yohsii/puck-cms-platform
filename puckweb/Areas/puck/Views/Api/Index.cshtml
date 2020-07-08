@@ -117,7 +117,7 @@
         </div>
 
         <!-- workflows comment Modal -->
-        <div class="modal fade" id="staticBackdrop" data-backdrop="static" tabindex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal fade comment" id="staticBackdrop" data-backdrop="static" tabindex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -125,7 +125,10 @@
                     </div>
                     <div class="modal-body">
                         <h3 class="font-weight-light title"></h3>
-                        <textarea class="w-100"></textarea>
+                        <div class="mt-3 mb-3">
+                            <input type="hidden" class="select2"/>
+                        </div>
+                        <textarea placeholder="enter a comment..." class="w-100"></textarea>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-primary">submit</button>

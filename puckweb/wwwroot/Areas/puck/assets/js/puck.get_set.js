@@ -232,6 +232,9 @@ var getUsersJson = function (f) {
 var getUsers = function (f) {
     $.get("/puck/admin/index", f, "html");
 }
+var getUserNamesJson = function (f) {
+    $.get("/puck/admin/usernames", f);
+}
 var getUserMarkup = function (u, f) {
     $.get("/puck/admin/edit?username=" + u, f, "html");
 }

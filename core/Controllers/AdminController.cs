@@ -170,6 +170,13 @@ namespace puck.core.Controllers
         public ActionResult Renew() {
             return View();
         }
+        private async Task<List<string>> GetUserNames() {
+            var model = new List<string>();
+            var puckRole = await roleManager.FindByNameAsync(PuckRoles.Puck);
+            var userCollection = repo.GetPuckUser().Where(x => x.Roles.Any(xx => xx.RoleId == puckRole.Id)).ToList();
+            model = userCollection.Select(x=>x.UserName).ToList();
+            return model;
+        }
         private async Task<List<PuckUserViewModel>> GetUsers() {
             var model = new List<PuckUserViewModel>();
             var puckRole = await roleManager.FindByNameAsync(PuckRoles.Puck);
@@ -206,6 +213,12 @@ namespace puck.core.Controllers
         public async Task<ActionResult> Users()
         {
             var model = await GetUsers();
+            return Json(model);
+        }
+        [Authorize(Roles = PuckRoles.Users, AuthenticationSchemes = Mvc.AuthenticationScheme)]
+        public async Task<ActionResult> UserNames()
+        {
+            var model = await GetUserNames();
             return Json(model);
         }
         [Authorize(Roles =PuckRoles.Users,AuthenticationSchemes = Mvc.AuthenticationScheme)]

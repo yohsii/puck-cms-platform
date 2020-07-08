@@ -1312,14 +1312,26 @@ var displayMarkup = function (parentId, type, variant, fromVariant,contentId,con
                         if (commentDialogTitle && typeof commentDialogTitle=="string") {
 
                             //create modal
-                            var modalEl = cinterfaces.find(".modal").clone();
+                            var modalEl = cinterfaces.find(".modal.comment").clone();
 
                             modalEl.find(".title").html(commentDialogTitle);
+                            var select2Input = modalEl.find(".select2:input");
+                            getUserNamesJson(function (d) {
+                                var values = [];
+                                $(d).each(function () {
+                                    values.push({id:this,text:this});
+                                });
+                                select2Input.select2({placeholder:"mention another user...", data: values, multiple: true, width: "100%" });
+                            });
                             modalEl.find("button").click(function (e) {
                                 var commentVal = modalEl.find("textarea").val();
                                 if (commentVal) {
                                     modalEl.modal("hide");
-                                    workflowComments[id + variant] = commentVal;
+                                    var mentions = [];
+                                    if (select2Input.val()!="") {
+                                        mentions = select2Input.val().split(",");
+                                    }
+                                    workflowComments[id + variant] = { comment:commentVal,mentions:mentions };
                                     container.find("form").submit();
                                 } else {
                                     modalEl.find("textarea").addClass("input-validation-error");
