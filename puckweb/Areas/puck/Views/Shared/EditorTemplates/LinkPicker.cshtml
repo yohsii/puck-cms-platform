@@ -1,0 +1,42 @@
+﻿@model string
+@{ 
+    var containerGuid = Guid.NewGuid().ToString();
+    var guid ="G"+ Guid.NewGuid().ToString();
+
+}
+<div data-guid="@containerGuid" data-editor="rte" class="editor_container puck_mce mce_@ViewData.ModelMetadata.PropertyName">
+    
+    @Html.TextBoxFor(x => x, new {@class="mt-3", id = guid.ToString() }) <button class="ml-3 btn btn-light">Select</button>
+</div>
+<script>
+    onAfterDom(function () {
+        var cGuid = '@Html.Raw(containerGuid)';
+        var guid = '@Html.Raw(guid)';
+        var container = $("[data-guid='" + cGuid + "']");
+
+        var init = function (container) {
+            var button = container.find("button:first");
+            var textbox = container.find("input:first");
+            var regex = /\/[-a-zA-Z_]+(\/.+)/g;
+            button.off().click(function (e) {
+                e.preventDefault();
+                contentPicker(emptyGuid, "Link Picker", function (node,id,variant,overlayEl) {
+                    var path = node.attr("data-path");
+                    var rres = regex.exec(path);
+                    var url = rres ? rres[1]:"/";
+                    textbox.val(url);
+                    overlayEl.remove();
+                });
+            });
+        }
+
+        container.off("puckListEditorUpdate").on("puckListEditorUpdate", function (e, cont) {
+            if(window.debug)
+                debugger;
+            init(cont);
+        });
+
+        init(container);
+
+    });
+</script>
