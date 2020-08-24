@@ -4,7 +4,7 @@
     var guid ="G"+ Guid.NewGuid().ToString();
 
 }
-<div data-guid="@containerGuid" data-editor="rte" class="editor_container puck_mce mce_@ViewData.ModelMetadata.PropertyName">
+<div data-guid="@containerGuid" data-editor="linkpicker" class="editor_container puck_linkpicker linkpicker_@ViewData.ModelMetadata.PropertyName">
     
     @Html.TextBoxFor(x => x, new {@class="mt-3", id = guid.ToString() }) <button class="ml-3 btn btn-light">Select</button>
 </div>
