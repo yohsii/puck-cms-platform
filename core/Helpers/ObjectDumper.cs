@@ -684,7 +684,11 @@ namespace puck.core.Helpers
                 }
                 else if (property.PropertyType == typeof(string))
                 {
-                    property.SetValue(obj, "", null);
+                    try
+                    {
+                        property.SetValue(obj, "", null);
+                    }
+                    catch (System.ArgumentException ex) {/*no setter - likely the read only Url property*/ };
                 }
                 else if (setNullableFields && property.PropertyType == typeof(Single?))
                 {
