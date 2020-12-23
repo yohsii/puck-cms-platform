@@ -28,6 +28,10 @@ namespace puck.core.Helpers
         }
         public static string ServerName() {
             var result = Environment.MachineName;// +HttpRuntime.AppDomainAppId.Replace("/","_");
+            if (!PuckCache.IsEditServer && PuckCache.UseAzureDirectory)
+            {
+                result += "-" + PuckCache.AzureMachineNameIdentifier;
+            }
             return result;
         }
         public static string DirOfPath(string s)

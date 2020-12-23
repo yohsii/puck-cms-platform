@@ -39,7 +39,9 @@ namespace puck.core.State
             ServiceProvider = serviceProvider;
             ContentRootPath = env.ContentRootPath;
             Configuration = config;
+            AzureMachineNameIdentifier = Guid.NewGuid();
         }
+        public static Guid AzureMachineNameIdentifier { get; set; }
         public static ConcurrentQueue<List<BaseModel>> PublishQueue { get; set; } = new ConcurrentQueue<List<BaseModel>>();
         public static List<string> SyncKeys { get; set; } = new List<string>();
         public static bool UseAzureDirectory { get; set; }
