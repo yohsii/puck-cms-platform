@@ -1114,12 +1114,13 @@ var displayMarkup = function (parentId, type, variant, fromVariant,contentId,con
                 rightAreaInOverlay = true;
             }
             var lastScrollPosition = 0;
+            
             $(rightArea).off("scroll.editButtons").on("scroll.editButtons", function (e) {
                 var editButtons = container.find(".edit-buttons");
                 if (rightAreaInOverlay) {
                     var top = 0;
                     if (rightArea.scrollTop() > 80)
-                        top = rightArea.scrollTop() - 99;
+                        top = rightArea.scrollTop() - (container.find("ul.translations").length > 0 ? 99 : 79);
                     else if (rightArea.scrollTop() <= 80) {
                         top = 0;
                     }
@@ -1127,7 +1128,7 @@ var displayMarkup = function (parentId, type, variant, fromVariant,contentId,con
                 } else {
                     var top = 0;
                     if (rightArea.scrollTop() > 80)
-                        top = rightArea.scrollTop() - 38;
+                        top = rightArea.scrollTop() - (container.find("ul.translations").length>0?38:0);
                     else if (rightArea.scrollTop() <= 80) {
                         top = 0;
                     }
