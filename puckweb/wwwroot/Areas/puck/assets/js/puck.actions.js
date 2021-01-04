@@ -1107,6 +1107,35 @@ var displayMarkup = function (parentId, type, variant, fromVariant,contentId,con
             container.find(".fieldtabs:first").click();
             container.find(".tab-pane:first").addClass("active");
             setChangeTracker();
+            var rightArea = cright.parent(); 
+            var rightAreaInOverlay = false;
+            if (container.parents(".overlay_screen").length == 1) {
+                rightArea = container.parents(".overlay_screen");
+                rightAreaInOverlay = true;
+            }
+            var lastScrollPosition = 0;
+            $(rightArea).off("scroll.editButtons").on("scroll.editButtons", function (e) {
+                var editButtons = container.find(".edit-buttons");
+                if (rightAreaInOverlay) {
+                    var top = 0;
+                    if (rightArea.scrollTop() > 80)
+                        top = rightArea.scrollTop() - 99;
+                    else if (rightArea.scrollTop() <= 80) {
+                        top = 0;
+                    }
+                    editButtons.css({ top: top + "px", position: "absolute" });
+                } else {
+                    var top = 0;
+                    if (rightArea.scrollTop() > 80)
+                        top = rightArea.scrollTop() - 38;
+                    else if (rightArea.scrollTop() <= 80) {
+                        top = 0;
+                    }
+                    editButtons.css({ top: top + "px", position: "absolute" });
+
+                }
+                lastScrollPosition = rightArea.scrollTop();
+            });
             if (cleft.find(".node[data-id='" + contentId + "']").length > 0)
                 highlightSelectedNodeById(contentId);
             else {

@@ -596,6 +596,16 @@ div.settings {
         padding: 0px 10px 10px 10px
     }
 
+    .content_edit_page .edit-buttons {
+        width:83px;
+        height:31px;
+        background-color:#fff;
+        position: absolute;
+        top: 1px;
+        right: 0px;
+        z-index:10;
+    }
+
     .content_edit_page .fieldwrapper {
         background: none;
         clear: both;
