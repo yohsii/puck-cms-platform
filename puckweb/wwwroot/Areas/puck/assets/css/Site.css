@@ -857,7 +857,8 @@ div.settings {
     button.content_unlock {
         position: absolute;
         top: 1px;
-        right: 90px;
+        right: 83px;
+        padding-bottom:5px;
     }
 
     button.content_preview {
