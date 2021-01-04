@@ -799,12 +799,13 @@ var toggleMobileUI = function () {
             e.stopPropagation();
             cleft.show();
         });
+        $("body").addClass("mobile-ui");
     } else {
         cleft.show();
         $(".leftToggle").hide();
         cleft.css({ position: "relative" });
         $(".main.grid").off("click.mobileUi");
-
+        $("body").removeClass("mobile-ui");
     }
 }
 

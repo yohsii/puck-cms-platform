@@ -596,16 +596,6 @@ div.settings {
         padding: 0px 10px 10px 10px
     }
 
-    .content_edit_page .edit-buttons {
-        width:83px;
-        height:31px;
-        background-color:#fff;
-        position: absolute;
-        top: 1px;
-        right: 0px;
-        z-index:10;
-    }
-
     .content_edit_page .fieldwrapper {
         background: none;
         clear: both;
@@ -854,30 +844,62 @@ div.settings {
         color: #ff3333;
     }
 
-    button.content_unlock {
-        position: absolute;
-        top: 1px;
-        right: 83px;
-        padding-bottom:5px;
-    }
-
-    button.content_preview {
-        position: absolute;
-        top: 1px;
-        right: 60px;
-    }
-
-    button.content_update {
-        position: absolute;
-        top: 1px;
-        right: 30px;
-    }
-
-    button.content_publish {
+    .content_edit_page .edit-buttons {
+        width: auto;
+        height: 31px;
+        background-color: #fff;
         position: absolute;
         top: 1px;
         right: 0px;
+        z-index: 9;
     }
+
+    .mobile-ui .content_edit_page .edit-buttons {
+        width: 30px;
+        height: auto;
+    }
+
+    button.content_unlock {
+        display:inline-block;
+        padding-bottom:5px;
+    }
+    .mobile-ui button.content_unlock {
+        position:relative;
+        display:inline-block;
+        top: 1px;
+        right: 1px;
+    }
+
+button.content_preview {
+    display: inline-block;
+}
+.mobile-ui button.content_preview {
+    position: relative;
+    display: inline-block;
+    top: 1px;
+    right: 1px;
+}
+
+button.content_update {
+    display: inline-block;
+}
+.mobile-ui button.content_update {
+    position: relative;
+    display: inline-block;
+    top: 1px;
+    right: 1px;
+}
+
+button.content_publish {
+    display: inline-block;
+}
+
+.mobile-ui button.content_publish {
+    position: relative;
+    display: inline-block;
+    top: 1px;
+    right: 1px;
+}
 
 .content_btns {
     border: none;
