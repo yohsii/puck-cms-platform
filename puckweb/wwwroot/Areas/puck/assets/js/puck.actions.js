@@ -1389,7 +1389,17 @@ var displayMarkup = function (parentId, type, variant, fromVariant,contentId,con
 
                 container.find(".content_btns").attr({ disabled: "disabled" });
                 var img = $("<img src='/areas/puck/assets/img/tree-loader.gif'/>").addClass("submitLoader");
-                container.find(".content_edit_page form").append(img);
+                container.find(".edit-buttons").append(img
+                    .css({
+                        background: "#fff",
+                        top: "2px",
+                        paddingTop: "4px",
+                        paddingBottom: "9px",
+                        paddingRight: "7px",
+                        right: "82px",
+                        paddingLeft: "8px"
+                    })
+                );
 
         });
 
