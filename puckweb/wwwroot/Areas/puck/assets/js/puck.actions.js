@@ -1390,21 +1390,32 @@ var displayMarkup = function (parentId, type, variant, fromVariant,contentId,con
 
                 container.find(".content_btns").attr({ disabled: "disabled" });
                 var img = $("<img src='/areas/puck/assets/img/tree-loader.gif'/>").addClass("submitLoader");
-                container.find(".edit-buttons").append(img
-                    .css({
+                if (isMobile()) {
+                    img.css({
                         background: "#fff",
-                        top: "2px",
-                        paddingTop: "4px",
-                        paddingBottom: "9px",
-                        paddingRight: "7px",
-                        right: "82px",
-                        paddingLeft: "8px"
-                    })
-                );
-
+                        position: "relative",
+                        display: "inlineBlock",
+                        top: "1px",
+                        right: "1px"
+                    });
+                    container.find(".edit-buttons").append(img);
+                } else {
+                    img.css({
+                        background: "#fff",
+                        position: "relative",
+                        display: "inlineBlock",
+                        top: "0px",
+                        right: "1px",
+                        marginTop:"-3px"
+                    });
+                    container.find(".edit-buttons").prepend(img);
+                }
         });
 
     }, fromVariant, contentId);
+}
+var isMobile = function () {
+    return $("body").hasClass("mobile-ui");
 }
 var highlightSelectedNodeByIdPath = function (idPath) {
     var ids = idPath.split(",");
