@@ -844,7 +844,7 @@ div.settings {
         color: #ff3333;
     }
 
-    .content_edit_page .edit-buttons {
+    /*.content_edit_page .edit-buttons {
         width: auto;
         height: 31px;
         background-color: #fff;
@@ -854,47 +854,54 @@ div.settings {
         z-index: 9;
     }
 
-    .mobile-ui .content_edit_page .edit-buttons {
-        width: 30px;
-        height: auto;
-    }
+    .mobile-ui*/
+.content_edit_page .edit-buttons {
+    border-left: 2px #dee1e6 solid;
+    width: 30px;
+    height: auto;
+    background-color: #fff;
+    position: absolute;
+    top: 1px;
+    right: 0px;
+    z-index: 9;
+}
 
-    button.content_unlock {
+    /*button.content_unlock {
         display:inline-block;
         padding-bottom:5px;
     }
-    .mobile-ui button.content_unlock {
+    .mobile-ui*/ button.content_unlock {
         position:relative;
         display:inline-block;
         top: 1px;
         right: 1px;
     }
 
-button.content_preview {
+/*button.content_preview {
     display: inline-block;
 }
-.mobile-ui button.content_preview {
+.mobile-ui*/ button.content_preview {
     position: relative;
     display: inline-block;
     top: 1px;
     right: 1px;
 }
 
-button.content_update {
+/*button.content_update {
     display: inline-block;
 }
-.mobile-ui button.content_update {
+.mobile-ui*/ button.content_update {
     position: relative;
     display: inline-block;
     top: 1px;
     right: 1px;
 }
 
-button.content_publish {
+/*button.content_publish {
     display: inline-block;
 }
 
-.mobile-ui button.content_publish {
+.mobile-ui*/ button.content_publish {
     position: relative;
     display: inline-block;
     top: 1px;

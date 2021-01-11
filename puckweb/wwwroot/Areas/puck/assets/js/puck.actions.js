@@ -1107,6 +1107,7 @@ var displayMarkup = function (parentId, type, variant, fromVariant,contentId,con
             container.find(".fieldtabs:first").click();
             container.find(".tab-pane:first").addClass("active");
             setChangeTracker();
+            //button scrolling
             var rightArea = cright.parent(); 
             var rightAreaInOverlay = false;
             if (container.parents(".overlay_screen").length == 1) {
@@ -1114,7 +1115,6 @@ var displayMarkup = function (parentId, type, variant, fromVariant,contentId,con
                 rightAreaInOverlay = true;
             }
             var lastScrollPosition = 0;
-            
             $(rightArea).off("scroll.editButtons").on("scroll.editButtons", function (e) {
                 var editButtons = container.find(".edit-buttons");
                 if (rightAreaInOverlay) {
@@ -1137,6 +1137,45 @@ var displayMarkup = function (parentId, type, variant, fromVariant,contentId,con
                 }
                 lastScrollPosition = rightArea.scrollTop();
             });
+            //end button scrolling
+
+            var setTabScroll = function () {
+                var width = container.width();
+                var buttonsWidth = container.find(".edit-buttons").width();
+                var tabsWidth = width - buttonsWidth;
+                var scrollButton = $("<div class=\"scroll-button\" style=\"left:"+(tabsWidth-20)+"px;position:absolute;width:20px;height:24px;border:1px solid #f9f9f9;padding:5px 0 0 5px;top:4px;background:#c7d1d6;\"><i class=\"fas fa-chevron-right\"/></div>");
+                var tabsContainer = $("<div class=\"tabs-container\" style=\"position:relative;width:100%;height:30px;\"></div>");
+                var tabsList = container.find("ul.nav-tabs:first");
+                var tabsListAbsWidth = 0;
+                tabsList.find(".nav-item").each(function (i) {
+                    tabsListAbsWidth+=$(this).width();
+                });
+                if (tabsListAbsWidth < tabsWidth) {
+                    container.find(".scroll-button").hide();
+                    return;
+                }
+                container.find(".scroll-button").show();
+                if (container.find(".tabs-container").length == 0) {
+                    container.find("form").prepend(tabsContainer);
+                    tabsContainer.append(tabsList.css({ position: "absolute", top: "1px", left: "1px", width: "100%", overflow: "hidden", height: "37px" }));
+                    tabsList.after(scrollButton);
+                } else {
+                    container.find(".scroll-button").css({left:(tabsWidth-20)+"px"});
+                }
+
+
+            }
+
+            if (!isMobile()) {
+                //setTabScroll();
+            }
+
+            $(window).off("resize.tabs").on("resize.tabs", function (e) {
+                if (!isMobile()) {
+                    //setTabScroll();
+                }
+            });
+
             if (cleft.find(".node[data-id='" + contentId + "']").length > 0)
                 highlightSelectedNodeById(contentId);
             else {
