@@ -18,7 +18,7 @@
                 <li><a title="settings" data-permission="_settings" class='settings' href="#settings?path=/puck/settings/languages"><i class="fas fa-sliders-h"></i></a></li>
                 <li><a title="users" data-permission="_users" class='users' href="#users"><i class="fas fa-user"></i></a></li>
                 <li class="last"><a title="developer" data-permission="_tasks" class='tasks' href="#developer?page=tasks"><i class="fas fa-wrench"></i></a></li>
-                <li><a title="logout" class='logout' href="@Url.Action("out","admin")"><i class="fas fa-arrow-circle-left"></i></a></li>
+                <li><a title="logout @User.Identity.Name" class='logout' href="@Url.Action("out","admin")"><i class="fas fa-arrow-circle-left"></i></a></li>
             </ul>
 
         </div>
