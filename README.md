@@ -13,7 +13,7 @@ There are no unnecessary abstractions, if you're already using asp.net mvc then 
 
 It's fast, with queries avoiding the database and instead using Lucene. It's also scalable, syncing between servers in a [load balanced](https://github.com/yohsii/puck-core/wiki/Load-Balancing) environment.
 
-**features**
+**Features**
 
 - Can be used [headless](https://github.com/yohsii/puck-core/wiki/Working-with-a-Headless-approach) or decoupled, as an integrated CMS or a searchable datastore for your apps
 - Multi-site - multiple site roots mapped to different domains
