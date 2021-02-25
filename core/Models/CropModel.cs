@@ -14,5 +14,8 @@ namespace puck.core.Models
         public float? Top { get; set; }
         public float? Right { get; set; }
         public float? Bottom { get; set; }
+        public float? Zoom { get; set; }
+        public float? ZoomLeft { get; set; }
+        public float? ZoomTop { get; set; }
     }
 }

@@ -73,23 +73,34 @@
             </div>
             <div class="tab-pane" role="tabpanel" id="_puckImage_crops_tab_@ViewData.ModelMetadata.PropertyName">
                 <div class="cropSizes">
-                    @foreach (var c in settings.Crops ?? new List<puck.core.Models.CropInfo>()) {
+                    @foreach (var c in settings.Crops ?? new List<puck.core.Models.CropInfo>())
+                    {
                         <div class="cropSize" data-alias="@c.Alias" data-width="@c.Width" data-height="@c.Height">
                             <div>
                                 <span>@c.Alias</span>
                                 <br />
                                 <span>@c.Width<text>x</text>@c.Height</span>
-                            </div>                            
+                            </div>
                         </div>
                     }
                 </div>
+                <div class="zoom-container p-2">
+                    <div class="minus">
+                        <i class="fas fa-search-minus" />
+                    </div>
+                    <span data-zoom="1" class="zoom-amount">1</span>
+                    <div class="plus">
+                        <i class="fas fa-search-plus" />
+                    </div>
+                </div>
                 <div class=""></div>
                 <div class="message">
-                    @if (settings.Crops == null || settings.Crops.Count == 0) {
+                    @if (settings.Crops == null || settings.Crops.Count == 0)
+                    {
                         <div>Look like you haven't set up any crops. Click <a class="addCropSizesLink" href="#settings?path=/puck/settings/editorparameters&stype=@(typeof(CropsEditorSettings).FullName)&mtype=BaseModel">here</a> to add some crop sizes.</div>
                     }
                 </div>
-                <div class="viewport" style="height:auto;width:500px;">
+                <div class="viewport" style="height:auto;max-height:600px;width:500px;">
 
                 </div>
             </div>            
@@ -103,9 +114,10 @@
             @foreach (var Crops in Model?.Crops ?? new List<puck.core.Models.CropModel> { })
             {
                 <div style="display:none;" class="cropInfo" data-alias="@Crops.Alias" data-width="@Crops.Width" data-height="@Crops.Height"
-                     data-left="@Crops.Left" data-top="@Crops.Top" data-right="@Crops.Right" data-bottom="@Crops.Bottom"></div>
+                     data-left="@Crops.Left" data-top="@Crops.Top" data-right="@Crops.Right" data-bottom="@Crops.Bottom" data-zoom="@(Crops.Zoom??1)" data-zoom-left="@Crops.ZoomLeft" data-zoom-top="@Crops.ZoomTop"></div>
             }
         </div>
+        
     </div>
 <script type="text/javascript">
     onAfterDom(function () {
@@ -113,11 +125,11 @@
         var modelType = "@Html.Raw(ViewBag.Level0Type.Name)";
         var propname = "@Html.Raw(ViewData.TemplateInfo.HtmlFieldPrefix)";
         var isPrePopulated = '@ViewBag.IsPrePopulated' == 'True';
-        
+
         var escapePropname = function (str) {
-            return str.replace(/\[/g, "_").replace(/\]/g,"_").replace(/\./g,"_");
+            return str.replace(/\[/g, "_").replace(/\]/g, "_").replace(/\./g, "_");
         }
-        var container = $("[data-guid='"+guid+"']");
+        var container = $("[data-guid='" + guid + "']");
 
         var selected_container = container.find(".selected_content:first");
         var getPropName = function () {
@@ -145,28 +157,48 @@
                         "<input type='hidden' name='" + getPropName() + ".Crops[" + i + "].Right' value='" + el.attr("data-right") + "'/>")
                     + (el.attr("data-bottom") == undefined ? "" :
                         "<input type='hidden' name='" + getPropName() + ".Crops[" + i + "].Bottom' value='" + el.attr("data-bottom") + "'/>")
+                    + (el.attr("data-zoom") == undefined ? "" :
+                        "<input type='hidden' name='" + getPropName() + ".Crops[" + i + "].Zoom' value='" + el.attr("data-zoom") + "'/>")
+                    + (el.attr("data-zoom-left") == undefined ? "" :
+                        "<input type='hidden' name='" + getPropName() + ".Crops[" + i + "].ZoomLeft' value='" + el.attr("data-zoom-left") + "'/>")
+                    + (el.attr("data-zoom-top") == undefined ? "" :
+                        "<input type='hidden' name='" + getPropName() + ".Crops[" + i + "].ZoomTop' value='" + el.attr("data-zoom-top") + "'/>")
                 );
             });
-            
+
         }
+        var zoomAmountContainer = container.find(".zoom-amount");
+        
         var viewportWidth = 500;
         if ($(window).width() < viewportWidth)
-            viewportWidth = $(window).width()-30;
+            viewportWidth = $(window).width() - 30;
         var originalWidth = @(Model?.Width??0);
         var originalHeight = @(Model?.Height??0);
         var imageUrl = '@(Model?.Path??"")';
         var viewport = container.find(".viewport");
         var selected_container = container.find(".selected_content");
         var message_container = container.find(".message");
-        var setupImage = function (cropAlias, cropWidth, cropHeight,leftFrac,topFrac,rightFrac,bottomFrac) {
+        var setupDrag = function (viewport,img,zoom) {
+            
+        }
+        var setupImage = function (cropAlias, cropWidth, cropHeight, leftFrac, topFrac, rightFrac, bottomFrac, zoom) {
             //viewport.find("img").remove();
+            zoom = zoom || 1;
+            
             var img = $("<img/>").attr({ src: imageUrl });
-            if (viewport.find("img").length == 0)
-                viewport.append(img);
+            if (viewport.find("img").length == 0) {
+                viewport.append(img).css({overflow:"hidden"});
+            }
             else
                 img = viewport.find("img");
+            if (zoom > 1) {
+                img.css({ cursor: "move" });
+            } else {
+                img.css({ cursor: "default" });
+            }
             viewport.css({ width: viewportWidth }).find(".cropper").remove();
             var imgWidth;
+            var originalImgWidth;
             var cropperWidth;
             var cropperHeight;
             var aRatio = originalWidth / originalHeight;
@@ -179,14 +211,25 @@
                     message_container.html("image is smaller than target crop size, the image will be resized to fit.");
             } else {
                 imgWidth = originalWidth > viewportWidth ? viewportWidth : originalWidth;
+                originalImgWidth = imgWidth;
+                imgWidth *= zoom;
+                //dragContainer.css({ width: imgWidth + "px" });
+                if (zoom > 1) {
+                    viewport.css({ height: 600+"px" });
+                }
             }
             var cropARatio = cropWidth / cropHeight;
             var imgHeight = imgWidth / aRatio;
-            widthRatio = originalWidth / imgWidth;
+            widthRatio = originalWidth / originalImgWidth;
             cropperWidth = cropWidth / widthRatio;
             cropperHeight = cropperWidth / cropARatio;
 
             img.css({ width: imgWidth });
+            if (imgWidth < viewportWidth)
+                viewport.css({ width: imgWidth });
+            viewport.css({ height: imgHeight });
+            setupDrag(viewport, img, zoom);
+
             if (!resize) {
                 var cropper = $("<div/>").attr({ class: "cropper" }).css({ width: cropperWidth, height: cropperHeight, zIndex: 2 });
                 var left = 0;
@@ -198,6 +241,50 @@
                     left = (imgWidth - cropperWidth) / 2;
                     top = (imgHeight - cropperHeight) / 2;
                 }
+
+                if (img.hasClass("ui-draggable") && img.data("uiDraggable")) {
+                    try {
+                        img.draggable("destroy");
+                    } catch (error) {
+                        console.error(error);
+                    }
+                    img.data("uiDraggable", "");
+                }
+                if (zoom > 1) {
+                    img.css({ position: "absolute" });
+                    img.draggable({
+                        drag: function (e, ui) {
+                            if (ui.position.left > 0) {
+                                ui.position.left = 0;
+                            }
+                            if (ui.position.top > 0) {
+                                ui.position.top = 0;
+                            }
+                            console.log("l", ui.position.left, "p", (img.width() - viewport.width()));
+                            console.log("t", ui.position.top, "p", (img.height() - viewport.height()));
+                            var l = ui.position.left + img.width() + viewport.width();
+                            if (ui.position.left + img.width() < viewport.width()) {
+                                //debugger;
+                                ui.position.left = viewport.width() - img.width();
+                            }
+                            var t = ui.position.top + viewport.height();
+                            if (ui.position.top < (viewport.height() - img.height())) {
+                                ui.position.top = viewport.height() - img.height();
+                            }
+
+                            console.log("drag", e, ui);
+                            console.log("vp ol", viewport.offset().left);
+                            console.log("vp ot", viewport.offset().top);
+                        }
+                    });
+                }
+                //debugger;
+                if (left + cropperWidth > viewport.width()) {
+                    offsetLeft = (left + cropperWidth) - viewport.width();
+                    img.css({ left: img.position().left - offsetLeft });
+                    left -= offsetLeft;
+                }
+
                 cropper.css({left:left,top:top}).draggable({
                     containment: 'parent'
                     , stop: function (event, ui) {
@@ -209,10 +296,23 @@
                 setPositions(cropAlias, left, top, imgWidth, imgHeight, cropperWidth, cropperHeight);
                 setValue();
             }
-            if (imgWidth < viewportWidth)
-                viewport.css({ width: imgWidth });
-            viewport.css({ height: imgHeight });
+
         }
+        container.find(".minus").click(function () {
+            if (zoomAmountContainer.attr("data-zoom") == "1") return;
+            zoomAmountContainer.attr("data-zoom", zoomAmountContainer.attr("data-zoom") - 0.5).html(zoomAmountContainer.attr("data-zoom"));
+            var cropSize = container.find(".cropSize.active");
+            cropSize.attr("data-zoom", zoomAmountContainer.attr("data-zoom"));
+            viewport.find("img").css({left:1,top:1});
+            initCropSize(cropSize);
+        });
+        container.find(".plus").click(function () {
+            zoomAmountContainer.attr("data-zoom", zoomAmountContainer.attr("data-zoom") - 0 + 0.5).html(zoomAmountContainer.attr("data-zoom"));
+            var cropSize = container.find(".cropSize.active");
+            cropSize.attr("data-zoom",zoomAmountContainer.attr("data-zoom"));
+            viewport.find("img").css({left:1,top:1});
+            initCropSize(cropSize);
+        });
         var setPositions = function (cropAlias,posLeft,posTop,imgWidth,imgHeight,cropperWidth,cropperHeight) {
             var leftF = posLeft / imgWidth;
             var topF = posTop / imgHeight;
@@ -236,10 +336,15 @@
             var top = el.attr("data-top");
             var right = el.attr("data-right");
             var bottom = el.attr("data-bottom");
-            setupImage(alias,width,height,left,top,right,bottom);
+            var zoom = el.attr("data-zoom");
+            var zoomLeft = el.attr("data-zoom-left");
+            var zoomTop = el.attr("data-zoom-top");
+            setupImage(alias, width, height, left, top, right, bottom,zoom,zoomLeft,zoomTop);
         }
         container.find(".cropSizes:first .cropSize").click(function () {
             var el = $(this);
+            var zoomAmount = el.attr("data-zoom");
+            container.find(".zoom-amount").html(zoomAmount).attr("zoom-amount",zoomAmount);
             initCropSize(el);
         });
 
@@ -253,6 +358,9 @@
                 var top = el.attr("data-top");
                 var right = el.attr("data-right");
                 var bottom = el.attr("data-bottom");
+                var zoom = el.attr("data-zoom");
+                var zoomLeft = el.attr("data-zoom-left");
+                var zoomTop = el.attr("data-zoom-top");
                 var elCropSize = container.find(".cropSizes:first .cropSize[data-alias='" + alias + "']");
                 if (elCropSize.length == 0) return;
                 var cropSizeWidth = elCropSize.attr("data-width");
@@ -262,11 +370,16 @@
                 elCropSize.attr("data-top", top);
                 elCropSize.attr("data-right", right);
                 elCropSize.attr("data-bottom", bottom);
+                elCropSize.attr("data-zoom", zoom);
+                elCropSize.attr("data-zoom-left", zoomLeft);
+                elCropSize.attr("data-zoom-top",zoomTop);
             });
             container.find(".cropSizes:first .cropSize").each(function () {
                 var el = $(this);
                 initCropSize(el);
             });
+            var zoomAmount = container.find(".cropSizes.active").attr("data-zoom");
+            container.find(".zoom-amount").html(zoomAmount).attr("zoom-amount",zoomAmount);
         }
         load();
         container.find(".cropSize:first").click();
@@ -275,6 +388,21 @@
     });    
 </script>
 <style>
+    .zoom-container .plus{
+        display:inline-block;
+    }
+    .zoom-container .minus{
+        display:inline-block;
+    }
+    .zoom-container .plus,.zoom-container .minus{
+        font-size:14px;
+    }
+    .zoom-container .zoom-amount {
+        background:#ddd;
+        padding:5px;
+        color:#fff;
+        font-weight:bold;
+    }
     .puckImage .field div{
         display:inline;
     }
