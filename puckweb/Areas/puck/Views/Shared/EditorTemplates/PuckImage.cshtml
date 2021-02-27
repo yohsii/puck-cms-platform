@@ -16,7 +16,7 @@
         </ul>
 
         <div class="tab-content">
-            <div class="tab-pane active" role="tabpanel" id="_puckImage_info_tab_@ViewData.ModelMetadata.PropertyName">
+            <div class="tab-pane " role="tabpanel" id="_puckImage_info_tab_@ViewData.ModelMetadata.PropertyName">
                 <div class="noedit settings_display_image">
                     @if (!string.IsNullOrEmpty(Model?.Path))
                     {
@@ -71,7 +71,7 @@
                 <br />
                 @Html.EditorFor(x => x.File)
             </div>
-            <div class="tab-pane" role="tabpanel" id="_puckImage_crops_tab_@ViewData.ModelMetadata.PropertyName">
+            <div class="tab-pane active" role="tabpanel" id="_puckImage_crops_tab_@ViewData.ModelMetadata.PropertyName">
                 <div class="cropSizes">
                     @foreach (var c in settings.Crops ?? new List<puck.core.Models.CropInfo>())
                     {
@@ -181,7 +181,7 @@
         var setupDrag = function (viewport,img,zoom) {
             
         }
-        var setupImage = function (cropAlias, cropWidth, cropHeight, leftFrac, topFrac, rightFrac, bottomFrac, zoom) {
+        var setupImage = function (cropAlias, cropWidth, cropHeight, leftFrac, topFrac, rightFrac, bottomFrac, zoom,zoomLeft,zoomTop) {
             //viewport.find("img").remove();
             zoom = zoom || 1;
             
@@ -234,9 +234,10 @@
                 var cropper = $("<div/>").attr({ class: "cropper" }).css({ width: cropperWidth, height: cropperHeight, zIndex: 2 });
                 var left = 0;
                 var top = 0;
-                if (leftFrac != undefined && leftFrac != "" && topFrac != undefined && topFrac!="") {
-                    left = imgWidth * leftFrac;
-                    top = imgHeight * topFrac;
+                if (leftFrac != undefined && leftFrac != "" && topFrac != undefined && topFrac != "") {
+                    left = (imgWidth * leftFrac) + Math.abs(zoomLeft);
+                    top = (imgHeight * topFrac) + Math.abs(zoomTop);
+                    //debugger;
                 } else {
                     left = (imgWidth - cropperWidth) / 2;
                     top = (imgHeight - cropperHeight) / 2;
@@ -251,7 +252,9 @@
                     img.data("uiDraggable", "");
                 }
                 if (zoom > 1) {
-                    img.css({ position: "absolute" });
+                    //debugger;
+                    img.css({ position: "absolute",left: zoomLeft+"px", top: zoomTop+"px" });
+                    
                     img.draggable({
                         drag: function (e, ui) {
                             if (ui.position.left > 0) {
@@ -280,20 +283,23 @@
                 }
                 //debugger;
                 if (left + cropperWidth > viewport.width()) {
+                    if (zoomLeft != 0 || zoomTop != 0)
+                        debugger;
                     offsetLeft = (left + cropperWidth) - viewport.width();
                     img.css({ left: img.position().left - offsetLeft });
                     left -= offsetLeft;
                 }
 
-                cropper.css({left:left,top:top}).draggable({
+                cropper.css({ left: left + "px", top: top + "px" }).draggable({
                     containment: 'parent'
                     , stop: function (event, ui) {
-                        setPositions(cropAlias, ui.position.left, ui.position.top, imgWidth, imgHeight, cropperWidth, cropperHeight);   
+                        setPositions(cropAlias, ui.position.left, ui.position.top, imgWidth, imgHeight, cropperWidth, cropperHeight, zoom, img.position().left,img.position().top);
                         setValue();
                     }
                 });
                 viewport.append(cropper);
-                setPositions(cropAlias, left, top, imgWidth, imgHeight, cropperWidth, cropperHeight);
+                //debugger;
+                setPositions(cropAlias, left, top, imgWidth, imgHeight, cropperWidth, cropperHeight,zoom,img.position().left,img.position().top);
                 setValue();
             }
 
@@ -313,17 +319,20 @@
             viewport.find("img").css({left:1,top:1});
             initCropSize(cropSize);
         });
-        var setPositions = function (cropAlias,posLeft,posTop,imgWidth,imgHeight,cropperWidth,cropperHeight) {
-            var leftF = posLeft / imgWidth;
-            var topF = posTop / imgHeight;
-            var rightF = (imgWidth - (posLeft + cropperWidth)) / imgWidth;
-            var bottomF = (imgHeight - (posTop + cropperHeight)) / imgHeight;
+        var setPositions = function (cropAlias,posLeft,posTop,imgWidth,imgHeight,cropperWidth,cropperHeight,zoom,zoomLeft,zoomTop) {
+            var leftF = (zoomLeft + posLeft) / imgWidth;
+            var topF = (zoomTop + posTop) / imgHeight;
+            var rightF = (imgWidth - (zoomLeft + posLeft + cropperWidth)) / imgWidth;
+            var bottomF = (imgHeight - (zoomTop + posTop + cropperHeight)) / imgHeight;
             var cropSize = container.find(".cropSizes:first .cropSize[data-alias='" + cropAlias + "']");
             if (cropSize.length == 0) return;
             cropSize.attr("data-left", leftF);
             cropSize.attr("data-top", topF);
             cropSize.attr("data-right", rightF);
             cropSize.attr("data-bottom", bottomF);
+            cropSize.attr("data-zoom", zoom);
+            cropSize.attr("data-zoom-left", zoomLeft);
+            cropSize.attr("data-zoom-top",zoomTop);
             //console.log(leftF, topF, rightF, bottomF);
         }
         var initCropSize = function (el) {
@@ -374,6 +383,7 @@
                 elCropSize.attr("data-zoom-left", zoomLeft);
                 elCropSize.attr("data-zoom-top",zoomTop);
             });
+            //debugger;
             container.find(".cropSizes:first .cropSize").each(function () {
                 var el = $(this);
                 initCropSize(el);
