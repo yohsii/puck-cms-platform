@@ -46,7 +46,10 @@ namespace puck.core.Models
                 if (cropModel != null && cropModel.Left.HasValue && cropModel.Top.HasValue && cropModel.Right.HasValue && cropModel.Bottom.HasValue
                     && cropInfo.Width == cropModel.Width && cropInfo.Height == cropModel.Height)
                 {
-                    url += $"?crop={cropModel.Left},{cropModel.Top},{cropModel.Right},{cropModel.Bottom}";// &cropmode=percentage&width={cropInfo.Width}&height={cropInfo.Height}";
+                    if (cropModel.Zoom > 1)
+                        url += $"?mode=crop&width={Width*cropModel.Zoom}&height={Height*cropModel.Zoom}&crop={cropModel.CropLeft},{cropModel.CropTop},{cropModel.Right},{cropModel.Bottom}";// &cropmode=percentage&width={cropInfo.Width}&height={cropInfo.Height}";
+                    else
+                        url += $"?crop={cropModel.Left},{cropModel.Top},{cropModel.Right},{cropModel.Bottom}";// &cropmode=percentage&width={cropInfo.Width}&height={cropInfo.Height}";
                 }
                 else {
                     url += $"?mode=crop&width={cropInfo.Width}&height={cropInfo.Height}&anchor={anchor}";

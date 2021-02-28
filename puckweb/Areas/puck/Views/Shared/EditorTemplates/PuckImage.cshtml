@@ -114,7 +114,9 @@
             @foreach (var Crops in Model?.Crops ?? new List<puck.core.Models.CropModel> { })
             {
                 <div style="display:none;" class="cropInfo" data-alias="@Crops.Alias" data-width="@Crops.Width" data-height="@Crops.Height"
-                     data-left="@Crops.Left" data-top="@Crops.Top" data-right="@Crops.Right" data-bottom="@Crops.Bottom" data-zoom="@(Crops.Zoom??1)" data-zoom-left="@Crops.ZoomLeft" data-zoom-top="@Crops.ZoomTop"></div>
+                    data-left="@Crops.Left" data-top="@Crops.Top" data-right="@Crops.Right" data-bottom="@Crops.Bottom" data-zoom="@(Crops.Zoom??1)" data-zoom-left="@Crops.ZoomLeft" data-zoom-top="@Crops.ZoomTop" 
+                     data-crop-left="@Crops.CropLeft" data-crop-top="@Crops.CropTop">
+                </div>
             }
         </div>
         
@@ -163,6 +165,10 @@
                         "<input type='hidden' name='" + getPropName() + ".Crops[" + i + "].ZoomLeft' value='" + el.attr("data-zoom-left") + "'/>")
                     + (el.attr("data-zoom-top") == undefined ? "" :
                         "<input type='hidden' name='" + getPropName() + ".Crops[" + i + "].ZoomTop' value='" + el.attr("data-zoom-top") + "'/>")
+                    + (el.attr("data-zoom-top") == undefined ? "" :
+                        "<input type='hidden' name='" + getPropName() + ".Crops[" + i + "].CropLeft' value='" + el.attr("data-crop-left") + "'/>")
+                    + (el.attr("data-zoom-top") == undefined ? "" :
+                        "<input type='hidden' name='" + getPropName() + ".Crops[" + i + "].CropTop' value='" + el.attr("data-crop-top") + "'/>")
                 );
             });
 
@@ -186,6 +192,8 @@
             zoom = zoom || 1;
             
             var img = $("<img/>").attr({ src: imageUrl });
+            if(viewport.find("img").length>0)
+                viewport.find("img").remove();
             if (viewport.find("img").length == 0) {
                 viewport.append(img).css({overflow:"hidden"});
             }
@@ -321,9 +329,11 @@
         });
         var setPositions = function (cropAlias,posLeft,posTop,imgWidth,imgHeight,cropperWidth,cropperHeight,zoom,zoomLeft,zoomTop) {
             var leftF = (zoomLeft + posLeft) / imgWidth;
+            var cropLeft = (Math.abs(zoomLeft) + posLeft) / imgWidth;
             var topF = (zoomTop + posTop) / imgHeight;
-            var rightF = (imgWidth - (zoomLeft + posLeft + cropperWidth)) / imgWidth;
-            var bottomF = (imgHeight - (zoomTop + posTop + cropperHeight)) / imgHeight;
+            var cropTop = (Math.abs(zoomTop) + posTop) / imgHeight;
+            var rightF = (imgWidth - (Math.abs(zoomLeft) + posLeft + cropperWidth)) / imgWidth;
+            var bottomF = (imgHeight - (Math.abs(zoomTop) + posTop + cropperHeight)) / imgHeight;
             var cropSize = container.find(".cropSizes:first .cropSize[data-alias='" + cropAlias + "']");
             if (cropSize.length == 0) return;
             cropSize.attr("data-left", leftF);
@@ -332,7 +342,9 @@
             cropSize.attr("data-bottom", bottomF);
             cropSize.attr("data-zoom", zoom);
             cropSize.attr("data-zoom-left", zoomLeft);
-            cropSize.attr("data-zoom-top",zoomTop);
+            cropSize.attr("data-zoom-top", zoomTop);
+            cropSize.attr("data-crop-left", cropLeft);
+            cropSize.attr("data-crop-top", cropTop);
             //console.log(leftF, topF, rightF, bottomF);
         }
         var initCropSize = function (el) {
@@ -370,6 +382,8 @@
                 var zoom = el.attr("data-zoom");
                 var zoomLeft = el.attr("data-zoom-left");
                 var zoomTop = el.attr("data-zoom-top");
+                var cropLeft = el.attr("data-crop-left");
+                var cropTop = el.attr("data-crop-top");
                 var elCropSize = container.find(".cropSizes:first .cropSize[data-alias='" + alias + "']");
                 if (elCropSize.length == 0) return;
                 var cropSizeWidth = elCropSize.attr("data-width");
@@ -381,7 +395,9 @@
                 elCropSize.attr("data-bottom", bottom);
                 elCropSize.attr("data-zoom", zoom);
                 elCropSize.attr("data-zoom-left", zoomLeft);
-                elCropSize.attr("data-zoom-top",zoomTop);
+                elCropSize.attr("data-zoom-top", zoomTop);
+                elCropSize.attr("data-crop-left", cropLeft);
+                elCropSize.attr("data-crop-top",cropTop);
             });
             //debugger;
             container.find(".cropSizes:first .cropSize").each(function () {
@@ -392,7 +408,7 @@
             container.find(".zoom-amount").html(zoomAmount).attr("zoom-amount",zoomAmount);
         }
         load();
-        container.find(".cropSize:first").click();
+        //container.find(".cropSize:first").click();
         setValue();
         
     });    
