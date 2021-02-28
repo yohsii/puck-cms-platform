@@ -16,7 +16,7 @@
         </ul>
 
         <div class="tab-content">
-            <div class="tab-pane " role="tabpanel" id="_puckImage_info_tab_@ViewData.ModelMetadata.PropertyName">
+            <div class="tab-pane active" role="tabpanel" id="_puckImage_info_tab_@ViewData.ModelMetadata.PropertyName">
                 <div class="noedit settings_display_image">
                     @if (!string.IsNullOrEmpty(Model?.Path))
                     {
@@ -71,7 +71,7 @@
                 <br />
                 @Html.EditorFor(x => x.File)
             </div>
-            <div class="tab-pane active" role="tabpanel" id="_puckImage_crops_tab_@ViewData.ModelMetadata.PropertyName">
+            <div class="tab-pane " role="tabpanel" id="_puckImage_crops_tab_@ViewData.ModelMetadata.PropertyName">
                 <div class="cropSizes">
                     @foreach (var c in settings.Crops ?? new List<puck.core.Models.CropInfo>())
                     {
@@ -190,127 +190,146 @@
         var setupImage = function (cropAlias, cropWidth, cropHeight, leftFrac, topFrac, rightFrac, bottomFrac, zoom,zoomLeft,zoomTop) {
             //viewport.find("img").remove();
             zoom = zoom || 1;
-            
+            zoomAmountContainer.attr("data-zoom", zoom).html(zoom);
             var img = $("<img/>").attr({ src: imageUrl });
-            if(viewport.find("img").length>0)
+            if (viewport.find("img").length > 0)
                 viewport.find("img").remove();
             if (viewport.find("img").length == 0) {
-                viewport.append(img).css({overflow:"hidden"});
+                viewport.append(img).css({ overflow: "hidden" });
             }
             else
-                img = viewport.find("img");
-            if (zoom > 1) {
-                img.css({ cursor: "move" });
-            } else {
-                img.css({ cursor: "default" });
-            }
-            viewport.css({ width: viewportWidth }).find(".cropper").remove();
-            var imgWidth;
-            var originalImgWidth;
-            var cropperWidth;
-            var cropperHeight;
-            var aRatio = originalWidth / originalHeight;
-            var resize = false;
-            message_container.html("");
-            if (cropWidth > originalWidth || cropHeight > originalHeight) {
-                imgWidth = cropWidth > viewportWidth ? viewportWidth : cropWidth;
-                resize = true;
-                if (!(originalWidth == 0 && originalHeight==0))
-                    message_container.html("image is smaller than target crop size, the image will be resized to fit.");
-            } else {
-                imgWidth = originalWidth > viewportWidth ? viewportWidth : originalWidth;
-                originalImgWidth = imgWidth;
-                imgWidth *= zoom;
-                //dragContainer.css({ width: imgWidth + "px" });
+            img = viewport.find("img");
+            
+            var doSetup = function () {
+                
                 if (zoom > 1) {
-                    viewport.css({ height: 600+"px" });
-                }
-            }
-            var cropARatio = cropWidth / cropHeight;
-            var imgHeight = imgWidth / aRatio;
-            widthRatio = originalWidth / originalImgWidth;
-            cropperWidth = cropWidth / widthRatio;
-            cropperHeight = cropperWidth / cropARatio;
-
-            img.css({ width: imgWidth });
-            if (imgWidth < viewportWidth)
-                viewport.css({ width: imgWidth });
-            viewport.css({ height: imgHeight });
-            setupDrag(viewport, img, zoom);
-
-            if (!resize) {
-                var cropper = $("<div/>").attr({ class: "cropper" }).css({ width: cropperWidth, height: cropperHeight, zIndex: 2 });
-                var left = 0;
-                var top = 0;
-                if (leftFrac != undefined && leftFrac != "" && topFrac != undefined && topFrac != "") {
-                    left = (imgWidth * leftFrac) + Math.abs(zoomLeft);
-                    top = (imgHeight * topFrac) + Math.abs(zoomTop);
-                    //debugger;
+                    img.css({ cursor: "move" });
                 } else {
-                    left = (imgWidth - cropperWidth) / 2;
-                    top = (imgHeight - cropperHeight) / 2;
+                    img.css({ cursor: "default" });
                 }
-
-                if (img.hasClass("ui-draggable") && img.data("uiDraggable")) {
-                    try {
-                        img.draggable("destroy");
-                    } catch (error) {
-                        console.error(error);
+                viewport.css({ width: viewportWidth }).find(".cropper").remove();
+                var imgWidth;
+                var originalImgWidth;
+                var cropperWidth;
+                var cropperHeight;
+                var aRatio = originalWidth / originalHeight;
+                var resize = false;
+                message_container.html("");
+                if (cropWidth > originalWidth || cropHeight > originalHeight) {
+                    imgWidth = cropWidth > viewportWidth ? viewportWidth : cropWidth;
+                    resize = true;
+                    if (!(originalWidth == 0 && originalHeight == 0))
+                        message_container.html("image is smaller than target crop size, the image will be resized to fit.");
+                } else {
+                    imgWidth = originalWidth > viewportWidth ? viewportWidth : originalWidth;
+                    originalImgWidth = imgWidth;
+                    imgWidth *= zoom;
+                    //dragContainer.css({ width: imgWidth + "px" });
+                    if (zoom > 1) {
+                        viewport.css({ height: 600 + "px" });
                     }
-                    img.data("uiDraggable", "");
                 }
-                if (zoom > 1) {
-                    //debugger;
-                    img.css({ position: "absolute",left: zoomLeft+"px", top: zoomTop+"px" });
-                    
-                    img.draggable({
-                        drag: function (e, ui) {
-                            if (ui.position.left > 0) {
-                                ui.position.left = 0;
-                            }
-                            if (ui.position.top > 0) {
-                                ui.position.top = 0;
-                            }
-                            console.log("l", ui.position.left, "p", (img.width() - viewport.width()));
-                            console.log("t", ui.position.top, "p", (img.height() - viewport.height()));
-                            var l = ui.position.left + img.width() + viewport.width();
-                            if (ui.position.left + img.width() < viewport.width()) {
-                                //debugger;
-                                ui.position.left = viewport.width() - img.width();
-                            }
-                            var t = ui.position.top + viewport.height();
-                            if (ui.position.top < (viewport.height() - img.height())) {
-                                ui.position.top = viewport.height() - img.height();
-                            }
+                var cropARatio = cropWidth / cropHeight;
+                var imgHeight = imgWidth / aRatio;
+                widthRatio = originalWidth / originalImgWidth;
+                cropperWidth = cropWidth / widthRatio;
+                cropperHeight = cropperWidth / cropARatio;
 
-                            console.log("drag", e, ui);
-                            console.log("vp ol", viewport.offset().left);
-                            console.log("vp ot", viewport.offset().top);
+                img.css({ width: imgWidth + "px", height: imgHeight + "px" });
+                if (imgWidth < viewportWidth)
+                    viewport.css({ width: imgWidth });
+                viewport.css({ height: imgHeight });
+                //setupDrag(viewport, img, zoom);
+
+                if (!resize) {
+                    var cropper = $("<div/>").attr({ class: "cropper" }).css({ width: cropperWidth, height: cropperHeight, zIndex: 2 });
+                    var left = 0;
+                    var top = 0;
+                    if (leftFrac != undefined && leftFrac != "" && topFrac != undefined && topFrac != "") {
+                        left = (imgWidth * leftFrac) + Math.abs(zoomLeft);
+                        top = (imgHeight * topFrac) + Math.abs(zoomTop);
+                        //debugger;
+                    } else {
+                        left = (imgWidth - cropperWidth) / 2;
+                        top = (imgHeight - cropperHeight) / 2;
+                    }
+
+                    if (img.hasClass("ui-draggable") && img.data("uiDraggable")) {
+                        try {
+                            img.draggable("destroy");
+                        } catch (error) {
+                            console.error(error);
+                        }
+                        img.data("uiDraggable", "");
+                    }
+                    if (zoom > 1) {
+                        //debugger;
+                        img.css({ position: "absolute", left: zoomLeft + "px", top: zoomTop + "px" });
+
+                        img.draggable({
+                            drag: function (e, ui) {
+                                if (ui.position.left > 0) {
+                                    ui.position.left = 0;
+                                }
+                                if (ui.position.top > 0) {
+                                    ui.position.top = 0;
+                                }
+                                console.log("l", ui.position.left, "p", (imgWidth - viewport.width()));
+                                console.log("t", ui.position.top, "p", (imgHeight - viewport.height()));
+                                var l = ui.position.left + imgWidth + viewport.width();
+                                if (ui.position.left + imgWidth < viewport.width()) {
+                                    //debugger;
+                                    ui.position.left = viewport.width() - imgWidth;
+                                }
+                                var t = ui.position.top + viewport.height();
+                                if (ui.position.top < (viewport.height() - imgHeight)) {
+                                    ui.position.top = viewport.height() - imgHeight;
+                                }
+
+                                console.log("drag", e, ui);
+                                console.log("vp ol", viewport.offset().left);
+                                console.log("vp ot", viewport.offset().top);
+                            }
+                        });
+                    }
+                    //debugger;
+                    if (left + cropperWidth > viewport.width()) {
+                        offsetLeft = (left + cropperWidth) - viewport.width();
+                        img.css({ left: img.position().left - offsetLeft });
+                        left -= offsetLeft;
+                    }
+                    if (top + cropperHeight > viewport.height()) {
+                        offsetTop = (top + cropperHeight) - viewport.height();
+                        img.css({ top: img.position().top - offsetTop });
+                        top -= offsetTop;
+                    }
+
+                    cropper.css({ left: left + "px", top: top + "px" }).draggable({
+                        containment: 'parent'
+                        , stop: function (event, ui) {
+                            setPositions(cropAlias, ui.position.left, ui.position.top, imgWidth, imgHeight, cropperWidth, cropperHeight, zoom, img.position().left, img.position().top);
+                            setValue();
                         }
                     });
+                    viewport.append(cropper);
+                    //debugger;
+                    setPositions(cropAlias, left, top, imgWidth, imgHeight, cropperWidth, cropperHeight, zoom, img.position().left, img.position().top);
+                    setValue();
                 }
-                //debugger;
-                if (left + cropperWidth > viewport.width()) {
-                    if (zoomLeft != 0 || zoomTop != 0)
-                        debugger;
-                    offsetLeft = (left + cropperWidth) - viewport.width();
-                    img.css({ left: img.position().left - offsetLeft });
-                    left -= offsetLeft;
-                }
-
-                cropper.css({ left: left + "px", top: top + "px" }).draggable({
-                    containment: 'parent'
-                    , stop: function (event, ui) {
-                        setPositions(cropAlias, ui.position.left, ui.position.top, imgWidth, imgHeight, cropperWidth, cropperHeight, zoom, img.position().left,img.position().top);
-                        setValue();
-                    }
-                });
-                viewport.append(cropper);
-                //debugger;
-                setPositions(cropAlias, left, top, imgWidth, imgHeight, cropperWidth, cropperHeight,zoom,img.position().left,img.position().top);
-                setValue();
             }
-
+            img.load(function () {
+                doSetup();
+                
+                var callSetup = function () {
+                    setTimeout(function () {
+                        if (img.is(":visible"))
+                            doSetup();
+                        else
+                            callSetup();
+                    }, 500);
+                }
+                callSetup();
+            });
         }
         container.find(".minus").click(function () {
             if (zoomAmountContainer.attr("data-zoom") == "1") return;
@@ -408,7 +427,7 @@
             container.find(".zoom-amount").html(zoomAmount).attr("zoom-amount",zoomAmount);
         }
         load();
-        //container.find(".cropSize:first").click();
+        container.find(".cropSize:first").click();
         setValue();
         
     });    
@@ -416,6 +435,10 @@
 <style>
     .zoom-container .plus{
         display:inline-block;
+    }
+    .zoom-container .plus i,.zoom-container .minus i{
+        padding:5px;
+        cursor:pointer;
     }
     .zoom-container .minus{
         display:inline-block;
