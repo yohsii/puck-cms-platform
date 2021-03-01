@@ -323,6 +323,9 @@ var getRepublishEntireSiteStatus = function (f) {
 var getWorkflowItems = function (f) {
     $.get("/puck/workflow/index", f, "html");
 }
+var getPublishQueue = function (f) {
+    $.get("/puck/api/publishqueue", f);
+}
 var addWorkflowItem = function (contentId, variant, status, name, message, group, type, assignees,f) {
     var post_str = "ContentId=" + contentId + "&Variant=" + variant + "&Status=" + status + "&Name=" + name + "&Message=" + message + "&Group=" + group + "&Type=" + type + "&Assignees=" + assignees;
     

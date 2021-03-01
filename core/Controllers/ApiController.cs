@@ -1889,5 +1889,16 @@ namespace puck.core.Controllers
             return Json(new { success = success, message = message });
         }
 
+        [Authorize(Roles = PuckRoles.Puck, AuthenticationSchemes = Mvc.AuthenticationScheme)]
+        public JsonResult PublishQueue() {
+            var model = new List<KeyValuePair<string, string>>();
+            foreach (var list in PuckCache.PublishQueue) {
+                foreach (var item in list) {
+                    model.Add(new KeyValuePair<string,string>(item.Id.ToString(),item.Variant));
+                }
+            }
+            return Json(model);
+        }
+
     }
 }

@@ -1290,15 +1290,37 @@ var displayMarkup = function (parentId, type, variant, fromVariant,contentId,con
 
         wireForm(container.find('form'), function (data) {
             var status = true;
+            var queued = false;
             if (data.message && data.message.indexOf("queued") > -1) {
                 status = undefined;
+                queued = true;
             } else if (!data.message) {
                 data.message = "content updated.";
             }
             if (contentLocks[id + variant]) {
                 //data.message += ". consider unlocking this content";
             }
-            msg(status, data.message, undefined, msgContainer);
+            msg(status, data.message, undefined, msgContainer, undefined, function (c) {
+                if (queued) {
+                    var checkPublishQueue = function () {
+                        setTimeout(function () {
+                            getPublishQueue(function (d) {
+                                var inQueue = false;
+                                for (var i = 0; i < d.length; i++) {
+                                    if (d[i].Key == id && ((variant && d[i].Value == variant) || !variant))
+                                        inQueue = true;
+                                }
+                                if (inQueue)
+                                    checkPublishQueue();
+                                else setTimeout(function () { c(); }, 1000);
+                            });
+                        }, 500);
+                    }
+                    checkPublishQueue();
+                } else setTimeout(function () {
+                    c();
+                }, 5000);
+            });
             getDrawContent(data.parentId, undefined, true, function () {
                 if (data.parentId != emptyGuid) {
                     var pnode = cleft.find(".node[data-id='" + data.parentId + "']");
@@ -1447,7 +1469,7 @@ var setChangeTracker = function () {
         changed = true;
     });
 }
-var msg = function (success, str, shouldRemovePreviousMessages,container,timeout) {
+var msg = function (success, str, shouldRemovePreviousMessages,container,timeout,cancel) {
     timeout = timeout || 5000;
     container = container || cmsg;
     if (shouldRemovePreviousMessages) {
@@ -1461,7 +1483,13 @@ var msg = function (success, str, shouldRemovePreviousMessages,container,timeout
     el.append(remove);
     container.html(el);
     el.fadeIn(function () { setAreaHeights(); });
-    setTimeout(function () { el.fadeOut(function () { el.remove(); setAreaHeights(); }); }, timeout);
+    if (cancel) {
+        cancel(function () {
+            el.fadeOut(function () { el.remove(); setAreaHeights(); });
+        });
+    } else {
+        setTimeout(function () { el.fadeOut(function () { el.remove(); setAreaHeights(); }); }, timeout);
+    }
 }
 var puckmaxwidth = 960;
 var _overlayClose = function () {
