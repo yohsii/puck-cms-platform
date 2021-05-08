@@ -70,6 +70,7 @@
                 }
                 <br />
                 @Html.EditorFor(x => x.File)
+                <div class="d-none">@Html.EditorFor(x=>x.CropUrls)</div>
             </div>
             <div class="tab-pane " role="tabpanel" id="_puckImage_crops_tab_@ViewData.ModelMetadata.PropertyName">
                 <div class="cropSizes">
