@@ -68,8 +68,18 @@ namespace puck.core.Attributes.Transformers
                     p.Width = img.Width;
                     p.Height = img.Height;
                 }
-                
-            }catch(Exception ex){
+
+                if (PuckCache.CropSizes != null && p.Crops != null && !string.IsNullOrEmpty(p.Path))
+                {
+                    p.CropUrls = new Dictionary<string, string>();
+                    foreach (var cropSize in PuckCache.CropSizes)
+                    {
+                        p.CropUrls[cropSize.Key] = p.GetCropUrl(cropAlias: cropSize.Key);
+                    }
+                }
+
+            }
+            catch(Exception ex){
                 logger.Log(ex);
             }finally {
                 p.File = null;

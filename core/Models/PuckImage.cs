@@ -13,6 +13,9 @@ namespace puck.core.Models
 {
     public class PuckImage
     {
+        public PuckImage() {
+
+        }
         [IndexSettings(LowerCaseValue = false, FieldIndexSetting = Lucene.Net.Documents.Field.Index.NOT_ANALYZED, Analyzer = typeof(KeywordAnalyzer))]
         public string Path { get; set; }
         [DataType(DataType.MultilineText)]
@@ -26,6 +29,7 @@ namespace puck.core.Models
         [UIHint("PuckReadOnly")]
         public int? Height { get; set; }
         public List<CropModel> Crops { get; set; }
+        public Dictionary<string, string> CropUrls { get; set; }
         public IFormFile File { get; set; }
 
         public string GetCropUrl(string cropAlias=null,string anchor="center") {

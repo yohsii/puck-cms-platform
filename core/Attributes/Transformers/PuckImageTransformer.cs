@@ -9,6 +9,7 @@ using puck.core.Helpers;
 using SixLabors.ImageSharp;
 using System.Threading.Tasks;
 using puck.core.Models;
+using puck.core.State;
 
 namespace puck.core.Attributes.Transformers
 {
@@ -39,7 +40,19 @@ namespace puck.core.Attributes.Transformers
                 var img = Image.Load(absfilepath);
                 p.Width = img.Width;
                 p.Height = img.Height;
-            }catch(Exception ex){
+
+                if (PuckCache.CropSizes != null && p.Crops != null && !string.IsNullOrEmpty(p.Path))
+                {
+                    p.CropUrls = new Dictionary<string, string>();
+                    foreach (var cropSize in PuckCache.CropSizes)
+                    {
+                        p.CropUrls[cropSize.Key] = p.GetCropUrl(cropAlias: cropSize.Key);
+                    }
+                }
+                
+
+            }
+            catch(Exception ex){
                 logger.Log(ex);
             }
             finally {
