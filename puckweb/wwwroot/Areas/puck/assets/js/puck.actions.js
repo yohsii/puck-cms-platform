@@ -1288,51 +1288,55 @@ var displayMarkup = function (parentId, type, variant, fromVariant,contentId,con
             
         }
 
-        wireForm(container.find('form'), function (data) {
-            var status = true;
-            var queued = false;
-            if (data.message && data.message.indexOf("queued") > -1) {
-                status = undefined;
-                queued = true;
-            } else if (!data.message) {
-                data.message = "content updated.";
-            }
-            if (contentLocks[id + variant]) {
-                //data.message += ". consider unlocking this content";
-            }
-            msg(status, data.message, undefined, msgContainer, undefined, function (c) {
-                if (queued) {
-                    var checkPublishQueue = function () {
-                        setTimeout(function () {
-                            getPublishQueue(function (d) {
-                                var inQueue = false;
-                                for (var i = 0; i < d.length; i++) {
-                                    if (d[i].Key == id && ((variant && d[i].Value == variant) || !variant))
-                                        inQueue = true;
-                                }
-                                if (inQueue)
-                                    checkPublishQueue();
-                                else setTimeout(function () { c(); }, 1000);
-                            });
-                        }, 500);
-                    }
-                    checkPublishQueue();
-                } else setTimeout(function () {
-                    c();
-                }, 5000);
-            });
-            getDrawContent(data.parentId, undefined, true, function () {
-                if (data.parentId != emptyGuid) {
-                    var pnode = cleft.find(".node[data-id='" + data.parentId + "']");
-                    pnode.find(".expand:first").removeClass("fa-chevron-right").addClass("fa-chevron-down").css({ visibility: "visible" });
+        wireForm(container.find('form'),
+            function (data) {
+                var status = true;
+                var queued = false;
+                if (data.message && data.message.indexOf("queued") > -1) {
+                    status = undefined;
+                    queued = true;
+                } else if (!data.message) {
+                    data.message = "content updated.";
                 }
-                displayMarkup(null, type, variant, undefined, data.id, container, msgContainer);
-            },true);
-        }, function (data) {
+                if (contentLocks[id + variant]) {
+                    //data.message += ". consider unlocking this content";
+                }
+                msg(status, data.message, undefined, msgContainer, undefined, function (c) {
+                    if (queued) {
+                        var checkPublishQueue = function () {
+                            setTimeout(function () {
+                                getPublishQueue(function (d) {
+                                    var inQueue = false;
+                                    for (var i = 0; i < d.length; i++) {
+                                        if (d[i].Key == id && ((variant && d[i].Value == variant) || !variant))
+                                            inQueue = true;
+                                    }
+                                    if (inQueue)
+                                        checkPublishQueue();
+                                    else setTimeout(function () { c(); }, 1000);
+                                });
+                            }, 500);
+                        }
+                        checkPublishQueue();
+                    } else setTimeout(function () {
+                        c();
+                    }, 5000);
+                });
+                getDrawContent(data.parentId, undefined, true, function () {
+                    if (data.parentId != emptyGuid) {
+                        var pnode = cleft.find(".node[data-id='" + data.parentId + "']");
+                        pnode.find(".expand:first").removeClass("fa-chevron-right").addClass("fa-chevron-down").css({ visibility: "visible" });
+                    }
+                    displayMarkup(null, type, variant, undefined, data.id, container, msgContainer);
+                },true);
+
+            },
+            function (data) {
             container.find(".submitLoader").remove();
             container.find(".content_btns").removeAttr("disabled");
             msg(false, data.message,undefined,msgContainer);
-        }, function (fd) {
+            },
+            function (fd) {
                 if (window.workflows && isArray(workflows) && workflows[type] && isObject(workflows[type])) {
                     var wfo = workflows[type];
 
@@ -1432,6 +1436,14 @@ var displayMarkup = function (parentId, type, variant, fromVariant,contentId,con
                     });
                     container.find(".edit-buttons").prepend(img);
                 }
+
+                var id = container.find("[name='Id']").val();
+                var variant = container.find("[name='Variant']").val();
+                var title = container.find("[name='NodeName']").val();
+                if (location.hash.indexOf("content?id=")==-1) {
+                    history.replaceState(null, title, "#content?id="+id+"&variant="+variant);
+                }
+
         });
 
     }, fromVariant, contentId);
