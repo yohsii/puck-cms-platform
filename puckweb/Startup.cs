@@ -36,7 +36,7 @@ namespace puckweb
 {
     public class Startup
     {
-        public Startup(IConfiguration configuration,IHostEnvironment env)
+        public Startup(IConfiguration configuration, IHostEnvironment env)
         {
             Configuration = configuration;
             Env = env;
@@ -48,7 +48,7 @@ namespace puckweb
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddMemoryCache(x => x.SizeLimit = null);
-            
+
             services.AddResponseCaching();
             services.AddSession();
             services.AddControllersWithViews()
@@ -58,7 +58,7 @@ namespace puckweb
                 .AddJsonOptions(options => options.JsonSerializerOptions.PropertyNamingPolicy = null);
             services.AddRazorPages();
             services.AddHttpContextAccessor();
-            
+
             if (Configuration.GetValue<bool?>("UseSQLServer") ?? false)
                 services.AddPuckServices<User, Role, DbContextSQLServer>(Env, Configuration, ServiceLifetime.Scoped);
             else if (Configuration.GetValue<bool?>("UsePostgreSQL") ?? false)
@@ -124,12 +124,13 @@ namespace puckweb
                         });
                     })
                     .AddProvider(PhysicalProviderFactory)
-                    .AddProcessor<CropWebProcessor>()
                     .AddProcessor<ResizeWebProcessor>()
+                    .AddProcessor<CropWebProcessor>()
                     .AddProcessor<FormatWebProcessor>()
                     .AddProcessor<BackgroundColorWebProcessor>();
             }
-            else {
+            else
+            {
                 services.AddImageSharpCore()
                     .SetRequestParser<QueryCollectionRequestParser>()
                     .SetCache(provider =>
@@ -142,12 +143,12 @@ namespace puckweb
                     })
                     .SetCacheHash<CacheHash>()
                     .AddProvider(PhysicalProviderFactory)
-                    .AddProcessor<CropWebProcessor>()
                     .AddProcessor<ResizeWebProcessor>()
+                    .AddProcessor<CropWebProcessor>()
                     .AddProcessor<FormatWebProcessor>()
                     .AddProcessor<BackgroundColorWebProcessor>();
             }
-            services.AddMiniProfiler(options =>{
+            services.AddMiniProfiler(options => {
                 // (Optional) Path to use for profiler URLs, default is /mini-profiler-resources
                 options.RouteBasePath = "/profiler";
 
@@ -157,7 +158,7 @@ namespace puckweb
 
                 // (Optional) Control which SQL formatter to use, InlineFormatter is the default
                 options.SqlFormatter = new StackExchange.Profiling.SqlFormatters.InlineFormatter();
-                
+
                 options.EnableServerTimingHeader = true;
 
                 options.IgnoredPaths.Add("/lib");
@@ -170,12 +171,12 @@ namespace puckweb
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IHttpContextAccessor httpContextAccessor)
         {
-            var displayModes = new Dictionary<string, Func<Microsoft.AspNetCore.Http.HttpContext,bool>> {
-                {"iPhone",(context)=>{return context.Request.Headers.ContainsKey("User-Agent") 
+            var displayModes = new Dictionary<string, Func<Microsoft.AspNetCore.Http.HttpContext, bool>> {
+                {"iPhone",(context)=>{return context.Request.Headers.ContainsKey("User-Agent")
                     && context.Request.Headers["User-Agent"].ToString().ToLower().Contains("iphone"); } }
             };
-            puck.core.Bootstrap.Ini(Configuration,env,app.ApplicationServices, httpContextAccessor,displayModes);
-            
+            puck.core.Bootstrap.Ini(Configuration, env, app.ApplicationServices, httpContextAccessor, displayModes);
+
             if (env.IsDevelopment())
             {
                 app.UseMiniProfiler();
@@ -193,21 +194,22 @@ namespace puckweb
             app.UseImageSharp();
             app.UseStaticFiles();
             app.UseSession();
-            if (!env.IsDevelopment()) {
+            if (!env.IsDevelopment())
+            {
                 app.UseResponseCaching();
             }
             app.UseRouting();
-            
+
             app.UseAuthentication();
-            
+
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
                 endpoints.MapAreaControllerRoute(
-                    name:"puckarea",
-                    areaName:"puck",
+                    name: "puckarea",
+                    areaName: "puck",
                     pattern: "puck/{controller=Api}/{action=Index}/{id?}"
                     );
                 endpoints.MapControllerRoute(
@@ -218,11 +220,12 @@ namespace puckweb
                 endpoints.MapControllerRoute(
                     name: "default",
                     pattern: "{**path}"
-                    ,defaults: new { controller = "Home", action = "Index"}
+                    , defaults: new { controller = "Home", action = "Index" }
                     );
                 endpoints.MapRazorPages();
-            }); 
-            
+            });
+
         }
+
     }
 }
