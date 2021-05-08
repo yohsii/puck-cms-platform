@@ -69,7 +69,7 @@
                         <div class="selected_node" data-nodename="" data-variant="@m.Variant" data-id="@m.Id">
                             <i class="fas fa-sort puckPickerSortHandle mr-3"></i><span class="nname"></span> - <span class="v">@m.Variant</span>
                             <a href="#content?id=@(m.Id)&variant=@(m.Variant)" class="view">View</a>
-                            &nbsp;<i class='fas fa-minus-circle'></i>
+                            &nbsp;<i class='fas fa-minus-circle removeItem'></i>
                         </div>
 
                     }
@@ -78,7 +78,7 @@
                         <div class="selected_node" data-variant="null" data-id="@m.Id">
                             <i class="fas fa-sort puckPickerSortHandle mr-3"></i>
                             <span class="nname"></span>&nbsp;
-                            <i class='fas fa-minus-circle'></i>
+                            <i class='fas fa-minus-circle removeItem'></i>
                         </div>
 
                     }
@@ -181,7 +181,7 @@
                 });
             }
             loadData();
-            selected_container.off("click.remove").on("click.remove", "i", function (e) {
+            selected_container.off("click.remove").on("click.remove", "i.removeItem", function (e) {
                 var el = $(this).parent();
                 if (overlayEl) {
                     overlayEl.find(".node[data-id='" + el.attr("data-id") + "']").removeClass("selected");
@@ -283,7 +283,7 @@
                                 "<div class='selected_node' data-nodename='" + node.attr("data-nodename") + "' data-variant='" + variant + "' data-id='" + node.attr("data-id") + "'>"
                                 +"<i class=\"fas fa-sort puckPickerSortHandle mr-3\"></i>"
                                 + "<span>" + node.attr("data-nodename") + "</span> - <span class='v'>" + variant + "</span>"
-                                + "&nbsp;<a href='#content?id=" + node.attr("data-id") + "&variant=" + variant + "' class='view'>View</a> &nbsp;<i class='fas fa-minus-circle remove'></i></div>"
+                                + "&nbsp;<a href='#content?id=" + node.attr("data-id") + "&variant=" + variant + "' class='view'>View</a> &nbsp;<i class='fas fa-minus-circle removeItem'></i></div>"
                             );
                         } else if (!isVariantSelection && (selectionType == "node" || selectionType == "both")) {
                             selected_container.append(
