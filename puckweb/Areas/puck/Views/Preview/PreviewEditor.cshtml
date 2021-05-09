@@ -1,0 +1,21 @@
+﻿@model puck.core.Base.BaseModel
+
+@{
+    ViewBag.Level0Type = Model?.GetType();
+    ViewBag.Model = Model;
+
+}
+
+<input type="hidden" class="preview-editor-id" value="@Model.Id" />
+<input type="hidden" class="preview-editor-variant" value="@Model.Variant" />
+
+<script src="~/Areas/puck/assets/js/logHelper.js"></script>
+<script src="~/Areas/puck/assets/js/puck.actions.js"></script>
+<script src="~/Areas/puck/assets/js/puck.get_set.js"></script>
+<script src="~/Areas/puck/assets/js/puck.components.js"></script>
+<script src="~/Areas/puck/assets/js/puck.preview_editor.js"></script>
+
+<div class="preview-editor-cleft d-none"></div>
+<div class="preview-editor-cright" style="position:absolute;width:500px;height:100%;z-index:2;right:0px;"></div>
+
+<iframe style="width:100%;height:100%;border:none;overflow:hidden;" src=""></iframe>
