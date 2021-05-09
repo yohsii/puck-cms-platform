@@ -3,7 +3,30 @@ cleft = $(".preview-editor-cleft");
 cright = $(".preview-editor-cright");
 
 pobj.highlightIframe = function () {
-    
+    var iframe = $(pobj.iframe.contents());
+    iframe.find("[data-puck-field]").each(function (i) {
+        var el = $(this);
+        var elName;
+        el.hover(function () {
+            el.css({ outline: "3px solid #ff8c8c" });
+            var nameTop = el.offset().top-27;
+            var nameLeft = el.offset().left-3;
+            debugger;
+            elName = $("<div/>").addClass("puck-field-name").css({
+                position: "absolute",
+                left: nameLeft,
+                top: nameTop,
+                background: "#000",
+                color: "#fff",
+                opacity:"0.8"
+            }).html(el.attr("data-puck-field"));
+            iframe.find("body").append(elName);
+        }, function () {
+                el.css({ outline: "none" });
+                elName.remove();
+        });
+
+    });   
 
 }
 
