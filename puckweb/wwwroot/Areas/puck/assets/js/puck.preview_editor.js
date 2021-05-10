@@ -118,10 +118,11 @@ pobj.bindHandlers = function () {
         var el = $(this);
 
         el.click(function () {
+            debugger;
             if (cright.is(":visible")) {
                 pobj.focusForm(el.attr("data-puck-field"));
             } else {
-                cright.show();
+                pobj.showOverlaySpace();
                 pobj.focusForm(el.attr("data-puck-field"));
             }
 
@@ -133,6 +134,11 @@ pobj.bindHandlers = function () {
 pobj.hideOverlaySpace = function () {
     cright.hide();
 }
+pobj.showOverlaySpace = function () {
+    crightOuter.removeClass("d-none");
+    crightOuter.show();
+    cright.show();
+}
 
 $(document).ready(function () {
     Array.prototype.contains = Array.prototype.includes;
@@ -143,6 +149,7 @@ $(document).ready(function () {
     $("body").css("border-top","none");
     cleft = $(".preview-editor-cleft");
     cright = $(".preview-editor-cright");
+    crightOuter = $(".preview-editor-cright-outer");
     pobj.iframe = $("iframe:first");
     pobj.id = $(".preview-editor-id").val();
     pobj.variant = $(".preview-editor-variant").val();

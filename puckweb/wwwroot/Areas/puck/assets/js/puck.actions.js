@@ -1053,7 +1053,7 @@ var displayMarkup = function (parentId, type, variant, fromVariant, contentId, c
                             lnk.click(function (e) {
                                 e.preventDefault();
                                 var vcode = dataTranslation;
-                                displayMarkup(null, type, vcode,undefined,contentId,container,msgContainer);
+                                displayMarkup(null, type, vcode, undefined, contentId, container, msgContainer, shouldGroup,f);
                             });
                             dtli.append(lnk)
                         } else {
@@ -1084,7 +1084,7 @@ var displayMarkup = function (parentId, type, variant, fromVariant, contentId, c
                                         var v = d[i].Variant;
                                         lnk.click(function (e) {
                                             e.preventDefault();
-                                            displayMarkup(null, type, v, undefined, contentId,container,msgContainer);
+                                            displayMarkup(null, type, v, undefined, contentId, container, msgContainer, shouldGroup,f);
                                         });
                                     }());
                                     dtli.append(lnk)
@@ -1332,7 +1332,7 @@ var displayMarkup = function (parentId, type, variant, fromVariant, contentId, c
                         var pnode = cleft.find(".node[data-id='" + data.parentId + "']");
                         pnode.find(".expand:first").removeClass("fa-chevron-right").addClass("fa-chevron-down").css({ visibility: "visible" });
                     }
-                    displayMarkup(null, type, variant, undefined, data.id, container, msgContainer);
+                    displayMarkup(null, type, variant, undefined, data.id, container, msgContainer, shouldGroup,f);
                 },true);
 
             },

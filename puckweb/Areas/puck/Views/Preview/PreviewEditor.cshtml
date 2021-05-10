@@ -30,6 +30,9 @@
 <input type="hidden" class="preview-editor-id" value="@Model.Id" />
 <input type="hidden" class="preview-editor-variant" value="@Model.Variant" />
 <style>
+    body {
+        overflow:hidden!important;
+    }
     .overlay_close {
         margin-right:20px;
     }
@@ -39,6 +42,7 @@
         position:relative;
     }
     .preview-editor-cright-outer {
+        display:none;
         position:absolute;
         right:0px;
     }
@@ -50,7 +54,7 @@
 <script src="~/Areas/puck/assets/js/puck.preview_editor.js"></script>
 
 <div class="preview-editor-cleft d-none"></div>
-<div class="preview-editor-cright-outer" style="">
+<div class="preview-editor-cright-outer d-none" style="">
     <div class="preview-editor-cright" style=""></div>
 </div>
 
