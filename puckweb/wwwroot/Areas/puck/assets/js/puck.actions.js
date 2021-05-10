@@ -985,10 +985,12 @@ var showLoader = function (container) {
 var hideLoader = function () {
     $(".loaderContainer").remove();
 }
-var displayMarkup = function (parentId, type, variant, fromVariant,contentId,container,msgContainer) {
+var displayMarkup = function (parentId, type, variant, fromVariant, contentId, container, msgContainer, shouldGroup, f) {
     var tabId = null;
     var scroll = null;
     container = container || cright;
+    shouldGroup = shouldGroup == undefined ? true : false;
+    f = f || function () { };
     if (container.find(".content_edit_page").length > 0 && contentId && container.find("input[name=Id]").val() == contentId ) {
         tabId = container.find("form>.tab-content>.tab-pane.active").attr("id");
         if (container.parents(".scrollContainer").length>0)
@@ -1159,57 +1161,18 @@ var displayMarkup = function (parentId, type, variant, fromVariant,contentId,con
                     container.find(".content_unlock").focus();
                 }
             }
-
+            f();
         }
         //get field groups and build tabs
         var tabPrefix = container.attr("data-tabPrefix");
         var groupedFields = container.find("[data-groupname]");
-        if (groupedFields.length > 0) {
-            var groups = [];
-            $(groupedFields).each(function (i) {
-                var groupName = $(this).attr("data-groupname");
-                if (!groups.contains(groupName))
-                    groups.push(groupName);
-            });
-            var tabHtml = '<ul class="nav nav-tabs" role="tablist">';
-            $(groups).each(function (i) {
-                var val = this;
-                tabHtml += '<li class="nav-item ' + (i == 0 ? "active" : "") + '"><a class="nav-link fieldtabs ' + (i == 0 ? "active" : "") + '" data-toggle="tab" role="tab" href="#' + tabPrefix + 'fieldtabs' + i + '">' + val + '</a></li>';
-            });
-            tabHtml += '<li class="nav-item"><a class="nav-link fieldtabs" data-toggle="tab" role="tab" href="#' + tabPrefix + 'fieldtabs' + groups.length + '">default</a></li>';
-            tabHtml += '</ul>';
-
-            tabHtml += '<div class="tab-content">';
-            $(groups).each(function (i) {
-                var val = this;
-                tabHtml += '<div data-group="' + val + '" role="tabpanel" class="tab-pane ' + (i == 0 ? "active" : "") + '" id="' + tabPrefix + 'fieldtabs' + i + '"></div>';
-            });
-            tabHtml += '<div data-group="default" role="tabpanel" class="tab-pane" id="' + tabPrefix + 'fieldtabs' + groups.length + '"></div>';
-            tabHtml += "</div>";
-            container.find("form").prepend(tabHtml);
-            container.find(".nav .fieldtabs").click(function (e) {
-                e.preventDefault();
-                $(this).tab("show");
-            });
-            $(groupedFields).each(function (i) {
-                var el = $(this);
-                var group = el.attr("data-groupname");
-                var groupContainer = container.find(".tab-pane[data-group='" + group + "']");
-                groupContainer.append(el);
-            });
-            container.find("div.fields>.fieldwrapper.root").each(function () {
-                var el = $(this);
-                var fieldname = el.attr("data-fieldname");
-                el.appendTo(container.find("[data-group='default']"));
-            });
-            afterGrouping();
-        } else {
-            getFieldGroups(type, function (data) {
+        if (shouldGroup) {
+            if (groupedFields.length > 0) {
                 var groups = [];
-                $(data).each(function (i) {
-                    var val = this
-                    if (!groups.contains(val.split(':')[1]))
-                        groups.push(val.split(":")[1]);
+                $(groupedFields).each(function (i) {
+                    var groupName = $(this).attr("data-groupname");
+                    if (!groups.contains(groupName))
+                        groups.push(groupName);
                 });
                 var tabHtml = '<ul class="nav nav-tabs" role="tablist">';
                 $(groups).each(function (i) {
@@ -1222,40 +1185,82 @@ var displayMarkup = function (parentId, type, variant, fromVariant,contentId,con
                 tabHtml += '<div class="tab-content">';
                 $(groups).each(function (i) {
                     var val = this;
-                    tabHtml += '<div data-group="' + val + '" class="tab-pane ' + (i == 0 ? "active" : "") + '" role="tabpanel" id="' + tabPrefix + 'fieldtabs' + i + '"></div>';
+                    tabHtml += '<div data-group="' + val + '" role="tabpanel" class="tab-pane ' + (i == 0 ? "active" : "") + '" id="' + tabPrefix + 'fieldtabs' + i + '"></div>';
                 });
-                tabHtml += '<div data-group="default" class="tab-pane" role="tabpanel" id="' + tabPrefix + 'fieldtabs' + groups.length + '"></div>';
+                tabHtml += '<div data-group="default" role="tabpanel" class="tab-pane" id="' + tabPrefix + 'fieldtabs' + groups.length + '"></div>';
                 tabHtml += "</div>";
                 container.find("form").prepend(tabHtml);
                 container.find(".nav .fieldtabs").click(function (e) {
                     e.preventDefault();
                     $(this).tab("show");
                 });
-                $(data).each(function (i) {
-                    var val = this;
-                    var type = val.split(":")[0];
-                    var group = val.split(":")[1];
-                    var field = val.split(":")[2];
-                    var fieldWrapper = container.find(".fieldwrapper[data-fieldname='" + field + "']");
+                $(groupedFields).each(function (i) {
+                    var el = $(this);
+                    var group = el.attr("data-groupname");
                     var groupContainer = container.find(".tab-pane[data-group='" + group + "']");
-                    groupContainer.append(fieldWrapper);
+                    groupContainer.append(el);
                 });
                 container.find("div.fields>.fieldwrapper.root").each(function () {
                     var el = $(this);
                     var fieldname = el.attr("data-fieldname");
-                    if (fieldname.split(".").length > 1)
-                        container.find(".fieldwrapper[data-fieldname='" + fieldname.split(".").slice(0, -1).join(".") + "']>.editor-field>.fields").append(el);
-                    else el.appendTo(container.find("[data-group='default']"));
-                });
-                container.find(".fieldwrapper.complex_child").each(function () {
-                    var el = $(this);
-                    if (el.find(".fieldwrapper").length == 0 || el.find(".fields").length == 0) {
-                        el.addClass("single_field");
-                    }
+                    el.appendTo(container.find("[data-group='default']"));
                 });
                 afterGrouping();
-            });
+            } else {
+                getFieldGroups(type, function (data) {
+                    var groups = [];
+                    $(data).each(function (i) {
+                        var val = this
+                        if (!groups.contains(val.split(':')[1]))
+                            groups.push(val.split(":")[1]);
+                    });
+                    var tabHtml = '<ul class="nav nav-tabs" role="tablist">';
+                    $(groups).each(function (i) {
+                        var val = this;
+                        tabHtml += '<li class="nav-item ' + (i == 0 ? "active" : "") + '"><a class="nav-link fieldtabs ' + (i == 0 ? "active" : "") + '" data-toggle="tab" role="tab" href="#' + tabPrefix + 'fieldtabs' + i + '">' + val + '</a></li>';
+                    });
+                    tabHtml += '<li class="nav-item"><a class="nav-link fieldtabs" data-toggle="tab" role="tab" href="#' + tabPrefix + 'fieldtabs' + groups.length + '">default</a></li>';
+                    tabHtml += '</ul>';
+
+                    tabHtml += '<div class="tab-content">';
+                    $(groups).each(function (i) {
+                        var val = this;
+                        tabHtml += '<div data-group="' + val + '" class="tab-pane ' + (i == 0 ? "active" : "") + '" role="tabpanel" id="' + tabPrefix + 'fieldtabs' + i + '"></div>';
+                    });
+                    tabHtml += '<div data-group="default" class="tab-pane" role="tabpanel" id="' + tabPrefix + 'fieldtabs' + groups.length + '"></div>';
+                    tabHtml += "</div>";
+                    container.find("form").prepend(tabHtml);
+                    container.find(".nav .fieldtabs").click(function (e) {
+                        e.preventDefault();
+                        $(this).tab("show");
+                    });
+                    $(data).each(function (i) {
+                        var val = this;
+                        var type = val.split(":")[0];
+                        var group = val.split(":")[1];
+                        var field = val.split(":")[2];
+                        var fieldWrapper = container.find(".fieldwrapper[data-fieldname='" + field + "']");
+                        var groupContainer = container.find(".tab-pane[data-group='" + group + "']");
+                        groupContainer.append(fieldWrapper);
+                    });
+                    container.find("div.fields>.fieldwrapper.root").each(function () {
+                        var el = $(this);
+                        var fieldname = el.attr("data-fieldname");
+                        if (fieldname.split(".").length > 1)
+                            container.find(".fieldwrapper[data-fieldname='" + fieldname.split(".").slice(0, -1).join(".") + "']>.editor-field>.fields").append(el);
+                        else el.appendTo(container.find("[data-group='default']"));
+                    });
+                    container.find(".fieldwrapper.complex_child").each(function () {
+                        var el = $(this);
+                        if (el.find(".fieldwrapper").length == 0 || el.find(".fields").length == 0) {
+                            el.addClass("single_field");
+                        }
+                    });
+                    afterGrouping();
+                });
+            }
         }
+        if (!shouldGroup) afterGrouping();
         //publish btn
         if (userRoles.contains("_publish")) {
             container.find(".content_publish").click(function () {

@@ -138,7 +138,9 @@ namespace puck.core.Controllers
             return View(templatePath, model);
         }
 
-        public ActionResult PreviewEditor(Guid id, string variant) {
+        public async Task<ActionResult> PreviewEditor(Guid id, string variant) {
+            var currentWorkflowItemId = await apiHelper.GetCurrentWorkflowItemId(User.Identity.Name);
+            ViewBag.CurrentWorkflowItemId = currentWorkflowItemId.Item1;
 
             var model = repo.CurrentRevision(id, variant).ToBaseModel();
 

@@ -1,15 +1,47 @@
 ﻿@model puck.core.Base.BaseModel
-
+@inject I_Api_Helper apiHelper;
+@inject Microsoft.AspNetCore.Identity.UserManager<puck.core.Entities.PuckUser> um;
 @{
     ViewBag.Level0Type = Model?.GetType();
     ViewBag.Model = Model;
-
+    ViewBag.Title = "Preview Editor - Puck";
+    var user = await um.FindByNameAsync(User.Identity.Name);
+    ViewBag.User = user;
+    var userGroups = user.PuckUserGroups.Split(',', StringSplitOptions.RemoveEmptyEntries);
+    int workflowNotificationId = ViewBag.CurrentWorkflowItemId;
 }
-
+<script type="text/javascript">
+    var userName = "@User.Identity.Name";
+    var variantNames = [];
+    @foreach(var v in apiHelper.AllVariants()){
+        @Html.Raw("variantNames['"+v.Key+"']=\""+v.FriendlyName+"\";");
+    }
+    var pathToLocale = [];
+    @foreach (var entry in PuckCache.PathToLocale)
+    {
+        @Html.Raw($"pathToLocale['{entry.Key}']='{entry.Value}';");
+    }
+    var userGroups = [];
+    @for (var i = 0;i<userGroups.Length; i++) {
+        @Html.Raw("userGroups.push('"+userGroups[i]+"');");
+    }
+    var workflowNotificationId = @workflowNotificationId;
+</script>
 <input type="hidden" class="preview-editor-id" value="@Model.Id" />
 <input type="hidden" class="preview-editor-variant" value="@Model.Variant" />
 <style>
-
+    .overlay_close {
+        margin-right:20px;
+    }
+    .preview-editor-cright {
+        background: #fff;
+        width:500px;height:100%;z-index:2;
+        position:relative;
+    }
+    .preview-editor-cright-outer {
+        position:absolute;
+        right:0px;
+    }
 </style>
 <script src="~/Areas/puck/assets/js/logHelper.js"></script>
 <script src="~/Areas/puck/assets/js/puck.actions.js"></script>
@@ -18,6 +50,196 @@
 <script src="~/Areas/puck/assets/js/puck.preview_editor.js"></script>
 
 <div class="preview-editor-cleft d-none"></div>
-<div class="preview-editor-cright" style="position:absolute;width:500px;height:100%;z-index:2;right:0px;"></div>
+<div class="preview-editor-cright-outer" style="">
+    <div class="preview-editor-cright" style=""></div>
+</div>
 
 <iframe style="width:100%;height:100%;border:none;overflow:hidden;" src=""></iframe>
+
+<div class="d-none interfaces">
+
+    <!-- workflows lock popover -->
+    <div class="lock-popover">
+        <a href="btn btn-link">10 mins</a>
+        <a href="btn btn-link">30 mins</a>
+        <a href="btn btn-link">1 hour</a>
+        <a href="btn btn-link">2 hours</a>
+        <a href="btn btn-link">5 hours</a>
+        <a href="btn btn-link">8 hours</a>
+    </div>
+
+    <!-- workflows comment Modal -->
+    <div class="modal fade comment" id="staticBackdrop" data-backdrop="static" tabindex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="staticBackdropLabel">Workflow comment</h5>
+                </div>
+                <div class="modal-body">
+                    <h3 class="font-weight-light title"></h3>
+                    <div class="mt-3 mb-3">
+                        <input type="hidden" class="select2" />
+                    </div>
+                    <textarea placeholder="enter a comment..." class="w-100"></textarea>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary">submit</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 logsContainer">
+        <div>date: <span class="date"></span></div>
+        <div>machine: <span class="machineName"></span></div>
+
+        <div class="row">
+            <div class="col-3">
+                <input class="time" placeholder="time" />
+            </div>
+            <div class="col-3">
+                <input class="level" placeholder="level" />
+            </div>
+            <div class="col-3">
+                <input class="message" placeholder="message" />
+            </div>
+            <div class="col-3">
+                <input class="stackTrace" placeholder="stack trace" />
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 col-sm-4 col-lg-3 mt-3 usercard">
+        <div class="card">
+            <div class="card-body">
+                <h5 data-username="" class="edit card-title"></h5>
+                <div class="card-text">
+                    <p><b>username:</b> <span class="username"></span></p>
+                    <p><b>email:</b> <span class="email"></span></p>
+                    <p><b>roles:</b> <span class="roles"></span></p>
+                    <p><b>start paths:</b> <span class="startpaths"></span></p>
+                    <p class="mb-0"><b>language:</b> <span class="language"></span></p>
+                </div>
+            </div>
+            <div class="card-footer">
+                <small class="text-muted">Last login: <span class="lastlogin"></span></small>
+                <i data-username="" class="fas fa-trash delete"></i>
+            </div>
+        </div>
+    </div>
+    <div class="users-container">
+        <div class="userstop">
+            <button class="create btn btn-link"><i class="fas fa-plus-circle"></i>&nbsp;new user</button>
+            <button class="groups btn btn-link"><i class="fas fa-object-group"></i>&nbsp;groups</button>
+            <input class="usersearch" type="text" placeholder="filter name" />
+            <button class="hide usersearch btn btn-link">search</button>
+        </div>
+        <div class="userlist col-12">
+            <div class="row">
+
+            </div>
+        </div>
+    </div>
+    <div class="search_ops">
+        <div class="inner">
+            <div class="fieldwrapper">
+                <label>Search term</label>
+                <input class="search" />
+            </div>
+            <div class="fieldwrapper">
+                <label>Specific type</label>
+                <select>
+                    <option value="">All</option>
+                    @foreach (var m in apiHelper.AllModels())
+                    {
+                        <option value="@m.AssemblyQualifiedName">@m.Name</option>
+                    }
+                </select>
+            </div>
+            <div class="tree_container fieldwrapper">
+                <label>Search root</label>
+                <ul class="content nomenu redirect">
+                    <li class="node" data-children_path="/"></li>
+                </ul>
+                <div class="pathvalue"></div>
+                <div class="clearboth">&nbsp;</div>
+            </div>
+            <div class="clearboth">
+                <button class="btn btn-link">Search</button>
+            </div>
+        </div>
+    </div>
+    <div class="overlay_screen">
+        <h1></h1>
+        <div class="inner"></div>
+        <div class="clearboth"></div>
+        <!--<div class="msg"></div>-->
+    </div>
+    <div class="cache_exclude_dialog settings">
+        <div class="">
+            <div class="fieldwrapper">
+                <label>Exclude from output cache?</label>
+                <input type="checkbox" name="exclude" />
+            </div>
+            <div>
+                <button class='btn btn-link'>Update</button>
+            </div>
+        </div>
+    </div>
+    <div class="revision_for_dialog">
+        <div class="">
+            <div class="variantcontainer">
+                <label>Variant</label>
+                <select name="variant"></select>
+            </div>
+            <br />
+            <div class="descendantscontainer">
+                <label></label>
+                <select multiple name="descendants"></select>
+            </div>
+            <div>
+                <button class='btn btn-link'>Submit</button>
+            </div>
+        </div>
+    </div>
+    <div class="tree_container sort">
+        <div class="msg"></div>
+        <div class="error"></div>
+        <ul class="content nomenu redirect">
+            <li class="node root" data-children_path="/"></li>
+        </ul>
+        <div>
+            <button class="btn btn-link float-right">submit</button>
+            <img class="d-none float-right mt-2 pt-1" src="/areas/puck/assets/img/tree-loader.gif" />
+        </div>
+    </div>
+    <div class="tree_container copy">
+        <div>
+            <label>Copy descendants? (this may take some time depending on how many items are being copied)</label>
+            <input type="checkbox" class="include-descendants" />
+        </div>
+        <br />
+        <div class="msg"></div>
+        <div class="error"></div>
+        <ul class="content nomenu redirect">
+            <li class="node" data-children_path="/"></li>
+        </ul>
+    </div>
+    <div class="tree_container move">
+        <div class="msg"></div>
+        <ul class="content nomenu redirect">
+            <li class="node" data-children_path="/"></li>
+        </ul>
+    </div>
+    <div class="template_tree_container move">
+        <div class="msg"></div>
+        <ul data-dropdown="template-dropdown" class="content templates">
+            <li class="node" data-children_path="/" data-type="folder" data-id="/" data-path="/" data-name="Root" data-has_children="true">
+                <div class="inner">
+                    <i class="fas fa-cog menu"></i>
+                    <span class="nodename">Root&nbsp;</span>
+                </div>
+            </li>
+        </ul>
+    </div>
+    <div class="type_templates"></div>
+</div>
