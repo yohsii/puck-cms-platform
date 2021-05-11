@@ -81,7 +81,9 @@ pobj.getForm = function () {
 }
 
 pobj.focusForm = function (fieldName) {
-
+    cright.find(".content_preview").hide();
+    cright.find(".fieldwrapper").hide();
+    cright.find(".fieldwrapper[data-fieldname='" + fieldName + "']").show();
 }
 
 pobj.highlightIframe = function () {
@@ -104,8 +106,10 @@ pobj.highlightIframe = function () {
             }).html(el.attr("data-puck-field"));
             iframe.find("body").append(elName);
         }, function () {
-                el.css({ outline: "none" });
-                elName.remove();
+                try {
+                    el.css({ outline: "none" });
+                    elName.remove();
+                } catch (ex) { }
         });
 
     });   
@@ -118,7 +122,6 @@ pobj.bindHandlers = function () {
         var el = $(this);
 
         el.click(function () {
-            debugger;
             if (cright.is(":visible")) {
                 pobj.focusForm(el.attr("data-puck-field"));
             } else {
