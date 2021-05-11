@@ -1277,7 +1277,7 @@ var displayMarkup = function (parentId, type, variant, fromVariant, contentId, c
         if (contentId) {
             container.find(".content_preview").click(function (e) {
                 e.preventDefault();
-                window.open("/puck/api/previewguid?id=" + contentId + "&variant=" + variant, "_blank");
+                window.open("/puck/preview/PreviewEditor?id=" + contentId + "&variant=" + variant, "_blank");
             });
         } else { container.find(".content_preview").hide(); }
         //unlock btn
