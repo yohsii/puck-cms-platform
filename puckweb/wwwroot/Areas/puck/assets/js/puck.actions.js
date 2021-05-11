@@ -989,7 +989,7 @@ var displayMarkup = function (parentId, type, variant, fromVariant, contentId, c
     var tabId = null;
     var scroll = null;
     container = container || cright;
-    shouldGroup = shouldGroup == undefined ? true : false;
+    shouldGroup = shouldGroup == undefined ? true : shouldGroup;
     f = f || function () { };
     if (container.find(".content_edit_page").length > 0 && contentId && container.find("input[name=Id]").val() == contentId ) {
         tabId = container.find("form>.tab-content>.tab-pane.active").attr("id");
