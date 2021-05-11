@@ -146,6 +146,9 @@ pobj.bindMenu = function () {
     crightOuter.find(".preview-editor-update").click(function () {
         var formEl = cright.find("form:first");
         if (formEl.length == 1) {
+            if (tinyMCE != undefined) {
+                tinyMCE.triggerSave();
+            }
             var form = formEl.clone();
             form.attr("action","/puck/Preview/PreviewFromForm?p_type="+pobj.type);
             form.attr("target", "previewEditorIframe");
