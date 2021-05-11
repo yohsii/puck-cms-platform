@@ -35,9 +35,13 @@ namespace puck.core.Helpers
             return result;
         }
 
-        public string Field(Expression<Func<TModel, object>> exp)
+        public string Field(params Expression<Func<TModel, object>>[] exps)
         {
-            return $"data-puck-field={getName(exp.Body.ToString())} ";
+            var fieldNames = string.Empty;
+            foreach (var exp in exps) {
+                fieldNames += getName(exp.Body.ToString())+",";
+            }
+            return $"data-puck-field={fieldNames.TrimEnd(',')} ";
         }
 
     }        

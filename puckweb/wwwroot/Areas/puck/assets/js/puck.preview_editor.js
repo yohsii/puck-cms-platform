@@ -86,7 +86,10 @@ pobj.getForm = function () {
 pobj.focusForm = function (fieldName) {
     cright.find(".content_preview").hide();
     cright.find(".fieldwrapper").hide();
-    cright.find(".fieldwrapper[data-fieldname='" + fieldName + "']").show();
+    var fieldNames = fieldName.split(',');
+    for (var i = 0; i < fieldNames.length; i++) {
+        cright.find(".fieldwrapper[data-fieldname='" + fieldNames[i] + "']").show();
+    }
     pobj.lastFocus = fieldName;
     var iframe = $(pobj.iframe.contents());
     pobj.scrollTop = iframe.find("[data-puck-field='" + fieldName + "']").offset().top;
