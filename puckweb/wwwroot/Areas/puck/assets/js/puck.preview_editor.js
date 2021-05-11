@@ -88,6 +88,8 @@ pobj.focusForm = function (fieldName) {
     cright.find(".fieldwrapper").hide();
     cright.find(".fieldwrapper[data-fieldname='" + fieldName + "']").show();
     pobj.lastFocus = fieldName;
+    var iframe = $(pobj.iframe.contents());
+    pobj.scrollTop = iframe.find("[data-puck-field='" + fieldName + "']").offset().top;
 }
 
 pobj.highlightIframe = function () {
@@ -204,9 +206,13 @@ $(document).ready(function () {
         pobj.bindHandlers();
         if (firstTime) {
             pobj.getForm();
+            pobj.bindMenu();
             firstTime = false;
         }
-        pobj.bindMenu();
+        if (pobj.scrollTop) {
+            var iframe = $(pobj.iframe.contents());
+            iframe.find("html").scrollTop(pobj.scrollTop);
+        }
     });
 
 });
