@@ -21,7 +21,6 @@
     }
 }
 overlay = function (el, width, height, top, title, isRightSided) {
-    debugger;
     isRightSided = isRightSided || false;
     isRightSided = true;
     var overlayClass = isRightSided ? "right" : "left";
@@ -151,7 +150,7 @@ pobj.bindMenu = function () {
 }
 
 pobj.hideOverlaySpace = function () {
-    cright.hide();
+    crightOuter.hide();
 }
 pobj.showOverlaySpace = function () {
     crightOuter.removeClass("d-none");
@@ -175,13 +174,16 @@ $(document).ready(function () {
     pobj.type = $(".preview-editor-type").val();
 
     pobj.iframe.attr("src","/puck/preview/previewguid?id="+pobj.id+"&variant="+pobj.variant);
-
+    var firstTime = true;
     pobj.iframe.load(function () {
         overlayClose();
         pobj.hideOverlaySpace();
         pobj.highlightIframe();
         pobj.bindHandlers();
-        pobj.getForm();
+        if (firstTime) {
+            pobj.getForm();
+            firstTime = false;
+        }
         pobj.bindMenu();
     });
 
