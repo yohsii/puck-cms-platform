@@ -29,6 +29,7 @@
 </script>
 <input type="hidden" class="preview-editor-id" value="@Model.Id" />
 <input type="hidden" class="preview-editor-variant" value="@Model.Variant" />
+<input type="hidden" class="preview-editor-type" value="@Model.Type" />
 <style>
     body {
         overflow:hidden!important;
@@ -57,13 +58,13 @@
 <div class="preview-editor-cleft d-none"></div>
 <div class="preview-editor-cright-outer d-none" style="">
     <div class="preview-editor-menu">
-        <button class="btn btn-primary">Update</button>
-        <button class="btn btn-primary">Close</button>
+        <button class="btn btn-primary preview-editor-update">Update</button>
+        <button class="btn btn-primary preview-editor-close">Close</button>
     </div>
     <div class="preview-editor-cright" style=""></div>
 </div>
 
-<iframe style="width:100%;height:100%;border:none;overflow:hidden;" src=""></iframe>
+<iframe name="previewEditorIframe" id="previewEditorIframe" style="width:100%;height:100%;border:none;overflow:hidden;" src=""></iframe>
 
 <div class="d-none interfaces">
 
@@ -252,3 +253,4 @@
     </div>
     <div class="type_templates"></div>
 </div>
+<div class="d-none preview-editor-form-area"></div>

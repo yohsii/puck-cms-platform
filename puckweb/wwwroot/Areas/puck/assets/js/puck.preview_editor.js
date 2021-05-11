@@ -133,6 +133,22 @@ pobj.bindHandlers = function () {
 
     });
 }
+pobj.bindMenu = function () {
+    crightOuter.find(".preview-editor-close").click(function () {
+        crightOuter.hide();
+    });
+    crightOuter.find(".preview-editor-update").click(function () {
+        var formEl = cright.find("form:first");
+        if (formEl.length == 1) {
+            var form = formEl.clone();
+            form.attr("action","/puck/Preview/PreviewFromForm?p_type="+pobj.type);
+            form.attr("target", "previewEditorIframe");
+            $(".preview-editor-form-area").html("");
+            $(".preview-editor-form-area").append(form);
+            form.get(0).submit();
+        }
+    });
+}
 
 pobj.hideOverlaySpace = function () {
     cright.hide();
@@ -156,14 +172,17 @@ $(document).ready(function () {
     pobj.iframe = $("iframe:first");
     pobj.id = $(".preview-editor-id").val();
     pobj.variant = $(".preview-editor-variant").val();
+    pobj.type = $(".preview-editor-type").val();
 
     pobj.iframe.attr("src","/puck/preview/previewguid?id="+pobj.id+"&variant="+pobj.variant);
 
     pobj.iframe.load(function () {
         overlayClose();
+        pobj.hideOverlaySpace();
         pobj.highlightIframe();
         pobj.bindHandlers();
         pobj.getForm();
+        pobj.bindMenu();
     });
 
 });

@@ -97,7 +97,7 @@ namespace puck.core.Controllers
         }
 
         [Authorize(Roles = PuckRoles.Puck, AuthenticationSchemes = Mvc.AuthenticationScheme)]
-        public async Task<ActionResult> Preview(IFormCollection fc, string p_type)
+        public async Task<ActionResult> PreviewFromForm(IFormCollection fc, string p_type)
         {
 
             var targetType = ApiHelper.ConcreteType(ApiHelper.GetTypeFromName(p_type));
