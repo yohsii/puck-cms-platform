@@ -139,7 +139,7 @@ pobj.bindHandlers = function () {
 }
 pobj.bindMenu = function () {
     crightOuter.find(".preview-editor-close").click(function () {
-        crightOuter.hide();
+        pobj.hideOverlaySpace();
     });
     crightOuter.find(".preview-editor-update").click(function () {
         var formEl = cright.find("form:first");
@@ -156,13 +156,20 @@ pobj.bindMenu = function () {
 
 pobj.hideOverlaySpace = function () {
     crightOuter.hide();
+    overlayClose();
 }
 pobj.showOverlaySpace = function () {
     crightOuter.removeClass("d-none");
     crightOuter.show();
     cright.show();
+    pobj.setOuterHeight();
 }
-
+pobj.setOuterHeight = function () {
+    crightOuter = $(".preview-editor-cright-outer").css({
+        height: window.innerHeight + "px",
+        maxHeight: window.innerHeight + "px"
+    });
+};
 $(document).ready(function () {
     Array.prototype.contains = Array.prototype.includes;
     getUserLanguage(function (d) { defaultLanguage = d; });
@@ -172,12 +179,8 @@ $(document).ready(function () {
     $("body").css("border-top","none");
     cleft = $(".preview-editor-cleft");
     cright = $(".preview-editor-cright");
-    crightOuter = $(".preview-editor-cright-outer").css({
-        height: window.innerHeight + "px",
-        maxHeight: window.innerHeight + "px"
-    });
+    pobj.setOuterHeight();
     crightOuter.on("click", "#myTab li.nav-item", function (e) {
-        debugger;
         var el = $(this);
         var index = el.index();
         el.parents("#myTab").find("li.nav-item").removeClass("active");
