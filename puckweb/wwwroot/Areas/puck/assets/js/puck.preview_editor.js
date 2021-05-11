@@ -176,6 +176,16 @@ $(document).ready(function () {
         height: window.innerHeight + "px",
         maxHeight: window.innerHeight + "px"
     });
+    crightOuter.on("click", "#myTab li.nav-item", function (e) {
+        debugger;
+        var el = $(this);
+        var index = el.index();
+        el.parents("#myTab").find("li.nav-item").removeClass("active");
+        el.addClass("active");
+        el.parents(".puckImage:first").find(".tab-content .tab-pane").removeClass("active");
+        el.parents(".puckImage:first").find(".tab-content .tab-pane:nth-child("+(index+1)+")").addClass("active");
+    });
+
     pobj.iframe = $("iframe:first");
     pobj.msgContainer = $(".preview-editor-msg");
     pobj.id = $(".preview-editor-id").val();
