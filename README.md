@@ -16,7 +16,7 @@ It's fast, with queries avoiding the database and instead using Lucene. It's als
 **Features**
 
 - Can be used [headless](https://github.com/yohsii/puck-core/wiki/Working-with-a-Headless-approach) or decoupled, as an integrated CMS or a searchable datastore for your apps
-- Live Preview / Visual Editor
+- [Live Preview / Visual Editor](https://github.com/yohsii/puck-core/wiki/Live-Preview,-Visual-Editor)
 - Multi-site - multiple site roots mapped to different domains
 - [Multilingual](https://github.com/yohsii/puck-core/wiki/Multilingual-support) - associate languages with nodes so you can for example, have different site roots with different associated languages. this is recursive so you can associate different languages to nodes further down the hierarchy if necessary. Each content node may also have translations, opening up the possibility for 1:1 and multi-site approaches to multilingual websites.
 - Customizable and flexible [workflow system](https://github.com/yohsii/puck-core/wiki/Setting-up-custom-workflows) helping you keep track of what needs to be done next
