@@ -1,0 +1,7 @@
+@using puck.core.Helpers;
+@model puck.core.Base.BaseModel
+@{
+    Layout = null;
+    var jsonText = Newtonsoft.Json.JsonConvert.SerializeObject(Model);
+    ViewContext.HttpContext.Response.ContentType = "application/json";
+}@Html.Raw(jsonText)
