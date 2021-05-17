@@ -71,15 +71,7 @@ overlay = function (el, width, height, top, title, isRightSided) {
 
     }
     overlays.unshift(outer);
-    var afterVisible = function () {
-        setTimeout(function () {
-            if (outer.find(".content_edit_page").length > 0) {
-                cright.find(".editor-label.col-sm-2").removeClass("col-sm-2");
-            } else afterVisible();
-        }, 200);
-    }
-    if(width=="99%")
-        afterVisible();
+    
     return outer;
 }
 
@@ -102,8 +94,8 @@ pobj.focusForm = function (fieldName) {
         cright.find(".fieldwrapper[data-fieldname='" + fieldNames[i] + "']").show();
     }
     pobj.lastFocus = fieldName;
-    var iframe = $(pobj.iframe.contents());
-    pobj.scrollTop = iframe.find("[data-puck-field='" + fieldName + "']").offset().top;
+    //var iframe = $(pobj.iframe.contents());
+    //pobj.scrollTop = iframe.find("[data-puck-field='" + fieldName + "']").offset().top;
 }
 
 pobj.highlightIframe = function () {
@@ -163,6 +155,10 @@ pobj.bindMenu = function () {
             if (tinyMCE != undefined) {
                 tinyMCE.triggerSave();
             }
+
+            var iframe = $(pobj.iframe.contents());
+            pobj.scrollTop = iframe.find("html").scrollTop();
+
             var form = formEl.clone();
             form.attr("action","/puck/Preview/PreviewFromForm?p_type="+pobj.type);
             form.attr("target", "previewEditorIframe");
@@ -198,6 +194,8 @@ $(document).ready(function () {
     $("body").css("border-top","none");
     cleft = $(".preview-editor-cleft");
     cright = $(".preview-editor-cright");
+    cinterfaces = $(".interfaces");
+
     pobj.setOuterHeight();
     crightOuter.on("click", "[role=tablist] li.nav-item", function (e) {
         var el = $(this);
@@ -214,7 +212,18 @@ $(document).ready(function () {
     pobj.variant = $(".preview-editor-variant").val();
     pobj.type = $(".preview-editor-type").val();
 
-    pobj.iframe.attr("src","/puck/preview/previewguid?id="+pobj.id+"&variant="+pobj.variant);
+    pobj.iframe.attr("src", "/puck/preview/previewguid?id=" + pobj.id + "&variant=" + pobj.variant);
+
+    var afterVisible = function () {
+        setTimeout(function () {
+            if (cright.find(".content_edit_page .editor-label.col-sm-2").length > 0) {
+                cright.find(".content_edit_page .editor-label.col-sm-2").removeClass("col-sm-2");
+            }
+            afterVisible();
+        }, 200);
+    }
+    afterVisible();
+
     var firstTime = true;
     pobj.iframe.load(function () {
         overlayClose();
