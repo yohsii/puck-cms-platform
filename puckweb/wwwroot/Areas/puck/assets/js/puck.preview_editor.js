@@ -24,6 +24,7 @@
 overlay = function (el, width, height, top, title, isRightSided) {
     isRightSided = isRightSided || false;
     isRightSided = true;
+    if (width == "90%") width = "99%";
     var overlayClass = isRightSided ? "right" : "left";
     top = top || "0px";
     //overlayClose(false,overlayClass,false);
@@ -65,10 +66,20 @@ overlay = function (el, width, height, top, title, isRightSided) {
     if (!isRightSided)
         outer.animate({ width: width + (width.toString().indexOf("%") > -1 ? "" : "px") }, 200, function () { if (f) f(); afterDom(); });
     else afterDom();
+
     if ($(".overlay_screen.active").length == 1) {
 
     }
     overlays.unshift(outer);
+    var afterVisible = function () {
+        setTimeout(function () {
+            if (outer.find(".content_edit_page").length > 0) {
+                cright.find(".editor-label.col-sm-2").removeClass("col-sm-2");
+            } else afterVisible();
+        }, 200);
+    }
+    if(width=="99%")
+        afterVisible();
     return outer;
 }
 
