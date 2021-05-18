@@ -41,6 +41,7 @@
         background: #fff;
         width:550px;height:100%;z-index:2;
         position:relative;
+        margin:40px 0 0 0;
     }
     .preview-editor-cright-outer {
         display:none;
@@ -50,6 +51,14 @@
         background:#fff;
         overflow-y:scroll;
         /*max-height:600px;*/
+    }
+    .preview-editor-msg {
+        width:550px;
+    }
+    .preview-editor-menu {
+        position:fixed;
+        z-index:10;
+        background:#fff;
     }
 </style>
 <script src="~/Areas/puck/assets/js/logHelper.js"></script>
@@ -63,8 +72,8 @@
     <div class="preview-editor-menu">
         <button class="btn btn-primary preview-editor-update">Update</button>
         <button class="btn btn-primary preview-editor-close">Close</button>
+        <div class="preview-editor-msg"></div>
     </div>
-    <div class="preview-editor-msg"></div>
     <div class="preview-editor-cright" style=""></div>
 </div>
 
