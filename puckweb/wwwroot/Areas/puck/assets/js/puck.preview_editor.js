@@ -220,7 +220,7 @@ $(document).ready(function () {
                 cright.find(".content_edit_page .editor-label.col-sm-2").removeClass("col-sm-2");
             }
             afterVisible();
-        }, 200);
+        }, 400);
     }
     afterVisible();
 
