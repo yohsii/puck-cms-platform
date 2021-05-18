@@ -197,7 +197,7 @@ $(document).ready(function () {
     cinterfaces = $(".interfaces");
 
     pobj.setOuterHeight();
-    crightOuter.on("click", "[role=tablist] li.nav-item", function (e) {
+    crightOuter.on("click", ".fieldwrapper [role=tablist] li.nav-item", function (e) {
         var el = $(this);
         var index = el.index();
         el.parents("[role=tablist]:first").find(".nav-tabs:first li.nav-item").removeClass("active");
