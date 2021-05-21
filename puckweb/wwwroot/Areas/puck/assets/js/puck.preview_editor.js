@@ -80,6 +80,7 @@ var pobj = {};
 pobj.getForm = function () {
     displayMarkup(undefined, undefined, pobj.variant, undefined, pobj.id, cright, undefined, false, function () {
         cright.find(".editor-label.col-sm-2").removeClass("col-sm-2");
+        cright.find(".editor-field.col-sm-10").removeClass("col-sm-10");
         if (pobj.lastFocus) {
             pobj.focusForm(pobj.lastFocus);
         }
