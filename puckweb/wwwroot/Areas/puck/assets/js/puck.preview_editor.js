@@ -243,5 +243,13 @@ $(document).ready(function () {
     });
 
 });
-
+var isArray = function (arg) {
+    return Object.prototype.toString.call(arg) === '[object Array]';
+};
+var isFunction = function (arg) {
+    return arg && {}.toString.call(arg) === '[object Function]';
+};
+var isObject = function (arg) {
+    return typeof arg === 'object' && arg !== null && arg !== undefined;
+}
 
