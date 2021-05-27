@@ -80,7 +80,7 @@ var pobj = {};
 pobj.getForm = function () {
     displayMarkup(undefined, undefined, pobj.variant, undefined, pobj.id, cright, undefined, false, function () {
         cright.find(".editor-label.col-sm-2").removeClass("col-sm-2");
-        cright.find(".editor-field.col-sm-10").removeClass("col-sm-10");
+        cright.find(".editor-field.col-sm-10").removeClass("col-sm-10").addClass("col-sm-12");
         if (pobj.lastFocus) {
             pobj.focusForm(pobj.lastFocus);
         }
@@ -219,6 +219,7 @@ $(document).ready(function () {
         setTimeout(function () {
             if (cright.find(".content_edit_page .editor-label.col-sm-2").length > 0) {
                 cright.find(".content_edit_page .editor-label.col-sm-2").removeClass("col-sm-2");
+                cright.find(".content_edit_page .editor-field.col-sm-10").removeClass("col-sm-10").addClass("col-sm-12");
             }
             afterVisible();
         }, 400);
