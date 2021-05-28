@@ -198,15 +198,15 @@ $(document).ready(function () {
     cinterfaces = $(".interfaces");
 
     pobj.setOuterHeight();
-    crightOuter.on("click", ".fieldwrapper [role=tablist] li.nav-item", function (e) {
+    crightOuter.on("click", ".nav.nav-tabs li.nav-item", function (e) {
         var el = $(this);
         var index = el.index();
-        el.parents("[role=tablist]:first").find(".nav-tabs:first li.nav-item").removeClass("active");
+        el.parents(".nav-tabs:first").find(".nav-tabs:first li.nav-item").removeClass("active");
         el.addClass("active");
-        el.parents("div:first").find(".tab-content:first .tab-pane").removeClass("active");
-        el.parents("div:first").find(".tab-content:first .tab-pane:nth-child(" + (index + 1) + ")").addClass("active");
+        el.parents(".nav-tabs:first").find("~div.tab-content .tab-pane").removeClass("active");
+        el.parents(".nav-tabs:first").find("~div.tab-content .tab-pane:nth-child(" + (index + 1) + ")").addClass("active");
     });
-
+    
     pobj.iframe = $("iframe:first");
     pobj.msgContainer = $(".preview-editor-msg");
     pobj.id = $(".preview-editor-id").val();
