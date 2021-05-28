@@ -1164,7 +1164,8 @@ var displayMarkup = function (parentId, type, variant, fromVariant, contentId, c
             f();
         }
         //get field groups and build tabs
-        var tabPrefix = container.attr("data-tabPrefix");
+        var rand = Math.random().toString().substring(0, 6).replace(".", "")
+        var tabPrefix = container.attr("data-tabPrefix")+rand;
         var groupedFields = container.find("[data-groupname]");
         if (shouldGroup) {
             if (groupedFields.length > 0) {
