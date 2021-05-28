@@ -204,7 +204,7 @@ namespace puck.core.Controllers
                     }
                 }
                 if (string.IsNullOrEmpty(variant))
-                    variant = PuckCache.SystemVariant;
+                    variant = PuckCache.SystemVariant.ToLower();
             }
             return variant;
         }
