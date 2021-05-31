@@ -6,6 +6,7 @@ using puck.core.Abstract;
 using System.Text.RegularExpressions;
 using System.Linq.Expressions;
 using puck.core.Base;
+using System.Web;
 
 namespace puck.core.Helpers
 {
@@ -42,6 +43,10 @@ namespace puck.core.Helpers
                 fieldNames += getName(exp.Body.ToString())+",";
             }
             return $"data-puck-field={fieldNames.TrimEnd(',')} ";
+        }
+
+        public bool IsPreviewPage() {
+            return HttpContext.Current?.Request?.GetUri()?.AbsolutePath?.TrimEnd('/')?.ToLower()?.EndsWith("/puck/preview/previewguid")??false;
         }
 
     }        
