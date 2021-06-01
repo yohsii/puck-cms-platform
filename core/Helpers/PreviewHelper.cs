@@ -46,7 +46,10 @@ namespace puck.core.Helpers
         }
 
         public bool IsPreviewPage() {
-            return HttpContext.Current?.Request?.GetUri()?.AbsolutePath?.TrimEnd('/')?.ToLower()?.EndsWith("/puck/preview/previewguid")??false;
+            return 
+                (HttpContext.Current?.Request?.GetUri()?.AbsolutePath?.TrimEnd('/')?.ToLower()?.EndsWith("/puck/preview/previewguid")??false)
+                ||
+                (HttpContext.Current?.Request?.GetUri()?.AbsolutePath?.TrimEnd('/')?.ToLower()?.EndsWith("/puck/preview/previewfromform")??false);
         }
 
     }        
