@@ -1298,6 +1298,10 @@ ul.content.nomenu .node i.menu {
     cursor: move;
 }
 
+.create_default i {
+    vertical-align:text-bottom!important;
+}
+
 .leftarea .popover {
     width:300px;
 }
