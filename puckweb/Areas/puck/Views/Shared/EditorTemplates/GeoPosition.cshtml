@@ -10,22 +10,25 @@
             .puck_google_long_lat {
                 position: relative;
             }
-
-                .puck_google_long_lat .panel {
-                    position: absolute;
-                    top: 5px;
-                    left: 50%;
-                    margin-left: -180px;
-                    z-index: 5;
-                    background-color: #fff;
-                    padding: 5px;
-                    border: 1px solid #999;
-                }
+            .puck_google_long_lat .panel {
+                width:50%;
+                position: absolute;
+                top: 5px;
+                right: 0px;
+                margin-left: 45px;
+                z-index: 5;
+                background-color: #fff;
+                padding: 5px;
+                border: 1px solid #999;
+            }
+            .geocode{
+                background-color:#1e7e34!important;
+            }
         </style>
 
         <div class="panel">
-            <input class="address" type="textbox" value="london">
-            <input type="button" value="Geocode">
+            <input class="address w-100" type="textbox" value="london">
+            <input class="geocode btn btn-success" type="button" value="Geocode">
         </div>
         <div class="map-canvas"></div>
         <div class="fieldwrapper long">

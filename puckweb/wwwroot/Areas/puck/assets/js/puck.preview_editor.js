@@ -47,7 +47,7 @@ overlay = function (el, width, height, top, title, isRightSided) {
     outer.find(">h1:first").html(title || "")
     var left = (cright.offset().left - 30) < -10 ? -10 : (cright.offset().left - 30);
     if (isRightSided)
-        outer.css({ right: "-14px", width: width, top: "0px", height: $(window).height() - 90 + "px" });
+        outer.css({ right: "0px", width: width, top: "0px", height: $(window).height() - 90 + "px" });
     else
         outer.css({ left: left + "px", width: "0px", top: "0px", height: $(window).height() - 90 + "px" });
     if (outer.position().top < $(".rightarea").scrollTop()) {
@@ -63,15 +63,14 @@ overlay = function (el, width, height, top, title, isRightSided) {
 
     inner.append(el).append(clear);
     cright.append(outer);
+
+    overlays.unshift(outer);
+
+    var sb3 = new SimpleBar(outer.get(0), { autoHide: false });
     if (!isRightSided)
         outer.animate({ width: width + (width.toString().indexOf("%") > -1 ? "" : "px") }, 200, function () { if (f) f(); afterDom(); });
     else afterDom();
 
-    if ($(".overlay_screen.active").length == 1) {
-
-    }
-    overlays.unshift(outer);
-    
     return outer;
 }
 
@@ -206,7 +205,9 @@ $(document).ready(function () {
         el.parents(".nav-tabs:first").find("~div.tab-content .tab-pane").removeClass("active");
         el.parents(".nav-tabs:first").find("~div.tab-content .tab-pane:nth-child(" + (index + 1) + ")").addClass("active");
     });
-    
+
+    var sb4 = new SimpleBar(crightOuter.get(0), {autoHide:false});
+
     pobj.iframe = $("iframe:first");
     pobj.msgContainer = $(".preview-editor-msg");
     pobj.id = $(".preview-editor-id").val();

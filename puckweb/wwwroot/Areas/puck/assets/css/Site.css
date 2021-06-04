@@ -119,7 +119,7 @@ ul.content, ul.contentTree {
 .overlay_close {
     position: absolute;
     top: 10px;
-    right: 15px;
+    right: 28px;
     cursor: pointer;
 }
 
@@ -386,7 +386,7 @@ input.search {
     }
 
 .overlay_screen {
-    overflow: scroll;
+    /*overflow: scroll;*/
 }
 
     .overlay_screen .msg {
@@ -791,7 +791,9 @@ select.languages {
 .userlist .card-text p {
     margin-bottom: 5px;
 }
-
+.user_groups div.roles {
+    word-break: break-word;
+}
 .user_edit button.update {
     float: right;
     padding: 20px;
@@ -1405,7 +1407,7 @@ ul.translations {
 
 .node > .inner .icon-search, .node > .inner .icon_search {
     position: absolute;
-    right: 0px;
+    right: 10px;
     top: 3px;
     display: none;
 }

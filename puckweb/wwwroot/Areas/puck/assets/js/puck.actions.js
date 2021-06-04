@@ -1125,10 +1125,10 @@ var displayMarkup = function (parentId, type, variant, fromVariant, contentId, c
             container.find(".fieldtabs:first").click();
             container.find(".tab-pane:first").addClass("active");
             setChangeTracker();
-            var rightArea = cright.parent(); 
+            var rightArea = cright.parent().parent(); 
             var rightAreaInOverlay = false;
             if (container.parents(".overlay_screen").length == 1) {
-                rightArea = container.parents(".overlay_screen");
+                rightArea = container.parents(".overlay_screen").find(".simplebar-content-wrapper");
                 rightAreaInOverlay = true;
             }
             var lastScrollPosition = 0;
@@ -1138,7 +1138,7 @@ var displayMarkup = function (parentId, type, variant, fromVariant, contentId, c
                 if (rightAreaInOverlay) {
                     var top = 0;
                     if (rightArea.scrollTop() > 80)
-                        top = rightArea.scrollTop() - (container.find("ul.translations").length > 0 ? 99 : 79);
+                        top = rightArea.scrollTop() - (container.find("ul.translations").length > 0 ? 79 : 59);
                     else if (rightArea.scrollTop() <= 80) {
                         top = 0;
                     }
@@ -1554,7 +1554,7 @@ var overlay = function (el, width, height, top, title, isRightSided) {
     searchDialogClose();
     var outer = $(".interfaces .overlay_screen").clone().addClass("active").addClass(overlayClass).addClass("scrollContainer");
     outer.find(">h1:first").html(title || "")
-    var left = (cright.position().left - 30) < -10 ? -10 : (cright.position().left - 30);
+    var left = (cright.position().left - 30) < -10 ? -14 : (cright.position().left - 30);
     if (isRightSided)
         outer.css({right:"-14px", width: width, top: "0px", height: $(window).height() - 90 + "px" });
     else
@@ -1572,13 +1572,14 @@ var overlay = function (el, width, height, top, title, isRightSided) {
 
     inner.append(el).append(clear);
     cright.append(outer);
+    
+    overlays.unshift(outer);
+
+    var sb3 = new SimpleBar(outer.get(0), {autoHide:false});
     if (!isRightSided)
         outer.animate({ width: width + (width.toString().indexOf("%") > -1 ? "" : "px") }, 200, function () { if (f) f(); afterDom(); });
     else afterDom();
-    if ($(".overlay_screen.active").length == 1) {
-        
-    }
-    overlays.unshift(outer);
+
     return outer;
 }
 
