@@ -940,9 +940,10 @@ var draw = function (data, el, sortable, renderVariantLinks,_startPaths) {
                             trigger.popover('hide');
                             $(document).off("click.popover");
                         });
-                        var scrollParent = el.parents(".scrollContainer:first");
+                        var scrollParent = el.parents(".scrollContainer:first").find(".simplebar-content-wrapper");
                         scrollParent.scrollLeft(10);//trigger re-positioning of bootstrap popover to fit within boundary
                         scrollParent.scrollLeft(0);
+                        //scrollParent.parents().scrollLeft(0);
                     });
                 }
             }
@@ -1010,7 +1011,7 @@ var displayMarkup = function (parentId, type, variant, fromVariant, contentId, c
     if (container.find(".content_edit_page").length > 0 && contentId && container.find("input[name=Id]").val() == contentId ) {
         tabId = container.find("form>.tab-content>.tab-pane.active").attr("id");
         if (container.parents(".scrollContainer").length>0)
-            scroll = container.parents(".scrollContainer:first").scrollTop();
+            scroll = container.parents(".scrollContainer:first").find(".simplebar-content-wrapper").scrollTop();
     }
     container.html("");
     //console.log(cinterfaces.find(".type_templates>div").length+" type templates");
@@ -1171,7 +1172,7 @@ var displayMarkup = function (parentId, type, variant, fromVariant, contentId, c
                 container.find("[href='#" + tabId + "']").click();
             }
             if (scroll) {
-                container.parents(".scrollContainer:first").scrollTop(scroll);
+                container.parents(".scrollContainer:first").find(".simplebar-content-wrapper").scrollTop(scroll);
             } else {
                 if (contentLocks[id + variant]) {
                     container.find(".content_unlock").focus();

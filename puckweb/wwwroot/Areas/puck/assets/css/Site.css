@@ -1298,6 +1298,10 @@ ul.content.nomenu .node i.menu {
     cursor: move;
 }
 
+.leftarea .popover {
+    width:300px;
+}
+
 .leftarea .left_content li:hover {
     background-color: #fff !important;
 }
