@@ -596,7 +596,7 @@ var showTasks = function () {
             if (el.hasClass("delete")) {
                 if (!confirm("sure?"))
                     return;
-                $.get(el.attr("href"), function (d) {
+                $.post(el.attr("href"), function (d) {
                     if (d.success) {
                         msg(true, "task deleted");
                         el.parents("tr:first").remove();
@@ -608,6 +608,14 @@ var showTasks = function () {
             }
             $.get(el.attr("href"), function (d) {
                 var overlayEl = overlay(d, 500, undefined, undefined, "Edit Task");
+                var showIntervalSeconds = function () {
+                    if (overlayEl.find("[Name='Recurring']").is(":checked"))
+                        overlayEl.find("[data-fieldname='IntervalSeconds']").show();
+                    else
+                        overlayEl.find("[data-fieldname='IntervalSeconds']").hide();
+                }
+                overlayEl.find("[Name='Recurring']").change(showIntervalSeconds);
+                showIntervalSeconds();
                 var form = overlayEl.find("form");
                 wireForm(form, function (data) {
                     msg(true, "task updated");
@@ -630,6 +638,14 @@ var createTask = function () {
             getTaskMarkup(function (data) {
                 overlayClose();
                 var overlayEl = overlay(data, 500, undefined, undefined, "Edit Task");
+                var showIntervalSeconds = function () {
+                    if (overlayEl.find("[Name='Recurring']").is(":checked"))
+                        overlayEl.find("[data-fieldname='IntervalSeconds']").show();
+                    else
+                        overlayEl.find("[data-fieldname='IntervalSeconds']").hide();
+                }
+                overlayEl.find("[Name='Recurring']").change(showIntervalSeconds);
+                showIntervalSeconds();
                 var form = overlayEl.find("form");
                 wireForm(form, function (data) {
                     msg(true, "task updated");

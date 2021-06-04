@@ -27,9 +27,9 @@
             <table class="table">
                 <tr>
                     <th scope="col">Type</th>
-                    <th scope="col">
+                    @*<th scope="col">
                         Name
-                    </th>
+                    </th>*@
                     <th scope="col">
                         Recurring
                     </th>
@@ -49,9 +49,9 @@
                 {
                     <tr>
                         <td>@item.GetType().Name<br /><sub>@item.GetType().Namespace</sub></td>
-                        <td>
+                        @*<td>
                             @Html.DisplayFor(modelItem => item.Name)
-                        </td>
+                        </td>*@
                         <td>
                             @Html.DisplayFor(modelItem => item.Recurring)
                         </td>

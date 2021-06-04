@@ -793,7 +793,7 @@ namespace puck.core.Controllers
 
         //
         // GET: /puck/Task/Delete/5
-
+        [HttpPost]
         public JsonResult Delete(int id)
         {
             bool success = false;
