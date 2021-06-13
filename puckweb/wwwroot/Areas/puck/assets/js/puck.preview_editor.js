@@ -134,6 +134,7 @@ pobj.bindHandlers = function () {
         var el = $(this);
 
         el.click(function () {
+            overlayClose();
             if (cright.is(":visible")) {
                 pobj.focusForm(el.attr("data-puck-field"));
             } else {
