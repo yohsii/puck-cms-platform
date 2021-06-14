@@ -275,8 +275,8 @@
                                 if (ui.position.top > 0) {
                                     ui.position.top = 0;
                                 }
-                                console.log("l", ui.position.left, "p", (imgWidth - viewport.width()));
-                                console.log("t", ui.position.top, "p", (imgHeight - viewport.height()));
+                                //console.log("l", ui.position.left, "p", (imgWidth - viewport.width()));
+                                //console.log("t", ui.position.top, "p", (imgHeight - viewport.height()));
                                 var l = ui.position.left + imgWidth + viewport.width();
                                 if (ui.position.left + imgWidth < viewport.width()) {
                                     //debugger;
@@ -287,9 +287,9 @@
                                     ui.position.top = viewport.height() - imgHeight;
                                 }
 
-                                console.log("drag", e, ui);
-                                console.log("vp ol", viewport.offset().left);
-                                console.log("vp ot", viewport.offset().top);
+                                //console.log("drag", e, ui);
+                                //console.log("vp ol", viewport.offset().left);
+                                //console.log("vp ot", viewport.offset().top);
                             }
                         });
                     }
@@ -337,8 +337,12 @@
             zoomAmountContainer.attr("data-zoom", zoomAmountContainer.attr("data-zoom") - 0.5).html(zoomAmountContainer.attr("data-zoom"));
             var cropSize = container.find(".cropSize.active");
             cropSize.attr("data-zoom", zoomAmountContainer.attr("data-zoom"));
-            viewport.find("img").css({left:1,top:1});
+            //viewport.find("img").css({left:1,top:1});
             initCropSize(cropSize);
+            setTimeout(function () {
+                viewport.find("img").get(0).style.left = "1px";
+                viewport.find("img").get(0).style.top = "1px";
+            },1000);
         });
         container.find(".plus").click(function () {
             zoomAmountContainer.attr("data-zoom", zoomAmountContainer.attr("data-zoom") - 0 + 0.5).html(zoomAmountContainer.attr("data-zoom"));
