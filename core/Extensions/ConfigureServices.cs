@@ -110,7 +110,7 @@ namespace puck.core.Extensions
                 identityBuilder.AddEntityFrameworkStores<PuckContextSQLite>();
                 services.AddTransient<I_Puck_Context>(x => x.GetService<PuckContextSQLite>());
                 //add front end db context and identity
-                services.AddDbContext<TDbContext>(x => x.UseMySql(config.GetConnectionString("MySQL")), optionsLifetime: dbContextLifetime);
+                services.AddDbContext<TDbContext>(x => x.UseSqlite(config.GetConnectionString("SQLite")), optionsLifetime: dbContextLifetime);
                 var identBuilder = services.AddIdentityCore<TUser>(options => {
                     options.SignIn.RequireConfirmedAccount = false;
                     configureIdentityOptions?.Invoke(options);
