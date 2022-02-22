@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0.
 
 using System.Collections.Generic;
+using System.Globalization;
 using Microsoft.Extensions.Logging;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Processing;
@@ -33,7 +34,7 @@ namespace puck.core.ImageSharp.WebProcessors
         public IEnumerable<string> Commands { get; } = ResizeCommands;
 
         /// <inheritdoc/>
-        public FormattedImage Process(FormattedImage image, ILogger logger, IDictionary<string, string> commands)
+        public FormattedImage Process(FormattedImage image, ILogger logger, IDictionary<string, string> commands,CommandParser commandParser,CultureInfo ci)
         {
             if (commands.ContainsKey(Crop))
             {

@@ -103,7 +103,7 @@ namespace puckweb
             if (!string.IsNullOrEmpty(Configuration.GetValue<string>("AzureBlobStorageConnectionString"))
                 && !string.IsNullOrEmpty(Configuration.GetValue<string>("AzureImageTransformer_ContainerName")))
             {
-                services.AddImageSharpCore()
+                services.AddImageSharp()
                     .SetRequestParser<QueryCollectionRequestParser>()
                     .SetCache(provider =>
                     {
@@ -131,7 +131,7 @@ namespace puckweb
             }
             else
             {
-                services.AddImageSharpCore()
+                services.AddImageSharp()
                     .SetRequestParser<QueryCollectionRequestParser>()
                     .SetCache(provider =>
                     {
@@ -189,7 +189,7 @@ namespace puckweb
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
-            app.UseHttpsRedirection();
+            //app.UseHttpsRedirection();
             app.UseDefaultFiles();
             app.UseImageSharp();
             app.UseStaticFiles();

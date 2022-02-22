@@ -9,7 +9,7 @@ using Newtonsoft.Json;
 using puck.core.Controllers;
 using System.Linq.Expressions;
 using puck.core.State;
-using Microsoft.AspNetCore.Mvc.ViewFeatures.Internal;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
@@ -24,7 +24,7 @@ namespace puck.core.Extensions
     {
         public static HtmlString InputName<TModel, TProperty>(this IHtmlHelper<TModel> htmlHelper, Expression<Func<TModel, TProperty>> expression) 
         {
-            var name = ExpressionHelper.GetExpressionText(expression);
+            var name = new ModelExpressionProvider(htmlHelper.MetadataProvider).GetExpressionText(expression);
             var fullHtmlFieldName = htmlHelper
                 .ViewContext
                 .ViewData
@@ -32,7 +32,7 @@ namespace puck.core.Extensions
                 .GetFullHtmlFieldName(name);
             return new HtmlString(fullHtmlFieldName);
         }
-        public static T GetPropertyAttribute<T>(this ModelMetadata instance)
+        public static T GetPropertyAttribute<T>(this Microsoft.AspNetCore.Mvc.ModelBinding.ModelMetadata instance)
         {
             if (instance.ContainerType == null || string.IsNullOrEmpty(instance.PropertyName))
                 return default(T);
