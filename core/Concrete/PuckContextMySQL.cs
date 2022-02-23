@@ -11,6 +11,6 @@ namespace puck.core.Concrete
     public class PuckContextMySQL:PuckContext, I_Puck_Context
     {
         public PuckContextMySQL(IConfiguration config)
-            :base(new DbContextOptionsBuilder().UseMySql(config.GetConnectionString("MySQL")).Options) { }
+            :base(new DbContextOptionsBuilder().UseMySql(config.GetConnectionString("MySQL"),ServerVersion.AutoDetect(config.GetConnectionString("MySQL"))).Options) { }
     }
 }

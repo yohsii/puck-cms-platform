@@ -22,11 +22,14 @@ namespace puck.core.Concrete
         private string connectionString;
         public PuckContext(DbContextOptions options):base(options)
         {
-            
+            AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
+            AppContext.SetSwitch("Npgsql.DisableDateTimeInfinityConversions", true);
         }
         public PuckContext(string connectionString)
         {
             this.connectionString = connectionString;
+            AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
+            AppContext.SetSwitch("Npgsql.DisableDateTimeInfinityConversions", true);
         }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) {
             if(PuckCache.Debug)
