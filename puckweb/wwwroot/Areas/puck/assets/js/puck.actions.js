@@ -1167,9 +1167,9 @@ var displayMarkup = function (parentId, type, variant, fromVariant, contentId, c
             setTimeout(function () {
                 $(document).trigger("puckEditFormLoaded", [container]);
             }, 100);
-
             if (tabId) {
-                container.find("[href='#" + tabId + "']").click();
+                tabId = tabId.slice(18);
+                container.find("[href$='" + tabId + "']").click();
             }
             if (scroll) {
                 container.parents(".scrollContainer:first").find(".simplebar-content-wrapper").scrollTop(scroll);
