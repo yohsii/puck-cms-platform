@@ -95,7 +95,7 @@ namespace puck.core.Extensions
                 identityBuilder.AddEntityFrameworkStores<PuckContextMySQL>();
                 services.AddTransient<I_Puck_Context>(x => x.GetService<PuckContextMySQL>());
                 //add front end db context and identity
-                services.AddDbContext<TDbContext>(x => x.UseMySql(config.GetConnectionString("MySQL")), optionsLifetime: dbContextLifetime);
+                services.AddDbContext<TDbContext>(x => x.UseMySql(config.GetConnectionString("MySQL"),ServerVersion.AutoDetect(config.GetConnectionString("MySQL"))), optionsLifetime: dbContextLifetime);
                 var identBuilder = services.AddIdentityCore<TUser>(options => {
                     options.SignIn.RequireConfirmedAccount = false;
                     configureIdentityOptions?.Invoke(options);

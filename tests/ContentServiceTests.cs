@@ -81,7 +81,7 @@ namespace puck.tests
             {
                 services.DbContextOptionsBuilder = new DbContextOptionsBuilder<PuckContext>();
                 services.DbContextOptionsBuilder
-                    .UseMySql(connectionString);
+                    .UseMySql(connectionString,ServerVersion.AutoDetect(connectionString));
             }else if (type == DbConstants.PostgreSQL)
             {
                 services.DbContextOptionsBuilder = new DbContextOptionsBuilder<PuckContext>();

@@ -248,11 +248,11 @@ namespace puck.core.Helpers
 
             MimeMessage message = new MimeMessage();
 
-            MailboxAddress fromAddress = new MailboxAddress(from);
+            MailboxAddress fromAddress = new MailboxAddress(from,from);
             message.From.Add(fromAddress);
 
             var toArr = to.Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
-            toArr.ToList().ForEach(x=>message.To.Add(new MailboxAddress(x)));
+            toArr.ToList().ForEach(x=>message.To.Add(new MailboxAddress(x,x)));
             
             message.Subject = subject;
 
