@@ -224,6 +224,7 @@ $(document).on("click",".node-dropdown a,.template-dropdown a",function () {
     var action = el.attr("data-action");
     var context = el.parents(".puck-dropdown").attr("data-context");
     var node = $(".node[data-id='" + context + "']");
+    overlayClose();
     switch (action) {
         case "template_create":
             var path = node.attr("data-path");

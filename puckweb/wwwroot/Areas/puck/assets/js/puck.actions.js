@@ -1560,8 +1560,8 @@ var overlay = function (el, width, height, top, title, isRightSided) {
         outer.css({right:"-14px", width: width, top: "0px", height: $(window).height() - 90 + "px" });
     else
         outer.css({ left: left + "px", width: "0px", top: "0px", height: $(window).height() - 90 + "px" });
-    if (outer.position().top < $(".rightarea").scrollTop()) {
-        outer.css({top:$(".rightarea").scrollTop()});
+    if (outer.position().top < $(".rightarea .simplebar-content-wrapper").scrollTop()) {
+        outer.css({ top: $(".rightarea .simplebar-content-wrapper").scrollTop()});
     }
     var close = $('<i class="overlay_close fas fa-minus-circle"></i>');
     outer.data("removed",false);
