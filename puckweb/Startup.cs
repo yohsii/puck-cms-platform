@@ -54,7 +54,7 @@ namespace puckweb
             services.AddControllersWithViews()
                 .AddApplicationPart(typeof(puck.core.Controllers.BaseController).Assembly)
                 .AddControllersAsServices()
-                .AddRazorRuntimeCompilation()
+                //.AddRazorRuntimeCompilation()
                 .AddJsonOptions(options => options.JsonSerializerOptions.PropertyNamingPolicy = null);
             services.AddRazorPages();
             services.AddHttpContextAccessor();
@@ -179,7 +179,7 @@ namespace puckweb
 
             if (env.IsDevelopment())
             {
-                app.UseMiniProfiler();
+                //app.UseMiniProfiler();
                 app.UseDeveloperExceptionPage();
                 app.UseDatabaseErrorPage();
             }

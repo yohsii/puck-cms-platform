@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.29230.61
+# Visual Studio Version 17
+VisualStudioVersion = 17.1.32210.238
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "puckweb", "puckweb\puckweb.csproj", "{B28198B4-4487-42A4-B699-ABD86B183A04}"
 EndProject
@@ -9,7 +9,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "core", "core\core.csproj", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AzureDirectory", "AzureDirectory\AzureDirectory.csproj", "{E472DE45-612E-4732-9F43-DD9B8CC6FE47}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "tests", "Tests\tests.csproj", "{E479C3BA-8946-47BC-B787-E30FF588FD26}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "tests", "Tests\tests.csproj", "{E479C3BA-8946-47BC-B787-E30FF588FD26}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
