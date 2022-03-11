@@ -114,6 +114,7 @@ namespace puckweb
                             provider.GetRequiredService<FormatUtilities>());
                     })
                     .SetCacheHash<CacheHash>()
+                    .ClearProviders()
                     .AddProvider(AzureProviderFactory)
                     .Configure<AzureBlobStorageImageProviderOptions>(options =>
                     {
