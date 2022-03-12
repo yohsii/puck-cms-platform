@@ -198,6 +198,8 @@
                 }
                 
                 container.find(".addItem").unbind().click(function (e) {
+                    if(overlayEl)
+                        overlayEl.remove();
                     if (selected_container.find(".selected_node").length >= maxPick) {
                         msg(undefined, "you cannot select any more, max selection is set to " + maxPick, undefined, undefined);
                         return false;
