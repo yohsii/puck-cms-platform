@@ -1321,6 +1321,27 @@ namespace puck.core.Services
         }
         public async Task<SaveResult> SaveContent<T>(T mod, bool makeRevision = true, string userName = null, bool handleNodeNameExists = true, int nodeNameExistsCounter = 0, bool triggerEvents = true, bool triggerIndexEvents = true, bool shouldIndex = true, bool alwaysUpdatePath = true, bool queueIfIndexerBusy = false) where T : BaseModel
         {
+            if (triggerEvents)
+            {
+                var beforeArgs = new BeforeIndexingEventArgs { Node = mod };
+                OnBeforeSave(this, beforeArgs);
+                if (beforeArgs.Cancel)
+                    throw new SaveCancelledException("Saving was cancelled by a custom event handler");
+            }
+            
+            var returnValue = await DoSaveContent<T>(mod, makeRevision, userName, handleNodeNameExists, nodeNameExistsCounter, triggerEvents, triggerIndexEvents, shouldIndex, alwaysUpdatePath, queueIfIndexerBusy);
+
+            if (triggerEvents)
+            {
+                var afterArgs = new IndexingEventArgs { Node = mod };
+                OnAfterSave(this, afterArgs);
+            }
+
+            return returnValue;
+        }
+
+        private async Task<SaveResult> DoSaveContent<T>(T mod, bool makeRevision = true, string userName = null, bool handleNodeNameExists = true, int nodeNameExistsCounter = 0, bool triggerEvents = true, bool triggerIndexEvents = true, bool shouldIndex = true, bool alwaysUpdatePath = true, bool queueIfIndexerBusy = false) where T : BaseModel
+        {
             if (nodeNameExistsCounter == 0)
                 await slock1.WaitAsync();
             Exception caughtException = null;
@@ -1385,13 +1406,7 @@ namespace puck.core.Services
                 //set sort order for new content
                 if (mod.SortOrder == -1)
                     mod.SortOrder = nodesAtPath.Count();
-                if (triggerEvents)
-                {
-                    var beforeArgs = new BeforeIndexingEventArgs { Node = mod };
-                    OnBeforeSave(this, beforeArgs);
-                    if (beforeArgs.Cancel)
-                        throw new SaveCancelledException("Saving was cancelled by a custom event handler");
-                }
+                //beforesave event was triggered here
                 var revisions = repo.GetPuckRevision().Where(x => x.Id.Equals(mod.Id) && x.Variant.ToLower().Equals(mod.Variant.ToLower()));
 
                 mod.Updated = DateTime.Now;
@@ -1908,11 +1923,7 @@ namespace puck.core.Services
                         if (shouldIndex)
                             AddPublishInstruction(result.ItemsToIndex, save: true);
 
-                        if (triggerEvents)
-                        {
-                            var afterArgs = new IndexingEventArgs { Node = mod };
-                            OnAfterSave(this, afterArgs);
-                        }
+                        //aftersave was triggered here
                         
                         if (shouldUpdateDomainMappings)
                             StateHelper.UpdateDomainMappings(true);
