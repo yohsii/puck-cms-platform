@@ -105,7 +105,7 @@ namespace puck.core.Helpers
                     qhinner2
                 );
             }
-            qh.And().Group(qhinner1);
+            qh.Must().Group(qhinner1);
             //if (noCast)
             //    return qh.GetAllNoCast();
             //else
@@ -154,7 +154,7 @@ namespace puck.core.Helpers
             var qh = new QueryHelper<T>();
             string path = n.Path.Substring(0, n.Path.LastIndexOf('/'));
             qh
-                .And()
+                .Must()
                 //.Field(x => x.Path, path.ToLower());
                 .Path(path.ToLower());
             if (currentLanguage)
@@ -177,7 +177,7 @@ namespace puck.core.Helpers
                     //.Field(x=>x.Path,nodePath);
                     .Path(nodePath);
             }
-            qh.And(innerQ);
+            qh.Must(innerQ);
             if (ExplicitType)
                 qh.ExplicitType();
             if (currentLanguage)
@@ -190,13 +190,13 @@ namespace puck.core.Helpers
         public static List<T> Siblings<T>(this BaseModel n,bool currentLanguage=true,bool noCast=false,bool ExplicitType=false) where T : BaseModel {
             var qh = new QueryHelper<T>();
             qh
-                    .And()
+                    .Must()
                     //.Field(x => x.Path, ApiHelper.DirOfPath(n.Path.ToLower()).WildCardMulti())
                     .Path(ApiHelper.DirOfPath(n.Path.ToLower()).WildCardMulti())
-                    .Not()
+                    .MustNot()
                     //.Field(x => x.Path, ApiHelper.DirOfPath(n.Path.ToLower()).WildCardMulti() + "/*")
                     .Path(ApiHelper.DirOfPath(n.Path.ToLower()).WildCardMulti() + "/*")
-                    .Not()
+                    .MustNot()
                     .Field(x => x.Id, n.Id.ToString().Wrap());
             if (ExplicitType)
                 qh.ExplicitType();
@@ -211,9 +211,9 @@ namespace puck.core.Helpers
         {
             var qh = new QueryHelper<T>(publishedContentOnly:publishedOnly);
             qh      
-                    .And()
+                    .Must()
                     .Field(x => x.Id, n.Id.ToString())
-                    .Not()
+                    .MustNot()
                     .Field(x => x.Variant, n.Variant);
             if (noCast)
                 return qh.GetAllNoCast();
@@ -224,10 +224,10 @@ namespace puck.core.Helpers
         {
             var qh = new QueryHelper<T>();
             qh      
-                    .And()
+                    .Must()
                     //.Field(x => x.Path, n.Path.ToLower() + "/".WildCardMulti())
                     .Path(n.Path.ToLower() + "/".WildCardMulti())
-                    .Not()
+                    .MustNot()
                     //.Field(x => x.Path, n.Path.ToLower()+"/".WildCardMulti() + "/*");
                     .Path(n.Path.ToLower() + "/".WildCardMulti() + "/*");
             if (ExplicitType)
@@ -241,7 +241,7 @@ namespace puck.core.Helpers
         }
         public static List<T> Descendants<T>(this BaseModel n,bool currentLanguage=true,bool noCast = false,bool ExplicitType=false,bool publishedOnly=true) where T : BaseModel {
             var qh = new QueryHelper<T>(publishedContentOnly:publishedOnly);
-            qh.And()
+            qh.Must()
                 //.Field(x => x.Path, n.Path.ToLower()+"/".WildCardMulti());
                 .Path(n.Path.ToLower() + "/".WildCardMulti());
             if (ExplicitType)
@@ -380,7 +380,7 @@ namespace puck.core.Helpers
             string path = PathPrefix() + (absPath == "/" ? "" : absPath);
             var qh = new QueryHelper<TModel>();
             //qh.And().Field(x => x.Path, path);
-            qh.And().Path(path);
+            qh.Must().Path(path);
             return qh.GetAllNoCast();
         }
 
@@ -406,7 +406,7 @@ namespace puck.core.Helpers
             
             var qh = new QueryHelper<TModel>();
             //qh.And().Field(x => x.Path, path).Variant(variant);
-            qh.And().Path(path).Variant(variant);
+            qh.Must().Path(path).Variant(variant);
             return qh.GetNoCast();
         }
 
@@ -417,7 +417,7 @@ namespace puck.core.Helpers
             {
                 if (typeof(TModel) == typeof(BaseModel)) {
                     if(publishedContentOnly)
-                        this.And().Field(x => x.Published, true);
+                        this.Must().Field(x => x.Published, true);
                 }
                 else
                 {
@@ -428,7 +428,7 @@ namespace puck.core.Helpers
                     }
                     this.Must().Group(innerQ);//.And().Field(x => x.Published, "true");
                     if (publishedContentOnly)
-                        this.And().Field(x => x.Published, true);
+                        this.Must().Field(x => x.Published, true);
                 }
                 //this.And().Field(x => x.TypeChain, typeof(TModel).Name.Wrap()).And().Field(x => x.Published, "true");
             }
@@ -1728,7 +1728,7 @@ namespace puck.core.Helpers
             while (nodePath.Count(x => x == '/') > 1)
             {
                 nodePath = nodePath.Substring(0, nodePath.LastIndexOf('/'));
-                this.And()
+                this.Must()
                     //.Field(x => x.Path, nodePath);
                     .Path(nodePath);
             }
@@ -1746,13 +1746,13 @@ namespace puck.core.Helpers
         {
             TrimAnd();
             this
-                    .And()
+                    .Must()
                     //.Field(x => x.Path, ApiHelper.DirOfPath(path.ToLower()).WildCardMulti())
                     .Path(ApiHelper.DirOfPath(path.ToLower()).WildCardMulti())
-                    .Not()
+                    .MustNot()
                     //.Field(x => x.Path, ApiHelper.DirOfPath(path.ToLower()).WildCardMulti() + "/*")
                     .Path(ApiHelper.DirOfPath(path.ToLower()).WildCardMulti() + "/*")
-                    .Not()
+                    .MustNot()
                     .Field(x => x.Id, id.Wrap());
             return this;
         }
@@ -1763,10 +1763,10 @@ namespace puck.core.Helpers
         {
             TrimAnd();
             this
-                    .And()
+                    .Must()
                     //.Field(x => x.Path, path.ToLower() + "/".WildCardMulti())
                     .Path(path.ToLower() + "/".WildCardMulti())
-                    .Not()
+                    .MustNot()
                     //.Field(x => x.Path, path.ToLower() + "/".WildCardMulti() + "/*");
                     .Path(path.ToLower() + "/".WildCardMulti() + "/*");
             return this;
@@ -1775,7 +1775,7 @@ namespace puck.core.Helpers
         {
             TrimAnd();
             if (must)
-                this.And();
+                this.Must();
             this
                 //.Field(x => x.Path, path.ToLower() + "/".WildCardMulti());
                 .Path(path.ToLower() + "/".WildCardMulti());
@@ -1796,7 +1796,7 @@ namespace puck.core.Helpers
             {
                 if (HttpContext.Current == null) return this;
                 currentRoot = PathPrefix() + "/";
-                this.And()
+                this.Must()
                     .Path(currentRoot.ToLower().WildCardMulti());
                 return this;
             }
@@ -1807,7 +1807,7 @@ namespace puck.core.Helpers
                     currentRoot = currentPath.Substring(0, currentPath.IndexOf('/'));
                 else currentRoot = currentPath;
                 currentRoot = "/" + currentRoot + "/";
-                this.And()
+                this.Must()
                     //.Field(x => x.Path, currentRoot.ToLower().WildCardMulti());
                     .Path(currentRoot.ToLower().WildCardMulti());
                 return this;
@@ -1842,7 +1842,7 @@ namespace puck.core.Helpers
             var excludePath = includePath + "/".WildCardMulti();
             var key = FieldKeys.Path;
             //query += string.Concat("+", key, ":", includePath, " -", key, ":", excludePath, " ");
-            this.Must().Path(includePath).Not().Path(excludePath);
+            this.Must().Path(includePath).MustNot().Path(excludePath);
             return this;
         }
 
@@ -1929,13 +1929,13 @@ namespace puck.core.Helpers
             return this.Id(value.ToString(),must);
         }
 
-        public QueryHelper<TModel> Directory(string value) {
+        public QueryHelper<TModel> Directory(string directoryPath) {
             TrimAnd();
             string key = FieldKeys.Path;
-            if (!value.EndsWith("/"))
-                value += "/";
+            if (!directoryPath.EndsWith("/"))
+                directoryPath += "/";
             //query += string.Concat("+",key,":",value.WildCardMulti()," -",key,":",value.WildCardMulti()+"/".WildCardMulti());
-            this.Must().Path(value.WildCardMulti()).Not().Path(value.WildCardMulti()+"/".WildCardMulti());
+            this.Must().Path(directoryPath.WildCardMulti()).MustNot().Path(directoryPath.WildCardMulti()+"/".WildCardMulti());
             return this;
         }
         //end filters
@@ -1946,10 +1946,7 @@ namespace puck.core.Helpers
             query += string.Concat("(", q.query, ") ");
             return this;
         }
-        public QueryHelper<TModel> Must(QueryHelper<TModel> q = null) {
-            return And(q);
-        }
-        public QueryHelper<TModel> And(QueryHelper<TModel> q=null)
+        public QueryHelper<TModel> Must(QueryHelper<TModel> q=null)
         {
             TrimAnd();
             if (q == null)
@@ -1961,21 +1958,7 @@ namespace puck.core.Helpers
             }
             return this;
         }
-
-        public QueryHelper<TModel> Or(QueryHelper<TModel> q = null)
-        {
-            if (q == null)
-            {
-                query += "OR ";
-            }
-            else
-            {
-                query += string.Concat("OR(", q.query, ") ");
-            }
-            return this;
-        }
-
-        public QueryHelper<TModel> Not(QueryHelper<TModel> q = null)
+        public QueryHelper<TModel> MustNot(QueryHelper<TModel> q = null)
         {
             if (q == null)
             {
@@ -1988,6 +1971,43 @@ namespace puck.core.Helpers
             return this;
         }
 
+        public QueryHelper<TModel> And(QueryHelper<TModel> q = null)
+        {
+            if (q == null)
+            {
+                query += "And ";
+            }
+            else
+            {
+                query += string.Concat("And(", q.query, ") ");
+            }
+            return this;
+        }
+        public QueryHelper<TModel> Or(QueryHelper<TModel> q = null)
+        {
+            if (q == null)
+            {
+                query += "OR ";
+            }
+            else
+            {
+                query += string.Concat("OR(", q.query, ") ");
+            }
+            return this;
+        }
+        public QueryHelper<TModel> Not(QueryHelper<TModel> q = null)
+        {
+            if (q == null)
+            {
+                query += "Not ";
+            }
+            else
+            {
+                query += string.Concat("Not(", q.query, ") ");
+            }
+            return this;
+        }
+        
         //overrides
         public override string ToString()
         {

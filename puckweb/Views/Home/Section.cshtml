@@ -14,7 +14,7 @@
     var descendants = Model.Descendants<Page>();
     
     var qh = new QueryHelper<BaseModel>();
-    qh.And().Range(x => x.Updated, new DateTime(2013, 7, 12, 11, 28, 20), DateTime.Now, true, true);
+    qh.Must().Range(x => x.Updated, new DateTime(2013, 7, 12, 11, 28, 20), DateTime.Now, true, true);
     var results = qh.GetAll();
     <br/>
     <h6 class="font-weight-light">@("range query 1")</h6>
@@ -23,7 +23,7 @@
     <h6 class="font-weight-light">@($"{results.Count} result(s)")</h6>
     
     var qh2 = new QueryHelper<BaseModel>();
-    var res2= qh2.And().GreaterThanEqualTo(x=>x.SortOrder,0).Sort(x=>x.Updated,true).GetAll(500,1);
+    var res2= qh2.Must().GreaterThanEqualTo(x=>x.SortOrder,0).Sort(x=>x.Updated,true).GetAll(500,1);
     //var res2 = qh2.And().Range(x=>x.SortOrder,1,3,true,true).GetAll();
     //var res2 = qh2.And().Field(x => x.SortOrder, 1).GetAll();
     <br/>

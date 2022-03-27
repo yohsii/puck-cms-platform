@@ -27,7 +27,7 @@
     var searchQuery = "brexit";
     var search = new QueryHelper<Page>()
         .CurrentRoot(Model)
-        .And().Field(x => x.MainContent, searchQuery)
+        .Must().Field(x => x.MainContent, searchQuery)
         .CurrentLanguage();
     var sresults = search.GetAll();
     <h6 class="font-weight-light">@($"search for '{searchQuery}': {sresults.Count} result(s)")</h6>

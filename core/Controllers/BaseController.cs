@@ -343,7 +343,7 @@ namespace puck.core.Controllers
                                 }
                                 j++;
                             }
-                            refQuery.And().Group(qhinner1);
+                            refQuery.Must().Group(qhinner1);
                             List<ExpandoObject> unsortedRefResult = refQuery.GetAllExpando(limit: int.MaxValue);
                             var refResult = unsortedRefResult.OrderBy(x => sortOrder[Guid.Parse(ApiHelper.GetExpandoProperty(x, "Id").ToString())]).ToList();
                             ApiHelper.SetExpandoProperty(_setProp as ExpandoObject, _setPropName, refResult);

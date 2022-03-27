@@ -575,5 +575,107 @@ namespace puck.tests
             var savedModel = newRepo.CurrentRevision(model.Id,model.Variant);
             Assert.That(savedModel!=null);
         }
+
+        [Test]
+        public async Task QueryHelper()
+        {
+            var s = GetServices(DbConstants.SQLServer);
+            var homePage = await s.ContentService.Create<Folder>(Guid.Empty, "en-gb", "home", template: "~/views/home/homepage.cshtml", published: true, userName: uname);
+            await s.ContentService.SaveContent(homePage, triggerEvents: false, userName: uname);
+
+            // home/news
+            var newsPageEn = await s.ContentService.Create<Folder>(homePage.Id, "en-gb", "news", template: "~/views/home/homepage.cshtml", published: true, userName: uname);
+            newsPageEn.ShouldShow = true;
+            newsPageEn.Banned = true;
+            newsPageEn.Age = 20;
+            newsPageEn.Admin = false;
+            await s.ContentService.SaveContent(newsPageEn, triggerEvents: false, userName: uname);
+            var newsPageJp = await s.ContentService.Create<Folder>(homePage.Id, "ja-jp", "news", template: "~/views/home/homepage.cshtml", published: false, userName: uname);
+            newsPageJp.Id = newsPageEn.Id;
+            newsPageJp.ShouldShow = false;
+            newsPageJp.Age = 21;
+            newsPageJp.Admin = true;
+            newsPageJp.AdminUntil=DateTime.Now.AddYears(1);
+            newsPageJp.Banned = true;
+            await s.ContentService.SaveContent(newsPageJp, triggerEvents: false, userName: uname);
+
+            // home/news/images FAILING
+            var imagesPageEn = await s.ContentService.Create<Folder>(newsPageEn.Id, "en-gb", "images", template: "~/views/home/homepage.cshtml", published: true, userName: uname);
+            imagesPageEn.ShouldShow = true;
+            imagesPageEn.Age = 25;
+            imagesPageEn.Admin = true;
+            imagesPageEn.Banned = true;
+            imagesPageEn.AdminUntil = DateTime.Now.AddYears(1);
+            imagesPageEn.SuperAdmin = false;
+            await s.ContentService.SaveContent(imagesPageEn, triggerEvents: false, userName: uname);
+            
+            var imagesPageJp = await s.ContentService.Create<Folder>(newsPageEn.Id, "ja-jp", "images", template: "~/views/home/homepage.cshtml", published: false, userName: uname);
+            imagesPageJp.Id = imagesPageEn.Id;
+            imagesPageJp.ShouldShow = true;
+            imagesPageJp.Banned = false;
+            imagesPageJp.Age = 19;
+            imagesPageJp.Admin = false;
+            await s.ContentService.SaveContent(imagesPageJp, triggerEvents: false, userName: uname);
+
+            // home/news/images/tokyo
+            var tokyoPageEn = await s.ContentService.Create<Folder>(imagesPageEn.Id, "en-gb", "tokyo", template: "~/views/home/homepage.cshtml", published: true, userName: uname);
+            tokyoPageEn.ShouldShow = true;
+            tokyoPageEn.Age = 25;
+            tokyoPageEn.Admin = true;
+            tokyoPageEn.Banned = true;
+            tokyoPageEn.AdminUntil = DateTime.Now.AddYears(-1);
+            tokyoPageEn.SuperAdmin = true;
+            await s.ContentService.SaveContent(tokyoPageEn, triggerEvents: false, userName: uname);
+
+            // home/news/images/london
+            var londonPageEn = await s.ContentService.Create<Folder>(imagesPageEn.Id, "en-gb", "london", template: "~/views/home/homepage.cshtml", published: true, userName: uname);
+            londonPageEn.ShouldShow = true;
+            londonPageEn.Age = 25;
+            londonPageEn.Admin = true;
+            londonPageEn.Banned = true;
+            londonPageEn.AdminUntil = DateTime.Now.AddYears(-1);
+            londonPageEn.SuperAdmin = false;
+            await s.ContentService.SaveContent(londonPageEn, triggerEvents: false, userName: uname);
+
+            // home/news/images/paris
+            var parisPageEn = await s.ContentService.Create<Folder>(imagesPageEn.Id, "en-gb", "paris", template: "~/views/home/homepage.cshtml", published: true, userName: uname);
+            parisPageEn.ShouldShow = true;
+            parisPageEn.Age = 25;
+            parisPageEn.Admin = false;
+            parisPageEn.Banned = false;
+            parisPageEn.SuperAdmin = false;
+            await s.ContentService.SaveContent(parisPageEn, triggerEvents: false, userName: uname);
+
+
+            var qh1 = new QueryHelper<Folder>(prependTypeTerm:false);
+            qh1
+                .Must().Group(
+                    qh1.New()
+                        .Must().Field(x => x.ShouldShow, true)
+                        .And()
+                        .Must().GreaterThan(x => x.Age, 20)
+                )
+                .And()
+                .Must().Group(
+                    qh1.New()
+                        .Field(x => x.Banned, false)
+                        .Or()
+                        .Group(
+                            qh1.New()
+                                .Field(x => x.Admin, true)
+                                .And().Must().GreaterThan(x => x.AdminUntil, DateTime.Now)
+                        )
+                        .Or()
+                        .Field(x=>x.SuperAdmin,true)
+                );
+            var res1 = qh1.GetAllNoCast();
+
+            Assert.That(!res1.Any(x => x.Age<20));
+            Assert.That(!res1.Any(x => x.ShouldShow ==false));
+            Assert.That(res1.Where(x => x.Banned && !((x.Banned && x.Admin && x.AdminUntil>DateTime.Now)||x.SuperAdmin)).Count()==0);
+            Assert.That(res1.Count==3);
+            s.Indexer.Delete(new List<BaseModel> { homePage, newsPageEn, newsPageJp, imagesPageEn, imagesPageJp, londonPageEn, tokyoPageEn });
+        }
+
+        }
     }
-}

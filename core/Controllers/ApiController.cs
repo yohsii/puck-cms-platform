@@ -1146,11 +1146,11 @@ namespace puck.core.Controllers
             if (fullIndexContent)
             {
                 var qh = new QueryHelper<BaseModel>();
-                publishedContent = qh.And().Field(x => x.ParentId, parentId.ToString()).GetAllNoCast(limit: int.MaxValue).GroupById().ToDictionary(x => x.Key.ToString(), x => x.Value);
+                publishedContent = qh.Must().Field(x => x.ParentId, parentId.ToString()).GetAllNoCast(limit: int.MaxValue).GroupById().ToDictionary(x => x.Key.ToString(), x => x.Value);
             }
             else
             {
-                var qh = new QueryHelper<BaseModel>().And().Field(x => x.ParentId, parentId.ToString());
+                var qh = new QueryHelper<BaseModel>().Must().Field(x => x.ParentId, parentId.ToString());
                 var publishedContentDictionaryList = searcher.Query(
                     qh.ToString(),
                     typeof(BaseModel).Name,
@@ -1257,11 +1257,11 @@ namespace puck.core.Controllers
             if (fullPublishedContent)
             {
                 var qh = new QueryHelper<BaseModel>();
-                publishedContent = qh.And().Field(x => x.ParentId, parentId.ToString()).GetAllNoCast(limit: int.MaxValue).GroupById().ToDictionary(x => x.Key.ToString(), x => x.Value);
+                publishedContent = qh.Must().Field(x => x.ParentId, parentId.ToString()).GetAllNoCast(limit: int.MaxValue).GroupById().ToDictionary(x => x.Key.ToString(), x => x.Value);
             }
             else
             {
-                var qh = new QueryHelper<BaseModel>().And().Field(x => x.ParentId, parentId.ToString());
+                var qh = new QueryHelper<BaseModel>().Must().Field(x => x.ParentId, parentId.ToString());
                 var publishedContentDictionaryList = searcher.Query(
                     qh.ToString(),
                     typeof(BaseModel).Name,

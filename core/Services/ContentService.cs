@@ -267,7 +267,7 @@ namespace puck.core.Services
         {
             var qh = new QueryHelper<BaseModel>();
             var itemsToIndex = new List<BaseModel>();
-            var indexItems = qh.And().Field(x => x.ParentId, parentId.ToString()).GetAllNoCast();
+            var indexItems = qh.Must().Field(x => x.ParentId, parentId.ToString()).GetAllNoCast();
             var dbItems = repo.CurrentRevisionsByParentId(parentId).ToList();
             foreach(var n in indexItems)
             {
@@ -951,7 +951,7 @@ namespace puck.core.Services
             var qh = new QueryHelper<BaseModel>(prependTypeTerm: false);
             qh.Id(id);
             if (!string.IsNullOrEmpty(variant))
-                qh.And().Field(x => x.Variant, variant);
+                qh.Must().Field(x => x.Variant, variant);
             var toDelete = qh.GetAll();
             var addDescendants = false;
             var variants = new List<BaseModel>();
@@ -968,7 +968,7 @@ namespace puck.core.Services
             var deleteQuery = new QueryHelper<BaseModel>(prependTypeTerm: false);
             var innerQ = deleteQuery.New().Id(id);
             if (!string.IsNullOrEmpty(variant))
-                innerQ.And().Field(x => x.Variant, variant);
+                innerQ.Must().Field(x => x.Variant, variant);
             deleteQuery.Group(
                 innerQ
             );
@@ -1813,7 +1813,7 @@ namespace puck.core.Services
                         //index related operations
                         var qh = new QueryHelper<BaseModel>(publishedContentOnly:!alwaysUpdatePath);
                         //get current indexed node with same ID and VARIANT
-                        var currentMod = qh.And().Field(x => x.Variant, mod.Variant)
+                        var currentMod = qh.Must().Field(x => x.Variant, mod.Variant)
                             .Id(mod.Id)
                             .GetNoCast();
                         //if parent changed, we index regardless of if the model being saved is set to publish or not. moves are always published immediately
@@ -2053,7 +2053,7 @@ namespace puck.core.Services
                     toIndex = repo.GetPuckRevision().Where(x => x.Current).ToList().Select(x => x.ToBaseModel()).ToList();
                 }
                 var qh = new QueryHelper<BaseModel>(prependTypeTerm: false);
-                qh.And().Field(x => x.TypeChain, typeof(BaseModel).FullName.Wrap());
+                qh.Must().Field(x => x.TypeChain, typeof(BaseModel).FullName.Wrap());
                 var query = qh.ToString();
                 using (MiniProfiler.Current.Step("delete models"))
                 {
