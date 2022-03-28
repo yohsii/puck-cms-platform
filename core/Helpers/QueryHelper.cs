@@ -1975,11 +1975,11 @@ namespace puck.core.Helpers
         {
             if (q == null)
             {
-                query += "And ";
+                query += "AND ";
             }
             else
             {
-                query += string.Concat("And(", q.query, ") ");
+                query += string.Concat("AND(", q.query, ") ");
             }
             return this;
         }
@@ -1999,11 +1999,11 @@ namespace puck.core.Helpers
         {
             if (q == null)
             {
-                query += "Not ";
+                query += "NOT ";
             }
             else
             {
-                query += string.Concat("Not(", q.query, ") ");
+                query += string.Concat("NOT(", q.query, ") ");
             }
             return this;
         }

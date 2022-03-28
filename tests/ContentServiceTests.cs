@@ -662,7 +662,7 @@ namespace puck.tests
                         .Or()
                         .Group(
                             qh1.New()
-                                .Field(x => x.Admin, true)
+                                .Must().Field(x => x.Admin, true)
                                 .And().Must().GreaterThan(x => x.AdminUntil, DateTime.Now)
                         )
                         .Or()
