@@ -19,7 +19,7 @@ It's fast, with queries avoiding the database and instead using Lucene. It's als
 - [Live Preview / Visual Editor](https://github.com/yohsii/puck-core/wiki/Live-Preview,-Visual-Editor)
 - Multi-site - multiple site roots mapped to different domains
 - [Multilingual](https://github.com/yohsii/puck-core/wiki/Multilingual-support) - associate languages with nodes so you can for example, have different site roots with different associated languages. this is recursive so you can associate different languages to nodes further down the hierarchy if necessary. Each content node may also have translations, opening up the possibility for 1:1 and multi-site approaches to multilingual websites.
-- Customizable and flexible [workflow system](https://github.com/yohsii/puck-core/wiki/Setting-up-custom-workflows) helping you keep track of what needs to be done next
+- Customizable and flexible [workflow system](https://github.com/yohsii/puck-core/wiki/Custom-Workflows) helping you keep track of what needs to be done next
 - Strongly typed design - [data querying](https://github.com/yohsii/puck-core/wiki/Querying-for-content) is done in a strongly typed manner, making use of query expressions and a fluent api. templates are also strongly typed.
 - Not much to learn - models designed as regular poco decorated with attributes as you normally would with .net mvc
 - [Full text search](https://github.com/yohsii/puck-core/wiki/Querying-for-content) - data storage is lucene based and you can set analyzers and field settings (analyze,store,ignore,keep casing) per property in your model
