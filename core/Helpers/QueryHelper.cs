@@ -1795,7 +1795,7 @@ namespace puck.core.Helpers
             if (m == null)
             {
                 if (HttpContext.Current == null) return this;
-                currentRoot = PathPrefix() + "/";
+                currentRoot = PathPrefix() + (PathPrefix().Split('/', StringSplitOptions.RemoveEmptyEntries).Length == 1 ? "" : "/");
                 this.Must()
                     .Path(currentRoot.ToLower().WildCardMulti());
                 return this;
@@ -1806,7 +1806,7 @@ namespace puck.core.Helpers
                 if (currentPath.IndexOf("/") > -1)
                     currentRoot = currentPath.Substring(0, currentPath.IndexOf('/'));
                 else currentRoot = currentPath;
-                currentRoot = "/" + currentRoot + "/";
+                currentRoot = "/" + currentRoot + (currentRoot.Split('/',StringSplitOptions.RemoveEmptyEntries).Length==0?"":"/");
                 this.Must()
                     //.Field(x => x.Path, currentRoot.ToLower().WildCardMulti());
                     .Path(currentRoot.ToLower().WildCardMulti());
