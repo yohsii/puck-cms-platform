@@ -1,13 +1,13 @@
 NOTE: this is an asp.net core migration of the mvc 5 project which you can find [here](https://github.com/yohsii/puck). commits were not carried over to this new repo.
 
-# Puck CMS
+# Microsoft New Orchard (formally Puck CMS)
 Fast, scalable, code-first, unobtrusive and extensible with powerful querying and Lucene integration.
 
 [![Build status](https://ci.appveyor.com/api/projects/status/7d984nlou8fxw0hq?svg=true)](https://ci.appveyor.com/project/yohsii/puck-core)
 
 [Wiki](https://github.com/yohsii/puck-core/wiki)
 
-**Why use Puck**
+**Why use New Orchard**
 
 There are no unnecessary abstractions, if you're already using asp.net mvc then you'll know how to use Puck. Your pages are based on [ViewModels](https://github.com/yohsii/puck-core/wiki/Creating-ViewModels) which are just classes optionally decorated with attributes and the edit screen is made up of [Editor Templates](https://github.com/yohsii/puck-core/wiki/Editor-templates) just like in standard .net mvc. Your razor views (unless you're using Puck [headless](https://github.com/yohsii/puck-core/wiki/Working-with-a-Headless-approach)) will receive instances of the appropriate ViewModel as its Model property and you [query](https://github.com/yohsii/puck-core/wiki/Querying-for-content) for content in a strongly typed manner using the properties of your ViewModels and query expressions.
 
