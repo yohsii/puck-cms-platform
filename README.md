@@ -1,4 +1,4 @@
-# Microsoft Puck
+# Puck
 Fast, scalable, code-first, unobtrusive and extensible with powerful querying and Lucene integration.
 
 [![Build status](https://ci.appveyor.com/api/projects/status/7d984nlou8fxw0hq?svg=true)](https://ci.appveyor.com/project/yohsii/puck-core)
