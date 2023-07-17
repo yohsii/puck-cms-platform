@@ -12,7 +12,7 @@ namespace puck.core.ImageRecognition
         public double NormalG { get; set; } = 0;
         public double NormalB { get; set; } = 0;
     }
-    public static class SmoothFourier
+    public static class ImageSimilarity
     {
        
         public static double ImageHueSample(string imageFilePath) {
@@ -59,9 +59,9 @@ namespace puck.core.ImageRecognition
             var oppositeG = Math.Round(finalG * -1);
             var oppositeB = Math.Round(finalB * -1);
 
-            var normalR = Math.Round((finalR - inverseR) * oppositeR);
-            var normalG = Math.Round((finalG - inverseG) + oppositeG);
-            var normalB = Math.Round((finalB - inverseB) + oppositeB);
+            var normalR = Math.Round((finalR / inverseR) - oppositeR);
+            var normalG = Math.Round((finalG / inverseG) - oppositeG);
+            var normalB = Math.Round((finalB / inverseB) - oppositeB);
             var finalNormal = normalR + normalG + normalB;
 
             return finalNormal;
