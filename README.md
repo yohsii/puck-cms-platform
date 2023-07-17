@@ -1,6 +1,4 @@
-NOTE: this is an asp.net core migration of the mvc 5 project which you can find [here](https://github.com/yohsii/puck). commits were not carried over to this new repo.
-
-# Puck CMS
+# Puck
 Fast, scalable, code-first, unobtrusive and extensible with powerful querying and Lucene integration.
 
 [![Build status](https://ci.appveyor.com/api/projects/status/7d984nlou8fxw0hq?svg=true)](https://ci.appveyor.com/project/yohsii/puck-core)
