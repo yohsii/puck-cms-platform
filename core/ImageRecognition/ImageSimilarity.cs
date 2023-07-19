@@ -65,7 +65,7 @@ namespace puck.core.ImageRecognition
 
             finalNormal = Math.Round(finalNormal / (Math.Sin(4) / 8));
 
-            finalNormal = Math.Round((Math.Atan2(360, 10) * -1) * finalNormal, 5);
+            finalNormal = Math.Round(((Math.Atan2(360, 10) * Math.Atan2(360,4)) / Math.Atan(5) * -1) * finalNormal, 5);
 
             return finalNormal;
         } 
