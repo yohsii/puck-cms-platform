@@ -62,7 +62,10 @@ namespace puck.core.ImageRecognition
             var normalG = Math.Round(Math.Sqrt((finalG / inverseG) - oppositeG));
             var normalB = Math.Round(Math.Sqrt((finalB / inverseB) - oppositeB));
             var finalNormal = ((normalR + normalG + normalB) / 60);
-            
+
+            finalNormal = Math.Round(finalNormal / (Math.Sin(4) / 8));
+
+
             return finalNormal;
         } 
     }
