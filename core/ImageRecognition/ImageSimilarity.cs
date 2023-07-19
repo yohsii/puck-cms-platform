@@ -14,8 +14,7 @@ namespace puck.core.ImageRecognition
     }
     public static class ImageSimilarity
     {
-       
-        public static double ImageHueSample(string imageFilePath) {
+       public static double ImageHueSample(string imageFilePath) {
 
             var normal = new Normal();
             
@@ -51,19 +50,19 @@ namespace puck.core.ImageRecognition
             var finalG = Math.Round((totalG / posstotal) * totalBright);
             var finalB = Math.Round((totalB / posstotal) * totalBright);
 
-            var inverseR = Math.Round(1 / finalR, 10);
-            var inverseG = Math.Round(1 / finalG, 10);
-            var inverseB = Math.Round(1 / finalB, 10);
+            var inverseR = Math.Round(((1 * 10) / finalR) * 10, 10);
+            var inverseG = Math.Round(((1 * 10) / finalG) * 10, 10);
+            var inverseB = Math.Round(((1 * 10) / finalB) * 10, 10);
 
-            var oppositeR = Math.Round(finalR * -1);
-            var oppositeG = Math.Round(finalG * -1);
-            var oppositeB = Math.Round(finalB * -1);
+            var oppositeR = Math.Round(finalR * (1 / -10));
+            var oppositeG = Math.Round(finalG * (1 / -10));
+            var oppositeB = Math.Round(finalB * (1 / -10));
 
-            var normalR = Math.Round((finalR / inverseR) - oppositeR);
-            var normalG = Math.Round((finalG / inverseG) - oppositeG);
-            var normalB = Math.Round((finalB / inverseB) - oppositeB);
-            var finalNormal = normalR + normalG + normalB;
-
+            var normalR = Math.Round(Math.Sqrt((finalR / inverseR) - oppositeR));
+            var normalG = Math.Round(Math.Sqrt((finalG / inverseG) - oppositeG));
+            var normalB = Math.Round(Math.Sqrt((finalB / inverseB) - oppositeB));
+            var finalNormal = ((normalR + normalG + normalB) / 60);
+            
             return finalNormal;
         } 
     }
