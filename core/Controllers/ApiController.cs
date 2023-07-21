@@ -1890,14 +1890,19 @@ namespace puck.core.Controllers
         }
 
         [Authorize(Roles = PuckRoles.Puck, AuthenticationSchemes = Mvc.AuthenticationScheme)]
-        public JsonResult PublishQueue() {
-            var model = new List<KeyValuePair<string, string>>();
-            foreach (var list in PuckCache.PublishQueue) {
-                foreach (var item in list) {
-                    model.Add(new KeyValuePair<string,string>(item.Id.ToString(),item.Variant));
-                }
+        public JsonResult SimilarImages(I_Content_Searcher contentSearcher) {
+            var modelDicts = contentSearcher.Query("Type:ImageModel");
+            var models = new List<BaseModel>();
+
+            foreach (var modd in modelDicts) {
+                var modType = ApiHelper.GetTypeFromName(modd[FieldKeys.PuckType]);
+                if (modType == null)
+                    continue;
+                var mod = JsonConvert.DeserializeObject(modd[FieldKeys.PuckValue], modType) as BaseModel;
+                models.Add(mod);
             }
-            return Json(model);
+
+            return Json(models);
         }
 
     }
