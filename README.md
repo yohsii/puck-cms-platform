@@ -1,22 +1,22 @@
 # Puck CMS
 Fast, scalable, code-first, unobtrusive and extensible with powerful querying and Lucene integration.
 
-[![Build status](https://ci.appveyor.com/api/projects/status/7d984nlou8fxw0hq?svg=true)](https://ci.appveyor.com/project/yohsii/puck-core)
+[![Build status](https://ci.appveyor.com/api/projects/status/7d984nlou8fxw0hq?svg=true)](https://ci.appveyor.com/project/yohsii/puck-cms)
 
-[Wiki](https://github.com/yohsii/puck-core/wiki)
+[Wiki](https://github.com/yohsii/puck-cms/wiki)
 
 **Why use Puck**
 
-There are no unnecessary abstractions, if you're already using asp.net mvc then you'll know how to use Puck. Your pages are based on [ViewModels](https://github.com/yohsii/puck-core/wiki/Creating-ViewModels) which are just classes optionally decorated with attributes and the edit screen is made up of [Editor Templates](https://github.com/yohsii/puck-core/wiki/Editor-templates) just like in standard .net mvc. Your razor views (unless you're using Puck [headless](https://github.com/yohsii/puck-core/wiki/Working-with-a-Headless-approach)) will receive instances of the appropriate ViewModel as its Model property and you [query](https://github.com/yohsii/puck-core/wiki/Querying-for-content) for content in a strongly typed manner using the properties of your ViewModels and query expressions.
+There are no unnecessary abstractions, if you're already using asp.net mvc then you'll know how to use Puck. Your pages are based on [ViewModels](https://github.com/yohsii/puck-cms/wiki/Creating-ViewModels) which are just classes optionally decorated with attributes and the edit screen is made up of [Editor Templates](https://github.com/yohsii/puck-cms/wiki/Editor-templates) just like in standard .net mvc. Your razor views (unless you're using Puck [headless](https://github.com/yohsii/puck-cms/wiki/Working-with-a-Headless-approach)) will receive instances of the appropriate ViewModel as its Model property and you [query](https://github.com/yohsii/puck-cms/wiki/Querying-for-content) for content in a strongly typed manner using the properties of your ViewModels and query expressions.
 
-It's fast, with queries avoiding the database and instead using Lucene. It's also scalable, syncing between servers in a [load balanced](https://github.com/yohsii/puck-core/wiki/Load-Balancing) environment.
+It's fast, with queries avoiding the database and instead using Lucene. It's also scalable, syncing between servers in a [load balanced](https://github.com/yohsii/puck-cms/wiki/Load-Balancing) environment.
 
 **Features**
 
-- Can be used [headless](https://github.com/yohsii/puck-core/wiki/Working-with-a-Headless-approach) or decoupled, as an integrated CMS or a searchable datastore for your apps
-- [Live Preview / Visual Editor](https://github.com/yohsii/-core/wiki/Live-Preview,-Visual-Editor)
+- Can be used [headless](https://github.com/yohsii/puck-cms/wiki/Working-with-a-Headless-approach) or decoupled, as an integrated CMS or a searchable datastore for your apps
+- [Live Preview / Visual Editor](https://github.com/yohsii/puck-cms/wiki/Live-Preview,-Visual-Editor)
 - Multi-site - multiple site roots mapped to different domains
-- [Multilingual](https://github.com/yohsii/-core/wiki/Multilingual-support) - associate languages with nodes so you can for example, have different site roots with different associated languages. this is recursive so you can associate different languages to nodes further down the hierarchy if necessary. Each content node may also have translations, opening up the possibility for 1:1 and multi-site approaches to multilingual websites.
+- [Multilingual](https://github.com/yohsii/puck-cms/wiki/Multilingual-support) - associate languages with nodes so you can for example, have different site roots with different associated languages. this is recursive so you can associate different languages to nodes further down the hierarchy if necessary. Each content node may also have translations, opening up the possibility for 1:1 and multi-site approaches to multilingual websites.
 - Customizable and flexible [workflow system](https://github.com/yohsii/-core/wiki/Custom-Workflows) helping you keep track of what needs to be done next
 - Strongly typed design - [data querying](https://github.com/yohsii/-core/wiki/Querying-for-content) is done in a strongly typed manner, making use of query expressions and a fluent api. templates are also strongly typed.
 - Not much to learn - models designed as regular poco decorated with attributes as you normally would with .net mvc
