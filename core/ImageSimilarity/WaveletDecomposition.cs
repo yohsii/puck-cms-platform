@@ -38,11 +38,9 @@ namespace puck.core.ImageSimilarity
                 var pix = img.GetPixel(x, i);
                 var bright = System.Math.Sqrt((pix.R * pix.R * .241) + (pix.G * pix.G * .691) + (pix.B * pix.B * .068));
                 var coefficient = Math.Sin(bright);
-                double aspectR = img.VerticalResolution / img.HorizontalResolution;
-                var normCo = coefficient / aspectR;
-                var inverse = 1 / normCo;
-                var finalCo = Math.Round(normCo * inverse);
-                sumCo += finalCo;
+                double aspectR = img.HorizontalResolution / img.VerticalResolution;
+                var normCo = aspectR*coefficient;
+                sumCo += normCo;
             }
             //Console.WriteLine(sumCo);
             return sumCo;
