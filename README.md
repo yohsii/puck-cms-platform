@@ -22,7 +22,7 @@ It's fast, with queries avoiding the database and instead using Lucene. It's als
 - Not much to learn - models designed as regular poco decorated with attributes as you normally would with .net mvc
 - [Full text search](https://github.com/yohsii/puck-cms/wiki/Querying-for-content) - data storage is lucene based and you can set analyzers and field settings (analyze,store,ignore,keep casing) per property in your model
 - [Spatial search](https://github.com/yohsii/puck-cms/wiki/Querying-for-content#geo-queries)
-- [Image cropping](https://www.youtube.com/watch?v=jlPDws8L_FE&t=1s)
+- [Image cropping and similarity search](https://www.youtube.com/watch?v=jlPDws8L_FE&t=1s)
 - User permissions to grant/deny permissions to particular actions and limit access to content based on start paths
 - Hooks - you can [transform](https://github.com/yohsii/puck-cms/wiki/Handling-Images-and-Files-with-property-Transformers) data before it is indexed using attributes to modify how a field is indexed and how it is stored
 - supports [conditional template switching](https://github.com/yohsii/puck-cms/wiki/Display-Modes) (display modes were removed from asp.net core but this works in the same way)
