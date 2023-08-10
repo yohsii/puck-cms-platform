@@ -68,7 +68,7 @@
                         <span>Size:</span>@Html.EditorFor(x => x.Size)
                     </div>
                 }
-                @if (!Model?.Brightness.HasValue??false)
+                @if (!string.IsNullOrEmpty(Model?.Brightness?.ToString()))
                 {
                     <div class="field">
                         <span>Fingerprint:</span>@Html.EditorFor(x => x.Brightness)/@Html.EditorFor(x => x.Red)/@Html.EditorFor(x => x.Green)/@Html.EditorFor(x => x.Blue)
@@ -202,7 +202,7 @@
                     }
                 }
                 similar = similar.sort(function(a,b){
-                        return a.Image.Brightness - b.Image.Brightness;
+                        return b.Image.Brightness - a.Image.Brightness;
                     });
                     
                 for(var i=0;i<similar.length;i++){
