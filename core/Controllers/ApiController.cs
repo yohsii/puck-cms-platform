@@ -1890,8 +1890,8 @@ namespace puck.core.Controllers
         }
 
         [Authorize(Roles = PuckRoles.Puck, AuthenticationSchemes = Mvc.AuthenticationScheme)]
-        public JsonResult SimilarImages(I_Content_Searcher contentSearcher) {
-            var modelDicts = contentSearcher.Query("Type:ImageModel");
+        public ActionResult Images() {
+            var modelDicts = PuckCache.PuckSearcher.Query("Type:ImageVM");
             var models = new List<BaseModel>();
 
             foreach (var modd in modelDicts) {
@@ -1901,8 +1901,8 @@ namespace puck.core.Controllers
                 var mod = JsonConvert.DeserializeObject(modd[FieldKeys.PuckValue], modType) as BaseModel;
                 models.Add(mod);
             }
-
-            return Json(models);
+            var jsonStr = JsonConvert.SerializeObject(models);
+            return base.Content(jsonStr, "application/json");
         }
 
     }

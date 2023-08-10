@@ -16,6 +16,23 @@ namespace puck.core.Models
         public PuckImage() {
 
         }
+        
+        [UIHint("PuckReadOnly")]
+        [Display(Name = "Brightness")]
+        public double? Brightness { get; set; } = 0.0;
+        
+        [UIHint("PuckReadOnly")]
+        [Display(Name = "Red")]
+        public double? Red { get; set; } = 0.0;
+        
+        [UIHint("PuckReadOnly")]
+        [Display(Name = "Blue")]
+        public double? Blue { get; set; } = 0.0;
+        
+        [UIHint("PuckReadOnly")]
+        [Display(Name = "Green")]
+        public double? Green { get; set; } = 0.0;
+        
         [IndexSettings(LowerCaseValue = false, FieldIndexSetting = Lucene.Net.Documents.Field.Index.NOT_ANALYZED, Analyzer = typeof(KeywordAnalyzer))]
         public string Path { get; set; }
         [DataType(DataType.MultilineText)]

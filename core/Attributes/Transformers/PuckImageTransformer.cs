@@ -31,8 +31,10 @@ namespace puck.core.Attributes.Transformers
                 string filepath = string.Concat("~/wwwroot/Media/", m.Id, "/", m.Variant, "/", ukey, "_", p.File.FileName);
                 string absfilepath =ApiHelper.MapPath(filepath);
                 new FileInfo(absfilepath).Directory.Create();
+                Stream _strm=null;
                 using (var stream = new FileStream(absfilepath, FileMode.Create)) {
                     p.File.CopyTo(stream);
+                    _strm = stream;
                 }
                 p.Path = filepath.Replace("~/wwwroot","");
                 p.Size = p.File.Length;
@@ -40,6 +42,12 @@ namespace puck.core.Attributes.Transformers
                 var img = Image.Load(absfilepath);
                 p.Width = img.Width;
                 p.Height = img.Height;
+                
+                var sample = ImageSimilarity.Histogram.Sample(absfilepath);
+                p.Brightness=sample.Brightness;
+                p.Red = sample.Red;
+                p.Blue = sample.Blue;
+                p.Green = sample.Green;
 
                 if (PuckCache.CropSizes != null && p.Crops != null && !string.IsNullOrEmpty(p.Path))
                 {

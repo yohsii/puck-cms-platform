@@ -68,9 +68,24 @@
                         <span>Size:</span>@Html.EditorFor(x => x.Size)
                     </div>
                 }
+                
+                    <div class="field">
+                        <span>Fingerprint:</span>@Html.EditorFor(x => x.Brightness)/@Html.EditorFor(x => x.Red)/@Html.EditorFor(x => x.Green)/@Html.EditorFor(x => x.Blue)
+                    </div>
+                
                 <br />
                 @Html.EditorFor(x => x.File)
                 <div class="d-none">@Html.EditorFor(x=>x.CropUrls)</div>
+                <div>
+                    <h4>Similar Images</h4>
+                    <script>
+                        onAfterDom(function(){
+                            var similarImagesModel = $.get("/puck/api/Images",function(data){
+                                console.log(data);
+                            });
+                        });
+                    </script>
+                </div>
             </div>
             <div class="tab-pane " role="tabpanel" id="_puckImage_crops_tab_@ViewData.ModelMetadata.PropertyName">
                 <div class="cropSizes">
