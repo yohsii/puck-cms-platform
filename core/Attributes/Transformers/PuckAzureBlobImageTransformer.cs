@@ -68,7 +68,7 @@ namespace puck.core.Attributes.Transformers
                     p.Width = img.Width;
                     p.Height = img.Height;
                 }
-
+                ImageSimilarity.Histogram.Sample(new Uri(p.Path));
                 if (PuckCache.CropSizes != null && p.Crops != null && !string.IsNullOrEmpty(p.Path))
                 {
                     p.CropUrls = new Dictionary<string, string>();

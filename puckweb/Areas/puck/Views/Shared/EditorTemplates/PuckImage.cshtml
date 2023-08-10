@@ -68,23 +68,21 @@
                         <span>Size:</span>@Html.EditorFor(x => x.Size)
                     </div>
                 }
-                
+                @if (!Model?.Brightness.HasValue??false)
+                {
                     <div class="field">
                         <span>Fingerprint:</span>@Html.EditorFor(x => x.Brightness)/@Html.EditorFor(x => x.Red)/@Html.EditorFor(x => x.Green)/@Html.EditorFor(x => x.Blue)
                     </div>
-                
-                <br />
+                }
+            <br />
                 @Html.EditorFor(x => x.File)
                 <div class="d-none">@Html.EditorFor(x=>x.CropUrls)</div>
                 <div>
-                    <h4>Similar Images</h4>
-                    <script>
-                        onAfterDom(function(){
-                            var similarImagesModel = $.get("/puck/api/Images",function(data){
-                                console.log(data);
-                            });
-                        });
-                    </script>
+                    <h4>Similar Images(<span class="similarCount"></span>)</h4>
+                    <div class="similarContainer">
+
+
+                    </div>
                 </div>
             </div>
             <div class="tab-pane " role="tabpanel" id="_puckImage_crops_tab_@ViewData.ModelMetadata.PropertyName">
@@ -153,6 +151,67 @@
         var getPropName = function () {
             return container.find("div:hidden.propName:first").attr("data-propName");
         }
+
+        onAfterDom(function(){
+            var red = @(Model?.Red??0.0);
+            var green = @(Model?.Green??0.0);
+            var blue = @(Model?.Blue??0.0);
+            var brightness = @(Model?.Brightness??0.0);
+            var rp = (red/255)*100;
+            var bp = (blue/255)*100;
+            var gp = (green/255)*100;
+            debugger;
+            var similarImagesModel = $.get("/puck/api/Images",function(data){
+                console.log(data);
+                var similar =[];
+                for(var i =0;i<data.length;i++){
+                    var _rp = (data[i].Image.Red/255) *100;
+                    var _gp = (data[i].Image.Green/255) *100;
+                    var _bp = (data[i].Image.Blue/255) *100;
+                    var _brp = data[i].Image.Brightness;
+                    if(
+                        (red/_rp)*100>70 &&
+                        (green/_gp)*100>70 &&
+                        (blue/_bp)*100>70 &&
+                        (brightness/_brp)*100>50
+                        ){
+                        similar.push(data[i]);
+                    }
+                    var scont = container.find(".similarContainer");
+                    var drawSimilar = function(img){
+                        var ic = $("<div></div>").attr("class","similarImgCont")
+                            .attr("data-id",img.Id).attr("data-variant",img.Variant).attr("data-nodename",img.Name);
+                        var imgTag =$("<img width='200'/>").attr("src",img.Image.Path).attr("class","similarImg");
+                        var imgLink = $("<a class='btn btn-link'>view<a/>").click(function(e){
+                            var el = $(this);
+                            var selectedNode = el.parent();
+                            var id = selectedNode.attr("data-id");
+                            var variant = selectedNode.attr("data-variant");
+                            var nodename = selectedNode.attr("data-nodename");
+
+                            var container = $("<div />");
+                            var inner = $("<div data-tabPrefix='overlayContent_' class='cont_inner'></div>").css({ width: "100%", height: "100%" });
+                            var msgContainer = $("<div class='msgTop'></div>");
+                            container.append(msgContainer).append(inner);
+
+                            var overlayEl = overlay(container, "90%", undefined, top, nodename);
+                            displayMarkup(null, undefined, variant, undefined, id, inner, undefined);
+
+                        });
+                        ic.append(imgTag).append(imgLink).appendTo(scont);
+                    }
+                }
+                similar = similar.sort(function(a,b){
+                        return a.Image.Brightness - b.Image.Brightness;
+                    });
+                    
+                for(var i=0;i<similar.length;i++){
+                    drawSimilar(similar[i]);
+                }
+                container.find(".similarCount").html(similar.length);
+            });
+        });
+
         //container.parents(".editor-field:first").css({ clear: "both" });
         container.find(".addCropSizesLink").click(function (e) {
             if (!canChangeMainContent()) {
