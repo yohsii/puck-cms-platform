@@ -1003,6 +1003,8 @@ var hideLoader = function () {
     $(".loaderContainer").remove();
 }
 var displayMarkup = function (parentId, type, variant, fromVariant, contentId, container, msgContainer, shouldGroup, f) {
+    if (!canChangeMainContent()) { return false; }
+
     var tabId = null;
     var scroll = null;
     container = container || cright;
