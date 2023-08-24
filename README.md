@@ -1,11 +1,11 @@
-# Puck CMS
+# Gala CMS (formerly known as Puck)
 Fast, scalable, code-first, unobtrusive and extensible with powerful querying and Lucene integration.
 
 [![Build status](https://ci.appveyor.com/api/projects/status/7d984nlou8fxw0hq?svg=true)](https://ci.appveyor.com/project/yohsii/puck-cms)
 
 [Wiki](https://github.com/yohsii/puck-cms/wiki)
 
-**Why use Puck**
+**Why use Gala**
 
 There are no unnecessary abstractions, if you're already using asp.net mvc then you'll know how to use Puck. Your pages are based on [ViewModels](https://github.com/yohsii/puck-cms/wiki/Creating-ViewModels) which are just classes optionally decorated with attributes and the edit screen is made up of [Editor Templates](https://github.com/yohsii/puck-cms/wiki/Editor-templates) just like in standard .net mvc. Your razor views (unless you're using Puck [headless](https://github.com/yohsii/puck-cms/wiki/Working-with-a-Headless-approach)) will receive instances of the appropriate ViewModel as its Model property and you [query](https://github.com/yohsii/puck-cms/wiki/Querying-for-content) for content in a strongly typed manner using the properties of your ViewModels and query expressions.
 
