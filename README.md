@@ -1,5 +1,5 @@
 # Puck CMS Platform
-Fun to use and easy to learn, Fast, scalable, code-first, unobtrusive and extensible with powerful querying and Lucene integration.
+Pure dotnet core MVC platform, Fun to use and easy to learn, Fast, scalable, code-first, unobtrusive and extensible with complete querying and Lucene integration.
 
 [![Build status](https://ci.appveyor.com/api/projects/status/7d984nlou8fxw0hq?svg=true)](https://ci.appveyor.com/project/yohsii/puck-cms)
 
