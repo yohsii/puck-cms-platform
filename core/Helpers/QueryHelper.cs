@@ -1760,10 +1760,10 @@ namespace puck.core.Helpers
                 //var brp = bbrightness;
                 
                 if (
-                    (rred/red) * 100 > 70 &&
-                    (ggreen/green) * 100 > 70 &&
-                    (bblue/blue) * 100 > 70 &&
-                    (bbrightness/brightness) * 100 > 50
+                    (red/rred) * 100 > 70 &&
+                    (green/ggreen) * 100 > 70 &&
+                    (blue/bblue) * 100 > 70 &&
+                    (brightness/bbrightness) * 100 > 50
                     )
                 {
                     result.Add(imod);

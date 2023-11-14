@@ -165,15 +165,16 @@
                 console.log(data);
                 var similar =[];
                 for(var i =0;i<data.length;i++){
+                    
                     var _rp = (data[i].Image.Red);
                     var _gp = (data[i].Image.Green);
                     var _bp = (data[i].Image.Blue);
                     var _brp = data[i].Image.Brightness;
                     if(
-                        ((_rp/red)*100)>70 &&
-                        ((_gp/green)*100)>70 &&
-                        ((_bp/blue)*100)>70 &&
-                        ((_brp/brightness)*100)>50
+                        ((red/_rp)*100)>70 &&
+                        ((green/_gp)*100)>70 &&
+                        ((blue/_bp)*100)>70 &&
+                        ((brightness/_brp)*100)>50
                         ){
                         similar.push(data[i]);
                     }
