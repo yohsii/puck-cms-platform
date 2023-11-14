@@ -381,9 +381,9 @@ namespace puck.core.Controllers
                         
                         var id = query.Similar.Split(',',StringSplitOptions.RemoveEmptyEntries).FirstOrDefault();
                         var variant = query.Similar.Split(',', StringSplitOptions.RemoveEmptyEntries).LastOrDefault();
-                        var qhe = new QueryHelper<BaseModel>();
-                        var siz=qhe.SimilarImages(Guid.Parse(id), variant);
-                        result.Add(new QueryResult { Total = siz.Count, Results = siz.Select(x=>ToExpandoObject(x)).ToList() });
+                        var siz=QueryHelper<BaseModel>.SimilarImages(Guid.Parse(id), variant);
+                        result.Add(new QueryResult { Total = siz?.Count??0, 
+                            Results = siz?.Select(x=>ToExpandoObject(x)).ToList()??new List<ExpandoObject>() });
                         return result;
                     } catch (Exception ex) {
                         throw;
