@@ -23,6 +23,8 @@ using Microsoft.AspNetCore.ResponseCaching;
 using System.Reflection;
 using System.Dynamic;
 using Lucene.Net.Analysis;
+using System.Collections;
+using System.ComponentModel;
 
 namespace puck.core.Controllers
 {
@@ -358,7 +360,36 @@ namespace puck.core.Controllers
                 }
             }
 
+
+            ExpandoObject ToExpandoObject(object obj)
+            {
+                // Null-check
+                var expando = new ExpandoObject();
+
+                foreach (PropertyDescriptor property in TypeDescriptor.GetProperties(obj.GetType()))
+                {
+                    expando.TryAdd(property.Name, property.GetValue(obj));
+                }
+
+                return (ExpandoObject)expando;
+            }
+
             foreach (var query in queries) {
+                if (!string.IsNullOrEmpty(query.Similar))
+                {
+                    try {
+                        
+                        var id = query.Similar.Split(',',StringSplitOptions.RemoveEmptyEntries).FirstOrDefault();
+                        var variant = query.Similar.Split(',', StringSplitOptions.RemoveEmptyEntries).LastOrDefault();
+                        var qhe = new QueryHelper<BaseModel>();
+                        var siz=qhe.SimilarImages(Guid.Parse(id), variant);
+                        result.Add(new QueryResult { Total = siz.Count, Results = siz.Select(x=>ToExpandoObject(x)).ToList() });
+                        return result;
+                    } catch (Exception ex) {
+                        throw;
+                    }
+                }
+                
                 if (string.IsNullOrEmpty(query.Type))
                 {
                     result.Add(new QueryResult {Total=0,Results=new List<ExpandoObject>() });

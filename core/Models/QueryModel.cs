@@ -15,6 +15,7 @@ namespace puck.core.Models
         public int Take { get; set; }
         public string Implements { get; set; }
         public List<string> Fields { get; set; }
+        public string Similar { get; set; }
     }
 
     public class QueryResult { 

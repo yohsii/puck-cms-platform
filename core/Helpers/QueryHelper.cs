@@ -1744,9 +1744,9 @@ namespace puck.core.Helpers
             var green = GetPropValue(imgc, "Green") as double?;
             var blue = GetPropValue(imgc, "Blue") as double?;
             var brightness = GetPropValue(imgc, "Brightness") as double?;
-            var rp = (red / 255) * 100;
-            var bp = (blue / 255) * 100;
-            var gp = (green / 255) * 100;
+            //var rp = (red / 255) * 100;
+            //var bp = (blue / 255) * 100;
+            //var gp = (green / 255) * 100;
 
             var result = new List<BaseModel>();
             foreach (var imod in models) {
@@ -1754,16 +1754,16 @@ namespace puck.core.Helpers
                 var ggreen = GetPropValue(imod, "Green") as double?;
                 var bblue = GetPropValue(imod, "Blue") as double?;
                 var bbrightness = GetPropValue(imod, "Brightness") as double?;
-                var rpe = (rred / 255) * 100;
-                var bpe = (bblue / 255) * 100;
-                var gpe = (ggreen / 255) * 100;
-                var brp = bbrightness;
+                //var rpe = (rred / 255) * 100;
+                //var bpe = (bblue / 255) * 100;
+                //var gpe = (ggreen / 255) * 100;
+                //var brp = bbrightness;
                 
                 if (
-                    (red / rpe) * 100 > 70 &&
-                    (green / gpe) * 100 > 70 &&
-                    (blue / bpe) * 100 > 70 &&
-                    (brightness / brp) * 100 > 50
+                    (rred/red) * 100 > 70 &&
+                    (ggreen/green) * 100 > 70 &&
+                    (bblue/blue) * 100 > 70 &&
+                    (bbrightness/brightness) * 100 > 50
                     )
                 {
                     result.Add(imod);
