@@ -1003,11 +1003,17 @@ var hideLoader = function () {
     $(".loaderContainer").remove();
 }
 var displayMarkup = function (parentId, type, variant, fromVariant, contentId, container, msgContainer, shouldGroup, f) {
-    if (!canChangeMainContent()) { return false; }
-
+    
     var tabId = null;
     var scroll = null;
     container = container || cright;
+
+    if (container.find("input[name=Revision]").val() == 0) {
+
+    } else
+        if (!canChangeMainContent()) { return false; }
+
+
     shouldGroup = shouldGroup == undefined ? true : shouldGroup;
     f = f || function () { };
     if (container.find(".content_edit_page").length > 0 && contentId && container.find("input[name=Id]").val() == contentId ) {
