@@ -1707,6 +1707,12 @@ namespace puck.core.Helpers
             string key = getName(exp.Body.ToString());
             return this.Field(key, value);
         }
+        public QueryHelper<TModel> Regex(Expression<Func<TModel, string>> exp, string pattern)
+        {
+            string key = getName(exp.Body.ToString());
+            query += string.Concat(key, ":", pattern, " ");
+            return this;
+        }
         public QueryHelper<TModel> Path(string value)
         {
             this.Field(x => x.Path, value.Replace("/", @"\/"));
