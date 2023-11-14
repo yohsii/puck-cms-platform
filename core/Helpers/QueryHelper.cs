@@ -29,6 +29,7 @@ using puck.core.Controllers;
 using Lucene.Net.Analysis;
 using System.Reflection;
 using System.Dynamic;
+using Newtonsoft.Json;
 
 namespace puck.core.Helpers
 {
@@ -1712,6 +1713,64 @@ namespace puck.core.Helpers
             string key = getName(exp.Body.ToString());
             query += string.Concat(key, ":", pattern, " ");
             return this;
+        }
+        public List<BaseModel> SimilarImages(Guid id, string variant) {
+            var imgQh = new QueryHelper<BaseModel>();
+            imgQh.Must().Field(x => x.Id, id).Must().Field(x => x.Variant, variant);
+            var imgM = imgQh.GetAllNoCast();
+            if (imgM.Count == 0) return null;
+
+            var imgc = imgM.FirstOrDefault();
+
+            var modelDicts = PuckCache.PuckSearcher.Query("Type:ImageVM");
+            var models = new List<BaseModel>();
+
+            foreach (var modd in modelDicts)
+            {
+                var modType = ApiHelper.GetTypeFromName(modd[FieldKeys.PuckType]);
+                if (modType == null)
+                    continue;
+                var mod = JsonConvert.DeserializeObject(modd[FieldKeys.PuckValue], modType) as TModel;
+                models.Add(mod);
+            }
+
+            object GetPropValue(object src, string propName)
+            {
+                var img = src.GetType().GetProperty("Image").GetValue(src, null);
+                return img.GetType().GetProperty(propName).GetValue(img, null);
+            }
+
+            var red = GetPropValue(imgc, "Red") as double?;
+            var green = GetPropValue(imgc, "Green") as double?;
+            var blue = GetPropValue(imgc, "Blue") as double?;
+            var brightness = GetPropValue(imgc, "Brightness") as double?;
+            var rp = (red / 255) * 100;
+            var bp = (blue / 255) * 100;
+            var gp = (green / 255) * 100;
+
+            var result = new List<BaseModel>();
+            foreach (var imod in models) {
+                var rred = GetPropValue(imod, "Red") as double?;
+                var ggreen = GetPropValue(imod, "Green") as double?;
+                var bblue = GetPropValue(imod, "Blue") as double?;
+                var bbrightness = GetPropValue(imod, "Brightness") as double?;
+                var rpe = (rred / 255) * 100;
+                var bpe = (bblue / 255) * 100;
+                var gpe = (ggreen / 255) * 100;
+                var brp = bbrightness;
+                
+                if (
+                    (red / rpe) * 100 > 70 &&
+                    (green / gpe) * 100 > 70 &&
+                    (blue / bpe) * 100 > 70 &&
+                    (brightness / brp) * 100 > 50
+                    )
+                {
+                    result.Add(imod);
+                    
+                }
+            }
+            return result;
         }
         public QueryHelper<TModel> Path(string value)
         {
