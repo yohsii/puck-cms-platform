@@ -1003,17 +1003,15 @@ var hideLoader = function () {
     $(".loaderContainer").remove();
 }
 var displayMarkup = function (parentId, type, variant, fromVariant, contentId, container, msgContainer, shouldGroup, f) {
-    
-    var tabId = null;
-    var scroll = null;
-    container = container || cright;
-
-    if (container.find("input[name=Revision]").val() == 0) {
+    if (_lastId == contentId) {
 
     } else
         if (!canChangeMainContent()) { return false; }
 
-
+    var tabId = null;
+    var scroll = null;
+    container = container || cright;
+    
     shouldGroup = shouldGroup == undefined ? true : shouldGroup;
     f = f || function () { };
     if (container.find(".content_edit_page").length > 0 && contentId && container.find("input[name=Id]").val() == contentId ) {
@@ -1471,7 +1469,10 @@ var displayMarkup = function (parentId, type, variant, fromVariant, contentId, c
                 var id = container.find("[name='Id']").val();
                 var variant = container.find("[name='Variant']").val();
                 var title = container.find("[name='NodeName']").val();
-                if (location.hash.indexOf("content?id=")==-1) {
+
+                _lastId = id;
+
+                if (location.hash.indexOf("content?id=") == -1) {
                     history.replaceState(null, title, "#content?id="+id+"&variant="+variant);
                 }
 
@@ -1479,6 +1480,7 @@ var displayMarkup = function (parentId, type, variant, fromVariant, contentId, c
 
     }, fromVariant, contentId);
 }
+var _lastId;
 var isMobile = function () {
     return $("body").hasClass("mobile-ui");
 }
