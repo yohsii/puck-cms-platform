@@ -1003,7 +1003,7 @@ var hideLoader = function () {
     $(".loaderContainer").remove();
 }
 var displayMarkup = function (parentId, type, variant, fromVariant, contentId, container, msgContainer, shouldGroup, f) {
-    if (_lastId == contentId) {
+    if (_lastId == contentId && _lastVariant == variant) {
 
     } else
         if (!canChangeMainContent()) { return false; }
@@ -1074,9 +1074,15 @@ var displayMarkup = function (parentId, type, variant, fromVariant, contentId, c
                         if (dataTranslation != variant) {
                             var lnk = $("<a href='#content?id=" + contentId + "&variant=" + dataTranslation + "'/>").html("-" + variantNames[dataTranslation]);
                             lnk.click(function (e) {
-                                e.preventDefault();
-                                var vcode = dataTranslation;
-                                displayMarkup(null, type, vcode, undefined, contentId, container, msgContainer, shouldGroup,f);
+                                //debugger;
+                                if (container == cright) {
+
+
+                                } else {
+                                    e.preventDefault();
+                                    var vcode = dataTranslation;
+                                    displayMarkup(null, type, vcode, undefined, contentId, container, msgContainer, shouldGroup, f);
+                                }
                             });
                             dtli.append(lnk)
                         } else {
@@ -1106,8 +1112,12 @@ var displayMarkup = function (parentId, type, variant, fromVariant, contentId, c
                                     (function () {
                                         var v = d[i].Variant;
                                         lnk.click(function (e) {
-                                            e.preventDefault();
-                                            displayMarkup(null, type, v, undefined, contentId, container, msgContainer, shouldGroup,f);
+                                            //debugger;
+                                            if (container == cright) {
+                                            } else {
+                                                e.preventDefault();
+                                                displayMarkup(null, type, v, undefined, contentId, container, msgContainer, shouldGroup, f);
+                                            }
                                         });
                                     }());
                                     dtli.append(lnk)
@@ -1471,7 +1481,7 @@ var displayMarkup = function (parentId, type, variant, fromVariant, contentId, c
                 var title = container.find("[name='NodeName']").val();
 
                 _lastId = id;
-
+                _lastVariant = variant;
                 if (location.hash.indexOf("content?id=") == -1) {
                     history.replaceState(null, title, "#content?id="+id+"&variant="+variant);
                 }
@@ -1481,6 +1491,7 @@ var displayMarkup = function (parentId, type, variant, fromVariant, contentId, c
     }, fromVariant, contentId);
 }
 var _lastId;
+var _lastVariant;
 var isMobile = function () {
     return $("body").hasClass("mobile-ui");
 }
