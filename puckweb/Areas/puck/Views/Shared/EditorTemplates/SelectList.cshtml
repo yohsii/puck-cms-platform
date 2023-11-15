@@ -1,9 +1,17 @@
 ﻿@model object
+@using Microsoft.Extensions.Configuration;
+@inject IConfiguration config;
 @{
     var settings = this.PuckEditorSettings<puck.core.Models.EditorSettings.Attributes.SelectListSettingsAttribute>(attributeOnly: true)
         ?? new puck.core.Models.EditorSettings.Attributes.SelectListSettingsAttribute { Values = new string[] { } };
 
     settings.Values = settings.Values ?? new string[] { };
+
+    if (!string.IsNullOrEmpty(settings.FromJSONSection))
+    {
+        settings.Values = config.GetSection(settings.FromJSONSection).Get<string[]>();
+        
+    }
 
     List<SelectListItem> items = new List<SelectListItem>();
 

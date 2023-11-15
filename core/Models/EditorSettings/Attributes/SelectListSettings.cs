@@ -16,5 +16,6 @@ namespace puck.core.Models.EditorSettings.Attributes
         public string Separator { get; set; } = ":";
         public string Label { get; set; } = "- Select -";
         public string[] Values { get; set; }
+        public string FromJSONSection { get; set; }
     }
 }
