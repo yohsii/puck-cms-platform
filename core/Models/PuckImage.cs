@@ -8,6 +8,7 @@ using puck.core.State;
 using Microsoft.AspNetCore.Http;
 using puck.core.Attributes;
 using Lucene.Net.Analysis.Core;
+using puck.core.Models.EditorSettings;
 
 namespace puck.core.Models
 {
@@ -47,6 +48,12 @@ namespace puck.core.Models
         public int? Height { get; set; }
         public List<CropModel> Crops { get; set; }
         public Dictionary<string, string> CropUrls { get; set; }
+        
+        [UIHint(EditorTemplates.Tags)]
+        [TagsEditorSettings(Category = "Images")]
+        [IndexSettings(Analyzer = typeof(KeywordAnalyzer))]
+        public List<string> Tags { get; set; }
+
         public IFormFile File { get; set; }
 
         public string GetCropUrl(string cropAlias=null,string anchor="center") {

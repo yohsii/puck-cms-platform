@@ -75,6 +75,12 @@
                     </div>
                 }
             <br />
+                <hr/>
+                <div class="field">
+                        <span>Tags:</span>@Html.EditorFor(x => x.Tags)
+                </div>
+                <hr/>
+            <br/>
                 @Html.EditorFor(x => x.File)
                 <div class="d-none">@Html.EditorFor(x=>x.CropUrls)</div>
                 <div>
