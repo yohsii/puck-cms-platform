@@ -5,7 +5,7 @@ Pure dotnet core MVC, CMS platform. Fun to use and easy to learn, Fast, scalable
 
 [Wiki](https://github.com/yohsii/puck-cms/wiki)
 
-**Why use Puck**
+**Why use Puck (use it and you'll understand)**
 
 There are no unnecessary abstractions, if you're already using asp.net mvc then you'll know how to use Puck. Your pages are based on [ViewModels](https://github.com/yohsii/puck-cms/wiki/Creating-ViewModels) which are just classes optionally decorated with attributes and the edit screen is made up of [Editor Templates](https://github.com/yohsii/puck-cms/wiki/Editor-templates) just like in standard .net mvc. Your razor views (unless you're using Puck [headless](https://github.com/yohsii/puck-cms/wiki/Working-with-a-Headless-approach)) will receive instances of the appropriate ViewModel as its Model property and you [query](https://github.com/yohsii/puck-cms/wiki/Querying-for-content) for content in a strongly typed manner using the properties of your ViewModels and query expressions.
 
