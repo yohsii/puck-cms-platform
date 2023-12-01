@@ -1,6 +1,8 @@
 # Puck CMS Platform
 Pure dotnet core MVC, CMS platform. Fun to use and easy to learn, Fast, scalable, code-first, unobtrusive and extensible with complete querying and Lucene integration.
 
+Puck is inspired by the great Umbraco. Which is best, is up to you
+
 [![Build status](https://ci.appveyor.com/api/projects/status/7d984nlou8fxw0hq?svg=true)](https://ci.appveyor.com/project/yohsii/puck-cms)
 
 [Wiki](https://github.com/yohsii/puck-cms/wiki)
