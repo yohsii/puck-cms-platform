@@ -70,7 +70,17 @@ select[multiple], select[size] {
 .menutop ul {
     overflow: hidden;
 }
-
+.workflow-container {
+    position:relative;
+}
+.workflow-items-title {
+    margin: 0;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-67%, 500%);
+    font-size:29px;
+}
 ul.content, ul.contentTree {
     padding: 0px;
 }
