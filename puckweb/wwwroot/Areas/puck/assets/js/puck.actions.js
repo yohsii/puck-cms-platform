@@ -668,6 +668,7 @@ var checkEnter = function (e) {
 }
 var wireForm = function (form, success, fail,submit) {
     $.validator.unobtrusive.parse(form);
+    //debugger;
     form.keypress(checkEnter);
     //debugger;
     form.on("submit",function (e) {
@@ -1024,7 +1025,7 @@ var displayMarkup = function (parentId, type, variant, fromVariant, contentId, c
     //cinterfaces.find(".type_templates>div").remove();
     showLoader(container);
     var id;
-    var variant;
+    //var variant;
     getMarkup(parentId, type, variant, function (data) {
         container./*hide().*/html(data);
         if (!type) {
@@ -1033,9 +1034,10 @@ var displayMarkup = function (parentId, type, variant, fromVariant, contentId, c
         }
 
         id = container.find("input[name=Id]").val();
+        contentId = contentId || id;
         variant = container.find("input[name=Variant]").val();
 
-        workflowComments[id + variant] = undefined;
+        workflowComments[contentId + variant] = undefined;
 
         cinterfaces.find("div[data-type='" + type + "']").remove();
         //get template for listeditor
@@ -1083,6 +1085,7 @@ var displayMarkup = function (parentId, type, variant, fromVariant, contentId, c
                                     var vcode = dataTranslation;
                                     displayMarkup(null, type, vcode, undefined, contentId, container, msgContainer, shouldGroup, f);
                                 }
+                                
                             });
                             dtli.append(lnk)
                         } else {
@@ -1118,6 +1121,9 @@ var displayMarkup = function (parentId, type, variant, fromVariant, contentId, c
                                                 e.preventDefault();
                                                 displayMarkup(null, type, v, undefined, contentId, container, msgContainer, shouldGroup, f);
                                             }
+                                            //e.preventDefault();
+                                            //displayMarkup(null, type, v, undefined, contentId, container, msgContainer, shouldGroup, f);
+                                            
                                         });
                                     }());
                                     dtli.append(lnk)
@@ -1137,7 +1143,7 @@ var displayMarkup = function (parentId, type, variant, fromVariant, contentId, c
             $("body").off("click.ttip").on("click.ttip", function (e) {
                 $("div.tooltip[role=tooltip]").remove();
             });
-            formDatas[id + variant] = new FormData(container.find("form").get(0));
+            formDatas[contentId + variant] = new FormData(container.find("form").get(0));
             container.show();
             container.find(".fieldtabs:first").click();
             container.find(".tab-pane:first").addClass("active");
@@ -1190,7 +1196,7 @@ var displayMarkup = function (parentId, type, variant, fromVariant, contentId, c
             if (scroll) {
                 container.parents(".scrollContainer:first").find(".simplebar-content-wrapper").scrollTop(scroll);
             } else {
-                if (contentLocks[id + variant]) {
+                if (contentLocks[contentId + variant]) {
                     container.find(".content_unlock").focus();
                 }
             }
@@ -1315,12 +1321,12 @@ var displayMarkup = function (parentId, type, variant, fromVariant, contentId, c
             });
         } else { container.find(".content_preview").hide(); }
         //unlock btn
-        if (contentLocks[id + variant]) {
+        if (contentLocks[contentId + variant]) {
             
             container.find(".content_unlock").click(function (e) {
                 e.preventDefault();
                 var el = $(this);
-                unlockWorkflowItem(id, variant, function () { });
+                unlockWorkflowItem(contentId, variant, function () { });
                 el.hide();
                 msg(undefined,"content has been unlocked");
             });
@@ -1337,7 +1343,7 @@ var displayMarkup = function (parentId, type, variant, fromVariant, contentId, c
                 } else if (!data.message) {
                     data.message = "content updated.";
                 }
-                if (contentLocks[id + variant]) {
+                if (contentLocks[contentId + variant]) {
                     //data.message += ". consider unlocking this content";
                 }
                 msg(status, data.message, undefined, msgContainer, undefined, function (c) {
@@ -1347,7 +1353,7 @@ var displayMarkup = function (parentId, type, variant, fromVariant, contentId, c
                                 getPublishQueue(function (d) {
                                     var inQueue = false;
                                     for (var i = 0; i < d.length; i++) {
-                                        if (d[i].Key == id && ((variant && d[i].Value == variant) || !variant))
+                                        if (d[i].Key == contentId && ((variant && d[i].Value == variant) || !variant))
                                             inQueue = true;
                                     }
                                     if (inQueue)
@@ -1382,9 +1388,9 @@ var displayMarkup = function (parentId, type, variant, fromVariant, contentId, c
                     var userObject = { username: userName, userRoles: userRoles, userGroups: userGroups };
                     var services = {
                         add: function (status, message, group, assignees, f) {
-                            addWorkflowItem(id, variant, status, "none", message, group, type, assignees, function (data) {
+                            addWorkflowItem(contentId, variant, status, "none", message, group, type, assignees, function (data) {
                                 setTimeout(function () {
-                                    workflowItems[id + variant] = data.workflowItem;
+                                    workflowItems[contentId + variant] = data.workflowItem;
                                 },500);
                                 if (f) f();
                             });
@@ -1393,11 +1399,11 @@ var displayMarkup = function (parentId, type, variant, fromVariant, contentId, c
                         msg: msg
                     };
                     var isPublished = container.find("input[name='Published']").val() == "True";
-                    var workflowItem = workflowItems[id + variant];
-                    var startingState = formDatas[id + variant];
+                    var workflowItem = workflowItems[contentId + variant];
+                    var startingState = formDatas[contentId + variant];
                     var currentState = fd;
                     
-                    if (!workflowComments[id + variant] && wfo.comment && isFunction(wfo.comment)) {
+                    if (!workflowComments[contentId + variant] && wfo.comment && isFunction(wfo.comment)) {
                         var commentDialogTitle = undefined;
                         try {
                             commentDialogTitle = wfo.comment(workflowItem, userObject, startingState, currentState);
@@ -1426,7 +1432,7 @@ var displayMarkup = function (parentId, type, variant, fromVariant, contentId, c
                                     if (select2Input.val()!="") {
                                         mentions = select2Input.val().split(",");
                                     }
-                                    workflowComments[id + variant] = { comment:commentVal,mentions:mentions };
+                                    workflowComments[contentId + variant] = { comment:commentVal,mentions:mentions };
                                     container.find("form").submit();
                                 } else {
                                     modalEl.find("textarea").addClass("input-validation-error");
@@ -1439,7 +1445,7 @@ var displayMarkup = function (parentId, type, variant, fromVariant, contentId, c
                             return true;
                         }
                     } 
-                    var comment = workflowComments[id + variant];
+                    var comment = workflowComments[contentId + variant];
                     if (wfo.handler && isFunction(wfo.handler)) {
                         var cancel = false;
                         try {
@@ -1477,7 +1483,7 @@ var displayMarkup = function (parentId, type, variant, fromVariant, contentId, c
                 }
 
                 var id = container.find("[name='Id']").val();
-                var variant = container.find("[name='Variant']").val();
+                //var variant = container.find("[name='Variant']").val();
                 var title = container.find("[name='NodeName']").val();
 
                 _lastId = id;
