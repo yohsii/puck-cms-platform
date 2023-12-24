@@ -1008,7 +1008,7 @@ var displayMarkup = function (parentId, type, variant, fromVariant, contentId, c
 
     } else
         if (!canChangeMainContent()) { return false; }
-
+    //debugger;
     var tabId = null;
     var scroll = null;
     container = container || cright;
@@ -1032,7 +1032,7 @@ var displayMarkup = function (parentId, type, variant, fromVariant, contentId, c
             type = container.find("input[name=Type]").val();
             if (!type) return;
         }
-
+        
         id = container.find("input[name=Id]").val();
         contentId = contentId || id;
         variant = container.find("input[name=Variant]").val();
@@ -1974,7 +1974,7 @@ var initTree = function (firstRun) {
         if (firstRun || startPathsChanged) {
             if (firstRun) {
                 cleft.find("ul.content li:first").attr("data-id", startId);
-                cleft.find(".startpath").html("/");
+                cleft.find(".startpath").html("/"+userName);
             }
             if (!firstRun && startPathsChanged) {
                 cleft.find(".node[data-id=" + emptyGuid + "] > ul").remove();
