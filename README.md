@@ -1,3 +1,5 @@
+Commits not carried over from bitbucket but they were all pre-dotnet core
+
 # Puck CMS Platform
 Pure dotnet core MVC, CMS platform. Fun to use and easy to learn, Fast, scalable, code-first, unobtrusive and extensible with complete querying and Lucene integration.
 
