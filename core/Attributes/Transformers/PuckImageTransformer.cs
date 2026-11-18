@@ -28,7 +28,7 @@ namespace puck.core.Attributes.Transformers
                 if (p.File == null || string.IsNullOrEmpty(p.File.FileName))
                     return p;
             
-                string filepath = string.Concat("~/wwwroot/Media/", m.Id, "/", m.Variant, "/", ukey, "_", p.File.FileName);
+                string filepath = string.Concat("~/wwwroot/Media/", m.Id, "/", m.Variant, "/", ukey, "_", Path.GetFileName(p.File.FileName));
                 string absfilepath =ApiHelper.MapPath(filepath);
                 new FileInfo(absfilepath).Directory.Create();
                 Stream _strm=null;
